@@ -7,7 +7,7 @@ Enables developers to consume WARA runbook files
 #>
 
 function Read-Runbook {
-    Param(
+    param(
         [Parameter(Mandatory = $true)]
         [string]$RunbookPath
     )
