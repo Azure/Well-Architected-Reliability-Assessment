@@ -49,3 +49,53 @@ Function Get-WAFAllAzGraphResource {
     return $r
   }
 
+#This function grabs all resources inside of resource groups with matching tags.
+Function Get-TaggedRGResources {
+  param(
+      [String[]]$tagKeys,
+      [String[]]$tagValues
+  )
+
+  $tagValuesString = "'" + ($tagValues -join "','").toLower() + "'"
+  $tagKeysString = "'" + ($tagKeys -join "','").toLower() + "'"
+
+$q = "Resources
+  | join kind=inner (
+  ResourceContainers
+  | where type =~ 'microsoft.resources/subscriptions/resourcegroups'
+  | mv-expand bagexpansion=array tags
+  | where isnotempty(tags)
+  | where tolower(tags[0]) in ($tagValuesString)  // Specify your tag names here
+  | where tolower(tags[1]) in ($tagKeysString)  // Specify your tag values here
+  | project subscriptionId, resourceGroup
+) on subscriptionId, resourceGroup
+| project-away subscriptionId1, resourceGroup1"
+
+$r = $SubscriptionIds ? (Get-AllAzGraphResource -query $q -subscriptionId $SubscriptionIds) : (Get-AllAzGraphResource -query $q -usetenantscope)
+return $r
+
+}
+
+#This function grabs all resources that have matching tags and returns them.
+Function Get-TaggedResources {
+  param(
+      [String[]]$tagKeys,
+      [String[]]$tagValues,
+      [String[]]$SubscriptionIds
+  )
+
+  $tagValuesString = "'" + ($tagValues -join "','").toLower() + "'"
+  $tagKeysString = "'" + ($tagKeys -join "','").toLower() + "'"
+
+$q = "Resources
+  | mv-expand bagexpansion=array tags
+  | where isnotempty(tags)
+  | where tolower(tags[0]) in ($tagValuesString)  // Specify your tag names here
+  | where tolower(tags[1]) in ($tagKeysString)  // Specify your tag values here
+  | project name,id,type,resourceGroup,location,subscriptionId"
+
+  Write-host The Query is $q
+
+$r = $SubscriptionIds ? (Get-AllAzGraphResource -query $q -subscriptionId $SubscriptionIds) : (Get-AllAzGraphResource -query $q -usetenantscope)
+return $r
+}
