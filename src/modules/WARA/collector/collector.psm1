@@ -50,30 +50,36 @@ Function Get-WAFAllAzGraphResource {
   }
 
 #This function grabs all resources inside of resource groups with matching tags.
-Function Get-TaggedRGResources {
+Function Get-TaggedResources {
   param(
-      [String[]]$tagKeys,
-      [String[]]$tagValues
+      [String[]]$TagKeys,
+      [String[]]$TagValues,
+      [String[]]$SubscriptionIds
   )
 
-  $tagValuesString = "'" + ($tagValues -join "','").toLower() + "'"
-  $tagKeysString = "'" + ($tagKeys -join "','").toLower() + "'"
+    if ($TagKeys.Length -and $TagValues.Length -and ($TagKeys.Length -eq $TagValues.Length)) {
+        # Keys and values array length should be equal and greater than 0
+        $builder = [System.Text.StringBuilder]::new("resources | where (")
 
-$q = "Resources
-  | join kind=inner (
-  ResourceContainers
-  | where type =~ 'microsoft.resources/subscriptions/resourcegroups'
-  | mv-expand bagexpansion=array tags
-  | where isnotempty(tags)
-  | where tolower(tags[0]) in ($tagValuesString)  // Specify your tag names here
-  | where tolower(tags[1]) in ($tagKeysString)  // Specify your tag values here
-  | project subscriptionId, resourceGroup
-) on subscriptionId, resourceGroup
-| project-away subscriptionId1, resourceGroup1"
+        for ($i = 0; $i -lt $TagKeys.Length; $i++) {
+            if ($i -gt 0) {
+                $builder.Append(" and ")
+            }
 
-$r = $SubscriptionIds ? (Get-AllAzGraphResource -query $q -subscriptionId $SubscriptionIds) : (Get-AllAzGraphResource -query $q -usetenantscope)
-return $r
+            $builder.Append("(tags['$($TagKeys[$i])'] == '$($TagValues[$i]))'")
+        }
 
+        $builder.Append(") | project id, name, type, location, resourceGroup, subscriptionId")
+        $query = $builder.ToString()
+
+        Write-Debug "Tag filter query: $query"
+
+        $result = $SubscriptionIds ? (Search-AzGraph -Query $query -Subscription $SubscriptionIds) : (Search-AzGraph -Query $query -UseTenantScope)
+        $result
+    } else {
+        Write-Error "Tag keys [-TagKeys] and values [-TagValues] counts should be equal and greater than 0."
+        $null
+    }
 }
 
 #This function grabs all resources that have matching tags and returns them.
