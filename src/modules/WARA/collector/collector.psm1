@@ -66,7 +66,8 @@ Function Get-TaggedResources {
                 $builder.Append(" and ")
             }
 
-            $builder.Append("(tags['$($TagKeys[$i])'] == '$($TagValues[$i]))'")
+            # Case insensitivity?
+            $builder.Append("(tags['$($TagKeys[$i])'] =~ '$($TagValues[$i]))'")
         }
 
         $builder.Append(") | project id, name, type, location, resourceGroup, subscriptionId")
