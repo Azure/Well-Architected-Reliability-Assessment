@@ -83,7 +83,7 @@ function Get-WAFFilteredResourceList {
   $ResourceFilters ? ($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn "Id") : "Resource Filters not provided."
 
   #Originally used to remove duplicates but there was some weird interaction with the return object that caused it to duplicate the entire array. 
-  #This just needs to be sorted outside of this function using | Sort-Object -Property Id -Unique
+  #This just needs to be sorted outside of this function using | Sort-Object -Property Id,RecommendationId -Unique
   $FilteredResources = $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources
 
   return $FilteredResources

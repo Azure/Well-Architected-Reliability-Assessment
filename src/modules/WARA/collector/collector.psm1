@@ -43,48 +43,43 @@ Function Get-WAFAllAzGraphResource {
         on subscriptionId
     | project subscriptionName, subscriptionId, resourceGroup, id=tolower(id)"
 
-    $r = $SubscriptionIds ? (Get-AllAzGraphResource -query $q -subscriptionId $SubscriptionIds -usetenantscope) : (Get-AllAzGraphResource -query $q -usetenantscope)
+    $r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionId $SubscriptionIds -usetenantscope) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
 
     # Returns the resource groups
     return $r
   }
 
 #This function grabs all resources inside of resource groups with matching tags.
-Function Get-TaggedResources {
-  param(
-      [String[]]$TagKeys,
-      [String[]]$TagValues,
-      [String[]]$SubscriptionIds
-  )
-
-    if ($TagKeys.Length -and $TagValues.Length -and ($TagKeys.Length -eq $TagValues.Length)) {
-        # Keys and values array length should be equal and greater than 0
-        $builder = [System.Text.StringBuilder]::new("resources | where (")
-
-        for ($i = 0; $i -lt $TagKeys.Length; $i++) {
-            if ($i -gt 0) {
-                $builder.Append(" and ")
-            }
-
-            # Case insensitivity?
-            $builder.Append("(tags['$($TagKeys[$i])'] =~ '$($TagValues[$i]))'")
-        }
-
-        $builder.Append(") | project id, name, type, location, resourceGroup, subscriptionId")
-        $query = $builder.ToString()
-
-        Write-Debug "Tag filter query: $query"
-
-        $result = $SubscriptionIds ? (Search-AzGraph -Query $query -Subscription $SubscriptionIds) : (Search-AzGraph -Query $query -UseTenantScope)
-        $result
-    } else {
-        Write-Error "Tag keys [-TagKeys] and values [-TagValues] counts should be equal and greater than 0."
-        $null
-    }
-}
 
 #This function grabs all resources that have matching tags and returns them.
 Function Get-TaggedResources {
+  param(
+      [String[]]$tagArray,
+      [String[]]$SubscriptionIds
+  )
+
+  $queryTemplate = "| where (tags['<name>'] =~ '<value>')"
+
+  $queryobj = @()
+  foreach($tag in $tagArray){
+      $tagName, $tagValue = $tag.Split('==').Trim()
+      $queryobj += $queryTemplate -replace "<name>", $tagName -replace "<value>", $tagValue
+  }
+
+  $queryobj = $queryobj -join "`r`n"
+
+$q = "resources
+<insert>
+| project id, name, type, location, resourceGroup, subscriptionId" -replace "<insert>", $queryobj
+
+
+  Write-host The Query is: `r`n $q
+
+$r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionId $SubscriptionIds) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
+return $r
+}
+#This function grabs all resources that have matching tags and returns them.
+Function Get-TaggedRGResources {
   param(
       [String[]]$tagKeys,
       [String[]]$tagValues,
@@ -103,6 +98,6 @@ $q = "Resources
 
   Write-host The Query is $q
 
-$r = $SubscriptionIds ? (Get-AllAzGraphResource -query $q -subscriptionId $SubscriptionIds) : (Get-AllAzGraphResource -query $q -usetenantscope)
+$r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionId $SubscriptionIds) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
 return $r
 }
