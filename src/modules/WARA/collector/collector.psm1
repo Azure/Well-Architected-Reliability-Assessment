@@ -1,6 +1,6 @@
 Function Get-WAFAllAzGraphResource {
     param (
-      [string[]]$subscriptionId,
+      [string[]]$subscriptionIds,
       [string]$query = 'Resources | project id, resourceGroup, subscriptionId, name, type, location'
     )
 
@@ -12,7 +12,7 @@ Function Get-WAFAllAzGraphResource {
       Write-Host
     }
 
-    $result = $subscriptionId ? (Search-AzGraph -Query $query -first 1000 -Subscription $subscriptionId) : (Search-AzGraph -Query $query -first 1000 -usetenantscope) # -first 1000 returns the first 1000 results and subsequently reduces the amount of queries required to get data.
+    $result = $subscriptionIds ? (Search-AzGraph -Query $query -first 1000 -Subscription $subscriptionIds) : (Search-AzGraph -Query $query -first 1000 -usetenantscope) # -first 1000 returns the first 1000 results and subsequently reduces the amount of queries required to get data.
 
     # Collection to store all resources
     $allResources = @($result)
@@ -20,7 +20,7 @@ Function Get-WAFAllAzGraphResource {
     # Loop to paginate through the results using the skip token
     $result = while ($result.SkipToken) {
       # Retrieve the next set of results using the skip token
-      $result = $subscriptionId ? (Search-AzGraph -Query $query -SkipToken $result.SkipToken -Subscription $subscriptionId -First 1000) : (Search-AzGraph -query $query -SkipToken $result.SkipToken -First 1000 -UseTenantScope)
+      $result = $subscriptionId ? (Search-AzGraph -Query $query -SkipToken $result.SkipToken -Subscription $subscriptionIds -First 1000) : (Search-AzGraph -query $query -SkipToken $result.SkipToken -First 1000 -UseTenantScope)
       # Add the results to the collection
       write-output $result
     }
@@ -45,7 +45,7 @@ Function Get-WAFAllAzGraphResource {
         on subscriptionId
     | project subscriptionName, subscriptionId, resourceGroup, id=tolower(id)"
 
-    $r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionId $SubscriptionIds -usetenantscope) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
+    $r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionIds $SubscriptionIds -usetenantscope) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
 
     # Returns the resource groups
     return $r
@@ -77,7 +77,7 @@ $q = "resources
 
   Write-host The Query is: `r`n $q
 
-$r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionId $SubscriptionIds) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
+$r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionIds $SubscriptionIds) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
 return $r
 }
 #This function grabs all resources that have matching tags and returns them.
@@ -100,6 +100,58 @@ $q = "Resources
 
   Write-host The Query is $q
 
-$r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionId $SubscriptionIds) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
+$r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionIds $SubscriptionIds) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
 return $r
+}
+
+Function Invoke-WAFQueryLoop {
+  param(
+    $RecommendationObject,
+    [string[]]$subscriptionIds
+  )
+
+  $Types = Get-WAFResourceType -SubscriptionIds $subscriptionIds
+
+  $QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -FilterList $Types.type -KeyColumn "recommendationResourceType"
+
+  $return = $QueryObject | Where{$_.automationavailable -eq "arg"} | ForEach-Object {
+    Get-WAFAllAzGraphResource -query $_.query -subscriptionIds $subscriptionIds
+  }
+
+  return $return
+}
+
+Function Get-WAFResourceType {
+  param(
+    [String[]]$SubscriptionIds
+  )
+
+  $q = "Resources
+  | summarize count() by type
+  | project type"
+
+  $r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionIds $SubscriptionIds) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
+
+  return $r
+}
+
+function Get-WAFQueryByResourceType {
+  param (
+    [Parameter(Mandatory = $true)]
+    [array]$ObjectList,
+
+    [Parameter(Mandatory = $true)]
+    [array]$FilterList,
+
+    [Parameter(Mandatory = $true)]
+    [string]$KeyColumn
+  )
+
+  $matchingObjects = foreach ($obj in $ObjectList) {
+    if ($obj.$KeyColumn -in $FilterList) {
+      $obj
+    }
+  }
+
+  return $matchingObjects
 }
