@@ -71,3 +71,33 @@ function Import-WAFConfigFileData($file){
     }
 }
 
+function Import-WAFAPRLJSON
+{
+<#
+.SYNOPSIS
+This module contains utility functions for the Well-Architected Reliability Assessment.
+
+.DESCRIPTION
+The utils.psm1 module provides various utility functions that can be used in the Well-Architected Reliability Assessment project.
+
+.NOTES
+File Path: /c:/dev/repos/Well-Architected-Reliability-Assessment/src/modules/wara/utils/utils.psm1
+
+.LINK
+GitHub Repository: https://github.com/your-username/Well-Architected-Reliability-Assessment
+
+.EXAMPLE
+# Example usage of the utility function
+PS> Invoke-UtilityFunction -Parameter1 "Value1" -Parameter2 "Value2"
+#>
+param(
+    [Parameter(Mandatory = $true)]
+    [string]$file
+)
+    # Validate file path, read content and convert to JSON
+    $return = (test-path $file) ? (get-content $file -raw | convertfrom-json -depth 10) : ("Path does not exist")
+    
+    # Return the converted JSON object
+    return $return
+}
+
