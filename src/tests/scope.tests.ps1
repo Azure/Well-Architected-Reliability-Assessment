@@ -54,7 +54,7 @@ Describe "Get-WAFResourcesByList" {
         $KeyColumn = 'KeyColumn'
     }
     Context "When given a valid list of resource ids" {
-        It "Should return the corresponding resource ids that match the resource ids" {
+        It "Should return the corresponding resource ids that match the resource ids in the filter" {
             $result = Get-WAFResourcesByList -ObjectList $ObjectList -FilterList $FilterList -KeyColumn $KeyColumn
             $result | Should -HaveCount 2
             $result.KeyColumn | Should -Contain '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test1/providers/Microsoft.Compute/virtualMachines/TestVM1'
