@@ -1,6 +1,6 @@
 $config = New-PesterConfiguration
 $config.Run.Path = './'
-$config.CodeCoverage.Path = '../modules/wara/scope/scope.psm1'
+$config.CodeCoverage.Path = "$PSScriptRoot/../modules/wara/scope/scope.psm1"
 $config.CodeCoverage.Enabled = $true
 #$config.CodeCoverage.OutputFormat = 'JaCoCo'
 #$config.CodeCoverage.OutputPath = './coverage.xml'
