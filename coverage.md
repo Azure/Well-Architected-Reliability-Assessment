@@ -1,8 +1,8 @@
 # Code Coverage Report - Scope.psm1
 | Metric          | Value       |
 |-----------------|-------------|
-| Result          | ❌Failed |
-| Passed Count         | ❌ 2 |
-| Failed Count         | ❌ 2 |
-| Coverage (%)    | ❌ 66.6666666666666 |
+| Result          | ✅ Passed |
+| Passed Count         | ✅ 3 |
+| Failed Count         | ✅ 0 |
+| Coverage (%)    | ❌ 42.4242424242424 |
 | Target Coverage (%) | 75 |
