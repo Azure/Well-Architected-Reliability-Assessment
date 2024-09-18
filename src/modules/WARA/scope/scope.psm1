@@ -202,6 +202,47 @@ function Get-WAFResourceGroupsByList {
 
 <#
 .SYNOPSIS
+Retrieves unfiltered resources from Azure based on provided subscription, resource group, and resource filters.
+
+.DESCRIPTION
+The Get-WAFUnfilteredResource function takes arrays of subscription filters, resource group filters, and resource filters.
+It creates a list of unique subscription IDs based on these filters and retrieves unfiltered resources from Azure using these subscription IDs.
+
+.PARAMETER SubscriptionFilters
+An array of strings representing the subscription filters. Each string should be a subscription ID or a part of a subscription ID.
+
+.PARAMETER ResourceGroupFilters
+An array of strings representing the resource group filters. Each string should be a resource group ID or a part of a resource group ID.
+
+.PARAMETER ResourceFilters
+An array of strings representing the resource filters. Each string should be a resource ID or a part of a resource ID.
+
+.OUTPUTS
+Returns an array of unfiltered resources from Azure.
+
+.EXAMPLE
+$subscriptionFilters = @('/subscriptions/11111111-1111-1111-1111-111111111111')
+$resourceGroupFilters = @('/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test1')
+$resourceFilters = @('/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test1/providers/Microsoft.Compute/virtualMachines/TestVM1')
+$unfilteredResources = Get-WAFUnfilteredResource -SubscriptionFilters $subscriptionFilters -ResourceGroupFilters $resourceGroupFilters -ResourceFilters $resourceFilters
+
+.NOTES
+This function assumes that the Get-WAFAllAzGraphResource function is defined and available in the current context. It also assumes that Azure authentication has been set up.
+#>
+function Get-WAFUnfilteredResourceList {
+    param(
+        [String[]]$SubscriptionFilters,
+        [String[]]$ResourceGroupFilters,
+        [String[]]$ResourceFilters
+    )
+    #Create a list of subscription ids based on the filters. Adds all the filters together then splits them into subscription Ids. Groups them to remove duplicates and returns a string array.
+    $ImplicitSubscriptionIds = (($SubscriptionFilters + $ResourceGroupFilters + $ResourceFilters) | ForEach-Object {$_.split("/")[0..2] -join "/"} | Group-Object | Select-Object Name).Name
+    $UnfilteredResources = Get-WAFAllAzGraphResource -subscriptionId ($ImplicitSubscriptionIds -replace ("/subscriptions/",""))
+    return $UnfilteredResources
+}
+
+<#
+.SYNOPSIS
     Retrieves a filtered list of Azure resources based on subscription, resource group, and resource filters.
 
 .DESCRIPTION
@@ -232,14 +273,11 @@ function Get-WAFFilteredResourceList {
   param(
       [String[]]$SubscriptionFilters,
       [String[]]$ResourceGroupFilters,
-      [String[]]$ResourceFilters
+      [String[]]$ResourceFilters,
+      $unfilteredresources
   )
 
   # TODO: ADD FILTERS FOR TAGS
-  #Create a list of subscription ids based on the filters. Adds all the filters together then splits them into subscription Ids. Groups them to remove duplicates and returns a string array.
-  $ImplicitSubscriptionIds = (($SubscriptionFilters + $ResourceGroupFilters + $ResourceFilters) | ForEach-Object {$_.split("/")[0..2] -join "/"} | Group-Object | Select-Object Name).Name
-
-  $UnfilteredResources = Get-WAFAllAzGraphResource -subscriptionId ($ImplicitSubscriptionIds -replace ("/subscriptions/",""))
 
   $SubscriptionFilters ? ($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn "Id") : "Subscription Filters not provided."
 
