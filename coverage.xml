@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd"[]>
+<report name="Pester (09/18/2024 11:02:20)">
+  <sessioninfo id="this" start="1726657340490" dump="1726657340772" />
+  <package name="scope">
+    <class name="scope/scope" sourcefilename="scope.psm1">
+      <method name="Get-WAFResourceGroupsByList" desc="()" line="90">
+        <counter type="INSTRUCTION" missed="0" covered="5" />
+        <counter type="LINE" missed="0" covered="4" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Get-WAFSubscriptionsByList" desc="()" line="141">
+        <counter type="INSTRUCTION" missed="0" covered="5" />
+        <counter type="LINE" missed="0" covered="4" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Get-WAFResourcesByList" desc="()" line="194">
+        <counter type="INSTRUCTION" missed="0" covered="4" />
+        <counter type="LINE" missed="0" covered="4" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Get-WAFUnfilteredResourceList" desc="()" line="239">
+        <counter type="INSTRUCTION" missed="11" covered="0" />
+        <counter type="LINE" missed="3" covered="0" />
+        <counter type="METHOD" missed="1" covered="0" />
+      </method>
+      <method name="Get-WAFFilteredResourceList" desc="()" line="282">
+        <counter type="INSTRUCTION" missed="8" covered="0" />
+        <counter type="LINE" missed="5" covered="0" />
+        <counter type="METHOD" missed="1" covered="0" />
+      </method>
+      <counter type="INSTRUCTION" missed="19" covered="14" />
+      <counter type="LINE" missed="8" covered="12" />
+      <counter type="METHOD" missed="2" covered="3" />
+      <counter type="CLASS" missed="0" covered="1" />
+    </class>
+    <sourcefile name="scope.psm1">
+      <line nr="90" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="91" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="92" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="96" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="141" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="142" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="143" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="147" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="194" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="195" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="196" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="200" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="239" mi="7" ci="0" mb="0" cb="0" />
+      <line nr="240" mi="3" ci="0" mb="0" cb="0" />
+      <line nr="241" mi="1" ci="0" mb="0" cb="0" />
+      <line nr="282" mi="2" ci="0" mb="0" cb="0" />
+      <line nr="284" mi="2" ci="0" mb="0" cb="0" />
+      <line nr="286" mi="2" ci="0" mb="0" cb="0" />
+      <line nr="290" mi="1" ci="0" mb="0" cb="0" />
+      <line nr="292" mi="1" ci="0" mb="0" cb="0" />
+      <counter type="INSTRUCTION" missed="19" covered="14" />
+      <counter type="LINE" missed="8" covered="12" />
+      <counter type="METHOD" missed="2" covered="3" />
+      <counter type="CLASS" missed="0" covered="1" />
+    </sourcefile>
+    <counter type="INSTRUCTION" missed="19" covered="14" />
+    <counter type="LINE" missed="8" covered="12" />
+    <counter type="METHOD" missed="2" covered="3" />
+    <counter type="CLASS" missed="0" covered="1" />
+  </package>
+  <counter type="INSTRUCTION" missed="19" covered="14" />
+  <counter type="LINE" missed="8" covered="12" />
+  <counter type="METHOD" missed="2" covered="3" />
+  <counter type="CLASS" missed="0" covered="1" />
+</report>

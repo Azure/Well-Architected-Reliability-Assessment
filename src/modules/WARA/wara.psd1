@@ -21,7 +21,7 @@ ModuleVersion = '0.0.1'
 GUID = 'a6fbf19e-af5d-4c70-92f6-f96432aba2dd'
 
 # Author of this module
-Author = 'kylepoineal'
+Author = 'Microsoft'
 
 # Company or vendor of this module
 CompanyName = 'Microsoft'
