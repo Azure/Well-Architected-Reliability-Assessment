@@ -1,7 +1,7 @@
 
 BeforeAll {
-    $modulePath = "$PSScriptRoot/../modules/wara/scope/scope.psm1"
-    $testDataPath = "$PSScriptRoot/data/newResourceData.json"
+    $modulePath = "$PSScriptRoot/../../modules/wara/scope/scope.psm1"
+    $testDataPath = "$PSScriptRoot/../data/newResourceData.json"
     Import-Module -Name $modulePath -Force
         $objectlist = get-content $testDataPath -Raw | ConvertFrom-Json -depth 10
         $SubscriptionFilterList = @('/subscriptions/11111111-1111-1111-1111-111111111111', '/subscriptions/33333333-3333-3333-3333-333333333333')
