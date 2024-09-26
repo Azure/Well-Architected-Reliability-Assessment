@@ -279,11 +279,11 @@ function Get-WAFFilteredResourceList {
 
   # TODO: ADD FILTERS FOR TAGS
 
-  $SubscriptionFilters ? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn "Id") : "Subscription Filters not provided."
+  $SubscriptionFilters ?? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn "Id")
 
-  $ResourceGroupFilters ? $($ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn "Id") : "Resource Group Filters not provided."
+  $ResourceGroupFilters ?? $($ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn "Id")
 
-  $ResourceFilters ? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn "Id") : "Resource Filters not provided."
+  $ResourceFilters ?? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn "Id")
 
   #Originally used to remove duplicates but there was some weird interaction with the return object that caused it to duplicate the entire array. 
   #This just needs to be sorted outside of this function using | Sort-Object -Property Id,RecommendationId -Unique
