@@ -12,7 +12,7 @@ $result = Invoke-Pester -Configuration $config
 $resultOfRun = $($result.Result -eq 'Passed') ? "✅ Passed" : "❌Failed"
 $passedCount = $($result.PassedCount -eq $result.TotalCount) ? "✅ $($result.PassedCount)" : "❌ $($result.PassedCount)"
 $failedCount = $($result.FailedCount -gt 0) ? "❌ $($result.FailedCount)" : "✅ $($result.FailedCount)"
-$coveragePercent = $($result.CodeCoverage.CoveragePercent -ge $result.CodeCoverage.CoveragePercentTarget) ? "✅ $($result.CodeCoverage.CoveragePercent)" : "❌ $($result.CodeCoverage.CoveragePercent)"
+$coveragePercent = $($result.CodeCoverage.CoveragePercent -ge $result.CodeCoverage.CoveragePercentTarget) ? "✅ $([Math]::Round($result.CodeCoverage.CoveragePercent, 2))" : "❌ $([Math]::Round($result.CodeCoverage.CoveragePercent, 2))"
 
 
 $markdown = @"

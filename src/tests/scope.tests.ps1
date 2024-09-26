@@ -1,19 +1,9 @@
 
 BeforeAll {
-    $modulePath = Join-Path -Path $PSScriptRoot -ChildPath '..\modules\wara\scope\scope.psm1'
-    Import-Module -Name "C:\dev\repos\Well-Architected-Reliability-Assessment\src\modules\wara\scope\scope.psm1" -Force
-        $ObjectList = @(
-            [PSCustomObject]@{ id = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test1/providers/Microsoft.Compute/virtualMachines/TestVM1' },
-            [PSCustomObject]@{ id = '/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/test2/providers/Microsoft.Compute/virtualMachines/TestVM2' },
-            [PSCustomObject]@{ id = '/subscriptions/33333333-3333-3333-3333-333333333333/resourceGroups/test3/providers/Microsoft.Compute/virtualMachines/TestVM3' },
-            [PSCustomObject]@{ id = '/subscriptions/44444444-4444-4444-4444-444444444444/resourceGroups/test4/providers/Microsoft.Compute/virtualMachines/TestVM4' },
-            [PSCustomObject]@{ id = '/subscriptions/55555555-5555-5555-5555-555555555555/resourceGroups/test5/providers/Microsoft.Compute/virtualMachines/TestVM5' },
-            [PSCustomObject]@{ id = '/subscriptions/66666666-6666-6666-6666-666666666666/resourceGroups/test6/providers/Microsoft.Compute/virtualMachines/TestVM6' },
-            [PSCustomObject]@{ id = '/subscriptions/77777777-7777-7777-7777-777777777777/resourceGroups/test7/providers/Microsoft.Compute/virtualMachines/TestVM7' },
-            [PSCustomObject]@{ id = '/subscriptions/88888888-8888-8888-8888-888888888888/resourceGroups/test8/providers/Microsoft.Compute/virtualMachines/TestVM8' },
-            [PSCustomObject]@{ id = '/subscriptions/99999999-9999-9999-9999-999999999999/resourceGroups/test9/providers/Microsoft.Compute/virtualMachines/TestVM9' }
-        )
-
+    $modulePath = "$PSScriptRoot/../modules/wara/scope/scope.psm1"
+    $testDataPath = "$PSScriptRoot/data/newResourceData.json"
+    Import-Module -Name $modulePath -Force
+        $objectlist = get-content $testDataPath -Raw | ConvertFrom-Json -depth 10
         $SubscriptionFilterList = @('/subscriptions/11111111-1111-1111-1111-111111111111', '/subscriptions/33333333-3333-3333-3333-333333333333')
         $ResourceGroupFilterList = @('/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/test2', '/subscriptions/44444444-4444-4444-4444-444444444444/resourceGroups/test4')
         $ResourceFilterList = @('/subscriptions/77777777-7777-7777-7777-777777777777/resourceGroups/test7/providers/Microsoft.Compute/virtualMachines/TestVM7', '/subscriptions/66666666-6666-6666-6666-666666666666/resourceGroups/test6/providers/Microsoft.Compute/virtualMachines/TestVM6')
@@ -52,13 +42,67 @@ Describe "Get-WAFResourcesByList" {
     }
 }
 
-<# Describe "Get-WAFFilteredResourceList" {
+Describe "Get-WAFFilteredResourceList" {
     Context "When given a valid list of resource ids, resource groups, and subscriptions it should filter the list and only return resourceids that are in scope." {
         It "Should return the corresponding resource ids that match the resource ids" {
-            $result = Get-WAFFilteredResourceList -ObjectList $ObjectList -FilterList $FilterList -KeyColumn $KeyColumn
-            $result | Should -HaveCount 2
+            $result = Get-WAFFilteredResourceList -UnfilteredResources $ObjectList -ResourceFilters $ResourceFilterList -ResourceGroupFilters $ResourceGroupFilterList -SubscriptionFilters $SubscriptionFilterList -KeyColumn $KeyColumn
+            $result | Should -HaveCount 6
             $result.id | Should -Contain '/subscriptions/77777777-7777-7777-7777-777777777777/resourceGroups/test7/providers/Microsoft.Compute/virtualMachines/TestVM7'
             $result.id | Should -Contain '/subscriptions/33333333-3333-3333-3333-333333333333/resourceGroups/test3/providers/Microsoft.Compute/virtualMachines/TestVM3'
+            $result.id | Should -Contain '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test1/providers/Microsoft.Compute/virtualMachines/TestVM1'
+            $result.id | Should -Contain '/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/test2/providers/Microsoft.Compute/virtualMachines/TestVM2'
+            $result.id | Should -Contain '/subscriptions/44444444-4444-4444-4444-444444444444/resourceGroups/test4/providers/Microsoft.Compute/virtualMachines/TestVM4'
+            $result.id | Should -Contain '/subscriptions/66666666-6666-6666-6666-666666666666/resourceGroups/test6/providers/Microsoft.Compute/virtualMachines/TestVM6'
+            
         }
     }
-} #>
+}
+
+Describe "Get-WAFImplicitSubscriptionId" {
+    Context "When given valid subscription, resource group, and resource filters" {
+        It "Should return a unique list of subscription IDs" {
+            $result = Get-WAFImplicitSubscriptionId -SubscriptionFilters $SubscriptionFilterList -ResourceGroupFilters $ResourceGroupFilterList -ResourceFilters $ResourceFilterList
+            $result | Should -HaveCount 6
+            $result | Should -Contain '/subscriptions/11111111-1111-1111-1111-111111111111'
+            $result | Should -Contain '/subscriptions/33333333-3333-3333-3333-333333333333'
+            $result | Should -Contain '/subscriptions/22222222-2222-2222-2222-222222222222'
+            $result | Should -Contain '/subscriptions/44444444-4444-4444-4444-444444444444'
+            $result | should -Contain '/subscriptions/66666666-6666-6666-6666-666666666666'
+            $result | Should -Contain '/subscriptions/77777777-7777-7777-7777-777777777777'
+        }
+    }
+
+    Context "When given empty filters" {
+        It "Should return an empty list" {
+            $result = Get-WAFImplicitSubscriptionId -SubscriptionFilters @() -ResourceGroupFilters @() -ResourceFilters @()
+            $result | Should -BeNullOrEmpty
+        }
+    }
+
+    Context "When given only subscription filters" {
+        It "Should return the subscription IDs from the subscription filters" {
+            $result = Get-WAFImplicitSubscriptionId -SubscriptionFilters $SubscriptionFilterList 
+            $result | Should -HaveCount 2
+            $result | Should -Contain '/subscriptions/11111111-1111-1111-1111-111111111111'
+            $result | Should -Contain '/subscriptions/33333333-3333-3333-3333-333333333333'
+        }
+    }
+
+    Context "When given only resource group filters" {
+        It "Should return the subscription IDs from the resource group filters" {
+            $result = Get-WAFImplicitSubscriptionId -ResourceGroupFilters $ResourceGroupFilterList
+            $result | Should -HaveCount 2
+            $result | Should -Contain '/subscriptions/22222222-2222-2222-2222-222222222222'
+            $result | Should -Contain '/subscriptions/44444444-4444-4444-4444-444444444444'
+        }
+    }
+
+    Context "When given only resource filters" {
+        It "Should return the subscription IDs from the resource filters" {
+            $result = Get-WAFImplicitSubscriptionId -ResourceFilters $ResourceFilterList
+            $result | Should -HaveCount 2
+            $result | Should -Contain '/subscriptions/77777777-7777-7777-7777-777777777777'
+            $result | Should -Contain '/subscriptions/66666666-6666-6666-6666-666666666666'
+        }
+    }
+}
