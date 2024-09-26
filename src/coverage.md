@@ -2,7 +2,7 @@
 | Metric          | Value       |
 |-----------------|-------------|
 | Result          | ✅ Passed |
-| Passed Count         | ✅ 3 |
+| Passed Count         | ✅ 9 |
 | Failed Count         | ✅ 0 |
-| Coverage (%)    | ❌ 42.4242424242424 |
+| Coverage (%)    | ✅ 89.19 |
 | Target Coverage (%) | 75 |
