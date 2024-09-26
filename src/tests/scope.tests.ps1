@@ -57,3 +57,52 @@ Describe "Get-WAFFilteredResourceList" {
         }
     }
 }
+
+Describe "Get-WAFImplicitSubscriptionId" {
+    Context "When given valid subscription, resource group, and resource filters" {
+        It "Should return a unique list of subscription IDs" {
+            $result = Get-WAFImplicitSubscriptionId -SubscriptionFilters $SubscriptionFilterList -ResourceGroupFilters $ResourceGroupFilterList -ResourceFilters $ResourceFilterList
+            $result | Should -HaveCount 6
+            $result | Should -Contain '/subscriptions/11111111-1111-1111-1111-111111111111'
+            $result | Should -Contain '/subscriptions/33333333-3333-3333-3333-333333333333'
+            $result | Should -Contain '/subscriptions/22222222-2222-2222-2222-222222222222'
+            $result | Should -Contain '/subscriptions/44444444-4444-4444-4444-444444444444'
+            $result | should -Contain '/subscriptions/66666666-6666-6666-6666-666666666666'
+            $result | Should -Contain '/subscriptions/77777777-7777-7777-7777-777777777777'
+        }
+    }
+
+    Context "When given empty filters" {
+        It "Should return an empty list" {
+            $result = Get-WAFImplicitSubscriptionId -SubscriptionFilters @() -ResourceGroupFilters @() -ResourceFilters @()
+            $result | Should -BeNullOrEmpty
+        }
+    }
+
+    Context "When given only subscription filters" {
+        It "Should return the subscription IDs from the subscription filters" {
+            $result = Get-WAFImplicitSubscriptionId -SubscriptionFilters $SubscriptionFilterList 
+            $result | Should -HaveCount 2
+            $result | Should -Contain '/subscriptions/11111111-1111-1111-1111-111111111111'
+            $result | Should -Contain '/subscriptions/33333333-3333-3333-3333-333333333333'
+        }
+    }
+
+    Context "When given only resource group filters" {
+        It "Should return the subscription IDs from the resource group filters" {
+            $result = Get-WAFImplicitSubscriptionId -ResourceGroupFilters $ResourceGroupFilterList
+            $result | Should -HaveCount 2
+            $result | Should -Contain '/subscriptions/22222222-2222-2222-2222-222222222222'
+            $result | Should -Contain '/subscriptions/44444444-4444-4444-4444-444444444444'
+        }
+    }
+
+    Context "When given only resource filters" {
+        It "Should return the subscription IDs from the resource filters" {
+            $result = Get-WAFImplicitSubscriptionId -ResourceFilters $ResourceFilterList
+            $result | Should -HaveCount 2
+            $result | Should -Contain '/subscriptions/77777777-7777-7777-7777-777777777777'
+            $result | Should -Contain '/subscriptions/66666666-6666-6666-6666-666666666666'
+        }
+    }
+}

@@ -260,10 +260,11 @@ This function assumes that the input filters are valid and properly formatted.
 #>
 function Get-WAFImplicitSubscriptionId {
     param(
-        [array]$SubscriptionFilters,
-        [array]$ResourceGroupFilters,
-        [array]$ResourceFilters
+        [array]$SubscriptionFilters = @(),
+        [array]$ResourceGroupFilters = @(),
+        [array]$ResourceFilters = @()
     )
+
     # Create a list of subscription ids based on the filters. Adds all the filters together then splits them into subscription Ids. Groups them to remove duplicates and returns a string array.
     $ImplicitSubscriptionIds = (($SubscriptionFilters + $ResourceGroupFilters + $ResourceFilters) | ForEach-Object {$_.split("/")[0..2] -join "/"} | Group-Object | Select-Object Name).Name
     return $ImplicitSubscriptionIds
