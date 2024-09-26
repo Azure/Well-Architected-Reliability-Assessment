@@ -78,10 +78,10 @@ General notes
 function Get-WAFResourceGroupsByList {
     param (
       [Parameter(Mandatory = $true)]
-      [array]$ObjectList,
+      [String[]]$ObjectList,
 
       [Parameter(Mandatory = $true)]
-      [array]$FilterList,
+      [String[]]$FilterList,
 
       [Parameter(Mandatory = $true)]
       [string]$KeyColumn
@@ -129,10 +129,10 @@ function Get-WAFResourceGroupsByList {
   function Get-WAFSubscriptionsByList {
     param (
       [Parameter(Mandatory = $true)]
-      [array]$ObjectList,
+      [String[]]$ObjectList,
 
       [Parameter(Mandatory = $true)]
-      [array]$FilterList,
+      [String[]]$FilterList,
 
       [Parameter(Mandatory = $true)]
       [string]$KeyColumn
@@ -180,10 +180,10 @@ function Get-WAFResourceGroupsByList {
   function Get-WAFResourcesByList {
     param (
       [Parameter(Mandatory = $true)]
-      [array]$ObjectList,
+      [String[]]$ObjectList,
 
       [Parameter(Mandatory = $true)]
-      [array]$FilterList,
+      [String[]]$FilterList,
 
       [Parameter(Mandatory = $true)]
       [string]$KeyColumn
@@ -276,14 +276,18 @@ function Get-WAFFilteredResourceList {
       [String[]]$ResourceFilters,
       [String[]]$UnfilteredResources
   )
+  Write-Debug $SubscriptionFilters
+  Write-Debug $ResourceGroupFilters
+  Write-Debug $ResourceFilters
+  Write-Debug $UnfilteredResources
 
   # TODO: ADD FILTERS FOR TAGS
 
-  $SubscriptionFilters ?? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn "Id")
+  $SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn "Id"
 
-  $ResourceGroupFilters ?? $($ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn "Id")
+  $ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn "Id"
 
-  $ResourceFilters ?? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn "Id")
+  $ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn "Id"
 
   #Originally used to remove duplicates but there was some weird interaction with the return object that caused it to duplicate the entire array. 
   #This just needs to be sorted outside of this function using | Sort-Object -Property Id,RecommendationId -Unique
