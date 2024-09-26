@@ -78,10 +78,10 @@ General notes
 function Get-WAFResourceGroupsByList {
     param (
       [Parameter(Mandatory = $true)]
-      [String[]]$ObjectList,
+      [array]$ObjectList,
 
       [Parameter(Mandatory = $true)]
-      [String[]]$FilterList,
+      [array]$FilterList,
 
       [Parameter(Mandatory = $true)]
       [string]$KeyColumn
@@ -129,10 +129,10 @@ function Get-WAFResourceGroupsByList {
   function Get-WAFSubscriptionsByList {
     param (
       [Parameter(Mandatory = $true)]
-      [String[]]$ObjectList,
+      [array]$ObjectList,
 
       [Parameter(Mandatory = $true)]
-      [String[]]$FilterList,
+      [array]$FilterList,
 
       [Parameter(Mandatory = $true)]
       [string]$KeyColumn
@@ -180,10 +180,10 @@ function Get-WAFResourceGroupsByList {
   function Get-WAFResourcesByList {
     param (
       [Parameter(Mandatory = $true)]
-      [String[]]$ObjectList,
+      [array]$ObjectList,
 
       [Parameter(Mandatory = $true)]
-      [String[]]$FilterList,
+      [array]$FilterList,
 
       [Parameter(Mandatory = $true)]
       [string]$KeyColumn
@@ -231,9 +231,9 @@ This function assumes that the Get-WAFAllAzGraphResource function is defined and
 #>
 function Get-WAFUnfilteredResourceList {
     param(
-        [String[]]$SubscriptionFilters,
-        [String[]]$ResourceGroupFilters,
-        [String[]]$ResourceFilters
+        [array]$SubscriptionFilters,
+        [array]$ResourceGroupFilters,
+        [array]$ResourceFilters
     )
     #Create a list of subscription ids based on the filters. Adds all the filters together then splits them into subscription Ids. Groups them to remove duplicates and returns a string array.
     $ImplicitSubscriptionIds = (($SubscriptionFilters + $ResourceGroupFilters + $ResourceFilters) | ForEach-Object {$_.split("/")[0..2] -join "/"} | Group-Object | Select-Object Name).Name
@@ -271,23 +271,20 @@ function Get-WAFUnfilteredResourceList {
 #>
 function Get-WAFFilteredResourceList {
   param(
-      [String[]]$SubscriptionFilters,
-      [String[]]$ResourceGroupFilters,
-      [String[]]$ResourceFilters,
-      [String[]]$UnfilteredResources
+      [array]$SubscriptionFilters,
+      [array]$ResourceGroupFilters,
+      [array]$ResourceFilters,
+      [array]$UnfilteredResources
   )
-  Write-Debug $SubscriptionFilters
-  Write-Debug $ResourceGroupFilters
-  Write-Debug $ResourceFilters
-  Write-Debug $UnfilteredResources
-
   # TODO: ADD FILTERS FOR TAGS
 
-  $SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn "Id"
 
-  $ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn "Id"
+  $SubscriptionFilters ? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn "Id") : $(Write-Debug "Subscription Filters not provided.")
 
-  $ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn "Id"
+  $ResourceGroupFilters ? $($ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn "Id") : $(Write-Debug "Resource Group Filters not provided.")
+
+  $ResourceFilters ? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn "Id") : $(Write-Debug "Resource Filters not provided.")
+
 
   #Originally used to remove duplicates but there was some weird interaction with the return object that caused it to duplicate the entire array. 
   #This just needs to be sorted outside of this function using | Sort-Object -Property Id,RecommendationId -Unique
