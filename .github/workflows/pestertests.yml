@@ -1,0 +1,26 @@
+#Run pester tests
+
+name: RunPesterTests
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs: 
+  build:
+    permissions:
+      contents: read
+    name: RunPesterTests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - name: Run Pester Tests
+        run: |
+          pwsh .tests/RunPestertests.ps1
