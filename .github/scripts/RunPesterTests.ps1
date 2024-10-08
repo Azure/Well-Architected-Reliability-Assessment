@@ -1,15 +1,19 @@
 # Get all module directories under modules/wara
-$moduleDirectories = Get-ChildItem -Path "$PSScriptRoot/../modules/wara" -Directory
+$moduleDirectories = Get-ChildItem -Path "$PSScriptRoot/../../src/modules/wara" -Directory
 
 foreach ($moduleDir in $moduleDirectories) {
     $modulePath = "$($moduleDir.FullName)/$($moduleDir.Name).psm1"
+    $testsPath = "$PSScriptRoot/../../src/tests/$($moduleDir.Name)"
+
+    Write-host ModuleDir: $moduleDir -ForegroundColor Green
+    Write-host ModulePath: $modulePath -ForegroundColor Green
+    Write-host OutputPath: $testsPath -ForegroundColor Green
     
     if (Test-Path $modulePath) {
         $config = New-PesterConfiguration
-        $config.Run.Path = "./$($moduleDir.Name)"
+        $config.Run.Path = $testsPath
         $config.CodeCoverage.Path = $modulePath
         $config.CodeCoverage.Enabled = $true
-        #$config.CodeCoverage.OutputFormat = 'JaCoCo'
         #$config.CodeCoverage.OutputPath = "./coverage_$($moduleDir.Name).xml"
         $config.Run.PassThru = $true
 
@@ -32,7 +36,8 @@ foreach ($moduleDir in $moduleDirectories) {
 | Target Coverage (%) | $($result.CodeCoverage.CoveragePercentTarget) |
 "@
 
-        $markdown | Out-File -FilePath "./$($moduledir.Name)/coverage_$($moduleDir.Name).md"
+        
+        $markdown | Out-File -FilePath "$testspath/coverage_$($moduleDir.Name).md" -Force
     } else {
         Write-Warning "Module file not found: $modulePath"
     }
