@@ -30,7 +30,7 @@ function Get-WAFAdvisorRecommendations {
     )
  
     $advquery = "advisorresources | where type == 'microsoft.advisor/recommendations' and tostring(properties.category) in ('HighAvailability') | order by id"
-    $queryResults = Invoke-WAFQuery  -Query $advquery -subscriptionId $Subid
+    $queryResults = Get-WAFAllAzGraphResource -Query $advquery -subscriptionId $Subid
 
     return $queryResults
 }
