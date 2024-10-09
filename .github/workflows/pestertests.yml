@@ -29,6 +29,7 @@ jobs:
 
       - name: Run Pester Tests
         run: |
+          pwsh -Command "gci ./ -recurse" # List all files in the repository
           pwsh .github/scripts/RunPesterTests.ps1
 
       - name: Commit and push changes
