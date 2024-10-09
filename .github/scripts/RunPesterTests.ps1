@@ -1,5 +1,14 @@
+# Determine the base path based on the environment
+if ($env:GITHUB_WORKSPACE) {
+    # Running in GitHub Actions
+    $basePath = "$env:GITHUB_WORKSPACE/src"
+} else {
+    # Running locally
+    $basePath = "$PSScriptRoot/../../src"
+}
+
 # Get all module directories under modules/wara
-$moduleDirectories = Get-ChildItem -Path "$PSScriptRoot/../../src/modules/wara" -Directory
+$moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara" -Directory
 
 foreach ($moduleDir in $moduleDirectories) {
     $modulePath = "$($moduleDir.FullName)/$($moduleDir.Name).psm1"
