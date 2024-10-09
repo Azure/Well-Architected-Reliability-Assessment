@@ -4,10 +4,6 @@ $moduleDirectories = Get-ChildItem -Path "$PSScriptRoot/../../src/modules/wara" 
 foreach ($moduleDir in $moduleDirectories) {
     $modulePath = "$($moduleDir.FullName)/$($moduleDir.Name).psm1"
     $testsPath = "$PSScriptRoot/../../src/tests/$($moduleDir.Name)"
-
-    Write-host ModuleDir: $moduleDir -ForegroundColor Green
-    Write-host ModulePath: $modulePath -ForegroundColor Green
-    Write-host OutputPath: $testsPath -ForegroundColor Green
     
     if (Test-Path $modulePath) {
         $config = New-PesterConfiguration
