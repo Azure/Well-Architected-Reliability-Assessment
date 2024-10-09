@@ -23,4 +23,4 @@ jobs:
 
       - name: Run Pester Tests
         run: |
-          pwsh .tests/RunPestertests.ps1
+          pwsh .github/scripts/RunPestertests.ps1
