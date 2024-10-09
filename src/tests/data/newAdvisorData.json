@@ -1,0 +1,60 @@
+[
+    {
+        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/cloud-shell-storage-eastus/providers/Microsoft.Storage/storageAccounts/csstorage/providers/Microsoft.Advisor/recommendations/22222222-2222-2222-2222-222222222222",
+        "name": "22222222-2222-2222-2222-222222222222",
+        "type": "microsoft.advisor/recommendations",
+        "tenantId": "00000000-0000-0000-0000-000000000000",
+        "location": "",
+        "resourceGroup": "cloud-shell-storage-eastus",
+        "subscriptionId": "11111111-1111-1111-1111-111111111111",
+        "properties": {
+        "recommendationTypeId": "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+        "shortDescription": {
+            "solution": "Enable Soft Delete to protect your blob data",
+            "problem": "Enable Soft Delete to protect your blob data"
+        },
+        "resourceMetadata": {
+            "resourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/cloud-shell-storage-eastus/providers/Microsoft.Storage/storageAccounts/csstorage"
+        },
+        "impactedField": "Microsoft.Storage/storageAccounts",
+        "impactedValue": "csstorage",
+        "category": "HighAvailability",
+        "impact": "Medium"
+        },
+        "resId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/cloud-shell-storage-eastus/providers/microsoft.storage/storageaccounts/csstorage",
+        "resId1": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/cloud-shell-storage-eastus/providers/microsoft.storage/storageaccounts/csstorage",
+        "subscriptionId1": "11111111-1111-1111-1111-111111111111",
+        "resourceGroup1": "cloud-shell-storage-eastus",
+        "location1": "centralus",
+        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/cloud-shell-storage-eastus/providers/Microsoft.Storage/storageAccounts/csstorage/providers/Microsoft.Advisor/recommendations/22222222-2222-2222-2222-222222222222"
+    },
+    {
+        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/Microsoft.ContainerService/managedClusters/akscluster01/providers/Microsoft.Advisor/recommendations/33333333-3333-3333-3333-333333333333",
+        "name": "33333333-3333-3333-3333-333333333333",
+        "type": "microsoft.advisor/recommendations",
+        "tenantId": "00000000-0000-0000-0000-000000000000",
+        "location": "",
+        "resourceGroup": "resourcegroup01",
+        "subscriptionId": "11111111-1111-1111-1111-111111111111",
+        "properties": {
+        "recommendationTypeId": "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB",
+        "shortDescription": {
+            "solution": "Enable Autoscaling for your system node pools",
+            "problem": "Enable Autoscaling for your system node pools"
+        },
+        "resourceMetadata": {
+            "resourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/Microsoft.ContainerService/managedClusters/akscluster01"
+        },
+        "impactedField": "MICROSOFT.CONTAINERSERVICE/MANAGEDCLUSTERS",
+        "impactedValue": "akscluster01",
+        "category": "HighAvailability",
+        "impact": "High"
+        },
+        "resId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/microsoft.containerService/managedclusters/akscluster01",
+        "resId1": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/microsoft.containerService/managedclusters/akscluster01",
+        "subscriptionId1": "11111111-1111-1111-1111-111111111111",
+        "resourceGroup1": "resourcegroup01",
+        "location1": "brazilsouth",
+        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/Microsoft.ContainerService/managedClusters/akscluster01/providers/Microsoft.Advisor/recommendations/33333333-3333-3333-3333-333333333333"
+    }
+]
