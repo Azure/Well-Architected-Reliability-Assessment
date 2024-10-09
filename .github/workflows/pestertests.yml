@@ -1,4 +1,4 @@
-#Run pester tests
+# Run pester tests
 
 name: RunPesterTests
 
@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write  # Update permissions to allow writing
 
 jobs: 
   build:
     permissions:
-      contents: read
+      contents: write  # Update permissions to allow writing
     name: RunPesterTests
     runs-on: ubuntu-latest
     steps:
@@ -22,6 +22,19 @@ jobs:
         with:
           ref: main
 
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
       - name: Run Pester Tests
         run: |
           pwsh .github/scripts/RunPestertests.ps1
+
+      - name: Commit and push changes
+        run: |
+          git add .
+          git commit -m "Update files after running Pester tests"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
