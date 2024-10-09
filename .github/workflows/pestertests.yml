@@ -29,7 +29,7 @@ jobs:
 
       - name: Run Pester Tests
         run: |
-          pwsh .github/scripts/RunPestertests.ps1
+          pwsh .github/scripts/RunPesterTests.ps1
 
       - name: Commit and push changes
         run: |
