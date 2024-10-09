@@ -22,7 +22,7 @@
 function Get-WAFAdvisorRecommendations {
     Param($Subid)
 
-    $advquery = "advisorresources | where type == 'microsoft.advisor/recommendations' and tostring(properties.category) in ('HighAvailability') | extend resId = tostring(properties.resourceMetadata.resourceId) | join kind=leftouter (resources | project ['resId']=id, subscriptionId, resourceGroup ,location) on resId  | order by ['id']"
+    $advquery = "advisorresources | where type == 'microsoft.advisor/recommendations' and tostring(properties.category) in ('HighAvailability') | extend resId = tolower(tostring(properties.resourceMetadata.resourceId)) | join kind=leftouter (resources | project ['resId']=tolower(id), subscriptionId, resourceGroup ,location) on resId  | order by ['id']"
     $queryResults = Get-WAFAllAzGraphResource -Query $advquery -subscriptionId $Subid
 
     return $queryResults

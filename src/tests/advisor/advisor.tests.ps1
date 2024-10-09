@@ -12,10 +12,10 @@ Describe "Build-WAFAdvisorObject" {
             $result | Should -HaveCount 2
             $result.recommendationId    | Should -Contain 'AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA'
             $result.type                | Should -Contain 'MICROSOFT.CONTAINERSERVICE/MANAGEDCLUSTERS'
-            $result.name                | Should -Contain 'AKSCLUSTER01'
-            $result.id                  | Should -Contain '/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/RESOURCEGROUP01/providers/Microsoft.ContainerService/managedClusters/AKSCLUSTER01'
+            $result.name                | Should -Contain 'akscluster01'
+            $result.id                  | Should -Contain '/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/microsoft.containerService/managedclusters/akscluster01'
             $result.subscriptionId      | Should -Contain '11111111-1111-1111-1111-111111111111'
-            $result.resourceGroup       | Should -Contain 'RESOURCEGROUP01'
+            $result.resourceGroup       | Should -Contain 'resourcegroup01'
             $result.location            | Should -Contain 'centralus'
             $result.category            | Should -Contain 'HighAvailability'
             $result.impact              | Should -Contain 'High'

@@ -21,20 +21,20 @@
         "category": "HighAvailability",
         "impact": "Medium"
         },
-        "resId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/cloud-shell-storage-eastus/providers/Microsoft.Storage/storageAccounts/csstorage",
-        "resId1": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/cloud-shell-storage-eastus/providers/Microsoft.Storage/storageAccounts/csstorage",
+        "resId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/cloud-shell-storage-eastus/providers/microsoft.storage/storageaccounts/csstorage",
+        "resId1": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/cloud-shell-storage-eastus/providers/microsoft.storage/storageaccounts/csstorage",
         "subscriptionId1": "11111111-1111-1111-1111-111111111111",
         "resourceGroup1": "cloud-shell-storage-eastus",
         "location1": "centralus",
         "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/cloud-shell-storage-eastus/providers/Microsoft.Storage/storageAccounts/csstorage/providers/Microsoft.Advisor/recommendations/22222222-2222-2222-2222-222222222222"
     },
     {
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/RESOURCEGROUP01/providers/Microsoft.ContainerService/managedClusters/AKSCLUSTER01/providers/Microsoft.Advisor/recommendations/33333333-3333-3333-3333-333333333333",
+        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/Microsoft.ContainerService/managedClusters/akscluster01/providers/Microsoft.Advisor/recommendations/33333333-3333-3333-3333-333333333333",
         "name": "33333333-3333-3333-3333-333333333333",
         "type": "microsoft.advisor/recommendations",
         "tenantId": "00000000-0000-0000-0000-000000000000",
         "location": "",
-        "resourceGroup": "RESOURCEGROUP01",
+        "resourceGroup": "resourcegroup01",
         "subscriptionId": "11111111-1111-1111-1111-111111111111",
         "properties": {
         "recommendationTypeId": "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB",
@@ -43,18 +43,18 @@
             "problem": "Enable Autoscaling for your system node pools"
         },
         "resourceMetadata": {
-            "resourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/RESOURCEGROUP01/providers/Microsoft.ContainerService/managedClusters/AKSCLUSTER01"
+            "resourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/Microsoft.ContainerService/managedClusters/akscluster01"
         },
         "impactedField": "MICROSOFT.CONTAINERSERVICE/MANAGEDCLUSTERS",
-        "impactedValue": "AKSCLUSTER01",
+        "impactedValue": "akscluster01",
         "category": "HighAvailability",
         "impact": "High"
         },
-        "resId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/RESOURCEGROUP01/providers/Microsoft.ContainerService/managedClusters/AKSCLUSTER01",
-        "resId1": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/RESOURCEGROUP01/providers/Microsoft.ContainerService/managedClusters/AKSCLUSTER01",
+        "resId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/microsoft.containerService/managedclusters/akscluster01",
+        "resId1": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/microsoft.containerService/managedclusters/akscluster01",
         "subscriptionId1": "11111111-1111-1111-1111-111111111111",
-        "resourceGroup1": "RESOURCEGROUP01",
+        "resourceGroup1": "resourcegroup01",
         "location1": "brazilsouth",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/RESOURCEGROUP01/providers/Microsoft.ContainerService/managedClusters/AKSCLUSTER01/providers/Microsoft.Advisor/recommendations/33333333-3333-3333-3333-333333333333"
+        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/resourcegroup01/providers/Microsoft.ContainerService/managedClusters/akscluster01/providers/Microsoft.Advisor/recommendations/33333333-3333-3333-3333-333333333333"
     }
 ]
