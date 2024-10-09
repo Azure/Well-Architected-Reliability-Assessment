@@ -1,7 +1,7 @@
 # Determine the base path based on the environment
 if ($env:GITHUB_WORKSPACE) {
     # Running in GitHub Actions
-    $basePath = "$env:GITHUB_WORKSPACE/src"
+    $basePath = "./src"
 } else {
     # Running locally
     $basePath = "$PSScriptRoot/../../src"
