@@ -8,7 +8,7 @@ if ($env:GITHUB_WORKSPACE) {
 }
 
 # Get all module directories under modules/wara
-$moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara" -Directory
+$moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory
 
 foreach ($moduleDir in $moduleDirectories) {
     $modulePath = "$($moduleDir.FullName)/$($moduleDir.Name).psm1"
