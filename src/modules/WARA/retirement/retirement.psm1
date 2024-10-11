@@ -65,8 +65,8 @@ function Get-WAFResourceRetirement {
             TrackingId      = $retirementEvent.name
             Status          = $retirementEvent.properties.status
             LastUpdateTime  = $retirementEvent.properties.lastUpdateTime
-            Starttime       = $retirementEvent.properties.impactStartTime
-            Endtime         = $retirementEvent.properties.impactMitigationTime
+            StartTime       = $retirementEvent.properties.impactStartTime
+            EndTime         = $retirementEvent.properties.impactMitigationTime
             Level           = $retirementEvent.properties.level
             Title           = $retirementEvent.properties.title
             Summary         = $retirementEvent.properties.summary
@@ -308,7 +308,7 @@ function Get-AzureRestMethodUriPath {
     The description of the retirement event.
 
 .EXAMPLE
-    retirementObject = New-WAFResourceRetirementObject -SubscriptionId $subscriptionId -TrackingId $trackingId -Status $status -LastUpdateTime $lastUpdateTime -Starttime $startTime -Endtime $endTime -Level $level -Title $title -Summary $summary -Header $header -ImpactedService $impactedServices -Description $description
+    retirementObject = New-WAFResourceRetirementObject -SubscriptionId $subscriptionId -TrackingId $trackingId -Status $status -LastUpdateTime $lastUpdateTime -StartTime $startTime -EndTime $endTime -Level $level -Title $title -Summary $summary -Header $header -ImpactedService $impactedServices -Description $description
 
 .NOTES
     Author: Takeshi Katano
@@ -330,10 +330,10 @@ function New-WAFResourceRetirementObject {
         [datetime] $LastUpdateTime,
 
         [Parameter(Mandatory = $true)]
-        [datetime] $Starttime,
+        [datetime] $StartTime,
 
         [Parameter(Mandatory = $true)]
-        [datetime] $Endtime,
+        [datetime] $EndTime,
 
         [Parameter(Mandatory = $true)]
         [string] $Level,
@@ -359,8 +359,8 @@ function New-WAFResourceRetirementObject {
         TrackingId      = $TrackingId
         Status          = $Status
         LastUpdateTime  = $LastUpdateTime.ToString('yyyy-MM-dd HH:mm:ss')
-        Starttime       = $Starttime.ToString('yyyy-MM-dd HH:mm:ss')
-        Endtime         = $Endtime.ToString('yyyy-MM-dd HH:mm:ss')
+        StartTime       = $StartTime.ToString('yyyy-MM-dd HH:mm:ss')
+        EndTime         = $EndTime.ToString('yyyy-MM-dd HH:mm:ss')
         Level           = $Level
         Title           = $Title
         Summary         = $Summary
