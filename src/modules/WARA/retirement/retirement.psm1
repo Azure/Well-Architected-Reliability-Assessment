@@ -39,6 +39,7 @@ function Get-WAFResourceRetirement {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
+        [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
         [string] $SubscriptionId
     )
 
@@ -128,13 +129,16 @@ function Invoke-AzureRestApi {
     param (
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
         [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+        [ValidateSet('GET', 'POST', 'PUT', 'PATCH', 'DELETE')]
         [string] $Method,
 
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
         [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+        [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
         [string] $SubscriptionId,
 
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+        [ValidateLength(1, 90)]
         [string] $ResourceGroupName,
 
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
@@ -150,6 +154,7 @@ function Invoke-AzureRestApi {
 
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
         [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+        [ValidatePattern('^[0-9]{4}(-[0-9]{2}){2}$')]
         [string] $ApiVersion,
 
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $false)]
@@ -226,9 +231,11 @@ function Get-AzureRestMethodUriPath {
     param (
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
         [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+        [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
         [string] $SubscriptionId,
 
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+        [ValidateLength(1, 90)]
         [string] $ResourceGroupName,
 
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
@@ -244,6 +251,7 @@ function Get-AzureRestMethodUriPath {
 
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
         [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+        [ValidatePattern('^[0-9]{4}(-[0-9]{2}){2}$')]
         [string] $ApiVersion,
 
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $false)]
@@ -318,6 +326,7 @@ function New-WAFResourceRetirementObject {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
+        [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
         [string] $SubscriptionId,
 
         [Parameter(Mandatory = $true)]
