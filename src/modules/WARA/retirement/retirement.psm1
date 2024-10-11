@@ -37,6 +37,7 @@
 #>
 function Get-WAFResourceRetirement {
     [CmdletBinding()]
+    [OutputType([PSCustomObject[]])]
     param (
         [Parameter(Mandatory = $true)]
         [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
@@ -126,6 +127,7 @@ function Get-WAFResourceRetirement {
 #>
 function Invoke-AzureRestApi {
     [CmdletBinding()]
+    [OutputType([Microsoft.Azure.Commands.Profile.Models.PSHttpResponse])]
     param (
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
         [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
@@ -228,6 +230,7 @@ function Invoke-AzureRestApi {
 #>
 function Get-AzureRestMethodUriPath {
     [CmdletBinding()]
+    [OutputType([string])]
     param (
         [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
         [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
@@ -324,6 +327,7 @@ function Get-AzureRestMethodUriPath {
 #>
 function New-WAFResourceRetirementObject {
     [CmdletBinding()]
+    [OutputType([PSCustomObject])]
     param (
         [Parameter(Mandatory = $true)]
         [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
