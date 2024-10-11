@@ -47,8 +47,8 @@ $descriptionText = @'
                 TrackingId      = 'XXXX-XXX'
                 Status          = 'Active'
                 LastUpdateTime  = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
-                Starttime       = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
-                Endtime         = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
+                StartTime       = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
+                EndTime         = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
                 Level           = 'Warning'
                 Title           = 'Azure Product Retirement: Azure Automanage Best Practices retires on 30 September 2027'
                 Summary         = "<p><strong><em>You're receiving this notice because you're currently using Automanage Best Practices.</em></strong></p>"
@@ -66,8 +66,8 @@ $descriptionText = @'
             $result.TrackingId | Should -BeExactly $cmdletParams.TrackingId
             $result.Status | Should -BeExactly $cmdletParams.Status
             $result.LastUpdateTime | Should -BeExactly $cmdletParams.LastUpdateTime.ToString('yyyy-MM-dd HH:mm:ss')
-            $result.Starttime | Should -BeExactly $cmdletParams.Starttime.ToString('yyyy-MM-dd HH:mm:ss')
-            $result.Endtime | Should -BeExactly $cmdletParams.Endtime.ToString('yyyy-MM-dd HH:mm:ss')
+            $result.StartTime | Should -BeExactly $cmdletParams.StartTime.ToString('yyyy-MM-dd HH:mm:ss')
+            $result.EndTime | Should -BeExactly $cmdletParams.EndTime.ToString('yyyy-MM-dd HH:mm:ss')
             $result.Level | Should -BeExactly $cmdletParams.Level
             $result.Title | Should -BeExactly $cmdletParams.Title
             $result.Summary | Should -BeExactly $cmdletParams.Summary
@@ -84,8 +84,8 @@ $descriptionText = @'
             $result.TrackingId | Should -BeExactly $cmdletParams.TrackingId
             $result.Status | Should -BeExactly $cmdletParams.Status
             $result.LastUpdateTime | Should -BeExactly $cmdletParams.LastUpdateTime.ToString('yyyy-MM-dd HH:mm:ss')
-            $result.Starttime | Should -BeExactly $cmdletParams.Starttime.ToString('yyyy-MM-dd HH:mm:ss')
-            $result.Endtime | Should -BeExactly $cmdletParams.Endtime.ToString('yyyy-MM-dd HH:mm:ss')
+            $result.StartTime | Should -BeExactly $cmdletParams.StartTime.ToString('yyyy-MM-dd HH:mm:ss')
+            $result.EndTime | Should -BeExactly $cmdletParams.EndTime.ToString('yyyy-MM-dd HH:mm:ss')
             $result.Level | Should -BeExactly $cmdletParams.Level
             $result.Title | Should -BeExactly $cmdletParams.Title
             $result.Summary | Should -BeExactly $cmdletParams.Summary
