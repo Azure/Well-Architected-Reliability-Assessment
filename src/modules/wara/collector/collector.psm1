@@ -115,7 +115,7 @@ Function Invoke-WAFQueryLoop {
   $QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -FilterList $Types.type -KeyColumn "recommendationResourceType"
 
   $return = $QueryObject | Where-Object{$_.automationavailable -eq "arg"} | ForEach-Object {
-    Write-Progress -Activity "Running Queries" -Status "Running Query for $($_.recommendationResourceType)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100)
+    Write-Progress -Activity "Running Queries" -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100)
     Get-WAFAllAzGraphResource -query $_.query -subscriptionIds $subscriptionIds
   }
 
