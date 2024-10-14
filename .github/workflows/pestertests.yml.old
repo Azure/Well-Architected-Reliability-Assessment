@@ -27,9 +27,12 @@ jobs:
 
       - name: Run Pester Tests
         run: |
-          #pwsh .github/scripts/RunPesterTests.ps1
-          Write-host $PSVersionTable.PSVersion.Major $PSVersionTable.PSRemotingProtocolVersion.Minor
-          Set-PSRepository psgallery -InstallationPolicy trusted
-          Install-Module -Name Pester -RequiredVersion 5.0.4 -confirm:$false -Force
-          Invoke-Pester -path .src/tests/
-        shell: pwsh
+          pwsh .github/scripts/RunPesterTests.ps1
+
+      - name: Commit and push changes
+        run: |
+          git add .
+          git commit -m "Update files after running Pester tests"
+          git push origin ${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
