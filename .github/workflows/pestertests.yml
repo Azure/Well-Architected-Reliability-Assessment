@@ -65,3 +65,8 @@ jobs:
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName utils
         shell: pwsh
         continue-on-error: true
+
+      - name: Check for Errors
+        run: |
+          if ($error) { exit 1 }
+        shell: pwsh
