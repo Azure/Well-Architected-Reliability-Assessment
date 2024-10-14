@@ -54,9 +54,9 @@ foreach ($moduleDir in $moduleDirectories) {
 If($($coveragePercent + $resultOfRun + $passedCount + $failedCount).contains("Failed"))
 {
     Write-host "Failed"
-    
+
     if($env:GITHUB_WORKSPACE){
-        echo "ERROR_DETECTED=true" >> $GITHUB_ENV
+        echo '"ERROR_DETECTED=true" >> $GITHUB_ENV'
         Exit 1
     }
     
