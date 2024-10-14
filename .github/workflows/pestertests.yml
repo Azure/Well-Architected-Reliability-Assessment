@@ -25,7 +25,7 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Run adivosr.psm1 Pester Tests
+      - name: Run advisor.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName advisor
         shell: pwsh
