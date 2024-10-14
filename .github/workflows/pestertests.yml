@@ -31,5 +31,5 @@ jobs:
           Write-host $PSVersionTable.PSVersion.Major $PSVersionTable.PSRemotingProtocolVersion.Minor
           Set-PSRepository psgallery -InstallationPolicy trusted
           Install-Module -Name Pester -RequiredVersion 5.0.4 -confirm:$false -Force
-          Invoke-Pester -path .src/tests/
+          Invoke-Pester -path src/tests/
         shell: pwsh
