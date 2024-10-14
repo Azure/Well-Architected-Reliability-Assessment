@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd"[]>
+<report name="Pester (10/14/2024 10:57:46)">
+  <sessioninfo id="this" start="1728903465963" dump="1728903466263" />
+  <package name="advisor">
+    <class name="advisor/advisor" sourcefilename="advisor.psm1">
+      <method name="Get-WAFAdvisorRecommendations" desc="()" line="25">
+        <counter type="INSTRUCTION" missed="3" covered="0" />
+        <counter type="LINE" missed="3" covered="0" />
+        <counter type="METHOD" missed="1" covered="0" />
+      </method>
+      <method name="Build-WAFAdvisorObject" desc="()" line="53">
+        <counter type="INSTRUCTION" missed="0" covered="14" />
+        <counter type="LINE" missed="0" covered="14" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <counter type="INSTRUCTION" missed="3" covered="14" />
+      <counter type="LINE" missed="3" covered="14" />
+      <counter type="METHOD" missed="1" covered="1" />
+      <counter type="CLASS" missed="1" covered="0" />
+    </class>
+    <sourcefile name="advisor.psm1">
+      <line nr="25" mi="1" ci="0" mb="0" cb="0" />
+      <line nr="26" mi="1" ci="0" mb="0" cb="0" />
+      <line nr="28" mi="1" ci="0" mb="0" cb="0" />
+      <line nr="53" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="54" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="55" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="56" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="57" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="58" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="59" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="60" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="61" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="62" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="63" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="64" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="66" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="68" mi="0" ci="1" mb="0" cb="0" />
+      <counter type="INSTRUCTION" missed="3" covered="14" />
+      <counter type="LINE" missed="3" covered="14" />
+      <counter type="METHOD" missed="1" covered="1" />
+      <counter type="CLASS" missed="1" covered="0" />
+    </sourcefile>
+    <counter type="INSTRUCTION" missed="3" covered="14" />
+    <counter type="LINE" missed="3" covered="14" />
+    <counter type="METHOD" missed="1" covered="1" />
+    <counter type="CLASS" missed="1" covered="0" />
+  </package>
+  <counter type="INSTRUCTION" missed="3" covered="14" />
+  <counter type="LINE" missed="3" covered="14" />
+  <counter type="METHOD" missed="1" covered="1" />
+  <counter type="CLASS" missed="1" covered="0" />
+</report>
