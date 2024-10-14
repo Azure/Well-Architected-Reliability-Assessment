@@ -56,7 +56,7 @@ If($($coveragePercent + $resultOfRun + $passedCount + $failedCount).contains("Fa
     Write-host "Failed"
 
     if($env:GITHUB_WORKSPACE){
-        echo '"ERROR_DETECTED=true" >> $GITHUB_ENV'
+        bash -c 'echo "ERROR_DETECTED=true" >> $GITHUB_ENV'
         Exit 1
     }
     
