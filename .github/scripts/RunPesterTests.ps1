@@ -51,4 +51,4 @@ foreach ($moduleDir in $moduleDirectories) {
     }
 }
 
-If($($coveragePercent + $resultOfRun + $passedCount + $failedCount).contains("Failed")){Write-host "Failed";Exit 1}else{Write-host "Passed";Exit 0}
+If($($coveragePercent + $resultOfRun + $passedCount + $failedCount).contains("Failed")){Write-host "Failed";Exit 1}else{Write-host "Passed"}

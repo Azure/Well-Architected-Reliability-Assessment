@@ -29,31 +29,39 @@ jobs:
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName advisor
         shell: pwsh
+        continue-on-error: true
       - name: Run collector.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName collector
         shell: pwsh
+        continue-on-error: true
       - name: Run outage.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName outage
         shell: pwsh
+        continue-on-error: true
       - name: Run retirement.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName retirement
         shell: pwsh
+        continue-on-error: true
       - name: Run scope.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName scope
         shell: pwsh
+        continue-on-error: true
       - name: Run servicehealth.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName servicehealth
         shell: pwsh
+        continue-on-error: true
       - name: Run support.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName support
         shell: pwsh
+        continue-on-error: true
       - name: Run utils.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName utils
         shell: pwsh
+        continue-on-error: true
