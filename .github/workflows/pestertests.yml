@@ -68,5 +68,12 @@ jobs:
 
       - name: Check for Errors
         run: |
-          if ($error) { exit 1 }
+          $env:ERROR_DETECTED = "test"
+        shell: pwsh
+      - name: Check for Failures
+        run: |
+          if ($env:ERROR_DETECTED -eq "test") {
+            Write-Host "Errors detected in Pester tests"
+            exit 1
+          }
         shell: pwsh
