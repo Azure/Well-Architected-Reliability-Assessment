@@ -77,14 +77,10 @@ jobs:
         shell: pwsh
         continue-on-error: true
 
-      - name: Check for Errors
-        run: |
-          echo $ERROR_DETECTED
-
       - name: Check for Failures
         run: |
           if ($env:ERROR_DETECTED -ne "false") {
-            Write-Host "Errors detected in Pester tests"
+            Write-Host "Errors detected in Pester tests. Check Pester test console log for more information."
             exit 1
           }
         shell: pwsh
