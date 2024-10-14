@@ -25,11 +25,35 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Run Pester Tests
+      - name: Run adivosr.psm1 Pester Tests
         run: |
-          #pwsh .github/scripts/RunPesterTests.ps1
-          Write-host $PSVersionTable.PSVersion.Major $PSVersionTable.PSRemotingProtocolVersion.Minor
-          Set-PSRepository psgallery -InstallationPolicy trusted
-          Install-Module -Name Pester -RequiredVersion 5.0.4 -confirm:$false -Force
-          Invoke-Pester -path src/tests/
+          pwsh .github/scripts/RunPesterTests.ps1 -moduleName advisor
+        shell: pwsh
+      - name: Run collector.psm1 Pester Tests
+        run: |
+          pwsh .github/scripts/RunPesterTests.ps1 -moduleName collector
+        shell: pwsh
+      - name: Run outage.psm1 Pester Tests
+        run: |
+          pwsh .github/scripts/RunPesterTests.ps1 -moduleName outage
+        shell: pwsh
+      - name: Run retirement.psm1 Pester Tests
+        run: |
+          pwsh .github/scripts/RunPesterTests.ps1 -moduleName retirement
+        shell: pwsh
+      - name: Run scope.psm1 Pester Tests
+        run: |
+          pwsh .github/scripts/RunPesterTests.ps1 -moduleName scope
+        shell: pwsh
+      - name: Run servicehealth.psm1 Pester Tests
+        run: |
+          pwsh .github/scripts/RunPesterTests.ps1 -moduleName servicehealth
+        shell: pwsh
+      - name: Run support.psm1 Pester Tests
+        run: |
+          pwsh .github/scripts/RunPesterTests.ps1 -moduleName support
+        shell: pwsh
+      - name: Run utils.psm1 Pester Tests
+        run: |
+          pwsh .github/scripts/RunPesterTests.ps1 -moduleName utils
         shell: pwsh

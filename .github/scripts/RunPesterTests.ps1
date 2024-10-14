@@ -1,3 +1,7 @@
+[CmdletBinding()]
+param (
+    [String]$moduleName
+)
 # Determine the base path based on the environment
 if ($env:GITHUB_WORKSPACE) {
     # Running in GitHub Actions
@@ -7,8 +11,21 @@ if ($env:GITHUB_WORKSPACE) {
     $basePath = "$PSScriptRoot/../../src"
 }
 
-# Get all module directories under modules/wara
-$moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory
+
+
+if($moduleName)
+{
+    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory | Where-Object { $_.Name -eq $moduleName }
+}
+else{
+    # Grab directories
+    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory
+}
+
+$coveragePercent = @()
+$resultOfRun = @()
+$passedCount = @()
+$failedCount = @()
 
 foreach ($moduleDir in $moduleDirectories) {
     $modulePath = "$($moduleDir.FullName)/$($moduleDir.Name).psm1"
@@ -19,45 +36,19 @@ foreach ($moduleDir in $moduleDirectories) {
         $config.Run.Path = $testsPath
         $config.CodeCoverage.Path = $modulePath
         $config.CodeCoverage.Enabled = $true
-        #$config.CodeCoverage.OutputPath = "./coverage_$($moduleDir.Name).xml"
         $config.Run.PassThru = $true
 
         # Run Pester with the configuration
-        $result = Invoke-Pester -Configuration $config
+       $result = Invoke-Pester -Configuration $config
 
-        $resultOfRun = $($result.Result -eq 'Passed') ? "✅ Passed" : "❌Failed"
+<#         $resultOfRun = $($result.Result -eq 'Passed') ? "✅ Passed" : "❌Failed"
         $passedCount = $($result.PassedCount -eq $result.TotalCount) ? "✅ $($result.PassedCount)" : "❌ $($result.PassedCount)"
-        $failedCount = $($result.FailedCount -gt 0) ? "❌ $($result.FailedCount)" : "✅ $($result.FailedCount)"
-        $coveragePercent = $($result.CodeCoverage.CoveragePercent -ge $result.CodeCoverage.CoveragePercentTarget) ? "✅ $([Math]::Round($result.CodeCoverage.CoveragePercent, 2))" : "❌ $([Math]::Round($result.CodeCoverage.CoveragePercent, 2))"
-        
-        $markdown = @"
-# Code Coverage Report - $($moduleDir.Name).psm1
-| Metric          | Value       |
-|-----------------|-------------|
-| Result          | $resultOfRun |
-| Passed Count    | $passedCount |
-| Failed Count    | $failedCount |
-| Coverage (%)    | $coveragePercent |
-| Target Coverage (%) | $($result.CodeCoverage.CoveragePercentTarget) |
-"@
-
-<# ---
-title: Hello Title
-config:
-  theme: base
-  themeVariables:
-    primaryColor: #00ff01
-    secondaryColor: #ff0000
---- 
-``````mermaid
-pie
-title Coverage - $($moduleDir.Name).psm1
-    "Covered" : $([Math]::Round($result.CodeCoverage.CoveragePercent, 2))
-    "Uncovered" : $(100-[Math]::Round($result.CodeCoverage.CoveragePercent, 2))#>
-
-        
-        $markdown | Out-File -FilePath "$testspath/coverage_$($moduleDir.Name).md" -Force
-    } else {
-        Write-Warning "Module file not found: $modulePath"
+        $failedCount = $($result.FailedCount -gt 0) ? "❌ $($result.FailedCount)" : "✅ $($result.FailedCount)" #>
+        $coveragePercent += $($result.CodeCoverage.CoveragePercent -ge $result.CodeCoverage.CoveragePercentTarget) ? "Passed" : "Failed"
+        $resultofRun += $($result.Result -eq 'Passed') ? "Passed" : "Failed"
+        $passedCount += $($result.PassedCount -eq $result.TotalCount -and $result.PassedCount -gt 0) ? "Passed" : "Failed"
+        $failedCount += $($result.FailedCount -gt 0) ? "Failed" : "Passed"
     }
 }
+
+If($($coveragePercent + $resultOfRun + $passedCount + $failedCount).contains("Failed")){Write-host "Failed";Exit 0}else{Write-host "Passed";Exit 1}
