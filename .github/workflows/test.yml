@@ -1,23 +1,31 @@
-name: Publish Artifact
+name: PR Validation
 
 on:
-    workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
-  build:
+  validate-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
 
-      - name: Run build script
-        run: |
-          mkdir -p output
-          echo "This is a test artifact" > output/artifact.txt
+    - name: Run validation script
+      run: |
+        # Add your validation and update commands here
+        echo "Running validation and updating files..." >> "output.txt"
+        # Example: python validate_and_update.py
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-artifact
-          path: output/
+    - name: Commit and push changes
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        git add .
+        git commit -m "Update files during PR validation"
+        git push origin ${{ github.head_ref }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
