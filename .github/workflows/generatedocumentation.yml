@@ -19,7 +19,7 @@ jobs:
 
     - name: Run Documentation Generation Script
       run: |
-        pwsh .github/scripts/GenerateDocumentation.ps1
+        pwsh .github/scripts/Generate-Documentation.ps1
       shell: pwsh
 
     - name: Commit and push changes
