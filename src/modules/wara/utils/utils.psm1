@@ -1,4 +1,20 @@
-function Import-WAFConfigFileData($file){
+<#
+.SYNOPSIS
+Imports configuration data from a file.
+
+.DESCRIPTION
+The Import-WAFConfigFileData function reads the content of a configuration file, extracts sections, and returns the data as a PSCustomObject.
+
+.PARAMETER file
+The path to the configuration file.
+
+.OUTPUTS
+Returns a PSCustomObject containing the configuration data.
+
+.EXAMPLE
+PS> $configData = Import-WAFConfigFileData -file "config.txt"
+#>
+function Import-WAFConfigFileData($file) {
     # Read the file content and store it in a variable
     $filecontent = (Get-content $file).trim().tolower()
 
@@ -7,55 +23,71 @@ function Import-WAFConfigFileData($file){
     $objarray = @{}
 
     # Iterate through the file content and store the line number of each section
-    Foreach($line in $filecontent){
-        if (-not [string]::IsNullOrWhiteSpace($line) -and -not $line.startswith("#")){
+    foreach ($line in $filecontent) {
+        if (-not [string]::IsNullOrWhiteSpace($line) -and -not $line.startswith("#")) {
             # If the line is a section, store the line number
             if ($line -match "^\[([^\]]+)\]$") {
                 # Store the section name and line number. Remove the brackets from the section name
                 $linetable += $filecontent.indexof($line)
-
             }
         }
     }
 
     # Iterate through the line numbers and extract the section content
     $count = 0
-    foreach($entry in $linetable){
-
+    foreach ($entry in $linetable) {
         # Get the section name
         $name = $filecontent[$entry]
         # Remove the brackets from the section name
-        $name = $name.replace("[","").replace("]","")
+        $name = $name.replace("[", "").replace("]", "")
 
         # Get the start and stop line numbers for the section content
         # If the section is the last one, set the stop line number to the end of the file
         $start = $entry + 1
-        if($count -eq ($linetable.length-1)){
+        if ($count -eq ($linetable.length - 1)) {
             $stop = $filecontent.length - 1
-        }
-        else{
-            $stop = $linetable[$count+1] - 2
+        } else {
+            $stop = $linetable[$count + 1] - 2
         }
 
         # Extract the section content
         $configsection = $filecontent[$start..$stop]
 
         # Add the section content to the object array
-        $objarray += @{$Name=$configsection}
+        $objarray += @{$name = $configsection}
 
         # Increment the count
         $count++
     }
 
-    # Return the object array and cast to pscustomobject
+    # Return the object array and cast to PSCustomObject
     return [pscustomobject]$objarray
+}
 
-  }
+<#
+.SYNOPSIS
+Connects to an Azure tenant.
 
-  function Connect-WAFAzure 
-{
-    param
-    (
+.DESCRIPTION
+The Connect-WAFAzure function connects to an Azure tenant using the provided Tenant ID and Subscription IDs.
+
+.PARAMETER TenantID
+The Tenant ID to connect to.
+
+.PARAMETER SubscriptionIds
+An array of Subscription IDs to scope the connection.
+
+.PARAMETER AzureEnvironment
+The Azure environment to connect to. Defaults to 'AzureCloud'.
+
+.OUTPUTS
+None.
+
+.EXAMPLE
+PS> Connect-WAFAzure -TenantID "your-tenant-id" -SubscriptionIds @("sub1", "sub2") -AzureEnvironment "AzureCloud"
+#>
+function Connect-WAFAzure {
+    param (
         [Parameter(Mandatory = $true)]
         [string]$TenantID,
         [Parameter(Mandatory = $true)]
@@ -65,39 +97,36 @@ function Import-WAFConfigFileData($file){
     )
 
     # Connect To Azure Tenant
-    If(-not (Get-AzContext))
-    {
+    if (-not (Get-AzContext)) {
         Connect-AzAccount -Tenant $TenantID -WarningAction SilentlyContinue -Environment $AzureEnvironment
     }
 }
 
-function Import-WAFAPRLJSON
-{
 <#
 .SYNOPSIS
-This module contains utility functions for the Well-Architected Reliability Assessment.
+Imports JSON data from a file.
 
 .DESCRIPTION
-The utils.psm1 module provides various utility functions that can be used in the Well-Architected Reliability Assessment project.
+The Import-WAFAPRLJSON function reads the content of a JSON file, converts it to a PowerShell object, and returns it.
 
-.NOTES
-File Path: /c:/dev/repos/Well-Architected-Reliability-Assessment/src/modules/wara/utils/utils.psm1
+.PARAMETER file
+The path to the JSON file.
 
-.LINK
-GitHub Repository: https://github.com/your-username/Well-Architected-Reliability-Assessment
+.OUTPUTS
+Returns a PowerShell object containing the JSON data.
 
 .EXAMPLE
-# Example usage of the utility function
-PS> Invoke-UtilityFunction -Parameter1 "Value1" -Parameter2 "Value2"
+PS> $jsonData = Import-WAFAPRLJSON -file "data.json"
 #>
-param(
-    [Parameter(Mandatory = $true)]
-    [string]$file
-)
+function Import-WAFAPRLJSON {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$file
+    )
+
     # Validate file path, read content and convert to JSON
-    $return = (test-path $file) ? (get-content $file -raw | convertfrom-json -depth 10) : ("Path does not exist")
-    
+    $return = (Test-Path $file) ? (Get-Content $file -Raw | ConvertFrom-Json -Depth 10) : ("Path does not exist")
+
     # Return the converted JSON object
     return $return
 }
-
