@@ -1,36 +1,5 @@
 <#
 .SYNOPSIS
-This module contains functions for querying Azure resources using Azure Resource Graph.
-
-.DESCRIPTION
-The collector.psm1 module provides various functions to query Azure resources, resource groups, and tagged resources using Azure Resource Graph. It includes functions to handle pagination, filter resources by tags, and retrieve resource types.
-
-.FUNCTIONS
-Get-WAFAllAzGraphResource
-    Retrieves all Azure resources using Azure Resource Graph.
-Get-WAFResourceGroup
-    Retrieves all resource groups in the specified subscriptions.
-Get-WAFTaggedResources
-    Retrieves all resources with matching tags.
-Get-WAFTaggedRGResources
-    Retrieves all resources in resource groups with matching tags.
-Invoke-WAFQueryLoop
-    Invokes a loop to run queries for each recommendation object.
-Get-WAFResourceType
-    Retrieves all resource types in the specified subscriptions.
-Get-WAFQueryByResourceType
-    Filters objects by resource type.
-
-.NOTES
-File Path: ./Well-Architected-Reliability-Assessment/src/modules/wara/collector/collector.psm1
-
-.LINK
-GitHub Repository: https://github.com/Azure/Well-Architected-Reliability-Assessment
-#>
-
-
-<#
-.SYNOPSIS
 Retrieves all Azure resources using Azure Resource Graph.
 .DESCRIPTION
 The Get-WAFAllAzGraphResource function queries Azure Resource Graph to retrieve all resources based on the provided query and subscription IDs.
