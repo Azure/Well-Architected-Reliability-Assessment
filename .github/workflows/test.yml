@@ -1,4 +1,4 @@
-name: PR Validation
+name: Create Documentation on Pull Request
 
 on:
   pull_request:
