@@ -17,11 +17,10 @@ jobs:
       with:
         ref: ${{ github.head_ref }}
 
-    - name: Run validation script
+    - name: Run Documentation Generation Script
       run: |
-        # Add your validation and update commands here
-        echo "Running validation and updating files..." >> "output.txt"
-        # Example: python validate_and_update.py
+        pwsh .github/scripts/GenerateDocumentation.ps1
+      shell: pwsh
 
     - name: Commit and push changes
       run: |
