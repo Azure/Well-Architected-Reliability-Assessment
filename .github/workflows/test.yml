@@ -1,0 +1,23 @@
+name: Publish Artifact
+
+on:
+    workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run build script
+        run: |
+          mkdir -p output
+          echo "This is a test artifact" > output/artifact.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-artifact
+          path: output/
