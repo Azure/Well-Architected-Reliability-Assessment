@@ -13,11 +13,11 @@ This repository is meant to be used for the development of the Well-Architected 
 
 ## Modules
 
-- [advisor](docs/advisor/advisor.md)
-- [collector](docs/collector/collector.md)
-- [outage](docs/outage/outage.md)
-- [retirement](docs/retirement/retirement.md)
-- [scope](docs/scope/scope.md)
-- [servicehealth](docs/servicehealth/servicehealth.md)
-- [support](docs/support/support.md)
-- [utils](docs/utils/utils.md)
+- [🎗️advisor](docs/advisor/advisor.md)
+- [📦collector](docs/collector/collector.md)
+- [🌩️outage](docs/outage/outage.md)
+- [🏖️retirement](docs/retirement/retirement.md)
+- [🔬scope](docs/scope/scope.md)
+- [🏥servicehealth](docs/servicehealth/servicehealth.md)
+- [🩹support](docs/support/support.md)
+- [🔧utils](docs/utils/utils.md)
