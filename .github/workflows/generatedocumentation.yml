@@ -23,6 +23,7 @@ jobs:
         Install-Module PlatyPs -Force
         Install-Module Az.Accounts -Force
         Install-Module Az.ResourceGraph -Force
+        Import-Module Az.Accounts, Az.ResourceGraph, PlatyPs
         .github/scripts/Generate-Documentation.ps1
       shell: pwsh
 
