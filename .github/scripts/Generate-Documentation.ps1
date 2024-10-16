@@ -27,10 +27,10 @@ else{
 foreach ($moduleDir in $moduleDirectories) {
     $modulePath = "$($moduleDir.FullName)/$($moduleDir.Name).psm1"
     $docsPath = "$baseDocsPath/$($moduleDir.Name)"
-    $modulePage = "$baseDocsPath/$($moduleDir.Name).md"
+    $modulePage = "$docsPath/$($moduleDir.Name).md"
     Import-Module $modulePath -force
     if(test-path $modulePage){
-        Update-MarkdownHelp -Path $docsPath -RefreshModulePage
+        Update-MarkdownHelp -Path $docsPath
     }else{
         New-MarkdownHelp -Module $moduleDir.Name -OutputFolder $docsPath -WithModulePage
     }
