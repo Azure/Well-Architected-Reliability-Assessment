@@ -21,6 +21,8 @@ jobs:
     - name: Run Documentation Generation Script
       run: |
         Install-Module PlatyPs -Force
+        Install-Module Az.Accounts -Force
+        Install-Module Az.ResourceGraph -Force
         .github/scripts/Generate-Documentation.ps1
       shell: pwsh
 
