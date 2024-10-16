@@ -3,6 +3,7 @@ name: Create Documentation on Pull Request
 on:
   pull_request:
     types: [opened, synchronize]
+  workflow_dispatch:
 
 permissions:
     contents: write
