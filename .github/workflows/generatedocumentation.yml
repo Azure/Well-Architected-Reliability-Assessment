@@ -19,7 +19,8 @@ jobs:
 
     - name: Run Documentation Generation Script
       run: |
-        pwsh .github/scripts/GenerateDocumentation.ps1
+        Install-Module PlatyPs -Force
+        .github/scripts/Generate-Documentation.ps1
       shell: pwsh
 
     - name: Commit and push changes
