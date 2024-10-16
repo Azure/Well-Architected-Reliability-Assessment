@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Get-WAFOutage [-BaseURL] <String> [-Subid] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFOutage [[-BaseURL] <Object>] [[-Subid] <Object>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -34,12 +34,12 @@ PS C:\> {{ Add example code here }}
 {{ Fill BaseURL Description }}
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: (All)
 Aliases:
 
-Required: True
-Position: 1
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -49,27 +49,12 @@ Accept wildcard characters: False
 {{ Fill Subid Description }}
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: (All)
 Aliases:
 
-Required: True
-Position: 2
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ProgressAction
-{{ Fill ProgressAction Description }}
-
-```yaml
-Type: ActionPreference
-Parameter Sets: (All)
-Aliases: proga
-
 Required: False
-Position: Named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
