@@ -16,11 +16,14 @@ PS> $configData = Import-WAFConfigFileData -file "config.txt"
 #>
 function Import-WAFConfigFileData($file) {
     # Read the file content and store it in a variable
+    $filecontent,$linetable,$objarray,$count,$start,$stop,$configsection = $null
     $filecontent = (Get-content $file).trim().tolower()
 
     # Create an array to store the line number of each section
     $linetable = @()
-    $objarray = @{}
+    $objarray = [ordered]@{}
+
+    $filecontent = $filecontent | Where-Object {$_ -ne ""}
 
     # Iterate through the file content and store the line number of each section
     foreach ($line in $filecontent) {
@@ -44,11 +47,13 @@ function Import-WAFConfigFileData($file) {
         # Get the start and stop line numbers for the section content
         # If the section is the last one, set the stop line number to the end of the file
         $start = $entry + 1
-        if ($count -eq ($linetable.length - 1)) {
-            $stop = $filecontent.length - 1
-        } else {
-            $stop = $linetable[$count + 1] - 2
+
+        if($linetable.count -eq $count+1){
+            $stop = $filecontent.count - 1
+        }else{
+            $stop = $linetable[$count + 1] -1
         }
+        
 
         # Extract the section content
         $configsection = $filecontent[$start..$stop]
