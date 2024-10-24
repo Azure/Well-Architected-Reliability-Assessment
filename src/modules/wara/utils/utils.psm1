@@ -23,14 +23,34 @@ function Import-WAFConfigFileData($file) {
     $linetable = @()
     $objarray = [ordered]@{}
 
-    $filecontent = $filecontent | Where-Object {$_ -ne ""}
+    $filecontent = $filecontent | Where-Object {$_ -ne "" -and $_ -notlike "*#*"}
+
+    #Remove empty space.
+    foreach($line in $filecontent){
+        $index = $filecontent.IndexOf($line)
+        if ($line -match "^\[([^\]]+)\]$" -and ($filecontent[$index+1] -match "^\[([^\]]+)\]$" -or [string]::IsNullOrEmpty($filecontent[$index+1]))) {
+            # Set this line to empty because the next line is a section as well.
+            # This is to avoid the section name being added to the object since it has no parameters.
+            # This is because if we were to keep the note-property it would mess up logic for determining if a section is empty.
+            # Powershell will return $true on an emtpy note property - Because the property exists.
+            $filecontent[$index] = ""
+    }
+}
+
+    #Remove empty space again.
+    $filecontent = $filecontent | Where-Object {$_ -ne "" -and $_ -notlike "*#*"}
 
     # Iterate through the file content and store the line number of each section
     foreach ($line in $filecontent) {
         if (-not [string]::IsNullOrWhiteSpace($line) -and -not $line.startswith("#")) {
+            #Get the Index of the current line
+            $index = $filecontent.IndexOf($line)
+
+            Write-host The Index is $index
             # If the line is a section, store the line number
             if ($line -match "^\[([^\]]+)\]$") {
                 # Store the section name and line number. Remove the brackets from the section name
+                Write-host the line is $line and $filecontent[$index+1] is the next line.
                 $linetable += $filecontent.indexof($line)
             }
         }
@@ -39,6 +59,7 @@ function Import-WAFConfigFileData($file) {
     # Iterate through the line numbers and extract the section content
     $count = 0
     foreach ($entry in $linetable) {
+ 
         # Get the section name
         $name = $filecontent[$entry]
         # Remove the brackets from the section name
