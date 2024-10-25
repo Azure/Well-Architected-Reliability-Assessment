@@ -110,10 +110,10 @@ function Read-WAFRunbookChecks() {
           throw "Runbook defines a check [$checkKey/$checkConfigKey] with no selector."
         }
 
-        $check.Configurations += $checkConfig
+        $check.Configurations += [pscustomobject]$checkConfig
       }
 
-      $checks[$checkKey] = $check
+      $checks[$checkKey] = [pscustomobject]$check
     }
   }
   else {
@@ -123,13 +123,27 @@ function Read-WAFRunbookChecks() {
   return $checks
 }
 
-<#
-.SYNOPSIS
-Reads a runbook
+function Test-WAFRunbook {
+  param(
+    [Parameter(Mandatory = $true)]
+    [pscustomobject]$Runbook
+  )
 
-.DESCRIPTION
-The Read-WAFRunbook function converts a WAF runbook file to a corresponding hashtable
-#>
+  $problems = @()
+
+  if (-not $Runbook.Checks -or $Runbook.checks.Count -eq 0) {
+    $problems += "Runbook has no [Checks] defined"
+  }
+
+  if (-not $Runbook.Selectors -or $Runbook.Selectors.Count -eq 0) {
+    $problems += "Runbook has no [Selectors] defined"
+  }
+
+  if ($problems.Count -gt 0) {
+    throw "Runbook is invalid: $($problems -join '; ')."
+  }
+}
+
 function Read-WAFRunbook {
   param(
     [Parameter(Mandatory = $true)]
@@ -159,9 +173,31 @@ function Read-WAFRunbook {
     $runbook.Checks = Read-WAFRunbookChecks -RunbookSource $sourceJson
     $runbook.QueryOverrides = Read-WAFRunbookQueryOverrides -RunbookSource $sourceJson
   
-    return $runbook
+    return [pscustomobject]$runbook
   }
   catch {
     throw "Failed to read runbook [$RunbookPath]: $_"
+  }
+}
+
+function Edit-WAFRunbookQuery {
+  param(
+    [Parameter(Mandatory = $true)]
+    [pscustomobject]$Runbook,
+
+    [Parameter(Mandatory = $true)]
+    [pscustomobject]$CheckConfiguration,
+
+    [Parameter(Mandatory = $true)]
+    [string]$Query
+  )
+
+  try {
+    Test-WAFRunbook -Runbook $Runbook
+    
+    
+  }
+  catch {
+    throw "Failed to edit runbook query: $_"
   }
 }
