@@ -1,3 +1,128 @@
+function Read-WAFRunbookParameters() {
+  param(
+    [Parameter(Mandatory = $true)]
+    [orderedhashtable]$RunbookSource
+  )
+
+  $parameters = @{}
+
+  if ($RunbookSource.parameters -and $RunbookSource.parameters.Count -gt 0) {
+    foreach ($parameterKey in $RunbookSource.parameters.Keys) {
+      $parameters[$parameterKey] = $RunbookSource.parameters[$parameterKey]
+    }
+  }
+  else {
+    Write-Warning "Runbook defines no [parameters]."
+  }
+
+  return $parameters
+}
+
+function Read-WAFRunbookSelectors() {
+  param(
+    [Parameter(Mandatory = $true)]
+    [orderedhashtable]$RunbookSource
+  )
+
+  $selectors = @{}
+
+  if ($RunbookSource.selectors -and $RunbookSource.selectors.Count -gt 0) {
+    foreach ($selectorKey in $RunbookSource.selectors.Keys) {
+      $selectors[$selectorKey] = $RunbookSource.selectors[$selectorKey]
+    }
+  }
+  else {
+    throw "Runbook defines no [selectors]."
+  }
+
+  return $selectors
+}
+
+function Read-WAFRunbookQueryOverrides() {
+  param(
+    [Parameter(Mandatory = $true)]
+    [orderedhashtable]$RunbookSource
+  )
+
+  $queryOverrides = @()
+
+  if ($RunbookSource.query_overrides -and $RunbookSource.query_overrides.Count -gt 0) {
+    foreach ($queryOverride in $RunbookSource.query_overrides) {
+      $queryOverrides += $queryOverride
+    }
+  }
+
+  return $queryOverrides
+}
+
+function Read-WAFRunbookChecks() {
+  param(
+    [Parameter(Mandatory = $true)]
+    [orderedhashtable]$RunbookSource
+  )
+
+  $checks = @{}
+
+  if ($RunbookSource.checks -and $RunbookSource.checks.Count -gt 0) {
+    foreach ($checkKey in $RunbookSource.checks.Keys) {
+      $sourceCheckConfigs = $RunbookSource.checks[$checkKey]
+
+      $check = @{
+        Configurations = @{}
+      }
+
+      foreach ($checkConfigKey in $sourceCheckConfigs.Keys) {
+        $sourceCheckConfig = $sourceCheckConfigs[$checkConfigKey]
+
+        $checkConfig = @{
+          Selector    = [string]$null
+          Description = [string]$null
+          Parameters  = @{}
+          Tags        = @()
+        }
+
+        switch ($sourceCheckConfig.GetType().Name.ToLower()) {
+          'orderedhashtable' {
+            $checkConfig.Selector = $sourceCheckConfig.selector
+            $checkConfig.Description = $sourceCheckConfig.description
+
+            if ($sourceCheckConfig.parameters -and $sourceCheckConfig.parameters.Count -gt 0) {
+              foreach ($parameterKey in $sourceCheckConfig.parameters.Keys) {
+                $checkConfig.Parameters[$parameterKey] = $sourceCheckConfig.parameters[$parameterKey]
+              }
+            }
+
+            if ($sourceCheckConfig.tags -and $sourceCheckConfig.tags.Count -gt 0) {
+              foreach ($tag in $sourceCheckConfig.tags) {
+                $checkConfig.Tags += $tag
+              }
+            }
+          }
+          'string' {
+            $checkConfig.Selector = $sourceCheckConfig
+          }
+          default {
+            throw "Unsupported check [$checkKey/$checkConfigKey] configuration type: [$($sourceCheckConfig.GetType().Name)]"
+          }
+        }
+
+        if (-not $checkConfig.Selector) {
+          throw "Runbook defines a check [$checkKey/$checkConfigKey] with no selector."
+        }
+
+        $check.Configurations += $checkConfig
+      }
+
+      $checks[$checkKey] = $check
+    }
+  }
+  else {
+    throw "Runbook defines no [checks]."
+  }
+
+  return $checks
+}
+
 <#
 .SYNOPSIS
 Reads a runbook
@@ -11,71 +136,32 @@ function Read-WAFRunbook {
     [string]$RunbookPath
   )
 
-  # Check that the file actually exists
   if (-not $(Test-Path $RunbookPath -PathType Leaf)) {
     throw "Runbook file not found: [$RunbookPath]"
   }
 
-  $runbook = @{
-    Parameters     = @{}
-    Selectors      = @{}
-    Checks         = @{}
-    QueryOverrides = @()
+  if (-not $(Test-Json -Path $RunbookPath)) {
+    throw "Runbook file is not a valid JSON file: [$RunbookPath]"
   }
 
-  # Read the runbook JSON
-  $fileJson = Get-Content -Raw $RunbookPath | ConvertFrom-Json -AsHashtable
-
-
-
-  if ($fileJson.parameters -and $fileJson.parameters.Count -gt 0) {
-    # Read parameters
-    foreach ($parameterKey in $fileJson.parameters.Keys) {
-      $runbook.Parameters[$parameterKey] = $fileJson.parameters[$parameterKey]
+  try {
+    $runbook = @{
+      Parameters     = @{}
+      Selectors      = @{}
+      Checks         = @{}
+      QueryOverrides = @()
     }
+  
+    $sourceJson = Get-Content -Raw $RunbookPath | ConvertFrom-Json -AsHashtable
+  
+    $runbook.Parameters = Read-WAFRunbookParameters -RunbookSource $sourceJson
+    $runbook.Selectors = Read-WAFRunbookSelectors -RunbookSource $sourceJson
+    $runbook.Checks = Read-WAFRunbookChecks -RunbookSource $sourceJson
+    $runbook.QueryOverrides = Read-WAFRunbookQueryOverrides -RunbookSource $sourceJson
+  
+    return $runbook
   }
-  else {
-    # It's odd that there's no parameters
-    Write-Warning "Runbook [$RunbookPath] defines no [parameters]."
+  catch {
+    throw "Failed to read runbook [$RunbookPath]: $_"
   }
-
-  if ($fileJson.selectors) {
-    # Read selectors
-    foreach ($selectorKey in $fileJson.selectors.Keys) {
-      $runbook.Selectors[$selectorKey] = $fileJson.selectors[$selectorKey]
-    }
-  }
-  else {
-    # Checks are required and checks require selectors.
-    # Therefore, selectors are required.
-    throw "Runbook [$RunbookPath] defines no [selectors]. [selectors] are required."
-  }
-
-        
-  # Read the runbook JSON
-  $runbookJson = Get-Content -Raw $RunbookPath | ConvertFrom-Json
-
-  # Try to load parameters
-  $runbookJson.parameters.PSObject.Properties | ForEach-Object {
-    $runbook.Parameters[$_.Name] = $_.Value
-  }
-
-  # Try to load selectors
-  $runbookJson.selectors.PSObject.Properties | ForEach-Object {
-    $runbook.Selectors[$_.Name.ToLower()] = $_.Value
-  }
-
-  # Try to load checks
-  $runbookJson.checks.PSObject.Properties | ForEach-Object {
-    $runbook.Checks[$_.Name.ToLower()] = $_.Value
-  }
-
-  # Try to load query overrides
-  $runbookJson.query_overrides | ForEach-Object {
-    $runbook.QueryOverrides += [string]$_
-  }
-
-  return [pscustomobject]$runbook
 }
-}
-#>
