@@ -1,5 +1,27 @@
 <#
 .SYNOPSIS
+    Retrieves recent outage service issue events.
+
+.DESCRIPTION
+    This module contains functions related to the capturing and collecting to recent outage service issue events.
+    It includes the following functions:
+    - Get-WAFOutage
+    - Invoke-AzureRestApi
+    - Get-AzureRestMethodUriPath
+    - New-WAFOutageObject
+
+.EXAMPLE
+    PS> $outageObjects = Get-WAFOutage -SubscriptionId '11111111-1111-1111-1111-111111111111'
+
+.NOTES
+    Author: Takeshi Katano
+    Date: 2024-10-23
+
+    This module requires the Az.Accounts module to be installed and imported.
+#>
+
+<#
+.SYNOPSIS
     Retrieves recent outage events for a given Azure subscription.
 
 .DESCRIPTION
