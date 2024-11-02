@@ -1,6 +1,7 @@
 BeforeAll {
     $modulePath = "$PSScriptRoot/../../modules/wara/outage/outage.psm1"
     Import-Module -Name $modulePath -Force
+    Import-Module -Name 'Az.Accounts' -Force
 }
 
 Describe 'Get-AzureRestMethodUriPath' {
