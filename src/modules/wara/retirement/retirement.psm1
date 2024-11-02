@@ -11,11 +11,13 @@
     - New-WAFResourceRetirementObject
 
 .EXAMPLE
-    $retirementObjects = Get-WAFResourceRetirement -SubscriptionId '11111111-1111-1111-1111-111111111111'
+    PS> $retirementObjects = Get-WAFResourceRetirement -SubscriptionId '11111111-1111-1111-1111-111111111111'
 
 .NOTES
     Author: Takeshi Katano
     Date: 2024-10-02
+
+    This module requires the Az.Accounts module to be installed and imported.
 #>
 
 <#
