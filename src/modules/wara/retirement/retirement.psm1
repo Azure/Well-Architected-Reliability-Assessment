@@ -28,12 +28,19 @@
 .PARAMETER SubscriptionId
     A subscription ID to retrieves active retirement health advisory events.
 
+.OUTPUTS
+    Returns a list of retirement events, including the name and properties of each event.
+
 .EXAMPLE
-    $retirementObjects = Get-WAFResourceRetirement -SubscriptionId '11111111-1111-1111-1111-111111111111'
+    PS> $retirementObjects = Get-WAFResourceRetirement -SubscriptionId '11111111-1111-1111-1111-111111111111'
+
+    This example retrieves the recent retirement events for the specified Azure subscription.
 
 .NOTES
     Author: Takeshi Katano
     Date: 2024-10-02
+
+    This function requires the Az.Accounts module to be installed and imported.
 #>
 function Get-WAFResourceRetirement {
     [CmdletBinding()]
@@ -116,14 +123,18 @@ function Get-WAFResourceRetirement {
 .PARAMETER RequestBody
     The request body for invoke the Azure REST API.
 
+.OUTPUTS
+    Returns a REST API response as the PSHttpResponse.
+
 .EXAMPLE
-    $response = Invoke-AzureRestApi -Method 'GET' -SubscriptionId '11111111-1111-1111-1111-111111111111' -ResourceProviderName 'Microsoft.ResourceHealth' -ResourceType 'events' -ApiVersion '2024-02-01' -QueryString 'queryStartTime=2024-10-02T00:00:00'
+    PS> $response = Invoke-AzureRestApi -Method 'GET' -SubscriptionId '11111111-1111-1111-1111-111111111111' -ResourceProviderName 'Microsoft.ResourceHealth' -ResourceType 'events' -ApiVersion '2024-02-01' -QueryString 'queryStartTime=2024-10-02T00:00:00'
 
 .NOTES
     Author: Takeshi Katano
     Date: 2024-10-02
 
-    This function should be placed in a common module such as a utility module because this is common feature across modules.
+    This function requires the Az.Accounts module to be installed and imported.
+    This function should be placed in a common module such as a utility/helper module because the capability of this function is common across modules.
 #>
 function Invoke-AzureRestApi {
     [CmdletBinding()]
@@ -219,14 +230,17 @@ function Invoke-AzureRestApi {
 .PARAMETER QueryString
     The query string that constitutes the path of Azure REST API URI.
 
+.OUTPUTS
+    Returns a URI path to call Azure REST API.
+
 .EXAMPLE
-    $path = Get-AzureRestMethodUriPath -SubscriptionId '11111111-1111-1111-1111-111111111111' -ResourceGroupName 'rg1' -ResourceProviderName 'Microsoft.Storage' -ResourceType 'storageAccounts' -Name 'stsample1234' -ApiVersion '2024-01-01'
+    PS> $path = Get-AzureRestMethodUriPath -SubscriptionId '11111111-1111-1111-1111-111111111111' -ResourceGroupName 'rg1' -ResourceProviderName 'Microsoft.Storage' -ResourceType 'storageAccounts' -Name 'stsample1234' -ApiVersion '2024-01-01'
 
 .NOTES
     Author: Takeshi Katano
     Date: 2024-10-02
 
-    This function should be placed in a common module such as a utility module because this is common feature across modules.
+    This function should be placed in a common module such as a utility/helper module because the capability of this function is common across modules.
 #>
 function Get-AzureRestMethodUriPath {
     [CmdletBinding()]
@@ -318,8 +332,11 @@ function Get-AzureRestMethodUriPath {
 .PARAMETER Description
     The description of the retirement event.
 
+.OUTPUTS
+    Returns a WAFResourceRetirementObject as a PSCustomObject.
+
 .EXAMPLE
-    retirementObject = New-WAFResourceRetirementObject -SubscriptionId $subscriptionId -TrackingId $trackingId -Status $status -LastUpdateTime $lastUpdateTime -StartTime $startTime -EndTime $endTime -Level $level -Title $title -Summary $summary -Header $header -ImpactedService $impactedServices -Description $description
+    PS> $retirementObject = New-WAFResourceRetirementObject -SubscriptionId $subscriptionId -TrackingId $trackingId -Status $status -LastUpdateTime $lastUpdateTime -StartTime $startTime -EndTime $endTime -Level $level -Title $title -Summary $summary -Header $header -ImpactedService $impactedServices -Description $description
 
 .NOTES
     Author: Takeshi Katano
