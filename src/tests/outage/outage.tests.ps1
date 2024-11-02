@@ -163,7 +163,7 @@ Describe 'Invoke-AzureRestApi' {
 }
 
 Describe 'New-WAFOutageObject' {
-    Context 'When to get a OutageObject' {
+    Context 'When to get an OutageObject' {
         BeforeAll {
             $outageDescriptionFilePath = "$PSScriptRoot/../data/outage/outageDescriptionData.txt"
         }
@@ -198,7 +198,7 @@ Describe 'New-WAFOutageObject' {
             }
         }
 
-        It 'Should return a OutageObject with a single impacted service' {
+        It 'Should return an OutageObject with a single impacted service' {
             $commonCmdletParams.ImpactedService = 'Network Infrastructure'
             $result = New-WAFOutageObject @commonCmdletParams
 
@@ -219,7 +219,7 @@ Describe 'New-WAFOutageObject' {
             $result.Description | Should -BeExactly $expected.description
         }
 
-        It 'Should return a OutageObject with multiple impacted services' {
+        It 'Should return an OutageObject with multiple impacted services' {
             $commonCmdletParams.ImpactedService = 'Network Infrastructure', 'Azure Database for MySQL', 'Automation'
             $result = New-WAFOutageObject @commonCmdletParams
 
@@ -243,7 +243,7 @@ Describe 'New-WAFOutageObject' {
 }
 
 Describe 'Get-WAFOutage' {
-    Context 'When to get a OutageObject' {
+    Context 'When to get an OutageObject' {
         BeforeAll {
             $moduleNameToInjectMock = 'outage'
         }
