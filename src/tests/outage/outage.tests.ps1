@@ -55,15 +55,15 @@ Describe 'Get-AzureRestMethodUriPath' {
 }
 
 Describe 'Invoke-AzureRestApi' {
+    BeforeAll {
+        $expected = 'JsonText'
+
+        Mock Invoke-AzRestMethod {
+            return @{ Content = $expected }
+        } -ModuleName 'outage' -Verifiable
+    }
+
     Context 'When to invoke an Azure REST API with a path WITH resource group' {
-        BeforeAll {
-            $expected = 'JsonText'
-
-            Mock Invoke-AzRestMethod {
-                return @{ Content = $expected }
-            } -ModuleName 'outage' -Verifiable
-        }
-
         BeforeEach {
             $commonCmdletParams = @{
                 Method               = 'GET'
@@ -110,14 +110,6 @@ Describe 'Invoke-AzureRestApi' {
     }
     
     Context 'When to invoke an Azure REST API with a path WITHOUT resource group' {
-        BeforeAll {
-            $expected = 'JsonText'
-
-            Mock Invoke-AzRestMethod {
-                return @{ Content = $expected }
-            } -ModuleName 'outage' -Verifiable
-        }
-
         BeforeEach {
             $commonCmdletParams = @{
                 Method               = 'GET'
