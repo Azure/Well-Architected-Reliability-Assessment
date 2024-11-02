@@ -244,7 +244,7 @@ Describe 'Get-WAFOutage' {
             $restApiResponseFilePath = "$PSScriptRoot/../data/outage/restApiSingleResponseData.json"
             $restApiResponseContent = Get-Content $restApiResponseFilePath -Raw
 
-            Mock Invoke-AzureRestApi {
+            Mock Invoke-AzRestMethod {
                 return @{ Content = $restApiResponseContent }
             } -ModuleName $moduleNameToInjectMock -Verifiable
 
