@@ -89,6 +89,6 @@ Function Start-WAFCollector{
 
         $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
 
-
         
+
 }
