@@ -74,19 +74,21 @@ Function Start-WAFCollector{
         Connect-WAFAzure -TenantId $Scope_TenantId -AzureEnvironment $AzureEnvironment
 
         #Get Implicit Subscription Ids from Scope
-        $ImplicitSubscriptionIds = Get-WAFImplicitSubscriptionId -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
+        $Scope_ImplicitSubscriptionIds = Get-WAFImplicitSubscriptionId -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
         
         #Get all resources from the implicit subscription ids
         #$UnfilteredResources = Get-WAFUnfilteredResourceList -SubscriptionIds $ImplicitSubscriptionIds
 
-        $Recommendations = Invoke-WAFQueryLoop -SubscriptionIds $ImplicitSubscriptionIds.replace("/subscriptions/",'') -RecommendationObject $RecommendationObject
+        $Recommendations = Invoke-WAFQueryLoop -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/",'') -RecommendationObject $RecommendationObject
         
         $impactedResourceObj = $Recommendations.ForEach({[impactedResourceObj]::new($_)})
 
         $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $impactedResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
 
-        $advisorResourceObj = Get-WAFAdvisorRecommendations -Subid $Scope_SubscriptionIds -HighAvailability
+        $advisorResourceObj = Get-WAFAdvisorRecommendations -Subid $Scope_ImplicitSubscriptionIds.replace("/subscriptions/",'') -HighAvailability
 
         $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
 
+
+        
 }
