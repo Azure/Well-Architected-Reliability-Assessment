@@ -15,18 +15,12 @@ $resources = Get-WAFAllAzGraphResource -subscriptionIds @('sub1', 'sub2')
 This function handles pagination using the SkipToken.
 #>
 Function Get-WAFAllAzGraphResource {
+  [CmdletBinding()]
   param (
     [string[]]$subscriptionIds,
     [string]$query = 'Resources | project id, resourceGroup, subscriptionId, name, type, location'
   )
 
-  if ($Debugging) {
-    Write-Host
-    Write-Host "[-Debugging]: Running resource graph query..." -ForegroundColor Magenta
-    Write-Host
-    Write-Host "$query" -ForegroundColor Magenta
-    Write-Host
-  }
 
   $result = $subscriptionIds ? (Search-AzGraph -Query $query -first 1000 -Subscription $subscriptionIds) : (Search-AzGraph -Query $query -first 1000 -usetenantscope) # -first 1000 returns the first 1000 results and subsequently reduces the amount of queries required to get data.
 
@@ -62,6 +56,7 @@ $resourceGroups = Get-WAFResourceGroup -SubscriptionIds @('sub1', 'sub2')
 This function uses the Get-WAFAllAzGraphResource function to perform the query.
 #>
 function Get-WAFResourceGroup {
+  [CmdletBinding()]
   param (
     [string[]]$SubscriptionIds
   )
@@ -98,6 +93,7 @@ $taggedResources = Get-WAFTaggedResources -tagArray @('env==prod', 'app==myapp')
 This function uses the Get-WAFAllAzGraphResource function to perform the query.
 #>
 Function Get-WAFTaggedResources {
+  [CmdletBinding()]
 param(
     [String[]]$tagArray,
     [String[]]$SubscriptionIds
@@ -142,6 +138,7 @@ $taggedRGResources = Get-WAFTaggedRGResources -tagKeys @('env') -tagValues @('pr
 This function uses the Get-WAFAllAzGraphResource function to perform the query.
 #>
 Function Get-WAFTaggedRGResources {
+  [CmdletBinding()]
 param(
     [String[]]$tagKeys,
     [String[]]$tagValues,
@@ -181,6 +178,7 @@ $resources = Invoke-WAFQueryLoop -RecommendationObject $recommendations -subscri
 This function uses the Get-WAFAllAzGraphResource function to perform the queries.
 #>
 Function Invoke-WAFQueryLoop {
+  [CmdletBinding()]
 param(
   $RecommendationObject,
   [string[]]$subscriptionIds
@@ -190,9 +188,14 @@ $Types = Get-WAFResourceType -SubscriptionIds $subscriptionIds
 
 $QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -FilterList $Types.type -KeyColumn "recommendationResourceType"
 
-$return = $QueryObject | Where-Object{$_.automationavailable -eq "arg"} | ForEach-Object {
+$return = $QueryObject.Where({$_.automationavailable -eq $True -and [String]::IsNullOrEmpty($_.recommendationTypeId)}) | ForEach-Object {
   Write-Progress -Activity "Running Queries" -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100)
-  Get-WAFAllAzGraphResource -query $_.query -subscriptionIds $subscriptionIds
+  try{
+    Get-WAFAllAzGraphResource -query $_.query -subscriptionIds $subscriptionIds -ErrorAction Stop
+  }
+  catch{
+    Write-Host "Error running query for - " $_.aprlGuid
+  }
 }
 
 return $return
@@ -213,6 +216,7 @@ $resourceTypes = Get-WAFResourceType -SubscriptionIds @('sub1', 'sub2')
 This function uses the Get-WAFAllAzGraphResource function to perform the query.
 #>
 Function Get-WAFResourceType {
+  [CmdletBinding()]
 param(
   [String[]]$SubscriptionIds
 )
@@ -243,6 +247,7 @@ Returns an array of objects that match the specified resource types.
 $filteredObjects = Get-WAFQueryByResourceType -ObjectList $objects -FilterList $types -KeyColumn "type"
 #>
 function Get-WAFQueryByResourceType {
+  [CmdletBinding()]
 param (
   [Parameter(Mandatory = $true)]
   [array]$ObjectList,
