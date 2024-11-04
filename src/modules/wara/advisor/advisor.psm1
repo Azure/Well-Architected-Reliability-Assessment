@@ -47,13 +47,14 @@ function Get-WAFAdvisorRecommendations {
     $categoriesString = $categories -join "','"
 
 
-    $advquery = "advisorresources 
-                | where type == 'microsoft.advisor/recommendations' and tostring(properties.category) in ('$categoriesString') 
-                | extend resId = tolower(tostring(properties.resourceMetadata.resourceId)) 
-                | join kind=leftouter (resources 
-                | project ['resId']=tolower(id), subscriptionId, resourceGroup ,location) on resId
-                | project recommendationTypeId = properties.recommendationTypeId, type = tolower(properties.impactedField), name = properties.impactedValue, id = resId1, subscriptionId = subscriptionId1, location = location1, category = properties.category, impact = properties.impact, description = properties.shortDescription.solution
-                | order by ['id']"
+    $advquery = `
+"advisorresources 
+| where type == 'microsoft.advisor/recommendations' and tostring(properties.category) in ('$categoriesString') 
+| extend resId = tolower(tostring(properties.resourceMetadata.resourceId)) 
+| join kind=leftouter (resources 
+| project ['resId']=tolower(id), subscriptionId, resourceGroup ,location) on resId
+| project recommendationId = properties.recommendationTypeId, type = tolower(properties.impactedField), name = properties.impactedValue, id = resId1, subscriptionId = subscriptionId1,resourceGroup = resourceGroup, location = location1, category = properties.category, impact = properties.impact, description = properties.shortDescription.solution
+| order by ['id']"
    
     $queryResults = Get-WAFAllAzGraphResource -Query $advquery -subscriptionId $Subid
 
