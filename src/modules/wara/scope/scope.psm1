@@ -305,6 +305,7 @@ Author: Your Name
 Date: 2024-08-07
 #>
 function Get-WAFFilteredResourceList {
+    [CmdletBinding()]
     param(
         [array]$SubscriptionFilters = @(),
         [array]$ResourceGroupFilters = @(),
