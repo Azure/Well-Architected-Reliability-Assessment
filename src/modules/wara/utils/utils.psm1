@@ -116,8 +116,6 @@ function Connect-WAFAzure {
     param (
         [Parameter(Mandatory = $true)]
         [string]$TenantID,
-        [Parameter(Mandatory = $true)]
-        [string[]]$SubscriptionIds,
         [ValidateSet('AzureCloud', 'AzureChinaCloud', 'AzureGermanCloud', 'AzureUSGovernment')]
         [string]$AzureEnvironment = 'AzureCloud'
     )
@@ -156,3 +154,117 @@ function Import-WAFAPRLJSON {
     # Return the converted JSON object
     return $return
 }
+
+Function Test-TagPattern {
+    param (
+      [string[]]$InputValue
+    )
+    $pattern = '^[^<>&%\\?/]+=~[^<>&%\\?/]+$|[^<>&%\\?/]+!~[^<>&%\\?/]+$'
+
+    $allMatch = $true
+
+    $InputValue | ForEach-Object {
+      if ($_ -notmatch $Pattern) {
+        $allMatch = $false
+      }
+    }
+    return $allMatch
+  }
+
+  Function Test-ResourceGroupId {
+    param (
+      [string[]]$InputValue
+    )
+    $pattern = '\/subscriptions\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\/resourceGroups\/[a-zA-Z0-9._-]+'
+
+    $allMatch = $true
+
+    $InputValue | ForEach-Object {
+      if ($_ -notmatch $Pattern) {
+        $allMatch = $false
+      }
+    }
+    return $allMatch
+  }
+
+  Function Test-SubscriptionId {
+    param (
+      [string[]]$InputValue
+    )
+    $pattern = '\/subscriptions\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+
+    $allMatch = $true
+
+    $InputValue | ForEach-Object {
+      if ($_ -notmatch $Pattern) {
+        $allMatch = $false
+      }
+    }
+    return $allMatch
+  }
+
+  function Test-ScriptParameters {
+    $IsValid = $true
+
+    if ($RunbookFile) {
+
+      if (!(Test-Path $RunbookFile -PathType Leaf)) {
+        Write-Host "Runbook file (-RunbookFile) not found: [$RunbookFile]" -ForegroundColor Red
+        $IsValid = $false
+      }
+
+      if ($ConfigFile) {
+        Write-Host "Runbook file (-RunbookFile) and configuration file (-ConfigFile) cannot be used together." -ForegroundColor Red
+        $IsValid = $false
+      }
+
+      if (!($SubscriptionIds)) {
+        Write-Host "Subscription ID(s) (-SubscriptionIds) is required when using a runbook file (-RunbookFile)." -ForegroundColor Red
+        $IsValid = $false
+      }
+
+      if ($ResourceGroups -or $Tags) {
+        Write-Host "Resource group(s) (-ResourceGroups) and tags (-Tags) cannot be used with a runbook file (-RunbookFile)." -ForegroundColor Red
+        $IsValid = $false
+      }
+
+    } else {
+
+      if ($UseImplicitRunbookSelectors) {
+        Write-Host "Implicit runbook selectors (-UseImplicitRunbookSelectors) can only be used with a runbook file (-RunbookFile)." -ForegroundColor Red
+        $IsValid = $false
+      }
+
+      if ($ConfigFile) {
+
+        if (!(Test-Path $ConfigFile -PathType Leaf)) {
+          Write-Host "Configuration file (-ConfigFile) not found: [$ConfigFile]" -ForegroundColor Red
+          $IsValid = $false
+        }
+
+        if ($SubscriptionIds -or $ResourceGroups -or $Tags) {
+          Write-Host "Configuration file (-ConfigFile) and [Subscription ID(s) (-SubscriptionIds), resource group(s) (-ResourceGroups), or tags (-Tags)] cannot be used together." -ForegroundColor Red
+          $IsValid = $false
+        }
+
+        if ($TenantId) {
+          Write-Host "Tenant ID (-TenantId) cannot be used with a configuration file (-ConfigFile). Include tenant ID in the [tenantid] section of the config file." -ForegroundColor Red
+          $IsValid = $false
+        }
+
+      } else {
+
+        if (!($TenantId)) {
+          Write-Host "Tenant ID (-TenantId) is required." -ForegroundColor Red
+          $IsValid = $false
+        }
+
+        if (!($SubscriptionIds) -and !($ResourceGroups)) {
+          Write-Host "Subscription ID(s) (-SubscriptionIds) or resource group(s) (-ResourceGroups) are required." -ForegroundColor Red
+          $IsValid = $false
+        }
+      }
+    }
+
+    return $IsValid
+  }

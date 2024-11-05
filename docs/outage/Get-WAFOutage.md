@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Get-WAFOutage [-BaseURL] <String> [-Subid] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFOutage [-SubscriptionId] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,8 +30,8 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -BaseURL
-{{ Fill BaseURL Description }}
+### -SubscriptionId
+The subscription ID for the Azure subscription to retrieves outage events.
 
 ```yaml
 Type: String
@@ -45,13 +45,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Subid
-{{ Fill Subid Description }}
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
 ```yaml
-Type: String
+Type: ActionPreference
 Parameter Sets: (All)
-Aliases:
+Aliases: proga
 
 Required: True
 Position: 2

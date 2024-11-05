@@ -306,9 +306,9 @@ Date: 2024-08-07
 #>
 function Get-WAFFilteredResourceList {
     param(
-        [array]$SubscriptionFilters,
-        [array]$ResourceGroupFilters,
-        [array]$ResourceFilters,
+        [array]$SubscriptionFilters = @(),
+        [array]$ResourceGroupFilters = @(),
+        [array]$ResourceFilters = @(),
         [array]$UnfilteredResources
     )
     # TODO: ADD FILTERS FOR TAGS
@@ -320,8 +320,7 @@ function Get-WAFFilteredResourceList {
     $ResourceFilters ? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn "Id") : $(Write-Debug "Resource Filters not provided.")
 
     # Originally used to remove duplicates but there was some weird interaction with the return object that caused it to duplicate the entire array. 
-    # This just needs to be sorted outside of this function using | Sort-Object -Property Id,RecommendationId -Unique
-    $FilteredResources = $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources
+    $FilteredResources = $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources | Select-Object -Property * -Unique
 
     return $FilteredResources
 }
