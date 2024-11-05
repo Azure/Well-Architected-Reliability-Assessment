@@ -29,6 +29,13 @@ jobs:
         run: |
           echo "ERROR_DETECTED=false" >> $GITHUB_ENV
 
+      - name: Install PowerShell Module Dependencies from PSGallery
+        run: |
+          Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+          Install-Module -Name 'Az.Accounts'
+        shell: pwsh
+        continue-on-error: true
+
       - name: Run advisor.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName advisor
