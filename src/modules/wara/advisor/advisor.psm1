@@ -20,9 +20,42 @@
     Date: 2024-08-07
 #>
 function Get-WAFAdvisorRecommendations {
-    Param($Subid)
+    [CmdletBinding()]
+    Param(
+        [array]$Subid,
+        [switch]$HighAvailability,
+        [switch]$Security,
+        [switch]$Cost,
+        [switch]$Performance,
+        [switch]$OperationalExcellence
 
-    $advquery = "advisorresources | where type == 'microsoft.advisor/recommendations' and tostring(properties.category) in ('HighAvailability') | extend resId = tolower(tostring(properties.resourceMetadata.resourceId)) | join kind=leftouter (resources | project ['resId']=tolower(id), subscriptionId, resourceGroup ,location) on resId  | order by ['id']"
+    )
+
+    # Initialize an array to hold the selected categories
+    $categories = @()
+
+    # Add categories based on the selected switches
+    switch ($PSBoundParameters.Keys) {
+        'HighAvailability' { $categories += 'HighAvailability' }
+        'Security' { $categories += 'Security' }
+        'Cost' { $categories += 'Cost' }
+        'Performance' { $categories += 'Performance' }
+        'OperationalExcellence' { $categories += 'OperationalExcellence' }
+    }
+
+    # Convert the categories array to a comma-separated string
+    $categoriesString = $categories -join "','"
+
+
+    $advquery = `
+"advisorresources 
+| where type == 'microsoft.advisor/recommendations' and tostring(properties.category) in ('$categoriesString') 
+| extend resId = tolower(tostring(properties.resourceMetadata.resourceId)) 
+| join kind=leftouter (resources 
+| project ['resId']=tolower(id), subscriptionId, resourceGroup ,location) on resId
+| project recommendationId = properties.recommendationTypeId, type = tolower(properties.impactedField), name = properties.impactedValue, id = resId1, subscriptionId = subscriptionId1,resourceGroup = resourceGroup, location = location1, category = properties.category, impact = properties.impact, description = properties.shortDescription.solution
+| order by ['id']"
+   
     $queryResults = Get-WAFAllAzGraphResource -Query $advquery -subscriptionId $Subid
 
     return $queryResults
