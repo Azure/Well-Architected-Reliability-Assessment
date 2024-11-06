@@ -13,7 +13,8 @@ Retrieves high availability recommendations from Azure Advisor.
 ## SYNTAX
 
 ```
-Get-WAFAdvisorRecommendations [[-Subid] <Object>] [<CommonParameters>]
+Get-WAFAdvisorRecommendations [[-Subid] <Array>] [-HighAvailability] [-Security] [-Cost] [-Performance]
+ [-OperationalExcellence] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,12 +34,102 @@ $subId = "22222222-2222-2222-2222-222222222222"
 The subscription ID for which to retrieve recommendations.
 
 ```yaml
-Type: Object
+Type: Array
 Parameter Sets: (All)
 Aliases:
 
 Required: False
 Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -HighAvailability
+{{ Fill HighAvailability Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Security
+{{ Fill Security Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Cost
+{{ Fill Cost Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Performance
+{{ Fill Performance Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OperationalExcellence
+{{ Fill OperationalExcellence Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -13,7 +13,8 @@ Retrieves all Azure resources using Azure Resource Graph.
 ## SYNTAX
 
 ```
-Get-WAFAllAzGraphResource [[-subscriptionIds] <String[]>] [[-query] <String>] [<CommonParameters>]
+Get-WAFAllAzGraphResource [[-subscriptionIds] <String[]>] [[-query] <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -55,6 +56,21 @@ Aliases:
 Required: False
 Position: 2
 Default value: Resources | project id, resourceGroup, subscriptionId, name, type, location
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

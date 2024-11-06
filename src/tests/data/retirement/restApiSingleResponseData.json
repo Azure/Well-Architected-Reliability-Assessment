@@ -28,7 +28,7 @@
                                 "impactedRegion": "Australia East",
                                 "status": "Active",
                                 "impactedSubscriptions": [
-                                    "ebb79bc0-aa86-44a7-8111-cabbe0c43993"
+                                    "11111111-1111-1111-1111-111111111111"
                                 ],
                                 "impactedTenants": [],
                                 "lastUpdateTime": "2024-09-30T21:42:38.9256869Z",
@@ -43,7 +43,7 @@
                                 "impactedRegion": "West US",
                                 "status": "Active",
                                 "impactedSubscriptions": [
-                                    "ebb79bc0-aa86-44a7-8111-cabbe0c43993"
+                                    "11111111-1111-1111-1111-111111111111"
                                 ],
                                 "impactedTenants": [],
                                 "lastUpdateTime": "2024-09-30T21:42:38.9256869Z",
@@ -58,7 +58,7 @@
                                 "impactedRegion": "West US 2",
                                 "status": "Active",
                                 "impactedSubscriptions": [
-                                    "ebb79bc0-aa86-44a7-8111-cabbe0c43993"
+                                    "11111111-1111-1111-1111-111111111111"
                                 ],
                                 "impactedTenants": [],
                                 "lastUpdateTime": "2024-09-30T21:42:38.9256869Z",
