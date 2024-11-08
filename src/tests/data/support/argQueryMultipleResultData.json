@@ -1,0 +1,42 @@
+[
+    {
+        "supportTicketId": "1234567890123456",
+        "severity": "Moderate",
+        "status": "Open",
+        "supportPlanType": "Unified Enterprise",
+        "createdDate": "2024-01-01T03:04:05Z",
+        "modifiedDate": "2024-06-07T08:09:10Z",
+        "title": "Test Support Case 1",
+        "technicalTicketDetailsResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/test-rg/providers/Resource.Provider/resourceType/resource"
+    },
+    {
+        "supportTicketId": "7890123456789012",
+        "severity": "Moderate",
+        "status": "Open",
+        "supportPlanType": "Unified Enterprise",
+        "createdDate": "2024-01-01T03:04:05Z",
+        "modifiedDate": "2024-06-07T08:09:10Z",
+        "title": "Test Support Case 2",
+        "technicalTicketDetailsResourceId": ""
+    },
+    {
+        "supportTicketId": "3456789012345678",
+        "severity": "Moderate",
+        "status": "Closed",
+        "supportPlanType": "Unified Enterprise",
+        "createdDate": "2024-01-01T03:04:05Z",
+        "modifiedDate": "2024-06-07T08:09:10Z",
+        "title": "Test Support Case 3",
+        "technicalTicketDetailsResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/test-rg/providers/Resource.Provider/resourceType/resource"
+    },
+    {
+        "supportTicketId": "9012345678901234",
+        "severity": "Moderate",
+        "status": "Closed",
+        "supportPlanType": "Unified Enterprise",
+        "createdDate": "2024-01-01T03:04:05Z",
+        "modifiedDate": "2024-06-07T08:09:10Z",
+        "title": "Test Support Case 4",
+        "technicalTicketDetailsResourceId": ""
+    }
+]
