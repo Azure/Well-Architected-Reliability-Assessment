@@ -1,32 +1,89 @@
 function Get-WAFSupportTicket {
-    Param($BaseURL,$Subid)
+    [CmdletBinding()]
+    [OutputType([PSCustomObject[]])]
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
+        [string] $SubscriptionId
+    )
 
-    $Token = Get-AzAccessToken -AsSecureString -InformationAction SilentlyContinue -WarningAction SilentlyContinue
+    $argQuery = @'
+SupportResources
+| where type =~ "Microsoft.Support/supportTickets"
+| where properties.Severity !~ "Minimal"  // Exclude severity C
+| extend
+    createdDateAsDateTime = todatetime(properties.CreatedDate),   // UTC
+    modifiedDateAsDateTime = todatetime(properties.ModifiedDate)  // UTC
+| where createdDateAsDateTime > datetime_add("Month", -3, now())  // Last 3 months (not 90 days)
+| order by createdDateAsDateTime desc
+| project
+    supportTicketId = properties.SupportTicketId,
+    severity = properties.Severity,
+    status = properties.Status,
+    supportPlanType = properties.SupportPlanType,
+    createdDate = createdDateAsDateTime,
+    modifiedDate = modifiedDateAsDateTime,
+    title = properties.Title,
+    technicalTicketDetailsResourceId = iif(isnull(properties.TechnicalTicketDetails.ResourceId), "", properties.TechnicalTicketDetails.ResourceId)
+'@
 
-    $TokenData = $Token.Token | ConvertFrom-SecureString -AsPlainText
+    $supportTickets = Search-AzGraph -Subscription $SubscriptionId -First 1000 -Query $argQuery
 
-    $DateCore = (Get-Date).AddMonths(-3)
-
-    $header = @{
-    'Authorization' = 'Bearer ' + $TokenData
-    }
-
-    $supurl = ('https://' + $BaseURL + '/subscriptions/' + $Subid + '/providers/Microsoft.Support/supportTickets?api-version=2020-04-01')
-    $SupTickets = Invoke-RestMethod -Uri $supurl -Headers $header -Method GET
-    $Tickets = $SupTickets.value | Where-Object { $_.properties.severity -ne 'Minimal' -and $_.properties.createdDate -gt $DateCore } | Select-Object -Property name, properties
-
-    $SupportTickets = foreach ($Ticket in $Tickets) {
-        $tmp = @{
-            'Ticket ID'         = [string]$Ticket.properties.supportTicketId;
-            'Severity'          = [string]$Ticket.properties.severity;
-            'Status'            = [string]$Ticket.properties.status;
-            'Support Plan Type' = [string]$Ticket.properties.supportPlanType;
-            'Creation Date'     = [string]$Ticket.properties.createdDate;
-            'Modified Date'     = [string]$Ticket.properties.modifiedDate;
-            'Title'             = [string]$Ticket.properties.title;
-            'Related Resource'  = [string]$Ticket.properties.technicalTicketDetails.resourceId
+    $supportTicketObjects = foreach ($supportTicket in $supportTickets) {
+        $cmdletParams = @{
+            SupportTicketId                  = $supportTicket.supportTicketId
+            Severity                         = $supportTicket.severity
+            Status                           = $supportTicket.status
+            SupportPlanType                  = $supportTicket.supportPlanType
+            CreatedDate                      = $supportTicket.createdDate
+            ModifiedDate                     = $supportTicket.modifiedDate
+            Title                            = $supportTicket.title
+            TechnicalTicketDetailsResourceId = $supportTicket.technicalTicketDetailsResourceId
         }
-        $tmp
+        New-WAFSupportTicketObject @cmdletParams
     }
-    return $SupportTickets
+
+    return $supportTicketObjects
+}
+
+function New-WAFSupportTicketObject {
+    [CmdletBinding()]
+    [OutputType([PSCustomObject])]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $SupportTicketId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Severity,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Status,
+
+        [Parameter(Mandatory = $true)]
+        [string] $SupportPlanType,
+
+        [Parameter(Mandatory = $true)]
+        [datetime] $CreatedDate,
+
+        [Parameter(Mandatory = $true)]
+        [datetime] $ModifiedDate,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Title,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $TechnicalTicketDetailsResourceId
+    )
+
+    return [PSCustomObject] @{
+        'Ticket ID'         = $SupportTicketId
+        'Severity'          = $Severity
+        'Status'            = $Status
+        'Support Plan Type' = $SupportPlanType
+        'Creation Date'     = $CreatedDate.ToString('yyyy-MM-dd HH:mm:ss')
+        'Modified Date'     = $ModifiedDate.ToString('yyyy-MM-dd HH:mm:ss')
+        'Title'             = $Title
+        'Related Resource'  = $TechnicalTicketDetailsResourceId
+    }
 }
