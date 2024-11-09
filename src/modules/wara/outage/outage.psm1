@@ -28,7 +28,10 @@
     The Get-WAFOutage function queries the Microsoft Resource Health API to retrieve recent outage events for a specified Azure subscription. It filters the events to include only those that have updated in the last three months.
 
 .PARAMETER SubscriptionId
-    The subscription ID for the Azure subscription to retrieves outage events.
+    The subscription ID for the Azure subscription to retrieve outage events.
+
+.PARAMETER ProgressAction
+    This is a common parameter, but this cmdlet does not use this parameter.
 
 .OUTPUTS
     Returns a list of outage events, including the name and properties of each event.
@@ -99,7 +102,7 @@ function Get-WAFOutage {
     The Invoke-AzureRestApi function invokes an Azure REST API with the specified parameters then return the response.
 
 .PARAMETER Method
-    The HTTP method to invoke the Azure REST API.
+    The HTTP method to invoke the Azure REST API. The accepted values are GET, POST, PUT, PATCH, and DELETE.
 
 .PARAMETER SubscriptionId
     The subscription ID that constitutes the URI for invoke the Azure REST API.
@@ -108,7 +111,7 @@ function Get-WAFOutage {
     The resource group name that constitutes the URI for invoke the Azure REST API.
 
 .PARAMETER ResourceProviderName
-    The resource provider name that constitutes the URI for invoke the Azure REST API.
+    The resource provider name that constitutes the URI for invoke the Azure REST API. It's usually as the XXXX.XXXX format.
 
 .PARAMETER ResourceType
     The resource type that constitutes the URI for invoke the Azure REST API.
@@ -117,13 +120,16 @@ function Get-WAFOutage {
     The resource name that constitutes the URI for invoke the Azure REST API.
 
 .PARAMETER ApiVersion
-    The Azure REST API version that constitutes the URI for invoke the Azure REST API.
+    The Azure REST API version that constitutes the URI for invoke the Azure REST API. It's usually as the yyyy-mm-dd format.
 
 .PARAMETER QueryString
     The query string that constitutes the URI for invoke the Azure REST API.
 
 .PARAMETER RequestBody
     The request body for invoke the Azure REST API.
+
+.PARAMETER ProgressAction
+    This is a common parameter, but this cmdlet does not use this parameter.
 
 .OUTPUTS
     Returns a REST API response as the PSHttpResponse.
@@ -218,7 +224,7 @@ function Invoke-AzureRestApi {
     The resource group name that constitutes the path of Azure REST API URI.
 
 .PARAMETER ResourceProviderName
-    The resource provider name that constitutes the path of Azure REST API URI.
+    The resource provider name that constitutes the path of Azure REST API URI. It's usually as the XXXX.XXXX format.
 
 .PARAMETER ResourceType
     The resource type that constitutes the path of Azure REST API URI.
@@ -227,16 +233,19 @@ function Invoke-AzureRestApi {
     The resource name that constitutes the path of Azure REST API URI.
 
 .PARAMETER ApiVersion
-    The Azure REST API version that constitutes the path of Azure REST API URI.
+    The Azure REST API version that constitutes the path of Azure REST API URI. It's usually as the yyyy-mm-dd format.
 
 .PARAMETER QueryString
     The query string that constitutes the path of Azure REST API URI.
+
+.PARAMETER ProgressAction
+    This is a common parameter, but this cmdlet does not use this parameter.
 
 .OUTPUTS
     Returns a URI path to call Azure REST API.
 
 .EXAMPLE
-    PS> $path = Get-AzureRestMethodUriPath -SubscriptionId '11111111-1111-1111-1111-111111111111' -ResourceGroupName 'rg1' -ResourceProviderName 'Microsoft.Storage' -ResourceType 'storageAccounts' -Name 'stsample1234' -ApiVersion '2024-01-01'
+    PS> $path = Get-AzureRestMethodUriPath -SubscriptionId '11111111-1111-1111-1111-111111111111' -ResourceGroupName 'rg1' -ResourceProviderName 'Microsoft.Storage' -ResourceType 'storageAccounts' -Name 'stsample1234' -ApiVersion '2024-01-01' -QueryString 'param1=value1'
 
 .NOTES
     Author: Takeshi Katano
@@ -302,10 +311,10 @@ function Get-AzureRestMethodUriPath {
     The subscription ID of the outage event.
 
 .PARAMETER TrackingId
-    The tracking ID of the outage event.
+    The tracking ID of the outage event. It's usually as the XXXX-XXX format.
 
 .PARAMETER Status
-    The status of the outage event.
+    The status of the outage event. It's usually Active or Resolved.
 
 .PARAMETER LastUpdateTime
     The last update time of the outage event.
@@ -317,7 +326,7 @@ function Get-AzureRestMethodUriPath {
     The impact mitigation time of the outage event.
 
 .PARAMETER Level
-    The level of the outage event.
+    The level of the outage event such as Warning, etc.
 
 .PARAMETER Title
     The title of the outage event.
@@ -334,11 +343,14 @@ function Get-AzureRestMethodUriPath {
 .PARAMETER Description
     The description of the outage event.
 
+.PARAMETER ProgressAction
+    This is a common parameter, but this cmdlet does not use this parameter.
+
 .OUTPUTS
-    Returns a WAFOutageObject as a PSCustomObject.
+    Returns an OutageObject as a PSCustomObject.
 
 .EXAMPLE
-    PS> $outageObjects = New-WAFOutageObject -SubscriptionId $subscriptionId -TrackingId $trackingId -Status $status -LastUpdateTime $lastUpdateTime -StartTime $startTime -EndTime $endTime -Level $level -Title $title -Summary $summary -Header $header -ImpactedService $impactedServices -Description $description
+    PS> $outageObject = New-WAFOutageObject -SubscriptionId $subscriptionId -TrackingId 'XXXX-XXX' -Status 'Active' -LastUpdateTime $lastUpdateTime -StartTime $startTime -EndTime $endTime -Level 'Warning' -Title $title -Summary $summary -Header $header -ImpactedService $impactedServices -Description $description
 
 .NOTES
     Author: Takeshi Katano
