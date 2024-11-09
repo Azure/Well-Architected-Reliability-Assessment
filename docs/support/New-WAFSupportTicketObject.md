@@ -32,31 +32,16 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -CreatedDate
-{{ Fill CreatedDate Description }}
+### -SupportTicketId
+{{ Fill SupportTicketId Description }}
 
 ```yaml
-Type: DateTime
+Type: String
 Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 4
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ModifiedDate
-{{ Fill ModifiedDate Description }}
-
-```yaml
-Type: DateTime
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 5
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -71,7 +56,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 1
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -86,7 +71,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 2
+Position: 3
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -101,37 +86,37 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 3
+Position: 4
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -SupportTicketId
-{{ Fill SupportTicketId Description }}
+### -CreatedDate
+{{ Fill CreatedDate Description }}
 
 ```yaml
-Type: String
+Type: DateTime
 Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 0
+Position: 5
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -TechnicalTicketDetailsResourceId
-{{ Fill TechnicalTicketDetailsResourceId Description }}
+### -ModifiedDate
+{{ Fill ModifiedDate Description }}
 
 ```yaml
-Type: String
+Type: DateTime
 Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 7
+Position: 6
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -146,7 +131,22 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 6
+Position: 7
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TechnicalTicketDetailsResourceId
+{{ Fill TechnicalTicketDetailsResourceId Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 8
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
