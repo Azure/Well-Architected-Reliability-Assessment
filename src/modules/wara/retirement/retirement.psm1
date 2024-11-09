@@ -347,7 +347,7 @@ function Get-AzureRestMethodUriPath {
     This is a common parameter, but this cmdlet does not use this parameter.
 
 .OUTPUTS
-    Returns a WAFResourceRetirementObject as a PSCustomObject.
+    Returns a ResourceRetirementObject as a PSCustomObject.
 
 .EXAMPLE
     PS> $retirementObject = New-WAFResourceRetirementObject -SubscriptionId $subscriptionId -TrackingId 'XXXX-XXX' -Status 'Active' -LastUpdateTime $lastUpdateTime -StartTime $startTime -EndTime $endTime -Level 'Warning' -Title $title -Summary $summary -Header $header -ImpactedService $impactedServices -Description $description
