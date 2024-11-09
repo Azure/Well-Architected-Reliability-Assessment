@@ -14,3 +14,6 @@ Contains functions related to the capturing and collecting of data pertaining to
 ### [Get-WAFSupportTicket](Get-WAFSupportTicket.md)
 {{ Fill in the Synopsis }}
 
+### [New-WAFSupportTicketObject](New-WAFSupportTicketObject.md)
+{{ Fill in the Synopsis }}
+
