@@ -1,3 +1,5 @@
+using module ../collector/collector.psd1
+
 <#
 .SYNOPSIS
     Retrieves high availability recommendations from Azure Advisor.
@@ -58,7 +60,9 @@ function Get-WAFAdvisorRecommendations {
    
     $queryResults = Get-WAFAllAzGraphResource -Query $advquery -subscriptionId $Subid
 
-    return $queryResults
+    $return = Build-WAFAdvisorObject -AdvQueryResult $queryResults
+
+    return $return
 }
 
 
@@ -83,21 +87,36 @@ function Get-WAFAdvisorRecommendations {
 function Build-WAFAdvisorObject {
     Param($AdvQueryResult)
 
-    $AllAdvisories = foreach ($row in $AdvQueryResult) {
-            $result = [PSCustomObject]@{
-            recommendationId = [string]$row.properties.recommendationTypeId
-            type             = [string]$row.Properties.impactedField
-            name             = [string]$row.properties.impactedValue
-            id               = [string]$row.resId1
-            subscriptionId   = [string]$row.subscriptionId1
-            resourceGroup    = [string]$row.resourceGroup1
-            location         = [string]$row.location1
-            category         = [string]$row.properties.category
-            impact           = [string]$row.properties.impact
-            description      = [string]$row.properties.shortDescription.solution
-            }
-            $result
-        }
-    return $AllAdvisories
+    $return = $AdvQueryResult.ForEach({ [advisorResourceObj]::new($_) })
+
+    return $return
+
+}
+
+class advisorResourceObj {
+    <# Define the class. Try constructors, properties, or methods. #>
+    [string]    $recommendationId
+    [string]    $type
+    [string]    $name
+    [string]    $id
+    [string]    $subscriptionId
+    [string]    $resourceGroup
+    [string]    $location
+    [string]    $category
+    [string]    $impact
+    [string]    $description
+
+    advisorResourceObj([PSObject]$psObject) {
+        $this.RecommendationId = $psObject.recommendationId
+        $this.Type = $psObject.type
+        $this.Name = $psObject.name
+        $this.Id = $psObject.id
+        $this.SubscriptionId = $psObject.subscriptionId
+        $this.ResourceGroup = $psObject.resourceGroup
+        $this.Location = $psObject.location
+        $this.Category = $psObject.category
+        $this.Impact = $psObject.impact
+        $this.Description = $psObject.description 
+    }
 }
 

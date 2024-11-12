@@ -66,8 +66,8 @@ Copyright = '(c) Microsoft. All rights reserved.'
 # FormatsToProcess = @()
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = @("advisor/advisor.psm1",
-                "collector/collector.psm1",
+NestedModules = @("advisor/advisor.psd1",
+                "collector/collector.psd1",
                 "outage/outage.psm1",
                 "retirement/retirement.psm1",
                 "runbook/runbook.psm1",
