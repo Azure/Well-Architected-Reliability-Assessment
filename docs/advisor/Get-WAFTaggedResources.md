@@ -1,32 +1,49 @@
 ---
-external help file: collector-help.xml
-Module Name: collector
+external help file: advisor-help.xml
+Module Name: advisor
 online version:
 schema: 2.0.0
 ---
 
-# Get-WAFResourceType
+# Get-WAFTaggedResources
 
 ## SYNOPSIS
-Retrieves all resource types in the specified subscriptions.
+Retrieves all resources with matching tags.
 
 ## SYNTAX
 
 ```
-Get-WAFResourceType [[-SubscriptionIds] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFTaggedResources [[-tagArray] <String[]>] [[-SubscriptionIds] <String[]>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The Get-WAFResourceType function queries Azure Resource Graph to retrieve all resource types in the specified subscriptions.
+The Get-WAFTaggedResources function queries Azure Resource Graph to retrieve all resources that have matching tags.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-$resourceTypes = Get-WAFResourceType -SubscriptionIds @('sub1', 'sub2')
+$taggedResources = Get-WAFTaggedResources -tagArray @('env==prod', 'app==myapp') -SubscriptionIds @('sub1', 'sub2')
 ```
 
 ## PARAMETERS
+
+### -tagArray
+An array of tags to filter resources by.
+Each tag should be in the format 'key==value'.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -SubscriptionIds
 An array of subscription IDs to scope the query.
@@ -37,7 +54,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 1
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -65,7 +82,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### Returns an array of resource types.
+### Returns an array of resources with matching tags.
 ## NOTES
 This function uses the Get-WAFAllAzGraphResource function to perform the query.
 

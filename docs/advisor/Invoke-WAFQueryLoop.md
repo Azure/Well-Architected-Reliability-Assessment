@@ -1,34 +1,50 @@
 ---
-external help file: collector-help.xml
-Module Name: collector
+external help file: advisor-help.xml
+Module Name: advisor
 online version:
 schema: 2.0.0
 ---
 
-# Get-WAFResourceType
+# Invoke-WAFQueryLoop
 
 ## SYNOPSIS
-Retrieves all resource types in the specified subscriptions.
+Invokes a loop to run queries for each recommendation object.
 
 ## SYNTAX
 
 ```
-Get-WAFResourceType [[-SubscriptionIds] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Invoke-WAFQueryLoop [[-RecommendationObject] <Object>] [[-subscriptionIds] <String[]>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The Get-WAFResourceType function queries Azure Resource Graph to retrieve all resource types in the specified subscriptions.
+The Invoke-WAFQueryLoop function runs queries for each recommendation object and retrieves the resources.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-$resourceTypes = Get-WAFResourceType -SubscriptionIds @('sub1', 'sub2')
+$resources = Invoke-WAFQueryLoop -RecommendationObject $recommendations -subscriptionIds @('sub1', 'sub2')
 ```
 
 ## PARAMETERS
 
-### -SubscriptionIds
+### -RecommendationObject
+An array of recommendation objects to query.
+
+```yaml
+Type: Object
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -subscriptionIds
 An array of subscription IDs to scope the query.
 
 ```yaml
@@ -37,7 +53,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 1
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -65,8 +81,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### Returns an array of resource types.
+### Returns an array of resources for each recommendation object.
 ## NOTES
-This function uses the Get-WAFAllAzGraphResource function to perform the query.
+This function uses the Get-WAFAllAzGraphResource function to perform the queries.
 
 ## RELATED LINKS

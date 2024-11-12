@@ -1,6 +1,6 @@
 ---
-external help file: collector-help.xml
-Module Name: collector
+external help file: advisor-help.xml
+Module Name: advisor
 online version:
 schema: 2.0.0
 ---

@@ -13,8 +13,8 @@ Connects to an Azure tenant.
 ## SYNTAX
 
 ```
-Connect-WAFAzure [-TenantID] <String> [-SubscriptionIds] <String[]> [[-AzureEnvironment] <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Connect-WAFAzure [-TenantID] <String> [[-AzureEnvironment] <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -44,21 +44,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -SubscriptionIds
-An array of Subscription IDs to scope the connection.
-
-```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 2
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -AzureEnvironment
 The Azure environment to connect to.
 Defaults to 'AzureCloud'.
@@ -69,7 +54,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 3
+Position: 2
 Default value: AzureCloud
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -1,34 +1,35 @@
 ---
-external help file: collector-help.xml
-Module Name: collector
+external help file: advisor-help.xml
+Module Name: advisor
 online version:
 schema: 2.0.0
 ---
 
-# Get-WAFResourceType
+# Get-WAFAllAzGraphResource
 
 ## SYNOPSIS
-Retrieves all resource types in the specified subscriptions.
+Retrieves all Azure resources using Azure Resource Graph.
 
 ## SYNTAX
 
 ```
-Get-WAFResourceType [[-SubscriptionIds] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFAllAzGraphResource [[-subscriptionIds] <String[]>] [[-query] <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The Get-WAFResourceType function queries Azure Resource Graph to retrieve all resource types in the specified subscriptions.
+The Get-WAFAllAzGraphResource function queries Azure Resource Graph to retrieve all resources based on the provided query and subscription IDs.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-$resourceTypes = Get-WAFResourceType -SubscriptionIds @('sub1', 'sub2')
+$resources = Get-WAFAllAzGraphResource -subscriptionIds @('sub1', 'sub2')
 ```
 
 ## PARAMETERS
 
-### -SubscriptionIds
+### -subscriptionIds
 An array of subscription IDs to scope the query.
 
 ```yaml
@@ -39,6 +40,22 @@ Aliases:
 Required: False
 Position: 1
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -query
+The query to run against Azure Resource Graph.
+Defaults to a query that retrieves basic resource information.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 2
+Default value: Resources | project id, resourceGroup, subscriptionId, name, type, location
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -65,8 +82,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### Returns an array of resource types.
+### Returns an array of resources.
 ## NOTES
-This function uses the Get-WAFAllAzGraphResource function to perform the query.
+This function handles pagination using the SkipToken.
 
 ## RELATED LINKS

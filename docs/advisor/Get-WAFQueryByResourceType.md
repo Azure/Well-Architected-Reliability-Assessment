@@ -1,61 +1,75 @@
 ---
-external help file: collector-help.xml
-Module Name: collector
+external help file: advisor-help.xml
+Module Name: advisor
 online version:
 schema: 2.0.0
 ---
 
-# Get-WAFAllAzGraphResource
+# Get-WAFQueryByResourceType
 
 ## SYNOPSIS
-Retrieves all Azure resources using Azure Resource Graph.
+Filters objects by resource type.
 
 ## SYNTAX
 
 ```
-Get-WAFAllAzGraphResource [[-subscriptionIds] <String[]>] [[-query] <String>]
+Get-WAFQueryByResourceType [-ObjectList] <Array> [-FilterList] <Array> [-KeyColumn] <String>
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The Get-WAFAllAzGraphResource function queries Azure Resource Graph to retrieve all resources based on the provided query and subscription IDs.
+The Get-WAFQueryByResourceType function filters a list of objects by resource type.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-$resources = Get-WAFAllAzGraphResource -subscriptionIds @('sub1', 'sub2')
+$filteredObjects = Get-WAFQueryByResourceType -ObjectList $objects -FilterList $types -KeyColumn "type"
 ```
 
 ## PARAMETERS
 
-### -subscriptionIds
-An array of subscription IDs to scope the query.
+### -ObjectList
+An array of objects to filter.
 
 ```yaml
-Type: String[]
+Type: Array
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -query
-The query to run against Azure Resource Graph.
-Defaults to a query that retrieves basic resource information.
+### -FilterList
+An array of resource types to filter by.
+
+```yaml
+Type: Array
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -KeyColumn
+The key column to use for filtering.
 
 ```yaml
 Type: String
 Parameter Sets: (All)
 Aliases:
 
-Required: False
-Position: 2
-Default value: Resources | project id, resourceGroup, subscriptionId, name, type, location
+Required: True
+Position: 3
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -82,8 +96,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### Returns an array of resources.
+### Returns an array of objects that match the specified resource types.
 ## NOTES
-This function handles pagination using the SkipToken.
 
 ## RELATED LINKS

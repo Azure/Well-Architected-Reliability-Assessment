@@ -1,29 +1,29 @@
 ---
-external help file: collector-help.xml
-Module Name: collector
+external help file: advisor-help.xml
+Module Name: advisor
 online version:
 schema: 2.0.0
 ---
 
-# Get-WAFResourceType
+# Get-WAFResourceGroup
 
 ## SYNOPSIS
-Retrieves all resource types in the specified subscriptions.
+Retrieves all resource groups in the specified subscriptions.
 
 ## SYNTAX
 
 ```
-Get-WAFResourceType [[-SubscriptionIds] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFResourceGroup [[-SubscriptionIds] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The Get-WAFResourceType function queries Azure Resource Graph to retrieve all resource types in the specified subscriptions.
+The Get-WAFResourceGroup function queries Azure Resource Graph to retrieve all resource groups in the specified subscriptions.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-$resourceTypes = Get-WAFResourceType -SubscriptionIds @('sub1', 'sub2')
+$resourceGroups = Get-WAFResourceGroup -SubscriptionIds @('sub1', 'sub2')
 ```
 
 ## PARAMETERS
@@ -65,7 +65,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### Returns an array of resource types.
+### Returns an array of resource groups.
 ## NOTES
 This function uses the Get-WAFAllAzGraphResource function to perform the query.
 

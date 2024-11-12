@@ -1,36 +1,36 @@
 ---
-external help file: collector-help.xml
-Module Name: collector
+external help file: advisor-help.xml
+Module Name: advisor
 online version:
 schema: 2.0.0
 ---
 
-# Get-WAFAllAzGraphResource
+# Get-WAFTaggedRGResources
 
 ## SYNOPSIS
-Retrieves all Azure resources using Azure Resource Graph.
+Retrieves all resources in resource groups with matching tags.
 
 ## SYNTAX
 
 ```
-Get-WAFAllAzGraphResource [[-subscriptionIds] <String[]>] [[-query] <String>]
+Get-WAFTaggedRGResources [[-tagKeys] <String[]>] [[-tagValues] <String[]>] [[-SubscriptionIds] <String[]>]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The Get-WAFAllAzGraphResource function queries Azure Resource Graph to retrieve all resources based on the provided query and subscription IDs.
+The Get-WAFTaggedRGResources function queries Azure Resource Graph to retrieve all resources in resource groups that have matching tags.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-$resources = Get-WAFAllAzGraphResource -subscriptionIds @('sub1', 'sub2')
+$taggedRGResources = Get-WAFTaggedRGResources -tagKeys @('env') -tagValues @('prod') -SubscriptionIds @('sub1', 'sub2')
 ```
 
 ## PARAMETERS
 
-### -subscriptionIds
-An array of subscription IDs to scope the query.
+### -tagKeys
+An array of tag keys to filter resource groups by.
 
 ```yaml
 Type: String[]
@@ -44,18 +44,32 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -query
-The query to run against Azure Resource Graph.
-Defaults to a query that retrieves basic resource information.
+### -tagValues
+An array of tag values to filter resource groups by.
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
 Required: False
 Position: 2
-Default value: Resources | project id, resourceGroup, subscriptionId, name, type, location
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SubscriptionIds
+An array of subscription IDs to scope the query.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 3
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -82,8 +96,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### Returns an array of resources.
+### Returns an array of resources in resource groups with matching tags.
 ## NOTES
-This function handles pagination using the SkipToken.
+This function uses the Get-WAFAllAzGraphResource function to perform the query.
 
 ## RELATED LINKS
