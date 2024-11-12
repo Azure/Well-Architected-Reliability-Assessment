@@ -66,8 +66,8 @@ Copyright = '(c) Microsoft. All rights reserved.'
 # FormatsToProcess = @()
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = @("advisor/advisor.psm1",
-                "collector/collector.psm1",
+NestedModules = @("advisor/advisor.psd1",
+                "collector/collector.psd1",
                 "outage/outage.psm1",
                 "retirement/retirement.psm1",
                 "runbook/runbook.psm1",
@@ -78,7 +78,7 @@ NestedModules = @("advisor/advisor.psm1",
                 )
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @("Start-WAFCollector","Get-WAFAllAzGraphResource")
+FunctionsToExport = @("Start-WAFCollector")
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
