@@ -32,7 +32,7 @@ jobs:
       - name: Install PowerShell Module Dependencies from PSGallery
         run: |
           Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
-          Install-Module -Name 'Az.Accounts'
+          Install-Module -Name 'Az.ResourceGraph', 'Az.Accounts'
         shell: pwsh
         continue-on-error: true
 

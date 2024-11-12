@@ -27,7 +27,7 @@
                                 "impactedRegion": "East US 2",
                                 "status": "Resolved",
                                 "impactedSubscriptions": [
-                                    "ebb79bc0-aa86-44a7-8111-cabbe0c43993"
+                                    "11111111-1111-1111-1111-111111111111"
                                 ],
                                 "impactedTenants": [],
                                 "lastUpdateTime": "2024-11-01T10:03:15.1732031Z",
@@ -78,7 +78,7 @@
                                 "impactedRegion": "Global",
                                 "status": "Resolved",
                                 "impactedSubscriptions": [
-                                    "ebb79bc0-aa86-44a7-8111-cabbe0c43993"
+                                    "11111111-1111-1111-1111-111111111111"
                                 ],
                                 "impactedTenants": [],
                                 "lastUpdateTime": "2024-10-29T06:23:42.1742147Z",
@@ -133,7 +133,7 @@
                                 "impactedRegion": "Global",
                                 "status": "Resolved",
                                 "impactedSubscriptions": [
-                                    "ebb79bc0-aa86-44a7-8111-cabbe0c43993"
+                                    "11111111-1111-1111-1111-111111111111"
                                 ],
                                 "impactedTenants": [],
                                 "lastUpdateTime": "2024-10-10T07:24:17.828641Z",
