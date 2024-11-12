@@ -1,4 +1,4 @@
-Function Start-WAFCollector {
+Function Start-WARACollector {
     [CmdletBinding()]
     Param(
         [switch]$Debugging,
