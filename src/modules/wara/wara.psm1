@@ -70,6 +70,8 @@ Function Start-WARACollector {
 
 }
 
+
+
 class impactedResourceObj {
     <# Define the class. Try constructors, properties, or methods. #>
     [string]    $validationAction
