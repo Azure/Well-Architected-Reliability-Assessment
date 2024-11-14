@@ -202,35 +202,6 @@ function Get-WAFResourceGroupsByList {
 
 <#
 .SYNOPSIS
-Retrieves unfiltered resources from Azure based on provided subscription, resource group, and resource filters.
-
-.DESCRIPTION
-The Get-WAFUnfilteredResourceList function takes an array of implicit subscription IDs and retrieves unfiltered resources from Azure using these subscription IDs.
-
-.PARAMETER ImplicitSubscriptionId
-An array of strings representing the implicit subscription IDs. Each string should be a subscription ID.
-
-.OUTPUTS
-Returns an array of unfiltered resources from Azure.
-
-.EXAMPLE
-$implicitSubscriptionIds = @('/subscriptions/11111111-1111-1111-1111-111111111111')
-$unfilteredResources = Get-WAFUnfilteredResourceList -ImplicitSubscriptionId $implicitSubscriptionIds
-
-.NOTES
-This function assumes that the Get-WAFAllAzGraphResource function is defined and available in the current context. It also assumes that Azure authentication has been set up.
-#>
-function Get-WAFUnfilteredResourceList {
-    param(
-        [array]$ImplicitSubscriptionId
-    )
-    # Grab all resources in the implicit subscription ids
-    $UnfilteredResources = Get-WAFAllAzGraphResource -subscriptionId ($ImplicitSubscriptionIds -replace ("/subscriptions/",""))
-    return $UnfilteredResources
-}
-
-<#
-.SYNOPSIS
 Creates a list of unique subscription IDs based on provided subscription, resource group, and resource filters.
 
 .DESCRIPTION
@@ -310,15 +281,16 @@ function Get-WAFFilteredResourceList {
         [array]$SubscriptionFilters = @(),
         [array]$ResourceGroupFilters = @(),
         [array]$ResourceFilters = @(),
-        [array]$UnfilteredResources
+        [array]$UnfilteredResources,
+        [string]$KeyColumn = "Id"
     )
     # TODO: ADD FILTERS FOR TAGS
 
-    $SubscriptionFilters ? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn "Id") : $(Write-Debug "Subscription Filters not provided.")
+    $SubscriptionFilters ? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn $KeyColumn) : $(Write-Debug "Subscription Filters not provided.")
 
-    $ResourceGroupFilters ? $($ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn "Id") : $(Write-Debug "Resource Group Filters not provided.")
+    $ResourceGroupFilters ? $($ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn $KeyColumn) : $(Write-Debug "Resource Group Filters not provided.")
 
-    $ResourceFilters ? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn "Id") : $(Write-Debug "Resource Filters not provided.")
+    $ResourceFilters ? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn $KeyColumn) : $(Write-Debug "Resource Filters not provided.")
 
     # Originally used to remove duplicates but there was some weird interaction with the return object that caused it to duplicate the entire array. 
     $FilteredResources = $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources | Select-Object -Property * -Unique
