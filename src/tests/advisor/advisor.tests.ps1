@@ -1,7 +1,7 @@
 BeforeAll {
     $modulePath = "$PSScriptRoot/../../modules/wara/advisor/advisor.psm1" 
     $collectormodulePath = "$PSScriptRoot/../../modules/wara/collector/collector.psm1"
-    $testDataPath = "$PSScriptRoot/../data/bigAdvisorTestData.json"
+    $testDataPath = "$PSScriptRoot/../data/advisor/bigAdvisorTestData.json"
     Import-Module -Name $modulePath -Force
     #import-module -Name $collectormodulePath -Force
     $objectlist = get-content $testDataPath -Raw | ConvertFrom-Json -depth 20
