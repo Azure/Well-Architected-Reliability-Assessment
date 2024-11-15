@@ -193,7 +193,7 @@ foreach($tag in $tagArray){
     $return += $result
 }
 
-$return = ($return | group id | where {$_.count -eq $tagArray.Count} | select Name).Name
+$return = ($return | Group-Object id | Where-Object {$_.count -eq $tagArray.Count} | Select-Object Name).Name
 
 return $return
 }

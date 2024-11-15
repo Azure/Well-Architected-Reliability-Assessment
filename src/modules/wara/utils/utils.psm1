@@ -131,47 +131,49 @@ Function Test-WAFTagPattern {
 
     $allMatch = $true
 
-    $InputValue | ForEach-Object {
-      if ($_ -notmatch $Pattern) {
-        $allMatch = $false
-      }
+    foreach ($value in $InputValue) {
+        if ($value -notmatch $pattern) {
+            $allMatch = $false
+            break
+        }
     }
     return $allMatch
   }
 
-  Function Test-WAFResourceGroupId {
+  function Test-WAFResourceGroupId {
     param (
-      [string[]]$InputValue
+        [string[]]$InputValue
     )
     $pattern = '\/subscriptions\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\/resourceGroups\/[a-zA-Z0-9._-]+'
 
     $allMatch = $true
 
-    $InputValue | ForEach-Object {
-      if ($_ -notmatch $Pattern) {
-        $allMatch = $false
-      }
+    foreach ($value in $InputValue) {
+        if ($value -notmatch $pattern) {
+            $allMatch = $false
+            break
+        }
     }
     return $allMatch
-  }
+}
 
   Function Test-WAFSubscriptionId {
     param (
       [string[]]$InputValue
     )
     $pattern = '\/subscriptions\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
-
     $allMatch = $true
 
-    $InputValue | ForEach-Object {
-      if ($_ -notmatch $Pattern) {
-        $allMatch = $false
-      }
+    foreach ($value in $InputValue) {
+        if ($value -notmatch $pattern) {
+            $allMatch = $false
+            break
+        }
     }
     return $allMatch
   }
 
-  function WAFTest-ScriptParameters {
+  function Test-WAFScriptParameters {
     $IsValid = $true
 
     if ($RunbookFile) {
