@@ -6,12 +6,12 @@ Function Start-WARACollector {
         [switch]$AVD,
         [switch]$AVS,
         [switch]$HPC,
-        [ValidatePattern('^(\/subscriptions\/)?[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')]
+        [ValidateScript({Test-WAFSubscriptionId $_})]
         [String[]]$SubscriptionIds,
-        [ValidatePattern('^\/subscriptions\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\/resourceGroups\/[a-zA-Z0-9._-]+$')]
+        [ValidateScript({Test-WAFResourceGroupId $_})]
         [String[]]$ResourceGroups,
         [GUID]$TenantID,
-        [ValidatePattern('^[^<>&%\\?/]+=~[^<>&%\\?/]+$|[^<>&%\\?/]+!~[^<>&%\\?/]+$')]
+        [ValidateScript({Test-WAFTagPattern $_})]
         [String[]]$Tags,
         [ValidateSet('AzureCloud', 'AzureUSGovernment')]
         $AzureEnvironment = 'AzureCloud',
@@ -46,7 +46,7 @@ Function Start-WARACollector {
     #Get Implicit Subscription Ids from Scope
     $Scope_ImplicitSubscriptionIds = Get-WAFImplicitSubscriptionId -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     
-    
+
 
     $Recommendations = Invoke-WAFQueryLoop -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '') -RecommendationObject $RecommendationObject
         
