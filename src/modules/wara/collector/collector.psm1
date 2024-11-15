@@ -95,28 +95,44 @@ This function uses the Get-WAFAllAzGraphResource function to perform the query.
 Function Get-WAFTaggedResources {
   [CmdletBinding()]
 param(
-    [String[]]$tagArray,
-    [String[]]$SubscriptionIds
+  [array]$tagArray,
+  [string[]]$subscriptionId
 )
 
-$queryTemplate = "| where (tags['<name>'] =~ '<value>')"
+$return = @()
 
-$queryobj = @()
 foreach($tag in $tagArray){
-    $tagName, $tagValue = $tag.Split('==').Trim()
-    $queryobj += $queryTemplate -replace "<name>", $tagName -replace "<value>", $tagValue
+  Write-host $tag
+  switch -Wildcard ($tag)
+  {
+      "*=~*" {
+          $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
+          $tagValues = $tag.Split("=~")[1].split("||") -join ("','")
+          $in = "in~"
+      }
+      "*!~*" {
+          $tagKeys = $tag.Split("!~")[0].split("||") -join ("','")
+          $tagValues = $tag.Split("!~")[1].split("||") -join ("','")
+          $in = "!in~"
+      }
+  }
+
+  $tagquery = "resources
+| mv-expand bagexpansion=array tags
+| where isnotempty(tags)
+| where tolower(tags[0]) $in ('$tagkeys')  // Specify your tag names here
+| where tolower(tags[1]) $in ('$tagvalues')  // Specify your tag values here
+| summarize by id
+| order by ['id']"
+
+  $result = Get-WAFAllAzGraphResource -query $tagquery -subscriptionIds $subscriptionId
+  
+  $return += $result
 }
 
-$queryobj = $queryobj -join "`r`n"
+$return = ($return | Group-Object id | Where-Object {$_.count -eq $tagArray.Count} | Select-Object Name).Name
 
-$q = "resources
-<insert>
-| project id, name, type, location, resourceGroup, subscriptionId" -replace "<insert>", $queryobj
-
-Write-host The Query is: `r`n $q
-
-$r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionIds $SubscriptionIds) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
-return $r
+return $return
 }
 
 <#
@@ -139,26 +155,47 @@ This function uses the Get-WAFAllAzGraphResource function to perform the query.
 #>
 Function Get-WAFTaggedRGResources {
   [CmdletBinding()]
-param(
-    [String[]]$tagKeys,
-    [String[]]$tagValues,
-    [String[]]$SubscriptionIds
+  param(
+    [array]$tagArray,
+    [string[]]$subscriptionId
 )
 
-$tagValuesString = "'" + ($tagValues -join "','").toLower() + "'"
-$tagKeysString = "'" + ($tagKeys -join "','").toLower() + "'"
+$return = @()
 
-$q = "Resources
+foreach($tag in $tagArray){
+
+    switch -Wildcard ($tag)
+    {
+        "*=~*" {
+            $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
+            $tagValues = $tag.Split("=~")[1].split("||") -join ("','")
+            $in = "in~"
+        }
+        "*!~*" {
+            $tagKeys = $tag.Split("!~")[0].split("||") -join ("','")
+            $tagValues = $tag.Split("!~")[1].split("||") -join ("','")
+            $in = "!in~"
+        }
+    }
+
+    $tagquery = `
+"resourcecontainers
+| where type == 'microsoft.resources/subscriptions/resourcegroups'
 | mv-expand bagexpansion=array tags
 | where isnotempty(tags)
-| where tolower(tags[0]) in ($tagValuesString)  // Specify your tag names here
-| where tolower(tags[1]) in ($tagKeysString)  // Specify your tag values here
-| project name,id,type,resourceGroup,location,subscriptionId"
+| where tolower(tags[0]) in~ ('$tagKeys')  // Specify your tag names here
+| where tolower(tags[1]) $in ('$tagValues')  // Specify your tag values here
+| summarize by id
+| order by ['id']"
 
-Write-host The Query is $q
+    $result = Get-WAFAllAzGraphResource -query $tagquery -subscriptionIds $subscriptionId
+    
+    $return += $result
+}
 
-$r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionIds $SubscriptionIds) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
-return $r
+$return = ($return | group id | where {$_.count -eq $tagArray.Count} | select Name).Name
+
+return $return
 }
 
 <#

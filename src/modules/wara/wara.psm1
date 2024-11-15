@@ -45,9 +45,8 @@ Function Start-WARACollector {
 
     #Get Implicit Subscription Ids from Scope
     $Scope_ImplicitSubscriptionIds = Get-WAFImplicitSubscriptionId -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
-        
-    #Get all resources from the implicit subscription ids
-    #$UnfilteredResources = Get-WAFUnfilteredResourceList -SubscriptionIds $ImplicitSubscriptionIds
+    
+    
 
     $Recommendations = Invoke-WAFQueryLoop -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '') -RecommendationObject $RecommendationObject
         

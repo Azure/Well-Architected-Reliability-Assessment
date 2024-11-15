@@ -45,12 +45,9 @@ function Import-WAFConfigFileData($file) {
         if (-not [string]::IsNullOrWhiteSpace($line) -and -not $line.startswith("#")) {
             #Get the Index of the current line
             $index = $filecontent.IndexOf($line)
-
-            Write-host The Index is $index
             # If the line is a section, store the line number
             if ($line -match "^\[([^\]]+)\]$") {
                 # Store the section name and line number. Remove the brackets from the section name
-                Write-host the line is $line and $filecontent[$index+1] is the next line.
                 $linetable += $filecontent.indexof($line)
             }
         }
@@ -126,36 +123,7 @@ function Connect-WAFAzure {
     }
 }
 
-<#
-.SYNOPSIS
-Imports JSON data from a file.
-
-.DESCRIPTION
-The Import-WAFAPRLJSON function reads the content of a JSON file, converts it to a PowerShell object, and returns it.
-
-.PARAMETER file
-The path to the JSON file.
-
-.OUTPUTS
-Returns a PowerShell object containing the JSON data.
-
-.EXAMPLE
-PS> $jsonData = Import-WAFAPRLJSON -file "data.json"
-#>
-function Import-WAFAPRLJSON {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$file
-    )
-
-    # Validate file path, read content and convert to JSON
-    $return = (Test-Path $file) ? (Get-Content $file -Raw | ConvertFrom-Json -Depth 10) : ("Path does not exist")
-
-    # Return the converted JSON object
-    return $return
-}
-
-Function Test-TagPattern {
+Function Test-WAFTagPattern {
     param (
       [string[]]$InputValue
     )
@@ -171,7 +139,7 @@ Function Test-TagPattern {
     return $allMatch
   }
 
-  Function Test-ResourceGroupId {
+  Function Test-WAFResourceGroupId {
     param (
       [string[]]$InputValue
     )
@@ -187,7 +155,7 @@ Function Test-TagPattern {
     return $allMatch
   }
 
-  Function Test-SubscriptionId {
+  Function Test-WAFSubscriptionId {
     param (
       [string[]]$InputValue
     )
@@ -203,7 +171,7 @@ Function Test-TagPattern {
     return $allMatch
   }
 
-  function Test-ScriptParameters {
+  function WAFTest-ScriptParameters {
     $IsValid = $true
 
     if ($RunbookFile) {
