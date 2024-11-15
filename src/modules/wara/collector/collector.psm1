@@ -102,7 +102,6 @@ param(
 $return = @()
 
 foreach($tag in $tagArray){
-  Write-host $tag
   switch -Wildcard ($tag)
   {
       "*=~*" {
