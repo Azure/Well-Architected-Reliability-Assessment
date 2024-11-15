@@ -134,6 +134,7 @@ Function Test-WAFTagPattern {
     foreach ($value in $InputValue) {
         if ($value -notmatch $pattern) {
             $allMatch = $false
+            throw "Tag pattern [$value] is not valid."
             break
         }
     }
@@ -151,9 +152,11 @@ Function Test-WAFTagPattern {
     foreach ($value in $InputValue) {
         if ($value -notmatch $pattern) {
             $allMatch = $false
+            throw "Resource Group ID [$value] is not valid."
             break
         }
     }
+
     return $allMatch
 }
 
@@ -167,11 +170,24 @@ Function Test-WAFTagPattern {
     foreach ($value in $InputValue) {
         if ($value -notmatch $pattern) {
             $allMatch = $false
+            throw "Subscription ID [$value] is not valid."
             break
         }
     }
     return $allMatch
   }
+
+  function Test-WAFIsGuid {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$StringGuid
+    )
+    $ObjectGuid = [System.Guid]::Empty
+    if (-not [System.Guid]::TryParse($StringGuid, [ref]$ObjectGuid)) {
+        throw "The provided string [$StringGuid] is not a valid GUID."
+    }
+    return $true
+}
 
   function Test-WAFScriptParameters {
     $IsValid = $true

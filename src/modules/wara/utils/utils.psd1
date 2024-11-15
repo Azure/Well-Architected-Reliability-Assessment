@@ -69,7 +69,7 @@ PowerShellVersion = '7.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @("Import-WAFConfigFile","Connect-WAFAzure","Test-WAFTagPattern","Test-WAFResourceGroupId","Test-WAFSubscriptionId","Test-WAFScriptParameters")
+FunctionsToExport = @("Import-WAFConfigFile","Connect-WAFAzure","Test-WAFTagPattern","Test-WAFResourceGroupId","Test-WAFSubscriptionId","Test-WAFIsGuid")
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

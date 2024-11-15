@@ -10,7 +10,8 @@ Function Start-WARACollector {
         [String[]]$SubscriptionIds,
         [ValidateScript({Test-WAFResourceGroupId $_})]
         [String[]]$ResourceGroups,
-        [GUID]$TenantID,
+        [ValidateScript({Test-WAFIsGuid $_})]
+        [String]$TenantID,
         [ValidateScript({Test-WAFTagPattern $_})]
         [String[]]$Tags,
         [ValidateSet('AzureCloud', 'AzureUSGovernment')]
@@ -27,13 +28,17 @@ Function Start-WARACollector {
 
     if ($ConfigFile) {
         $ConfigData = Import-WAFConfigFileData -ConfigFile $ConfigFile
+        Test-WAFIsGuid -StringGuid $ConfigData.TenantId
+        Test-WAFSubscriptionId -SubscriptionId $ConfigData.SubscriptionIds
+        Test-WAFResourceGroupId -ResourceGroupId $ConfigData.ResourceGroups
+        Test-WAFTagPattern -TagPattern $ConfigData.Tags
     }
 
     #Use Null Coalescing to set the values of parameters.
     $Scope_TenantId = $TenantID ?? $ConfigData.TenantId
     $Scope_SubscriptionIds = $SubscriptionIds ?? $ConfigData.SubscriptionIds ?? @()
     $Scope_ResourceGroups = $ResourceGroups ?? $ConfigData.ResourceGroups ?? @()
-    #$Scope_Tags = $Tags ?? $ConfigData.Tags
+    $Scope_Tags = $Tags ?? $ConfigData.Tags ?? @()
 
     #Import Recommendation Object from APRL
     $RecommendationObject = Invoke-RestMethod "https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json"
