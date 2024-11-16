@@ -6,8 +6,6 @@
     This module contains functions related to the capturing and collecting to active retirement health advisory events.
     It includes the following functions:
     - Get-WAFResourceRetirement
-    - Invoke-AzureRestApi
-    - Get-AzureRestMethodUriPath
     - New-WAFResourceRetirementObject
 
 .EXAMPLE
@@ -17,7 +15,7 @@
     Author: Takeshi Katano
     Date: 2024-10-02
 
-    This module requires the Az.Accounts module to be installed and imported.
+    This function requires the Az.ResourceGraph module to be installed and imported.
 #>
 
 <#
@@ -45,7 +43,7 @@
     Author: Takeshi Katano
     Date: 2024-10-02
 
-    This function requires the Az.Accounts module to be installed and imported.
+    This function requires the Az.ResourceGraph module to be installed and imported.
 #>
 function Get-WAFResourceRetirement {
     [CmdletBinding()]
@@ -56,248 +54,70 @@ function Get-WAFResourceRetirement {
         [string] $SubscriptionId
     )
 
-    # NOTE:
-    # ARG query with ServiceHealthResources returns last 3 months of events.
-    # Azure portal shows last 1 months of events.
-    $cmdletParams = @{
-        Method               = 'GET'
-        SubscriptionId       = $SubscriptionId
-        ResourceProviderName = 'Microsoft.ResourceHealth'
-        ResourceType         = 'events'
-        ApiVersion           = '2024-02-01'
-        QueryString          = @(
-            ('queryStartTime={0}' -f (Get-Date).AddMonths(-3).ToString('yyyy-MM-ddT00:00:00')),
-            '$filter=(properties/eventType eq ''HealthAdvisory'') and (properties/eventSubType eq ''Retirement'') and (Properties/Status eq ''Active'')'
-        ) -join '&'
-    }
-    $response = Invoke-AzureRestApi @cmdletParams
-    $retirementEvents = ($response.Content | ConvertFrom-Json).value
+    Import-Module -Name 'Az.ResourceGraph'
+
+    $argQuery = @'
+ServiceHealthResources
+| where properties.EventSubType =~ "Retirement"  // Filter retirement events.
+| where properties.Status =~ "Active"
+| project
+    subscriptionId       = split(id, "/", 2)[0],
+    trackingId           = tostring(properties.TrackingId),
+    status               = properties.Status,
+    lastUpdateTime       = todatetime(properties.LastUpdateTime),        // UTC
+    impactStartTime      = todatetime(properties.ImpactStartTime),       // UTC
+    impactMitigationTime = todatetime(properties.ImpactMitigationTime),  // UTC
+    level                = properties.Level,
+    ["title"]            = properties.Title,  // Enclosed the column name because "title" is a reserved keyword.
+    summary              = properties.Summary,
+    header               = properties.Header
+| where lastUpdateTime >= datetime_add("Month", -3, now())  // Last 3 months (not the same as 90 days).
+| join kind = leftouter (
+    // Retrieve the tracking ID and impacted services pairs.
+    ServiceHealthResources
+    | where properties.EventSubType =~ "Retirement"
+    | where properties.Status =~ "Active"
+    | mv-expand impact = properties.Impact
+    | project trackingId = tostring(properties.TrackingId), impactedService = tostring(impact.ImpactedService)
+    | distinct trackingId, impactedService
+    | summarize impactedServices = make_list(impactedService) by trackingId
+    )
+    on trackingId
+| project
+    subscriptionId,
+    trackingId,
+    status,
+    lastUpdateTime,
+    impactStartTime,
+    impactMitigationTime,
+    level,
+    ["title"],
+    summary,
+    header,
+    impactedServices
+'@
+
+    $retirementEvents = Search-AzGraph -Subscription $SubscriptionId -First 1000 -Query $argQuery
 
     $retirementObjects = foreach ($retirementEvent in $retirementEvents) {
         $cmdletParams = @{
-            SubscriptionId  = $SubscriptionId
-            TrackingId      = $retirementEvent.name
-            Status          = $retirementEvent.properties.status
-            LastUpdateTime  = $retirementEvent.properties.lastUpdateTime
-            StartTime       = $retirementEvent.properties.impactStartTime
-            EndTime         = $retirementEvent.properties.impactMitigationTime
-            Level           = $retirementEvent.properties.level
-            Title           = $retirementEvent.properties.title
-            Summary         = $retirementEvent.properties.summary
-            Header          = $retirementEvent.properties.header
-            ImpactedService = $retirementEvent.properties.impact.impactedService
-            Description     = $retirementEvent.properties.description
+            SubscriptionId  = $retirementEvent.subscriptionId
+            TrackingId      = $retirementEvent.trackingId
+            Status          = $retirementEvent.status
+            LastUpdateTime  = $retirementEvent.lastUpdateTime
+            StartTime       = $retirementEvent.impactStartTime
+            EndTime         = $retirementEvent.impactMitigationTime
+            Level           = $retirementEvent.level
+            Title           = $retirementEvent.title
+            Summary         = $retirementEvent.summary
+            Header          = $retirementEvent.header
+            ImpactedService = $retirementEvent.impactedServices
+            Description     = $retirementEvent.summary  # Use the summary as the description, it's by design..
         }
         New-WAFResourceRetirementObject @cmdletParams
     }
 
     return $retirementObjects
-}
-
-<#
-.SYNOPSIS
-    Invokes an Azure REST API then returns the response.
-
-.DESCRIPTION
-    The Invoke-AzureRestApi function invokes an Azure REST API with the specified parameters then return the response.
-
-.PARAMETER Method
-    The HTTP method to invoke the Azure REST API. The accepted values are GET, POST, PUT, PATCH, and DELETE.
-
-.PARAMETER SubscriptionId
-    The subscription ID that constitutes the URI for invoke the Azure REST API.
-
-.PARAMETER ResourceGroupName
-    The resource group name that constitutes the URI for invoke the Azure REST API.
-
-.PARAMETER ResourceProviderName
-    The resource provider name that constitutes the URI for invoke the Azure REST API. It's usually as the XXXX.XXXX format.
-
-.PARAMETER ResourceType
-    The resource type that constitutes the URI for invoke the Azure REST API.
-
-.PARAMETER Name
-    The resource name that constitutes the URI for invoke the Azure REST API.
-
-.PARAMETER ApiVersion
-    The Azure REST API version that constitutes the URI for invoke the Azure REST API. It's usually as the yyyy-mm-dd format.
-
-.PARAMETER QueryString
-    The query string that constitutes the URI for invoke the Azure REST API.
-
-.PARAMETER RequestBody
-    The request body for invoke the Azure REST API.
-
-.PARAMETER ProgressAction
-    This is a common parameter, but this cmdlet does not use this parameter.
-
-.OUTPUTS
-    Returns a REST API response as the PSHttpResponse.
-
-.EXAMPLE
-    PS> $response = Invoke-AzureRestApi -Method 'GET' -SubscriptionId '11111111-1111-1111-1111-111111111111' -ResourceProviderName 'Microsoft.ResourceHealth' -ResourceType 'events' -ApiVersion '2024-02-01' -QueryString 'queryStartTime=2024-10-02T00:00:00'
-
-.NOTES
-    Author: Takeshi Katano
-    Date: 2024-10-02
-
-    This function requires the Az.Accounts module to be installed and imported.
-    This function should be placed in a common module such as a utility/helper module because the capability of this function is common across modules.
-#>
-function Invoke-AzureRestApi {
-    [CmdletBinding()]
-    [OutputType([Microsoft.Azure.Commands.Profile.Models.PSHttpResponse])]
-    param (
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-        [ValidateSet('GET', 'POST', 'PUT', 'PATCH', 'DELETE')]
-        [string] $Method,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-        [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
-        [string] $SubscriptionId,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [ValidateLength(1, 90)]
-        [string] $ResourceGroupName,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-        [string] $ResourceProviderName,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-        [string] $ResourceType,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [string] $Name,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-        [ValidatePattern('^[0-9]{4}(-[0-9]{2}){2}$')]
-        [string] $ApiVersion,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $false)]
-        [string] $QueryString,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $false)]
-        [string] $RequestBody
-    )
-
-    # Built the Azure REST API URI path.
-    $cmdletParams = @{
-        SubscriptionId       = $SubscriptionId
-        ResourceProviderName = $ResourceProviderName
-        ResourceType         = $ResourceType
-        ApiVersion           = $ApiVersion
-    }
-    if ($PSBoundParameters.ContainsKey('ResourceGroupName')) { $cmdletParams.ResourceGroupName = $ResourceGroupName }
-    if ($PSBoundParameters.ContainsKey('Name')) { $cmdletParams.Name = $Name}
-    if ($PSBoundParameters.ContainsKey('QueryString')) { $cmdletParams.QueryString = $QueryString }
-    $path = Get-AzureRestMethodUriPath @cmdletParams
-
-    # Invoke the Azure REST API using the URI path.
-    $cmdletParams = @{
-        Method = $Method
-        Path   = $path
-    }
-    if ($PSBoundParameters.ContainsKey('RequestBody')) { $cmdletParams.Payload = $RequestBody }
-    return Invoke-AzRestMethod @cmdletParams
-}
-
-<#
-.SYNOPSIS
-    Retrieves the path of the Azure REST API URI.
-
-.DESCRIPTION
-    The Get-AzureRestMethodUriPath function retrieves the formatted path of the Azure REST API URI based on the specified URI parts as parameters.
-    The path represents the Azure REST API URI without the protocol (e.g. https), host (e.g. management.azure.com). For example,
-    /subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg1/providers/Microsoft.Storage/storageAccounts/stsample1234?api-version=2024-01-01
-
-.PARAMETER SubscriptionId
-    The subscription ID that constitutes the path of Azure REST API URI.
-
-.PARAMETER ResourceGroupName
-    The resource group name that constitutes the path of Azure REST API URI.
-
-.PARAMETER ResourceProviderName
-    The resource provider name that constitutes the path of Azure REST API URI. It's usually as the XXXX.XXXX format.
-
-.PARAMETER ResourceType
-    The resource type that constitutes the path of Azure REST API URI.
-
-.PARAMETER Name
-    The resource name that constitutes the path of Azure REST API URI.
-
-.PARAMETER ApiVersion
-    The Azure REST API version that constitutes the path of Azure REST API URI. It's usually as the yyyy-mm-dd format.
-
-.PARAMETER QueryString
-    The query string that constitutes the path of Azure REST API URI.
-
-.PARAMETER ProgressAction
-    This is a common parameter, but this cmdlet does not use this parameter.
-
-.OUTPUTS
-    Returns a URI path to call Azure REST API.
-
-.EXAMPLE
-    PS> $path = Get-AzureRestMethodUriPath -SubscriptionId '11111111-1111-1111-1111-111111111111' -ResourceGroupName 'rg1' -ResourceProviderName 'Microsoft.Storage' -ResourceType 'storageAccounts' -Name 'stsample1234' -ApiVersion '2024-01-01' -QueryString 'param1=value1'
-
-.NOTES
-    Author: Takeshi Katano
-    Date: 2024-10-02
-
-    This function should be placed in a common module such as a utility/helper module because the capability of this function is common across modules.
-#>
-function Get-AzureRestMethodUriPath {
-    [CmdletBinding()]
-    [OutputType([string])]
-    param (
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-        [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
-        [string] $SubscriptionId,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [ValidateLength(1, 90)]
-        [string] $ResourceGroupName,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-        [string] $ResourceProviderName,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-        [string] $ResourceType,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [string] $Name,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-        [ValidatePattern('^[0-9]{4}(-[0-9]{2}){2}$')]
-        [string] $ApiVersion,
-
-        [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $false)]
-        [string] $QueryString
-    )
-
-    $additionalQueryString = if ($PSBoundParameters.ContainsKey('QueryString')) { '&' + $QueryString } else { '' }
-    $path = if ($PSCmdlet.ParameterSetName -eq 'WithResourceGroup') {
-        '/subscriptions/{0}/resourcegroups/{1}/providers/{2}/{3}/{4}?api-version={5}{6}' -f $SubscriptionId, $ResourceGroupName, $ResourceProviderName, $ResourceType, $Name, $ApiVersion, $additionalQueryString
-    }
-    elseif ($PSCmdlet.ParameterSetName -eq 'WithoutResourceGroup') {
-        '/subscriptions/{0}/providers/{1}/{2}?api-version={3}{4}' -f $SubscriptionId, $ResourceProviderName, $ResourceType, $ApiVersion, $additionalQueryString
-    }
-    else {
-        throw 'Invalid ParameterSetName'
-    }
-    return $path
 }
 
 <#
