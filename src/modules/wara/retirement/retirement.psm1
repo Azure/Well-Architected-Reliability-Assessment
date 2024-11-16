@@ -95,6 +95,7 @@ ServiceHealthResources
     summary,
     header,
     impactedServices
+| order by lastUpdateTime desc
 '@
 
     $retirementEvents = Search-AzGraph -Subscription $SubscriptionId -First 1000 -Query $argQuery
