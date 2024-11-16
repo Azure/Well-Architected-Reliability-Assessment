@@ -93,6 +93,7 @@ ServiceHealthResources
     summary,
     header,
     impactedServices
+| order by lastUpdateTime desc
 '@
 
     $serviceIssueEvents = Search-AzGraph -Subscription $SubscriptionId -First 1000 -Query $argQuery
