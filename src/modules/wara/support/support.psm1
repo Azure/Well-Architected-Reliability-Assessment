@@ -57,6 +57,8 @@ function Get-WAFSupportTicket {
         [string] $SubscriptionId
     )
 
+    Import-Module -Name 'Az.ResourceGraph'
+
     $argQuery = @'
 SupportResources
 | where type =~ "Microsoft.Support/supportTickets"
