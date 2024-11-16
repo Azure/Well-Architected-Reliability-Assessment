@@ -54,6 +54,8 @@ function Get-WAFOutage {
         [string] $SubscriptionId
     )
 
+    Import-Module -Name 'Az.ResourceGraph'
+
     $argQuery = @'
 ServiceHealthResources
 | where properties.EventType =~ "ServiceIssue"  // Filter outage events.
@@ -108,7 +110,7 @@ ServiceHealthResources
             Summary         = $serviceIssueEvent.summary
             Header          = $serviceIssueEvent.header
             ImpactedService = $serviceIssueEvent.impactedServices
-            Description     = $serviceIssueEvent.summary  # Use the summary as the description.
+            Description     = $serviceIssueEvent.summary  # Use the summary as the description, it's by design..
         }
         New-WAFOutageObject @cmdletParams
     }
