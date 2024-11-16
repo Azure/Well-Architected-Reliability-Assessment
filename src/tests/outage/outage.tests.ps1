@@ -138,9 +138,9 @@ Describe 'New-WAFOutageObject' {
                 SubscriptionId  = $testData.SubscriptionId
                 TrackingId      = $testData.TrackingId
                 Status          = $testData.Status
-                LastUpdateTime  = $testData.LastUpdateTime.ToString('yyyy-MM-dd HH:mm:ss')
-                StartTime       = $testData.StartTime.ToString('yyyy-MM-dd HH:mm:ss')
-                EndTime         = $testData.EndTime.ToString('yyyy-MM-dd HH:mm:ss')
+                LastUpdateTime  = $testData.LastUpdateTime
+                StartTime       = $testData.StartTime
+                EndTime         = $testData.EndTime
                 Level           = $testData.Level
                 Title           = $testData.Title
                 Summary         = $testData.Summary
