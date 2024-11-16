@@ -67,7 +67,6 @@ SupportResources
     createdDateAsDateTime  = todatetime(properties.CreatedDate),   // UTC
     modifiedDateAsDateTime = todatetime(properties.ModifiedDate)   // UTC
 | where createdDateAsDateTime >= datetime_add("Month", -3, now())  // Last 3 months (not 90 days)
-| order by createdDateAsDateTime desc
 | project
     supportTicketId                  = properties.SupportTicketId,
     severity                         = properties.Severity,
@@ -77,6 +76,7 @@ SupportResources
     modifiedDate                     = modifiedDateAsDateTime,
     title                            = properties.Title,
     technicalTicketDetailsResourceId = iif(isnull(properties.TechnicalTicketDetails.ResourceId), "", properties.TechnicalTicketDetails.ResourceId)
+| order by createdDate desc
 '@
 
     $supportTickets = Search-AzGraph -Subscription $SubscriptionId -First 1000 -Query $argQuery
