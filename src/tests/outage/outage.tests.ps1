@@ -30,7 +30,7 @@ Describe 'Get-WAFOutage' {
                 summary         = $testData.summary
                 header          = $testData.header
                 impactedService = $testData.impactedServices -join ', '
-                description     = $testData.summary  # Use the summary as the description, it's by design..
+                description     = $testData.summary  # Use the summary as the description, it's by design.
             }
 
             $result = Get-WAFOutage -SubscriptionId '11111111-1111-1111-1111-111111111111'
@@ -72,7 +72,7 @@ Describe 'Get-WAFOutage' {
                     summary         = $testData.summary
                     header          = $testData.header
                     impactedService = $testData.impactedServices -join ', '
-                    description     = $testData.summary  # Use the summary as the description, it's by design..
+                    description     = $testData.summary  # Use the summary as the description, it's by design.
                 }
             }
 
@@ -131,7 +131,7 @@ Describe 'New-WAFOutageObject' {
                 title           = $testData.Title
                 summary         = $testData.Summary
                 header          = $testData.Header
-                description     = $testData.Summary  # Use the summary as the description, it's by design..
+                description     = $testData.Summary  # Use the summary as the description, it's by design.
             }
 
             $cmdletParams = @{
@@ -145,7 +145,7 @@ Describe 'New-WAFOutageObject' {
                 Title           = $testData.Title
                 Summary         = $testData.Summary
                 Header          = $testData.Header
-                Description     = $testData.Summary  # Use the summary as the description, it's by design..
+                Description     = $testData.Summary  # Use the summary as the description, it's by design.
             }
         }
 

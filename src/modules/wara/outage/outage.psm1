@@ -110,7 +110,7 @@ ServiceHealthResources
             Summary         = $serviceIssueEvent.summary
             Header          = $serviceIssueEvent.header
             ImpactedService = $serviceIssueEvent.impactedServices
-            Description     = $serviceIssueEvent.summary  # Use the summary as the description, it's by design..
+            Description     = $serviceIssueEvent.summary  # Use the summary as the description, it's by design.
         }
         New-WAFOutageObject @cmdletParams
     }
