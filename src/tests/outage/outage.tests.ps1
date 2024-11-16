@@ -117,7 +117,7 @@ Describe 'New-WAFOutageObject' {
                 Title           = 'Mitigated - Storage Metrics UI Regression Impacting Non-Classic Storage Accounts in Azure Monitor'
                 Summary         = '<p><strong>What happened?</strong></p>'
                 Header          = 'Your service might have been impacted by an Azure service issue'
-                Description     = '<p><strong>What happened?</strong></p>'  # Use the same value as summary, it's by design.
+                Description     = '* Description *'  # We don't care the description.
             }
 
             $expected = @{
