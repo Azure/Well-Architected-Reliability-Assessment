@@ -64,18 +64,18 @@ SupportResources
 | where type =~ "Microsoft.Support/supportTickets"
 | where properties.Severity !~ "Minimal"  // Exclude severity C
 | extend
-    createdDateAsDateTime = todatetime(properties.CreatedDate),   // UTC
-    modifiedDateAsDateTime = todatetime(properties.ModifiedDate)  // UTC
-| where createdDateAsDateTime > datetime_add("Month", -3, now())  // Last 3 months (not 90 days)
+    createdDateAsDateTime  = todatetime(properties.CreatedDate),   // UTC
+    modifiedDateAsDateTime = todatetime(properties.ModifiedDate)   // UTC
+| where createdDateAsDateTime >= datetime_add("Month", -3, now())  // Last 3 months (not 90 days)
 | order by createdDateAsDateTime desc
 | project
-    supportTicketId = properties.SupportTicketId,
-    severity = properties.Severity,
-    status = properties.Status,
-    supportPlanType = properties.SupportPlanType,
-    createdDate = createdDateAsDateTime,
-    modifiedDate = modifiedDateAsDateTime,
-    title = properties.Title,
+    supportTicketId                  = properties.SupportTicketId,
+    severity                         = properties.Severity,
+    status                           = properties.Status,
+    supportPlanType                  = properties.SupportPlanType,
+    createdDate                      = createdDateAsDateTime,
+    modifiedDate                     = modifiedDateAsDateTime,
+    title                            = properties.Title,
     technicalTicketDetailsResourceId = iif(isnull(properties.TechnicalTicketDetails.ResourceId), "", properties.TechnicalTicketDetails.ResourceId)
 '@
 
