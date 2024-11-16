@@ -112,7 +112,7 @@ ServiceHealthResources
             Summary         = $retirementEvent.summary
             Header          = $retirementEvent.header
             ImpactedService = $retirementEvent.impactedServices
-            Description     = $retirementEvent.summary  # Use the summary as the description, it's by design..
+            Description     = $retirementEvent.summary  # Use the summary as the description, it's by design.
         }
         New-WAFResourceRetirementObject @cmdletParams
     }
