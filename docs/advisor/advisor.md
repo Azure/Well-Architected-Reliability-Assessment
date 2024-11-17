@@ -17,3 +17,24 @@ Builds a list of advisory objects from Azure Advisor query results.
 ### [Get-WAFAdvisorRecommendations](Get-WAFAdvisorRecommendations.md)
 Retrieves high availability recommendations from Azure Advisor.
 
+### [Get-WAFAllAzGraphResource](Get-WAFAllAzGraphResource.md)
+Retrieves all Azure resources using Azure Resource Graph.
+
+### [Get-WAFQueryByResourceType](Get-WAFQueryByResourceType.md)
+Filters objects by resource type.
+
+### [Get-WAFResourceGroup](Get-WAFResourceGroup.md)
+Retrieves all resource groups in the specified subscriptions.
+
+### [Get-WAFResourceType](Get-WAFResourceType.md)
+Retrieves all resource types in the specified subscriptions.
+
+### [Get-WAFTaggedResources](Get-WAFTaggedResources.md)
+Retrieves all resources with matching tags.
+
+### [Get-WAFTaggedRGResources](Get-WAFTaggedRGResources.md)
+Retrieves all resources in resource groups with matching tags.
+
+### [Invoke-WAFQueryLoop](Invoke-WAFQueryLoop.md)
+Invokes a loop to run queries for each recommendation object.
+

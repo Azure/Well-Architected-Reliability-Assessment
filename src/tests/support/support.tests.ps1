@@ -68,6 +68,7 @@ Describe 'Get-WAFSupportTicket' {
 
             Should -InvokeVerifiable
             $results.Length | Should -BeExactly $expectedArray.Length
+
             for ($i = 0; $i -lt $results.Length; $i++) {
                 $result = $results[$i]
                 $expected = $expectedArray[$i]
