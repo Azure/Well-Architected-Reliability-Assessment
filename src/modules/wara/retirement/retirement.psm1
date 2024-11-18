@@ -53,44 +53,47 @@ function Get-WAFResourceRetirement {
     param (
         [Parameter(Mandatory = $true)]
         [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
-        [string] $SubscriptionId
+        [string[]] $SubscriptionIds
     )
 
+    $retirementObjects = @()
     # NOTE:
     # ARG query with ServiceHealthResources returns last 3 months of events.
     # Azure portal shows last 1 months of events.
-    $cmdletParams = @{
-        Method               = 'GET'
-        SubscriptionId       = $SubscriptionId
-        ResourceProviderName = 'Microsoft.ResourceHealth'
-        ResourceType         = 'events'
-        ApiVersion           = '2024-02-01'
-        QueryString          = @(
-            ('queryStartTime={0}' -f (Get-Date).AddMonths(-3).ToString('yyyy-MM-ddT00:00:00')),
-            '$filter=(properties/eventType eq ''HealthAdvisory'') and (properties/eventSubType eq ''Retirement'') and (Properties/Status eq ''Active'')'
-        ) -join '&'
-    }
-    $response = Invoke-AzureRestApi @cmdletParams
-    $retirementEvents = ($response.Content | ConvertFrom-Json).value
-
-    $retirementObjects = foreach ($retirementEvent in $retirementEvents) {
+    foreach ($SubscriptionId in $SubscriptionIds) {
         $cmdletParams = @{
-            SubscriptionId  = $SubscriptionId
-            TrackingId      = $retirementEvent.name
-            Status          = $retirementEvent.properties.status
-            LastUpdateTime  = $retirementEvent.properties.lastUpdateTime
-            StartTime       = $retirementEvent.properties.impactStartTime
-            EndTime         = $retirementEvent.properties.impactMitigationTime
-            Level           = $retirementEvent.properties.level
-            Title           = $retirementEvent.properties.title
-            Summary         = $retirementEvent.properties.summary
-            Header          = $retirementEvent.properties.header
-            ImpactedService = $retirementEvent.properties.impact.impactedService
-            Description     = $retirementEvent.properties.description
+            Method               = 'GET'
+            SubscriptionId       = $SubscriptionId
+            ResourceProviderName = 'Microsoft.ResourceHealth'
+            ResourceType         = 'events'
+            ApiVersion           = '2024-02-01'
+            QueryString          = @(
+            ('queryStartTime={0}' -f (Get-Date).AddMonths(-3).ToString('yyyy-MM-ddT00:00:00')),
+                '$filter=(properties/eventType eq ''HealthAdvisory'') and (properties/eventSubType eq ''Retirement'') and (Properties/Status eq ''Active'')'
+            ) -join '&'
         }
-        New-WAFResourceRetirementObject @cmdletParams
-    }
+        $response = Invoke-AzureRestApi @cmdletParams
+        $retirementEvents = ($response.Content | ConvertFrom-Json).value
 
+        $return = foreach ($retirementEvent in $retirementEvents) {
+            $cmdletParams = @{
+                SubscriptionId  = $SubscriptionId
+                TrackingId      = $retirementEvent.name
+                Status          = $retirementEvent.properties.status
+                LastUpdateTime  = $retirementEvent.properties.lastUpdateTime
+                StartTime       = $retirementEvent.properties.impactStartTime
+                EndTime         = $retirementEvent.properties.impactMitigationTime
+                Level           = $retirementEvent.properties.level
+                Title           = $retirementEvent.properties.title
+                Summary         = $retirementEvent.properties.summary
+                Header          = $retirementEvent.properties.header
+                ImpactedService = $retirementEvent.properties.impact.impactedService
+                Description     = $retirementEvent.properties.description
+            }
+            New-WAFResourceRetirementObject @cmdletParams
+        }
+        $retirementObjects += $return
+    }
     return $retirementObjects
 }
 
@@ -195,7 +198,7 @@ function Invoke-AzureRestApi {
         ApiVersion           = $ApiVersion
     }
     if ($PSBoundParameters.ContainsKey('ResourceGroupName')) { $cmdletParams.ResourceGroupName = $ResourceGroupName }
-    if ($PSBoundParameters.ContainsKey('Name')) { $cmdletParams.Name = $Name}
+    if ($PSBoundParameters.ContainsKey('Name')) { $cmdletParams.Name = $Name }
     if ($PSBoundParameters.ContainsKey('QueryString')) { $cmdletParams.QueryString = $QueryString }
     $path = Get-AzureRestMethodUriPath @cmdletParams
 

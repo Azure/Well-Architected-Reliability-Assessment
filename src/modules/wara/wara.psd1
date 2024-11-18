@@ -68,13 +68,13 @@ Copyright = '(c) Microsoft. All rights reserved.'
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @("advisor/advisor.psd1",
                 "collector/collector.psd1",
-                "outage/outage.psm1",
-                "retirement/retirement.psm1",
-                "runbook/runbook.psm1",
-                "scope/scope.psm1",
-                "servicehealth/servicehealth.psm1",
-                "support/support.psm1",
-                "utils/utils.psm1"
+                "outage/outage.psd1",
+                "retirement/retirement.psd1",
+                "runbook/runbook.psd1",
+                "scope/scope.psd1",
+                "servicehealth/servicehealth.psd1",
+                "support/support.psd1",
+                "utils/utils.psd1"
                 )
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.

@@ -53,12 +53,17 @@ function Get-WAFOutage {
     param (
         [Parameter(Mandatory = $true)]
         [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
-        [string] $SubscriptionId
+        [string[]] $SubscriptionIds
     )
 
     # NOTE:
     # ARG query with ServiceHealthResources returns last 3 months of events.
     # Azure portal shows last 3 months of events maximum.
+
+    $outageObjects = @()
+
+    foreach($SubscriptionId in $SubscriptionId) {
+ 
     $cmdletParams = @{
         Method               = 'GET'
         SubscriptionId       = $SubscriptionId
@@ -73,7 +78,7 @@ function Get-WAFOutage {
     $response = Invoke-AzureRestApi @cmdletParams
     $serviceIssueEvents = ($response.Content | ConvertFrom-Json).value
 
-    $outageObjects = foreach ($serviceIssueEvent in $serviceIssueEvents) {
+    $return = foreach ($serviceIssueEvent in $serviceIssueEvents) {
         $cmdletParams = @{
             SubscriptionId  = $SubscriptionId
             TrackingId      = $serviceIssueEvent.name
@@ -90,7 +95,8 @@ function Get-WAFOutage {
         }
         New-WAFOutageObject @cmdletParams
     }
-
+    $outageObjects += $return
+}
     return $outageObjects
 }
 
