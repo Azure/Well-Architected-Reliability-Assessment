@@ -1,11 +1,9 @@
 BeforeAll {
-    $modulePath = "$PSScriptRoot/../../modules/wara/advisor/advisor.psm1" 
-    $collectormodulePath = "$PSScriptRoot/../../modules/wara/collector/collector.psm1"
+    $modulePath = "$PSScriptRoot/../../modules/wara/advisor/advisor.psd1" 
     $testDataPath = "$PSScriptRoot/../data/advisor/bigAdvisorTestData.json"
     Import-Module -Name $modulePath -Force
-    #import-module -Name $collectormodulePath -Force
     $objectlist = get-content $testDataPath -Raw | ConvertFrom-Json -depth 20
-    Mock Get-WAFAllAzGraphResource { return $objectlist } -ModuleName advisor
+    Mock Invoke-WAFQuery { return $objectlist } -ModuleName advisor
 }
 Describe "Build-WAFAdvisorObject" {
     Context "When given a raw list of advisories" {

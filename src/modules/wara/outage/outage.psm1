@@ -1,4 +1,5 @@
 using module ../utils/utils.psd1
+
 <#
 .SYNOPSIS
     Retrieves recent outage service issue events.
