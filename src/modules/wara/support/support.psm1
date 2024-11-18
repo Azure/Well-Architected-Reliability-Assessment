@@ -1,3 +1,4 @@
+using module ../utils/utils.psd1
 <#
 .SYNOPSIS
     Retrieves recent support tickets.
@@ -54,7 +55,7 @@ function Get-WAFSupportTicket {
     param (
         [Parameter(Mandatory = $true)]
         [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
-        [string] $SubscriptionId
+        [string[]] $SubscriptionIds
     )
 
     $argQuery = @'
@@ -77,7 +78,7 @@ SupportResources
     technicalTicketDetailsResourceId = iif(isnull(properties.TechnicalTicketDetails.ResourceId), "", properties.TechnicalTicketDetails.ResourceId)
 '@
 
-    $supportTickets = Search-AzGraph -Subscription $SubscriptionId -First 1000 -Query $argQuery
+    $supportTickets = Invoke-WAFQuery -SubscriptionIds $SubscriptionIds -Query $argQuery
 
     $supportTicketObjects = foreach ($supportTicket in $supportTickets) {
         $cmdletParams = @{

@@ -1,45 +1,4 @@
-<#
-.SYNOPSIS
-Retrieves all Azure resources using Azure Resource Graph.
-.DESCRIPTION
-The Get-WAFAllAzGraphResource function queries Azure Resource Graph to retrieve all resources based on the provided query and subscription IDs.
-.PARAMETER subscriptionIds
-An array of subscription IDs to scope the query.
-.PARAMETER query
-The query to run against Azure Resource Graph. Defaults to a query that retrieves basic resource information.
-.OUTPUTS
-Returns an array of resources.
-.EXAMPLE
-$resources = Get-WAFAllAzGraphResource -subscriptionIds @('sub1', 'sub2')
-.NOTES
-This function handles pagination using the SkipToken.
-#>
-Function Get-WAFAllAzGraphResource {
-  [CmdletBinding()]
-  param (
-    [string[]]$subscriptionIds,
-    [string]$query = 'Resources | project id, resourceGroup, subscriptionId, name, type, location'
-  )
-
-
-  $result = $subscriptionIds ? (Search-AzGraph -Query $query -first 1000 -Subscription $subscriptionIds) : (Search-AzGraph -Query $query -first 1000 -usetenantscope) # -first 1000 returns the first 1000 results and subsequently reduces the amount of queries required to get data.
-
-  # Collection to store all resources
-  $allResources = @($result)
-
-  # Loop to paginate through the results using the skip token
-  $result = while ($result.SkipToken) {
-    # Retrieve the next set of results using the skip token
-    $result = $subscriptionId ? (Search-AzGraph -Query $query -SkipToken $result.SkipToken -Subscription $subscriptionIds -First 1000) : (Search-AzGraph -query $query -SkipToken $result.SkipToken -First 1000 -UseTenantScope)
-    # Add the results to the collection
-    write-output $result
-  }
-
-  $allResources += $result
-
-  # Output all resources
-  return $allResources
-}
+using module ../utils/utils.psd1
 
 <#
 .SYNOPSIS
@@ -53,7 +12,7 @@ Returns an array of resource groups.
 .EXAMPLE
 $resourceGroups = Get-WAFResourceGroup -SubscriptionIds @('sub1', 'sub2')
 .NOTES
-This function uses the Get-WAFAllAzGraphResource function to perform the query.
+This function uses the Invoke-WAFQuery function to perform the query.
 #>
 function Get-WAFResourceGroup {
   [CmdletBinding()]
@@ -70,7 +29,7 @@ function Get-WAFResourceGroup {
       on subscriptionId
   | project subscriptionName, subscriptionId, resourceGroup, id=tolower(id)"
 
-  $r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionIds $SubscriptionIds -usetenantscope) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
+  $r = $SubscriptionIds ? (Invoke-WAFQuery -query $q -subscriptionIds $SubscriptionIds -usetenantscope) : (Invoke-WAFQuery -query $q -usetenantscope)
 
   # Returns the resource groups
   return $r
@@ -90,7 +49,7 @@ Returns an array of resources with matching tags.
 .EXAMPLE
 $taggedResources = Get-WAFTaggedResources -tagArray @('env==prod', 'app==myapp') -SubscriptionIds @('sub1', 'sub2')
 .NOTES
-This function uses the Get-WAFAllAzGraphResource function to perform the query.
+This function uses the Invoke-WAFQuery function to perform the query.
 #>
 Function Get-WAFTaggedResources {
   [CmdletBinding()]
@@ -124,7 +83,7 @@ foreach($tag in $tagArray){
 | summarize by id
 | order by ['id']"
 
-  $result = Get-WAFAllAzGraphResource -query $tagquery -subscriptionIds $subscriptionId
+  $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionId
   
   $return += $result
 }
@@ -150,7 +109,7 @@ Returns an array of resources in resource groups with matching tags.
 .EXAMPLE
 $taggedRGResources = Get-WAFTaggedRGResources -tagKeys @('env') -tagValues @('prod') -SubscriptionIds @('sub1', 'sub2')
 .NOTES
-This function uses the Get-WAFAllAzGraphResource function to perform the query.
+This function uses the Invoke-WAFQuery function to perform the query.
 #>
 Function Get-WAFTaggedRGResources {
   [CmdletBinding()]
@@ -187,7 +146,7 @@ foreach($tag in $tagArray){
 | summarize by id
 | order by ['id']"
 
-    $result = Get-WAFAllAzGraphResource -query $tagquery -subscriptionIds $subscriptionId
+    $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionId
     
     $return += $result
 }
@@ -211,7 +170,7 @@ Returns an array of resources for each recommendation object.
 .EXAMPLE
 $resources = Invoke-WAFQueryLoop -RecommendationObject $recommendations -subscriptionIds @('sub1', 'sub2')
 .NOTES
-This function uses the Get-WAFAllAzGraphResource function to perform the queries.
+This function uses the Invoke-WAFQuery function to perform the queries.
 #>
 Function Invoke-WAFQueryLoop {
   [CmdletBinding()]
@@ -227,7 +186,7 @@ $QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -Fil
 $return = $QueryObject.Where({$_.automationavailable -eq $True -and [String]::IsNullOrEmpty($_.recommendationTypeId)}) | ForEach-Object {
   Write-Progress -Activity "Running Queries" -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100)
   try{
-    Get-WAFAllAzGraphResource -query $_.query -subscriptionIds $subscriptionIds -ErrorAction Stop
+    Invoke-WAFQuery -query $_.query -subscriptionIds $subscriptionIds -ErrorAction Stop
   }
   catch{
     Write-Host "Error running query for - " $_.aprlGuid
@@ -249,7 +208,7 @@ Returns an array of resource types.
 .EXAMPLE
 $resourceTypes = Get-WAFResourceType -SubscriptionIds @('sub1', 'sub2')
 .NOTES
-This function uses the Get-WAFAllAzGraphResource function to perform the query.
+This function uses the Invoke-WAFQuery function to perform the query.
 #>
 Function Get-WAFResourceType {
   [CmdletBinding()]
@@ -261,7 +220,7 @@ $q = "Resources
 | summarize count() by type
 | project type"
 
-$r = $SubscriptionIds ? (Get-WAFAllAzGraphResource -query $q -subscriptionIds $SubscriptionIds) : (Get-WAFAllAzGraphResource -query $q -usetenantscope)
+$r = $SubscriptionIds ? (Invoke-WAFQuery -query $q -subscriptionIds $SubscriptionIds) : (Invoke-WAFQuery -query $q -usetenantscope)
 
 return $r
 }

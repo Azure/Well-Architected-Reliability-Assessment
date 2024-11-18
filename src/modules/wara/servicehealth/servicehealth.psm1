@@ -1,3 +1,5 @@
+using module ../utils/utils.psd1
+
 function Get-WAFServiceHealth {
     Param($Subid,$SubIds)
 

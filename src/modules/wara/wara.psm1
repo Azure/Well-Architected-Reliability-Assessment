@@ -97,17 +97,20 @@ Function Start-WARACollector {
     Write-Debug "Connecting to Azure if not connected."
     Connect-WAFAzure -TenantId $Scope_TenantId -AzureEnvironment $AzureEnvironment
 
-    #Get Implicit Subscription Ids from Scope
+     #Get Implicit Subscription Ids from Scope
     Write-Debug "Getting Implicit Subscription Ids from Scope"
     $Scope_ImplicitSubscriptionIds = Get-WAFImplicitSubscriptionId -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
-    
+    Write-Debug "Implicit Subscription Ids: $Scope_ImplicitSubscriptionIds"
+
     #Get all tagged resource groups from the Implicit Subscription ID scope
     Write-Debug "Getting all tagged resource groups from the Implicit Subscription ID scope"
     $Filter_TaggedResourceGroupIds = Get-WAFTaggedRGResources -tagArray $Scope_Tags -SubscriptionId $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
+    Write-Debug "Count of Tagged Resource Group Ids: $($Filter_TaggedResourceGroupIds).count"
 
     #Get all tagged resources from the Implicit Subscription ID scope
     Write-Debug "Getting all tagged resources from the Implicit Subscription ID scope"
     $Filter_TaggedResourceIds = Get-WAFTaggedResources -tagArray $Scope_Tags -SubscriptionId $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
+    Write-Debug "Count of Tagged Resource Ids: $($Filter_TaggedResourceIds).count"
 
     #Get all APRL recommendations from the Implicit Subscription ID scope
     Write-Debug "Getting all APRL recommendations from the Implicit Subscription ID scope"
@@ -136,42 +139,18 @@ Function Start-WARACollector {
     #Filter Advisor Recommendations by tagged resource group and resource scope
     Write-Debug "Filtering Advisor Recommendations by tagged resource group and resource scope"
     $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
-
+ 
     #Get Azure Outages
     Write-Debug "Getting Azure Outages"
     $outageResourceObj = Get-WAFOutage -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
-
-    #Filter Azure Outages by subscription, resourcegroup, and resource scope
-    Write-Debug "Filtering Azure Outages by subscription, resourcegroup, and resource scope"
-    $outageResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $outageResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
-
-    #Filter Azure Outages by tagged resource group and resource scope
-    Write-Debug "Filtering Azure Outages by tagged resource group and resource scope"
-    $outageResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $outageResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
 
     #Get Azure Retirements
     Write-Debug "Getting Azure Retirements"
     $retirementResourceObj = Get-WAFResourceRetirement -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
 
-    #Filter Azure Retirements by subscription, resourcegroup, and resource scope
-    Write-Debug "Filtering Azure Retirements by subscription, resourcegroup, and resource scope"
-    $retirementResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $retirementResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
-
-    #Filter Azure Retirements by tagged resource group and resource scope
-    Write-Debug "Filtering Azure Retirements by tagged resource group and resource scope"
-    $retirementResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $retirementResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
-
     #Get Azure Support Tickets
     Write-Debug "Getting Azure Support Tickets"
     $supportTicketObjects = Get-WAFSupportTicket -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
-
-    #Filter Azure Support Tickets by subscription, resourcegroup, and resource scope
-    Write-Debug "Filtering Azure Support Tickets by subscription, resourcegroup, and resource scope"
-    $supportTicketObjects = Get-WAFFilteredResourceList -UnfilteredResources $supportTicketObjects -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
-
-    #Filter Azure Support Tickets by tagged resource group and resource scope
-    Write-Debug "Filtering Azure Support Tickets by tagged resource group and resource scope"
-    $supportTicketObjects = Get-WAFFilteredResourceList -UnfilteredResources $supportTicketObjects -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
 
     #Create output JSON
     Write-Debug "Creating output JSON"
