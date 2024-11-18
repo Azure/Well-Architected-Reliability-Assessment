@@ -105,12 +105,12 @@ Function Start-WARACollector {
     #Get all tagged resource groups from the Implicit Subscription ID scope
     Write-Debug "Getting all tagged resource groups from the Implicit Subscription ID scope"
     $Filter_TaggedResourceGroupIds = Get-WAFTaggedRGResources -tagArray $Scope_Tags -SubscriptionId $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
-    Write-Debug "Count of Tagged Resource Group Ids: $($Filter_TaggedResourceGroupIds).count"
+    Write-Debug "Count of Tagged Resource Group Ids: $($Filter_TaggedResourceGroupIds.count)"
 
     #Get all tagged resources from the Implicit Subscription ID scope
     Write-Debug "Getting all tagged resources from the Implicit Subscription ID scope"
     $Filter_TaggedResourceIds = Get-WAFTaggedResources -tagArray $Scope_Tags -SubscriptionId $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
-    Write-Debug "Count of Tagged Resource Ids: $($Filter_TaggedResourceIds).count"
+    Write-Debug "Count of Tagged Resource Ids: $($Filter_TaggedResourceIds.count)"
 
     #Get all APRL recommendations from the Implicit Subscription ID scope
     Write-Debug "Getting all APRL recommendations from the Implicit Subscription ID scope"
@@ -152,6 +152,10 @@ Function Start-WARACollector {
     Write-Debug "Getting Azure Support Tickets"
     $supportTicketObjects = Get-WAFSupportTicket -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
 
+    #Get Azure Service Health
+    Write-Debug "Getting Azure Service Health"
+    $serviceHealthObjects = Get-WAFServiceHealth -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
+
     #Create output JSON
     Write-Debug "Creating output JSON"
     $outputJson = [PSCustomObject]@{
@@ -160,6 +164,7 @@ Function Start-WARACollector {
         outages           = $outageResourceObj
         retirements       = $retirementResourceObj
         supportTickets    = $supportTicketObjects
+        serviceHealth     = $serviceHealthObjects
     }
 
     Write-Debug "Output JSON"
