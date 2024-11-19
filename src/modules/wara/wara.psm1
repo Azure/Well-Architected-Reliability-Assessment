@@ -115,7 +115,7 @@ Function Start-WARACollector {
 
     #Get Advisor Recommendations
     Write-Debug "Getting Advisor Recommendations"
-    $advisorResourceObj = Get-WAFAdvisorRecommendations -Subid $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '') -HighAvailability
+    $advisorResourceObj = Get-WAFAdvisorRecommendations -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '') -HighAvailability
 
     #If we passed tags, filter impactedResourceObj and advisorResourceObj by tagged resource group and tagged resource scope
     if (![String]::IsNullOrEmpty($Scope_Tags)) {
