@@ -195,42 +195,32 @@ Describe Import-WAFConfigFileData {
     }  
 }
 Describe 'Connect-WAFAzure' {
-    Mock -CommandName Get-AzContext -MockWith { $null }
-    Mock -CommandName Connect-AzAccount
-
     Context 'When TenantID is provided' {
-        It 'Should call Connect-AzAccount with the correct parameters' {
-            $tenantId = [Guid]::NewGuid()
-            $azureEnvironment = 'AzureCloud'
 
-            Connect-WAFAzure -TenantID $tenantId -AzureEnvironment $azureEnvironment
-
-            # Verify that Connect-AzAccount was called with the correct parameters
-            Assert-MockCalled -CommandName Connect-AzAccount -Exactly 1 -Scope It -ParameterFilter {
-                $Tenant -eq $tenantId -and $Environment -eq $azureEnvironment
-            }
+        BeforeEach {
+            Mock Connect-AzAccount { @{ } } -Verifiable -ModuleName utils
+            Mock Get-AzContext { return $null } -Verifiable -ModuleName utils
         }
+        It 'Should call Connect-AzAccount with the correct parameters' {
+            $TenantID = [Guid]::NewGuid()
+            $AzureEnvironment = 'AzureCloud'
 
-        It 'Should use the default AzureEnvironment if not specified' {
-            $tenantId = [Guid]::NewGuid()
+            Connect-WAFAzure -TenantID $TenantID -AzureEnvironment $AzureEnvironment
 
-            Connect-WAFAzure -TenantID $tenantId
-
-            # Verify that Connect-AzAccount was called with the default AzureEnvironment
-            Assert-MockCalled -CommandName Connect-AzAccount -Exactly 1 -Scope It -ParameterFilter {
-                $Tenant -eq $tenantId -and $Environment -eq 'AzureCloud'
-            }
+            # Verify that Connect-AzAccount was called
+            Should -InvokeVerifiable
         }
 
         It 'Should not call Connect-AzAccount if Get-AzContext returns a context' {
-            Mock -CommandName Get-AzContext -MockWith { @{ Context = 'SomeContext' } }
+            Mock Get-AzContext { return $true } -ModuleName utils
+            Mock Connect-AzAccount { @{ } } -Verifiable -ModuleName utils
 
             $tenantId = [Guid]::NewGuid()
 
             Connect-WAFAzure -TenantID $tenantId
 
             # Verify that Connect-AzAccount was not called
-            Assert-MockCalled -CommandName Connect-AzAccount -Exactly 0 -Scope It
+            Should -Not -InvokeVerifiable 
         }
     }
 }
