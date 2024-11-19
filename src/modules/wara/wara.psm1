@@ -101,16 +101,6 @@ Function Start-WARACollector {
     $Scope_ImplicitSubscriptionIds = Get-WAFImplicitSubscriptionId -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Implicit Subscription Ids: $Scope_ImplicitSubscriptionIds"
 
-    #Get all tagged resource groups from the Implicit Subscription ID scope
-    Write-Debug "Getting all tagged resource groups from the Implicit Subscription ID scope"
-    $Filter_TaggedResourceGroupIds = Get-WAFTaggedRGResources -tagArray $Scope_Tags -SubscriptionId $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
-    Write-Debug "Count of Tagged Resource Group Ids: $($Filter_TaggedResourceGroupIds.count)"
-
-    #Get all tagged resources from the Implicit Subscription ID scope
-    Write-Debug "Getting all tagged resources from the Implicit Subscription ID scope"
-    $Filter_TaggedResourceIds = Get-WAFTaggedResources -tagArray $Scope_Tags -SubscriptionId $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
-    Write-Debug "Count of Tagged Resource Ids: $($Filter_TaggedResourceIds.count)"
-
     #Get all APRL recommendations from the Implicit Subscription ID scope
     Write-Debug "Getting all APRL recommendations from the Implicit Subscription ID scope"
     $Recommendations = Invoke-WAFQueryLoop -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '') -RecommendationObject $RecommendationObject
@@ -129,6 +119,17 @@ Function Start-WARACollector {
 
     #If we passed tags, filter impactedResourceObj and advisorResourceObj by tagged resource group and tagged resource scope
     if (![String]::IsNullOrEmpty($Scope_Tags)) {
+
+        #Get all tagged resource groups from the Implicit Subscription ID scope
+        Write-Debug "Getting all tagged resource groups from the Implicit Subscription ID scope"
+        $Filter_TaggedResourceGroupIds = Get-WAFTaggedRGResources -tagArray $Scope_Tags -SubscriptionId $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
+        Write-Debug "Count of Tagged Resource Group Ids: $($Filter_TaggedResourceGroupIds.count)"
+
+        #Get all tagged resources from the Implicit Subscription ID scope
+        Write-Debug "Getting all tagged resources from the Implicit Subscription ID scope"
+        $Filter_TaggedResourceIds = Get-WAFTaggedResources -tagArray $Scope_Tags -SubscriptionId $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')
+        Write-Debug "Count of Tagged Resource Ids: $($Filter_TaggedResourceIds.count)"
+
         #Filter impactedResourceObj objects by tagged resource group and resource scope
         Write-Debug "Filtering impactedResourceObj objects by tagged resource group and resource scope"
         $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $impactedResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
