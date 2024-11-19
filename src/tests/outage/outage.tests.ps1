@@ -86,9 +86,7 @@ Describe 'New-WAFOutageObject' {
 }
 
 Describe 'Get-WAFOutage' {
-    Context 'When to get an OutageObject' {
-
-                        
+    Context 'When to get an OutageObject' {           
         BeforeAll {
             $moduleNameToInjectMock = 'outage'
             Mock Invoke-AzureRestAPI {
