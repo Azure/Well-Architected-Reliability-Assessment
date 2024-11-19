@@ -243,7 +243,7 @@
     "eventName": "ServiceHealthIncident",
     "type": "microsoft.insights/activitylogalerts",
     "location": "global",
-    "resourceGroup": "rg-01",
+    "resourceGroup": "rg-03",
     "properties": {
       "description": "Service Health Incident Alert",
       "enabled": true,
@@ -270,5 +270,72 @@
         ]
       }
     }
-  }
+  },
+  {
+    "subscriptionId": "2222222-2222-2222-2222-222222222222",
+    "subscriptionName": "Global Subscription 01",
+    "eventName": "srvc-pm-alert",
+    "type": "microsoft.insights/activitylogalerts",
+    "location": "global",
+    "resourceGroup": "rg-03",
+    "properties": {
+      "description": "global services and planned maintenance alerts.",
+      "enabled": true,
+      "actions": {
+        "actionGroups": [
+          {
+            "actionGroupId": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-04/providers/microsoft.insights/actiongroups/ag-04",
+            "webhookProperties": {}
+          },
+          {
+            "actionGroupId": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-03/providers/microsoft.insights/actiongroups/ag-03",
+            "webhookProperties": {}
+          }
+        ]
+      },
+      "scopes": [
+        "/subscriptions/2222222-2222-2222-2222-222222222222"
+      ],
+      "condition": {
+        "allOf": [
+          {
+            "equals": "ServiceHealth",
+            "field": "category"
+          },
+          {
+            "anyOf": [
+              {
+                "equals": "Incident",
+                "field": "properties.incidentType"
+              },
+              {
+                "equals": "Maintenance",
+                "field": "properties.incidentType"
+              }
+            ]
+          },
+          {
+            "field": "properties.impactedServices[*].ServiceName",
+            "containsAny": [
+              "Azure Container Registry",
+              "Azure Database for PostgreSQL",
+              "Azure Database for PostgreSQL flexible servers",
+              "Azure Kubernetes Service (AKS)",
+              "Storage",
+              "Virtual Network"
+            ]
+          },
+          {
+            "field": "properties.impactedServices[*].ImpactedRegions[*].RegionName",
+            "containsAny": [
+              "Central US",
+              "East US 2",
+              "UK South",
+              "UK West"
+            ]
+          }
+        ]
+      }
+    }
+  }  
 ]

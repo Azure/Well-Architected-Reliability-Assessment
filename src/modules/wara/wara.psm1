@@ -52,7 +52,6 @@ Function Start-WARACollector {
         $RunbookFile
     )
 
-    Write-Verbose "Starting WARA Collector"
     Write-Debug "Debugging mode is enabled"
 
     # Determine which parameter set is active
@@ -79,8 +78,8 @@ Function Start-WARACollector {
 
     #Use Null Coalescing to set the values of parameters.
     $Scope_TenantId = [String]$ConfigData.TenantId ?? $TenantID ?? (throw "Tenant ID is required.")
-    $Scope_SubscriptionIds = $ConfigData.SubscriptionIds ?? $SubscriptionIds ??  @()
-    $Scope_ResourceGroups = $ConfigData.ResourceGroups ?? $ResourceGroups ??  @()
+    $Scope_SubscriptionIds = $ConfigData.SubscriptionIds ?? $SubscriptionIds ?? @()
+    $Scope_ResourceGroups = $ConfigData.ResourceGroups ?? $ResourceGroups ?? @()
     $Scope_Tags = $ConfigData.Tags ?? $Tags ?? @()
 
     Write-Debug "Tenant ID: $Scope_TenantId"
@@ -97,7 +96,7 @@ Function Start-WARACollector {
     Write-Debug "Connecting to Azure if not connected."
     Connect-WAFAzure -TenantId $Scope_TenantId -AzureEnvironment $AzureEnvironment
 
-     #Get Implicit Subscription Ids from Scope
+    #Get Implicit Subscription Ids from Scope
     Write-Debug "Getting Implicit Subscription Ids from Scope"
     $Scope_ImplicitSubscriptionIds = Get-WAFImplicitSubscriptionId -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Implicit Subscription Ids: $Scope_ImplicitSubscriptionIds"
@@ -124,22 +123,26 @@ Function Start-WARACollector {
     Write-Debug "Filtering impactedResourceObj objects by subscription, resourcegroup, and resource scope"
     $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $impactedResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
 
-    #Filter impactedResourceObj objects by tagged resource group and resource scope
-    Write-Debug "Filtering impactedResourceObj objects by tagged resource group and resource scope"
-    $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $impactedResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
-
     #Get Advisor Recommendations
     Write-Debug "Getting Advisor Recommendations"
     $advisorResourceObj = Get-WAFAdvisorRecommendations -Subid $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '') -HighAvailability
+
+    #If we passed tags, filter impactedResourceObj and advisorResourceObj by tagged resource group and tagged resource scope
+    if (![String]::IsNullOrEmpty($Scope_Tags)) {
+        #Filter impactedResourceObj objects by tagged resource group and resource scope
+        Write-Debug "Filtering impactedResourceObj objects by tagged resource group and resource scope"
+        $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $impactedResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
+
+        #Filter Advisor Recommendations by tagged resource group and resource scope
+        Write-Debug "Filtering Advisor Recommendations by tagged resource group and resource scope"
+        $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
+    }
 
     #Filter Advisor Recommendations by subscription, resourcegroup, and resource scope
     Write-Debug "Filtering Advisor Recommendations by subscription, resourcegroup, and resource scope"
     $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
 
-    #Filter Advisor Recommendations by tagged resource group and resource scope
-    Write-Debug "Filtering Advisor Recommendations by tagged resource group and resource scope"
-    $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
- 
+
     #Get Azure Outages
     Write-Debug "Getting Azure Outages"
     $outageResourceObj = Get-WAFOutage -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '')

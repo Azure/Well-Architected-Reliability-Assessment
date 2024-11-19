@@ -4,10 +4,10 @@ function Get-WAFServiceHealth {
     [CmdletBinding()]
     Param(
         [String[]]$SubscriptionIds
-        )
+    )
 
     $Servicequery = `
-"resources
+        "resources
 | where type == 'microsoft.insights/activitylogalerts' and properties.condition has 'ServiceHealth'
 | join kind=inner (
     resourcecontainers
@@ -51,25 +51,23 @@ class ServiceHealthAlert {
     }
 
     static [string] GetEventType($Row) {
-        if ($Row.Properties.condition.allOf | Select-Object -Property equals) {
-            return ($Row.Properties.condition.allOf | Select-Object -Property equals | ForEach-Object {
-                switch ($_.equals) {
-                    'Incident' { 'Service Issues' }
-                    'Informational' { 'Health Advisories' }
-                    'ActionRequired' { 'Security Advisory' }
-                    'Maintenance' { 'Planned Maintenance' }
-                    default { 'All' }
-                }
-            }) -join ', '
-        } else {
-            return 'All'
+        $equals = ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.incidentType' } | Select-Object -Property equals).equals
+        $return = switch ($equals) {
+            'Incident' { 'Service Issues' }
+            'Informational' { 'Health Advisories' }
+            'ActionRequired' { 'Security Advisory' }
+            'Maintenance' { 'Planned Maintenance' }
+            default { 'All' } 
         }
+
+        return $return
     }
 
     static [string] GetServices($Row) {
         if ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ServiceName' }) {
             return ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ServiceName' } | Select-Object -Property containsAny | ForEach-Object { $_.containsAny }) -join ', '
-        } else {
+        }
+        else {
             return 'All'
         }
     }
@@ -77,7 +75,8 @@ class ServiceHealthAlert {
     static [string] GetRegions($Row) {
         if ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ImpactedRegions[*].RegionName' }) {
             return ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ImpactedRegions[*].RegionName' } | Select-Object -Property containsAny | ForEach-Object { $_.containsAny }) -join ', '
-        } else {
+        }
+        else {
             return 'All'
         }
     }
@@ -85,7 +84,8 @@ class ServiceHealthAlert {
     static [string] GetActionGroupName($Row) {
         if ($Row.Properties.actions.actionGroups.actionGroupId) {
             return $Row.Properties.actions.actionGroups.actionGroupId.split('/')[8]
-        } else {
+        }
+        else {
             return ''
         }
     }

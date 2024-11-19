@@ -12,7 +12,7 @@ Describe 'Get-WAFServiceHealth' {
         It 'Should return a valid list of ServiceHealthAlert objects' {
             $SubscriptionIds = @('00000000-0000-0000-0000-000000000000', '11111111-1111-1111-1111-111111111111')
             $ServiceHealthAlert = Get-WAFServiceHealth -SubscriptionIds $SubscriptionIds
-            $ServiceHealthAlert.count | Should -Be 8
+            $ServiceHealthAlert.count | Should -Be 9
             $ServiceHealthAlert.Name | Should -Contain 'ServiceHealthIncident'
             $ServiceHealthAlert.Subscription | Should -Contain 'Contoso Prod'
             $ServiceHealthAlert.Subscription | Should -Contain 'Contoso PreProd'
@@ -30,7 +30,7 @@ Describe 'Build-WAFServiceHealthObject' {
     Context 'When the function is called with a valid query result' {
         It 'Should return a list of ServiceHealthAlert objects' {
             $ServiceHealthAlert = Build-WAFServiceHealthObject -AdvQueryResult $test_ServicehealthData
-            $ServiceHealthAlert.count | Should -Be 8
+            $ServiceHealthAlert.count | Should -Be 9
             $ServiceHealthAlert.Name | Should -Contain 'ServiceHealthIncident'
             $ServiceHealthAlert.Subscription | Should -Contain 'Contoso Prod'
             $ServiceHealthAlert.Subscription | Should -Contain 'Contoso PreProd'
@@ -59,17 +59,19 @@ Describe 'ServiceHealthAlert' {
     }
 
     Context 'When the class methods are called with a valid query result' {
+        $AlertWithMostParameters = $test_ServicehealthData | where {$_.eventName -eq "srvc-pm-alert"}
+
         It '[ServiceHealthAlert]::GetEventType() should return a valid EventType' {
-            $EventType = [ServiceHealthAlert]::GetEventType($test_ServicehealthData[0])
-            $EventType | Should -Be 'All'
+            $EventType = [ServiceHealthAlert]::GetEventType($test_ServicehealthData[1])
+            $EventType | Should -Be 'Security Advisory'
         }
         It '[ServiceHealthAlert]::GetServices() should return a valid Services' {
-            $Services = [ServiceHealthAlert]::GetServices($test_ServicehealthData[0])
-            $Services | Should -Be 'All'
+            $Services = [ServiceHealthAlert]::GetServices($AlertWithMostParameters)
+            $Services | Should -Be 'Azure Container Registry, Azure Database for PostgreSQL, Azure Database for PostgreSQL flexible servers, Azure Kubernetes Service (AKS), Storage, Virtual Network'
         }
         It '[ServiceHealthAlert]::GetRegions() should return a valid Regions' {
-            $Regions = [ServiceHealthAlert]::GetRegions($test_ServicehealthData[0])
-            $Regions | Should -Be 'All'
+            $Regions = [ServiceHealthAlert]::GetRegions($AlertWithMostParameters)
+            $Regions | Should -Be 'Central US, East US 2, UK South, UK West'
         }
         It '[ServiceHealthAlert]::GetActionGroupName() should return a valid ActionGroupName' {
             $ActionGroupName = [ServiceHealthAlert]::GetActionGroupName($test_ServicehealthData[0])
