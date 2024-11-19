@@ -24,7 +24,7 @@ using module ../utils/utils.psd1
 function Get-WAFAdvisorRecommendations {
     [CmdletBinding()]
     Param(
-        [array]$Subid,
+        [array]$SubscriptionIds,
         [switch]$HighAvailability,
         [switch]$Security,
         [switch]$Cost,
