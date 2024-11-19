@@ -5,36 +5,34 @@ online version:
 schema: 2.0.0
 ---
 
-# Get-WAFOutage
+# Import-WAFConfigFileData
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+Imports configuration data from a file.
 
 ## SYNTAX
 
 ```
-Get-WAFOutage [-SubscriptionIds] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Import-WAFConfigFileData [-ConfigFile] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+The Import-WAFConfigFileData function reads the content of a configuration file, extracts sections, and returns the data as a PSCustomObject.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
 ```
-
-{{ Add example description here }}
+$configData = Import-WAFConfigFileData -file "config.txt"
+```
 
 ## PARAMETERS
 
-### -SubscriptionIds
-{{ Fill SubscriptionIds Description }}
+### -ConfigFile
+{{ Fill ConfigFile Description }}
 
 ```yaml
-Type: String[]
+Type: String
 Parameter Sets: (All)
 Aliases:
 
@@ -65,11 +63,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### None
-
 ## OUTPUTS
 
-### System.Object
+### Returns a PSCustomObject containing the configuration data.
 ## NOTES
 
 ## RELATED LINKS

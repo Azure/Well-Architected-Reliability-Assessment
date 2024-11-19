@@ -1,46 +1,61 @@
 ---
-external help file: outage-help.xml
-Module Name: outage
+external help file: advisor-help.xml
+Module Name: advisor
 online version:
 schema: 2.0.0
 ---
 
-# Get-WAFOutage
+# Connect-WAFAzure
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+Connects to an Azure tenant.
 
 ## SYNTAX
 
 ```
-Get-WAFOutage [-SubscriptionIds] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Connect-WAFAzure [-TenantID] <Guid> [[-AzureEnvironment] <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+The Connect-WAFAzure function connects to an Azure tenant using the provided Tenant ID and Subscription IDs.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
 ```
-
-{{ Add example description here }}
+Connect-WAFAzure -TenantID "your-tenant-id" -SubscriptionIds @("sub1", "sub2") -AzureEnvironment "AzureCloud"
+```
 
 ## PARAMETERS
 
-### -SubscriptionIds
-{{ Fill SubscriptionIds Description }}
+### -TenantID
+The Tenant ID to connect to.
 
 ```yaml
-Type: String[]
+Type: Guid
 Parameter Sets: (All)
 Aliases:
 
 Required: True
 Position: 1
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AzureEnvironment
+The Azure environment to connect to.
+Defaults to 'AzureCloud'.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 2
+Default value: AzureCloud
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -65,11 +80,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### None
-
 ## OUTPUTS
 
-### System.Object
+### None.
 ## NOTES
 
 ## RELATED LINKS

@@ -13,7 +13,7 @@ Connects to an Azure tenant.
 ## SYNTAX
 
 ```
-Connect-WAFAzure [-TenantID] <String> [[-AzureEnvironment] <String>] [-ProgressAction <ActionPreference>]
+Connect-WAFAzure [-TenantID] <Guid> [[-AzureEnvironment] <String>] [-ProgressAction <ActionPreference>]
  [<CommonParameters>]
 ```
 
@@ -33,7 +33,7 @@ Connect-WAFAzure -TenantID "your-tenant-id" -SubscriptionIds @("sub1", "sub2") -
 The Tenant ID to connect to.
 
 ```yaml
-Type: String
+Type: Guid
 Parameter Sets: (All)
 Aliases:
 

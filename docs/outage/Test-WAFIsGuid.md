@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Get-WAFOutage
+# Test-WAFIsGuid
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Get-WAFOutage [-SubscriptionIds] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Test-WAFIsGuid [-StringGuid] <Object> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,16 +30,16 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -SubscriptionIds
-{{ Fill SubscriptionIds Description }}
+### -StringGuid
+{{ Fill StringGuid Description }}
 
 ```yaml
-Type: String[]
+Type: Object
 Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 1
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -66,7 +66,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### None
-
 ## OUTPUTS
 
 ### System.Object

@@ -13,7 +13,7 @@ Imports configuration data from a file.
 ## SYNTAX
 
 ```
-Import-WAFConfigFileData [[-file] <Object>] [<CommonParameters>]
+Import-WAFConfigFileData [-ConfigFile] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -28,16 +28,31 @@ $configData = Import-WAFConfigFileData -file "config.txt"
 
 ## PARAMETERS
 
-### -file
-The path to the configuration file.
+### -ConfigFile
+{{ Fill ConfigFile Description }}
 
 ```yaml
-Type: Object
+Type: String
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

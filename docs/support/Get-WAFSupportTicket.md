@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Get-WAFSupportTicket [-SubscriptionId] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFSupportTicket [-SubscriptionIds] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,11 +30,11 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -SubscriptionId
-{{ Fill SubscriptionId Description }}
+### -SubscriptionIds
+{{ Fill SubscriptionIds Description }}
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 

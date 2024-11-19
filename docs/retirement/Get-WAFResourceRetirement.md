@@ -13,7 +13,8 @@ Retrieves active retirement health advisory events based on the specified subscr
 ## SYNTAX
 
 ```
-Get-WAFResourceRetirement [-SubscriptionId] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFResourceRetirement [-SubscriptionIds] <String[]> [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -28,11 +29,11 @@ $retirementObjects = Get-WAFResourceRetirement -SubscriptionId '11111111-1111-11
 
 ## PARAMETERS
 
-### -SubscriptionId
-A subscription ID to retrieves active retirement health advisory events.
+### -SubscriptionIds
+{{ Fill SubscriptionIds Description }}
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 

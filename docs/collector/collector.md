@@ -11,14 +11,8 @@ Locale: en-US
 Contains functions related to the capturing and collecting of data from Azure using KQL
 
 ## collector Cmdlets
-### [Get-WAFAllAzGraphResource](Get-WAFAllAzGraphResource.md)
-Retrieves all Azure resources using Azure Resource Graph.
-
 ### [Get-WAFQueryByResourceType](Get-WAFQueryByResourceType.md)
 Filters objects by resource type.
-
-### [Get-WAFResourceGroup](Get-WAFResourceGroup.md)
-Retrieves all resource groups in the specified subscriptions.
 
 ### [Get-WAFResourceType](Get-WAFResourceType.md)
 Retrieves all resource types in the specified subscriptions.
