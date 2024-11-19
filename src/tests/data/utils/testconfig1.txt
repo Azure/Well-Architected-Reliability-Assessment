@@ -1,0 +1,22 @@
+#This is a test comment.
+[tenantid]
+12121212-1212-1212-1212-121212121212
+
+[bad1]
+[subscriptionIds]
+/subscriptions/0000000-0000-0000-0000-000000000000
+ 
+[resourcegroups]
+/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/RG-01
+/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/RG-02
+/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/RG-03
+/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/RG-04
+/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/RG-05
+/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/RG-06
+/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/RG-07
+/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/RG-08
+ 
+[tags]
+env||environment=~preprod
+
+app||application!~app1||app2
