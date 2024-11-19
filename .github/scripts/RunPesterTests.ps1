@@ -19,7 +19,7 @@ if($moduleName)
 }
 else{
     # Grab directories
-    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory
+    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory | Where-Object {$_.Name -ne "runbook"}
 }
 
 $coveragePercent = @()
@@ -38,6 +38,7 @@ foreach ($moduleDir in $moduleDirectories) {
         $config.CodeCoverage.Enabled = $true
         $config.Run.PassThru = $true
 
+        Write-host "-------------Running tests for module $($moduleDir.Name)-------------" -ForegroundColor Cyan
         # Run Pester with the configuration
        $result = Invoke-Pester -Configuration $config
 
@@ -48,6 +49,7 @@ foreach ($moduleDir in $moduleDirectories) {
         $resultofRun += $($result.Result -eq 'Passed') ? "Passed" : "Failed"
         $passedCount += $($result.PassedCount -eq $result.TotalCount -and $result.PassedCount -gt 0) ? "Passed" : "Failed"
         $failedCount += $($result.FailedCount -gt 0) ? "Failed" : "Passed"
+        Write-host "`n-------------Finished tests for module $($moduleDir.Name)-------------`n`n" -ForegroundColor Cyan
     }
 }
 

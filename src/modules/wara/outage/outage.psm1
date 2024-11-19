@@ -1,3 +1,5 @@
+using module ../utils/utils.psd1
+
 <#
 .SYNOPSIS
     Retrieves recent outage service issue events.
@@ -6,6 +8,8 @@
     This module contains functions related to the capturing and collecting to recent outage service issue events.
     It includes the following functions:
     - Get-WAFOutage
+    - Invoke-AzureRestApi
+    - Get-AzureRestMethodUriPath
     - New-WAFOutageObject
 
 .EXAMPLE
@@ -15,7 +19,7 @@
     Author: Takeshi Katano
     Date: 2024-10-23
 
-    This module requires the Az.ResourceGraph module to be installed and imported.
+    This module requires the Az.Accounts module to be installed and imported.
 #>
 
 <#
@@ -43,7 +47,7 @@
     Author: Takeshi Katano
     Date: 2024-10-23
 
-    This function requires the Az.ResourceGraph module to be installed and imported.
+    This function requires the Az.Accounts module to be installed and imported.
 #>
 function Get-WAFOutage {
     [CmdletBinding()]
@@ -51,71 +55,50 @@ function Get-WAFOutage {
     param (
         [Parameter(Mandatory = $true)]
         [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
-        [string] $SubscriptionId
+        [string[]] $SubscriptionIds
     )
 
-    Import-Module -Name 'Az.ResourceGraph'
+    # NOTE:
+    # ARG query with ServiceHealthResources returns last 3 months of events.
+    # Azure portal shows last 3 months of events maximum.
 
-    $argQuery = @'
-ServiceHealthResources
-| where properties.EventType =~ "ServiceIssue"  // Filter outage events.
-| project
-    subscriptionId       = split(id, "/", 2)[0],
-    trackingId           = tostring(properties.TrackingId),
-    status               = properties.Status,
-    lastUpdateTime       = todatetime(properties.LastUpdateTime),        // UTC
-    impactStartTime      = todatetime(properties.ImpactStartTime),       // UTC
-    impactMitigationTime = todatetime(properties.ImpactMitigationTime),  // UTC
-    level                = properties.Level,
-    ["title"]            = properties.Title,  // Enclosed the column name because "title" is a reserved keyword.
-    summary              = properties.Summary,
-    header               = properties.Header
-| where lastUpdateTime >= datetime_add("Month", -3, now())  // Last 3 months (not the same as 90 days).
-| join kind = leftouter (
-    // Retrieve the tracking ID and impacted services pairs.
-    ServiceHealthResources
-    | where properties.EventType =~ "ServiceIssue"
-    | mv-expand impact = properties.Impact
-    | project trackingId = tostring(properties.TrackingId), impactedService = tostring(impact.ImpactedService)
-    | distinct trackingId, impactedService
-    | summarize impactedServices = make_list(impactedService) by trackingId
-    )
-    on trackingId
-| project
-    subscriptionId,
-    trackingId,
-    status,
-    lastUpdateTime,
-    impactStartTime,
-    impactMitigationTime,
-    level,
-    ["title"],
-    summary,
-    header,
-    impactedServices
-| order by lastUpdateTime desc
-'@
+    $outageObjects = @()
 
-    $serviceIssueEvents = Search-AzGraph -Subscription $SubscriptionId -First 1000 -Query $argQuery
+    foreach($SubscriptionId in $SubscriptionIds) {
+ 
+    $cmdletParams = @{
+        Method               = 'GET'
+        SubscriptionId       = $SubscriptionId
+        ResourceProviderName = 'Microsoft.ResourceHealth'
+        ResourceType         = 'events'
+        ApiVersion           = '2024-02-01'
+        QueryString          = @(
+            ('queryStartTime={0}' -f (Get-Date).AddMonths(-3).ToString('yyyy-MM-ddT00:00:00')),
+            '$filter=(properties/eventType eq ''ServiceIssue'')'
+        ) -join '&'
+    }
+    $response = Invoke-AzureRestApi @cmdletParams
+    $serviceIssueEvents = ($response.Content | ConvertFrom-Json).value
 
-    $outageObjects = foreach ($serviceIssueEvent in $serviceIssueEvents) {
+    $return = foreach ($serviceIssueEvent in $serviceIssueEvents) {
         $cmdletParams = @{
-            SubscriptionId  = $serviceIssueEvent.subscriptionId
-            TrackingId      = $serviceIssueEvent.trackingId
-            Status          = $serviceIssueEvent.status
-            LastUpdateTime  = $serviceIssueEvent.lastUpdateTime
-            StartTime       = $serviceIssueEvent.impactStartTime
-            EndTime         = $serviceIssueEvent.impactMitigationTime
-            Level           = $serviceIssueEvent.level
-            Title           = $serviceIssueEvent.title
-            Summary         = $serviceIssueEvent.summary
-            Header          = $serviceIssueEvent.header
-            ImpactedService = $serviceIssueEvent.impactedServices
-            Description     = $serviceIssueEvent.summary  # Use the summary as the description, it's by design.
+            SubscriptionId  = $SubscriptionId
+            TrackingId      = $serviceIssueEvent.name
+            Status          = $serviceIssueEvent.properties.status
+            LastUpdateTime  = $serviceIssueEvent.properties.lastUpdateTime
+            StartTime       = $serviceIssueEvent.properties.impactStartTime
+            EndTime         = $serviceIssueEvent.properties.impactMitigationTime
+            Level           = $serviceIssueEvent.properties.level
+            Title           = $serviceIssueEvent.properties.title
+            Summary         = $serviceIssueEvent.properties.summary
+            Header          = $serviceIssueEvent.properties.header
+            ImpactedService = $serviceIssueEvent.properties.impact.impactedService
+            Description     = $serviceIssueEvent.properties.description
         }
         New-WAFOutageObject @cmdletParams
     }
-
+    $outageObjects += $return
+}
     return $outageObjects
 }
 

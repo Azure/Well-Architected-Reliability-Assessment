@@ -11,8 +11,14 @@ Locale: en-US
 Contains functions related to the capturing and collecting of data pertaining to resource retirements.
 
 ## retirement Cmdlets
+### [Get-AzureRestMethodUriPath](Get-AzureRestMethodUriPath.md)
+Retrieves the path of the Azure REST API URI.
+
 ### [Get-WAFResourceRetirement](Get-WAFResourceRetirement.md)
 Retrieves active retirement health advisory events based on the specified subscription ID.
+
+### [Invoke-AzureRestApi](Invoke-AzureRestApi.md)
+Invokes an Azure REST API then returns the response.
 
 ### [New-WAFResourceRetirementObject](New-WAFResourceRetirementObject.md)
 Creates a retirement object.

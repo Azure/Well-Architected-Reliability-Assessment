@@ -1,34 +1,92 @@
+using module ../utils/utils.psd1
+
 function Get-WAFServiceHealth {
-    Param($Subid,$SubIds)
+    [CmdletBinding()]
+    Param(
+        [String[]]$SubscriptionIds
+    )
 
-    $Servicequery = "resources | where type == 'microsoft.insights/activitylogalerts' | order by id"
-    $queryResults = Invoke-WAFQuery -Query $Servicequery -subscriptionId $Subid
+    $Servicequery = `
+        "resources
+| where type == 'microsoft.insights/activitylogalerts' and properties.condition has 'ServiceHealth'
+| join kind=inner (
+    resourcecontainers
+    | where type == 'microsoft.resources/subscriptions'
+    | project subscriptionId, subscriptionName = name
+) on subscriptionId
+| project subscriptionId, subscriptionName, eventName = name, type, location, resourceGroup, properties"
 
-    $Rowler = foreach ($row in $queryResults) {
-        foreach ($type in $row.properties.condition.allOf) {
-            if ($type.equals -eq 'ServiceHealth') {
-                $row
-            }
+    $queryResults = Invoke-WAFQuery -Query $Servicequery -subscriptionIds $SubscriptionIds
+
+    $AllServiceHealth = Build-WAFServiceHealthObject -AdvQueryResult $queryResults
+    
+    return $AllServiceHealth
+}
+
+function Build-WAFServiceHealthObject {
+    Param($AdvQueryResult)
+
+    $return = $AdvQueryResult.ForEach({ [ServiceHealthAlert]::new($_) })
+
+    return $return
+}
+
+class ServiceHealthAlert {
+    [string]$Name
+    [string]$Subscription
+    [string]$Enabled
+    [string]$EventType
+    [string]$Services
+    [string]$Regions
+    [string]$ActionGroup
+
+    ServiceHealthAlert([PSCustomObject]$row) {
+        $this.Name = $Row.eventName
+        $this.Subscription = $Row.subscriptionName
+        $this.Enabled = $Row.properties.enabled
+        $this.EventType = [ServiceHealthAlert]::GetEventType($Row)
+        $this.Services = [ServiceHealthAlert]::GetServices($Row)
+        $this.Regions = [ServiceHealthAlert]::GetRegions($Row)
+        $this.ActionGroup = [ServiceHealthAlert]::GetActionGroupName($Row)
+    }
+
+    static [string] GetEventType($Row) {
+        $equals = ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.incidentType' } | Select-Object -Property equals).equals
+        $return = switch ($equals) {
+            'Incident' { 'Service Issues' }
+            'Informational' { 'Health Advisories' }
+            'ActionRequired' { 'Security Advisory' }
+            'Maintenance' { 'Planned Maintenance' }
+            default { 'All' } 
+        }
+
+        return $return
+    }
+
+    static [string] GetServices($Row) {
+        if ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ServiceName' }) {
+            return ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ServiceName' } | Select-Object -Property containsAny | ForEach-Object { $_.containsAny }) -join ', '
+        }
+        else {
+            return 'All'
         }
     }
 
-    $AllServiceHealth = foreach ($Row in $Rowler) {
-        $SubName = ($SubIds | Where-Object { $_.Id -eq ($Row.properties.scopes.split('/')[2]) }).Name
-        $EventType = if ($Row.Properties.condition.allOf.anyOf | Select-Object -Property equals) { $Row.Properties.condition.allOf.anyOf | Select-Object -Property equals | ForEach-Object { switch ($_.equals) { 'Incident' { 'Service Issues' } 'Informational' { 'Health Advisories' } 'ActionRequired' { 'Security Advisory' } 'Maintenance' { 'Planned Maintenance' } } } } Else { 'All' }
-        $Services = if ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ServiceName' }) { $Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ServiceName' } | Select-Object -Property containsAny | ForEach-Object { $_.containsAny } } Else { 'All' }
-        $Regions = if ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ImpactedRegions[*].RegionName' }) { $Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ImpactedRegions[*].RegionName' } | Select-Object -Property containsAny | ForEach-Object { $_.containsAny } } Else { 'All' }
-        $ActionGroupName = if ($Row.Properties.actions.actionGroups.actionGroupId) { $Row.Properties.actions.actionGroups.actionGroupId.split('/')[8] } else { '' }
-
-            $result = [PSCustomObject]@{
-                Name         = [string]$row.name
-                Subscription = [string]$SubName
-                Enabled      = [string]$Row.properties.enabled
-                EventType    = $EventType
-                Services     = $Services
-                Regions      = $Regions
-                ActionGroup  = $ActionGroupName
-            }
-            $result
+    static [string] GetRegions($Row) {
+        if ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ImpactedRegions[*].RegionName' }) {
+            return ($Row.Properties.condition.allOf | Where-Object { $_.field -eq 'properties.impactedServices[*].ImpactedRegions[*].RegionName' } | Select-Object -Property containsAny | ForEach-Object { $_.containsAny }) -join ', '
         }
-    return $AllServiceHealth
+        else {
+            return 'All'
+        }
+    }
+
+    static [string] GetActionGroupName($Row) {
+        if ($Row.Properties.actions.actionGroups.actionGroupId) {
+            return $Row.Properties.actions.actionGroups.actionGroupId.split('/')[8]
+        }
+        else {
+            return ''
+        }
+    }
 }

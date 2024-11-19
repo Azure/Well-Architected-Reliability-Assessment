@@ -13,7 +13,7 @@ Retrieves all resources with matching tags.
 ## SYNTAX
 
 ```
-Get-WAFTaggedResources [[-tagArray] <String[]>] [[-SubscriptionIds] <String[]>]
+Get-WAFTaggedResources [[-tagArray] <Array>] [[-subscriptionId] <String[]>]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -34,7 +34,7 @@ An array of tags to filter resources by.
 Each tag should be in the format 'key==value'.
 
 ```yaml
-Type: String[]
+Type: Array
 Parameter Sets: (All)
 Aliases:
 
@@ -45,8 +45,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -SubscriptionIds
-An array of subscription IDs to scope the query.
+### -subscriptionId
+{{ Fill subscriptionId Description }}
 
 ```yaml
 Type: String[]

@@ -14,21 +14,6 @@ Contains various helper functions (Sorting, parsing, or building) and functions 
 ### [Connect-WAFAzure](Connect-WAFAzure.md)
 Connects to an Azure tenant.
 
-### [Import-WAFAPRLJSON](Import-WAFAPRLJSON.md)
-Imports JSON data from a file.
-
 ### [Import-WAFConfigFileData](Import-WAFConfigFileData.md)
 Imports configuration data from a file.
-
-### [Test-ResourceGroupId](Test-ResourceGroupId.md)
-{{ Fill in the Synopsis }}
-
-### [Test-ScriptParameters](Test-ScriptParameters.md)
-{{ Fill in the Synopsis }}
-
-### [Test-SubscriptionId](Test-SubscriptionId.md)
-{{ Fill in the Synopsis }}
-
-### [Test-TagPattern](Test-TagPattern.md)
-{{ Fill in the Synopsis }}
 

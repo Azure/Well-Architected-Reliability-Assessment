@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Get-WAFServiceHealth [[-Subid] <Object>] [[-SubIds] <Object>] [<CommonParameters>]
+Get-WAFServiceHealth [[-SubscriptionIds] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,31 +30,31 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -SubIds
-{{ Fill SubIds Description }}
+### -SubscriptionIds
+{{ Fill SubscriptionIds Description }}
 
 ```yaml
-Type: Object
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Subid
-{{ Fill Subid Description }}
-
-```yaml
-Type: Object
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

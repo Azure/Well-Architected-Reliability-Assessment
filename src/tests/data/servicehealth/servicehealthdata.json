@@ -1,0 +1,341 @@
+[
+  {
+    "subscriptionId": "1111111-1111-1111-1111-111111111111",
+    "subscriptionName": "Contoso PreProd",
+    "eventName": "ServiceHealthSecurityIncident",
+    "type": "microsoft.insights/activitylogalerts",
+    "location": "global",
+    "resourceGroup": "rg-01",
+    "properties": {
+      "description": "Service Health Security Alert",
+      "enabled": true,
+      "actions": {
+        "actionGroups": [
+          {
+            "actionGroupId": "/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/rg-01/providers/microsoft.insights/actionGroups/ag-01"
+          }
+        ]
+      },
+      "scopes": [
+        "/subscriptions/1111111-1111-1111-1111-111111111111"
+      ],
+      "condition": {
+        "allOf": [
+          {
+            "equals": "ServiceHealth",
+            "field": "category"
+          },
+          {
+            "equals": "Security",
+            "field": "properties.incidentType"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "subscriptionId": "1111111-1111-1111-1111-111111111111",
+    "subscriptionName": "Contoso PreProd",
+    "eventName": "ServiceHealthAdvisoryEvent",
+    "type": "microsoft.insights/activitylogalerts",
+    "location": "global",
+    "resourceGroup": "rg-01",
+    "properties": {
+      "description": "Service Health Advisory Alert",
+      "enabled": true,
+      "actions": {
+        "actionGroups": [
+          {
+            "actionGroupId": "/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/rg-01/providers/microsoft.insights/actionGroups/ag-01"
+          }
+        ]
+      },
+      "scopes": [
+        "/subscriptions/1111111-1111-1111-1111-111111111111"
+      ],
+      "condition": {
+        "allOf": [
+          {
+            "equals": "ServiceHealth",
+            "field": "category"
+          },
+          {
+            "equals": "ActionRequired",
+            "field": "properties.incidentType"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "subscriptionId": "1111111-1111-1111-1111-111111111111",
+    "subscriptionName": "Contoso PreProd",
+    "eventName": "ServiceHealthIncident",
+    "type": "microsoft.insights/activitylogalerts",
+    "location": "global",
+    "resourceGroup": "rg-01",
+    "properties": {
+      "description": "Service Health Incident Alert",
+      "enabled": true,
+      "actions": {
+        "actionGroups": [
+          {
+            "actionGroupId": "/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/rg-01/providers/microsoft.insights/actionGroups/ag-01"
+          }
+        ]
+      },
+      "scopes": [
+        "/subscriptions/1111111-1111-1111-1111-111111111111"
+      ],
+      "condition": {
+        "allOf": [
+          {
+            "equals": "ServiceHealth",
+            "field": "category"
+          },
+          {
+            "equals": "Incident",
+            "field": "properties.incidentType"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "subscriptionId": "1111111-1111-1111-1111-111111111111",
+    "subscriptionName": "Contoso PreProd",
+    "eventName": "ServiceHealthPlannedMaintenance",
+    "type": "microsoft.insights/activitylogalerts",
+    "location": "global",
+    "resourceGroup": "rg-01",
+    "properties": {
+      "description": "Service Health Planned Maintenance Alert",
+      "enabled": true,
+      "actions": {
+        "actionGroups": [
+          {
+            "actionGroupId": "/subscriptions/1111111-1111-1111-1111-111111111111/resourceGroups/rg-01/providers/microsoft.insights/actionGroups/ag-01"
+          }
+        ]
+      },
+      "scopes": [
+        "/subscriptions/1111111-1111-1111-1111-111111111111"
+      ],
+      "condition": {
+        "allOf": [
+          {
+            "equals": "ServiceHealth",
+            "field": "category"
+          },
+          {
+            "equals": "Maintenance",
+            "field": "properties.incidentType"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "subscriptionName": "Contoso Prod",
+    "eventName": "ServiceHealthPlannedMaintenance",
+    "type": "microsoft.insights/activitylogalerts",
+    "location": "global",
+    "resourceGroup": "rg-01",
+    "properties": {
+      "description": "Service Health Planned Maintenance Alert",
+      "enabled": true,
+      "actions": {
+        "actionGroups": [
+          {
+            "actionGroupId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-01/providers/microsoft.insights/actionGroups/ag-02"
+          }
+        ]
+      },
+      "scopes": [
+        "/subscriptions/00000000-0000-0000-0000-000000000000"
+      ],
+      "condition": {
+        "allOf": [
+          {
+            "equals": "ServiceHealth",
+            "field": "category"
+          },
+          {
+            "equals": "Maintenance",
+            "field": "properties.incidentType"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "subscriptionName": "Contoso Prod",
+    "eventName": "ServiceHealthAdvisoryEvent",
+    "type": "microsoft.insights/activitylogalerts",
+    "location": "global",
+    "resourceGroup": "rg-01",
+    "properties": {
+      "description": "Service Health Advisory Alert",
+      "enabled": true,
+      "actions": {
+        "actionGroups": [
+          {
+            "actionGroupId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-01/providers/microsoft.insights/actionGroups/ag-02"
+          }
+        ]
+      },
+      "scopes": [
+        "/subscriptions/00000000-0000-0000-0000-000000000000"
+      ],
+      "condition": {
+        "allOf": [
+          {
+            "equals": "ServiceHealth",
+            "field": "category"
+          },
+          {
+            "equals": "ActionRequired",
+            "field": "properties.incidentType"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "subscriptionName": "Contoso Prod",
+    "eventName": "ServiceHealthSecurityIncident",
+    "type": "microsoft.insights/activitylogalerts",
+    "location": "global",
+    "resourceGroup": "rg-01",
+    "properties": {
+      "description": "Service Health Security Alert",
+      "enabled": true,
+      "actions": {
+        "actionGroups": [
+          {
+            "actionGroupId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-01/providers/microsoft.insights/actionGroups/ag-02"
+          }
+        ]
+      },
+      "scopes": [
+        "/subscriptions/00000000-0000-0000-0000-000000000000"
+      ],
+      "condition": {
+        "allOf": [
+          {
+            "equals": "ServiceHealth",
+            "field": "category"
+          },
+          {
+            "equals": "Security",
+            "field": "properties.incidentType"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "subscriptionName": "Contoso Prod",
+    "eventName": "ServiceHealthIncident",
+    "type": "microsoft.insights/activitylogalerts",
+    "location": "global",
+    "resourceGroup": "rg-03",
+    "properties": {
+      "description": "Service Health Incident Alert",
+      "enabled": true,
+      "actions": {
+        "actionGroups": [
+          {
+            "actionGroupId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-01/providers/microsoft.insights/actionGroups/ag-02"
+          }
+        ]
+      },
+      "scopes": [
+        "/subscriptions/00000000-0000-0000-0000-000000000000"
+      ],
+      "condition": {
+        "allOf": [
+          {
+            "equals": "ServiceHealth",
+            "field": "category"
+          },
+          {
+            "equals": "Incident",
+            "field": "properties.incidentType"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "subscriptionId": "2222222-2222-2222-2222-222222222222",
+    "subscriptionName": "Global Subscription 01",
+    "eventName": "srvc-pm-alert",
+    "type": "microsoft.insights/activitylogalerts",
+    "location": "global",
+    "resourceGroup": "rg-03",
+    "properties": {
+      "description": "global services and planned maintenance alerts.",
+      "enabled": true,
+      "actions": {
+        "actionGroups": [
+          {
+            "actionGroupId": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-04/providers/microsoft.insights/actiongroups/ag-04",
+            "webhookProperties": {}
+          },
+          {
+            "actionGroupId": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-03/providers/microsoft.insights/actiongroups/ag-03",
+            "webhookProperties": {}
+          }
+        ]
+      },
+      "scopes": [
+        "/subscriptions/2222222-2222-2222-2222-222222222222"
+      ],
+      "condition": {
+        "allOf": [
+          {
+            "equals": "ServiceHealth",
+            "field": "category"
+          },
+          {
+            "anyOf": [
+              {
+                "equals": "Incident",
+                "field": "properties.incidentType"
+              },
+              {
+                "equals": "Maintenance",
+                "field": "properties.incidentType"
+              }
+            ]
+          },
+          {
+            "field": "properties.impactedServices[*].ServiceName",
+            "containsAny": [
+              "Azure Container Registry",
+              "Azure Database for PostgreSQL",
+              "Azure Database for PostgreSQL flexible servers",
+              "Azure Kubernetes Service (AKS)",
+              "Storage",
+              "Virtual Network"
+            ]
+          },
+          {
+            "field": "properties.impactedServices[*].ImpactedRegions[*].RegionName",
+            "containsAny": [
+              "Central US",
+              "East US 2",
+              "UK South",
+              "UK West"
+            ]
+          }
+        ]
+      }
+    }
+  }  
+]

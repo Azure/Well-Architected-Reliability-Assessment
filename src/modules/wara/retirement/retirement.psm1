@@ -1,3 +1,4 @@
+using module ../utils/utils.psm1
 <#
 .SYNOPSIS
     Retrieves active retirement health advisory events.
@@ -15,7 +16,7 @@
     Author: Takeshi Katano
     Date: 2024-10-02
 
-    This function requires the Az.ResourceGraph module to be installed and imported.
+    This module requires the Az.Accounts module to be installed and imported.
 #>
 
 <#
@@ -43,7 +44,7 @@
     Author: Takeshi Katano
     Date: 2024-10-02
 
-    This function requires the Az.ResourceGraph module to be installed and imported.
+    This function requires the Az.Accounts module to be installed and imported.
 #>
 function Get-WAFResourceRetirement {
     [CmdletBinding()]
@@ -51,75 +52,50 @@ function Get-WAFResourceRetirement {
     param (
         [Parameter(Mandatory = $true)]
         [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
-        [string] $SubscriptionId
+        [string[]] $SubscriptionIds
     )
 
-    Import-Module -Name 'Az.ResourceGraph'
-
-    $argQuery = @'
-ServiceHealthResources
-| where properties.EventSubType =~ "Retirement"  // Filter retirement events.
-| where properties.Status =~ "Active"
-| project
-    subscriptionId       = split(id, "/", 2)[0],
-    trackingId           = tostring(properties.TrackingId),
-    status               = properties.Status,
-    lastUpdateTime       = todatetime(properties.LastUpdateTime),        // UTC
-    impactStartTime      = todatetime(properties.ImpactStartTime),       // UTC
-    impactMitigationTime = todatetime(properties.ImpactMitigationTime),  // UTC
-    level                = properties.Level,
-    ["title"]            = properties.Title,  // Enclosed the column name because "title" is a reserved keyword.
-    summary              = properties.Summary,
-    header               = properties.Header
-| where lastUpdateTime >= datetime_add("Month", -3, now())  // Last 3 months (not the same as 90 days).
-| join kind = leftouter (
-    // Retrieve the tracking ID and impacted services pairs.
-    ServiceHealthResources
-    | where properties.EventSubType =~ "Retirement"
-    | where properties.Status =~ "Active"
-    | mv-expand impact = properties.Impact
-    | project trackingId = tostring(properties.TrackingId), impactedService = tostring(impact.ImpactedService)
-    | distinct trackingId, impactedService
-    | summarize impactedServices = make_list(impactedService) by trackingId
-    )
-    on trackingId
-| project
-    subscriptionId,
-    trackingId,
-    status,
-    lastUpdateTime,
-    impactStartTime,
-    impactMitigationTime,
-    level,
-    ["title"],
-    summary,
-    header,
-    impactedServices
-| order by lastUpdateTime desc
-'@
-
-    $retirementEvents = Search-AzGraph -Subscription $SubscriptionId -First 1000 -Query $argQuery
-
-    $retirementObjects = foreach ($retirementEvent in $retirementEvents) {
+    $retirementObjects = @()
+    # NOTE:
+    # ARG query with ServiceHealthResources returns last 3 months of events.
+    # Azure portal shows last 1 months of events.
+    foreach ($SubscriptionId in $SubscriptionIds) {
         $cmdletParams = @{
-            SubscriptionId  = $retirementEvent.subscriptionId
-            TrackingId      = $retirementEvent.trackingId
-            Status          = $retirementEvent.status
-            LastUpdateTime  = $retirementEvent.lastUpdateTime
-            StartTime       = $retirementEvent.impactStartTime
-            EndTime         = $retirementEvent.impactMitigationTime
-            Level           = $retirementEvent.level
-            Title           = $retirementEvent.title
-            Summary         = $retirementEvent.summary
-            Header          = $retirementEvent.header
-            ImpactedService = $retirementEvent.impactedServices
-            Description     = $retirementEvent.summary  # Use the summary as the description, it's by design.
+            Method               = 'GET'
+            SubscriptionId       = $SubscriptionId
+            ResourceProviderName = 'Microsoft.ResourceHealth'
+            ResourceType         = 'events'
+            ApiVersion           = '2024-02-01'
+            QueryString          = @(
+            ('queryStartTime={0}' -f (Get-Date).AddMonths(-3).ToString('yyyy-MM-ddT00:00:00')),
+                '$filter=(properties/eventType eq ''HealthAdvisory'') and (properties/eventSubType eq ''Retirement'') and (Properties/Status eq ''Active'')'
+            ) -join '&'
         }
-        New-WAFResourceRetirementObject @cmdletParams
-    }
+        $response = Invoke-AzureRestApi @cmdletParams
+        $retirementEvents = ($response.Content | ConvertFrom-Json).value
 
+        $return = foreach ($retirementEvent in $retirementEvents) {
+            $cmdletParams = @{
+                SubscriptionId  = $SubscriptionId
+                TrackingId      = $retirementEvent.name
+                Status          = $retirementEvent.properties.status
+                LastUpdateTime  = $retirementEvent.properties.lastUpdateTime
+                StartTime       = $retirementEvent.properties.impactStartTime
+                EndTime         = $retirementEvent.properties.impactMitigationTime
+                Level           = $retirementEvent.properties.level
+                Title           = $retirementEvent.properties.title
+                Summary         = $retirementEvent.properties.summary
+                Header          = $retirementEvent.properties.header
+                ImpactedService = $retirementEvent.properties.impact.impactedService
+                Description     = $retirementEvent.properties.description
+            }
+            New-WAFResourceRetirementObject @cmdletParams
+        }
+        $retirementObjects += $return
+    }
     return $retirementObjects
 }
+
 
 <#
 .SYNOPSIS

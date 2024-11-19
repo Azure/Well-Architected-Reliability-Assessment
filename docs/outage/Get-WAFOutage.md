@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Get-WAFOutage [-SubscriptionId] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFOutage [-SubscriptionIds] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,11 +30,11 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -SubscriptionId
-The subscription ID for the Azure subscription to retrieves outage events.
+### -SubscriptionIds
+{{ Fill SubscriptionIds Description }}
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 

@@ -14,7 +14,7 @@ Describe 'Get-WAFSupportTicket' {
             $testDataFilePath = "$PSScriptRoot/../data/support/argQuerySingleResultData.json"
             $testData = Get-Content $testDataFilePath -Raw | ConvertFrom-Json -Depth 5
 
-            Mock Search-AzGraph {
+            Mock Invoke-WAFQuery {
                 return $testData
             } -ModuleName $moduleNameToInjectMock -Verifiable
 
@@ -47,7 +47,7 @@ Describe 'Get-WAFSupportTicket' {
             $testDataFilePath = "$PSScriptRoot/../data/support/argQueryMultipleResultData.json"
             $testDataArray = Get-Content $testDataFilePath -Raw | ConvertFrom-Json -Depth 5
 
-            Mock Search-AzGraph {
+            Mock Invoke-WAFQuery {
                 return $testDataArray
             } -ModuleName $moduleNameToInjectMock -Verifiable
 

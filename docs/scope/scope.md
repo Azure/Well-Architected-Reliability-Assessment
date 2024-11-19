@@ -26,6 +26,3 @@ Filters a list of objects based on resource identifiers.
 ### [Get-WAFSubscriptionsByList](Get-WAFSubscriptionsByList.md)
 Filters a list of objects based on subscription identifiers.
 
-### [Get-WAFUnfilteredResourceList](Get-WAFUnfilteredResourceList.md)
-Retrieves unfiltered resources from Azure based on provided subscription, resource group, and resource filters.
-

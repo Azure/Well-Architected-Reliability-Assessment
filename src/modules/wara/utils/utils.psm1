@@ -1,3 +1,238 @@
+Function Invoke-WAFQuery {
+  [CmdletBinding()]
+  param (
+    [string[]]$subscriptionIds,
+    [string]$query = "resources | project name, type, location, resourceGroup, subscriptionId"
+  )
+
+
+  $result = $subscriptionIds ? (Search-AzGraph -Query $query -first 1000 -Subscription $subscriptionIds) : (Search-AzGraph -Query $query -first 1000 -usetenantscope) # -first 1000 returns the first 1000 results and subsequently reduces the amount of queries required to get data.
+
+  # Collection to store all resources
+  $allResources = @($result)
+
+  # Loop to paginate through the results using the skip token
+  $result = while ($result.SkipToken) {
+    # Retrieve the next set of results using the skip token
+    $result = $subscriptionId ? (Search-AzGraph -Query $query -SkipToken $result.SkipToken -Subscription $subscriptionIds -First 1000) : (Search-AzGraph -query $query -SkipToken $result.SkipToken -First 1000 -UseTenantScope)
+    # Add the results to the collection
+    write-output $result
+  }
+
+  $allResources += $result
+
+  # Output all resources
+  return $allResources
+}
+
+
+<#
+.SYNOPSIS
+    Invokes an Azure REST API then returns the response.
+
+.DESCRIPTION
+    The Invoke-AzureRestApi function invokes an Azure REST API with the specified parameters then return the response.
+
+.PARAMETER Method
+    The HTTP method to invoke the Azure REST API. The accepted values are GET, POST, PUT, PATCH, and DELETE.
+
+.PARAMETER SubscriptionId
+    The subscription ID that constitutes the URI for invoke the Azure REST API.
+
+.PARAMETER ResourceGroupName
+    The resource group name that constitutes the URI for invoke the Azure REST API.
+
+.PARAMETER ResourceProviderName
+    The resource provider name that constitutes the URI for invoke the Azure REST API. It's usually as the XXXX.XXXX format.
+
+.PARAMETER ResourceType
+    The resource type that constitutes the URI for invoke the Azure REST API.
+
+.PARAMETER Name
+    The resource name that constitutes the URI for invoke the Azure REST API.
+
+.PARAMETER ApiVersion
+    The Azure REST API version that constitutes the URI for invoke the Azure REST API. It's usually as the yyyy-mm-dd format.
+
+.PARAMETER QueryString
+    The query string that constitutes the URI for invoke the Azure REST API.
+
+.PARAMETER RequestBody
+    The request body for invoke the Azure REST API.
+
+.PARAMETER ProgressAction
+    This is a common parameter, but this cmdlet does not use this parameter.
+
+.OUTPUTS
+    Returns a REST API response as the PSHttpResponse.
+
+.EXAMPLE
+    PS> $response = Invoke-AzureRestApi -Method 'GET' -SubscriptionId '11111111-1111-1111-1111-111111111111' -ResourceProviderName 'Microsoft.ResourceHealth' -ResourceType 'events' -ApiVersion '2024-02-01' -QueryString 'queryStartTime=2024-10-02T00:00:00'
+
+.NOTES
+    Author: Takeshi Katano
+    Date: 2024-10-23
+
+    This function requires the Az.Accounts module to be installed and imported.
+    This function should be placed in a common module such as a utility/helper module because the capability of this function is common across modules.
+#>
+function Invoke-AzureRestApi {
+  [CmdletBinding()]
+  [OutputType([Microsoft.Azure.Commands.Profile.Models.PSHttpResponse])]
+  param (
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+      [ValidateSet('GET', 'POST', 'PUT', 'PATCH', 'DELETE')]
+      [string] $Method,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+      [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
+      [string] $SubscriptionId,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [ValidateLength(1, 90)]
+      [string] $ResourceGroupName,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+      [string] $ResourceProviderName,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+      [string] $ResourceType,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [string] $Name,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+      [ValidatePattern('^[0-9]{4}(-[0-9]{2}){2}$')]
+      [string] $ApiVersion,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $false)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $false)]
+      [string] $QueryString,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $false)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $false)]
+      [string] $RequestBody
+  )
+
+  # Built the Azure REST API URI path.
+  $cmdletParams = @{
+      SubscriptionId       = $SubscriptionId
+      ResourceProviderName = $ResourceProviderName
+      ResourceType         = $ResourceType
+      ApiVersion           = $ApiVersion
+  }
+  if ($PSBoundParameters.ContainsKey('ResourceGroupName')) { $cmdletParams.ResourceGroupName = $ResourceGroupName }
+  if ($PSBoundParameters.ContainsKey('Name')) { $cmdletParams.Name = $Name}
+  if ($PSBoundParameters.ContainsKey('QueryString')) { $cmdletParams.QueryString = $QueryString }
+  $path = Get-AzureRestMethodUriPath @cmdletParams
+
+  # Invoke the Azure REST API using the URI path.
+  $cmdletParams = @{
+      Method = $Method
+      Path   = $path
+  }
+  if ($PSBoundParameters.ContainsKey('RequestBody')) { $cmdletParams.Payload = $RequestBody }
+  return Invoke-AzRestMethod @cmdletParams
+}
+
+<#
+.SYNOPSIS
+  Retrieves the path of the Azure REST API URI.
+
+.DESCRIPTION
+  The Get-AzureRestMethodUriPath function retrieves the formatted path of the Azure REST API URI based on the specified URI parts as parameters.
+  The path represents the Azure REST API URI without the protocol (e.g. https), host (e.g. management.azure.com). For example,
+  /subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg1/providers/Microsoft.Storage/storageAccounts/stsample1234?api-version=2024-01-01
+
+.PARAMETER SubscriptionId
+  The subscription ID that constitutes the path of Azure REST API URI.
+
+.PARAMETER ResourceGroupName
+  The resource group name that constitutes the path of Azure REST API URI.
+
+.PARAMETER ResourceProviderName
+  The resource provider name that constitutes the path of Azure REST API URI. It's usually as the XXXX.XXXX format.
+
+.PARAMETER ResourceType
+  The resource type that constitutes the path of Azure REST API URI.
+
+.PARAMETER Name
+  The resource name that constitutes the path of Azure REST API URI.
+
+.PARAMETER ApiVersion
+  The Azure REST API version that constitutes the path of Azure REST API URI. It's usually as the yyyy-mm-dd format.
+
+.PARAMETER QueryString
+  The query string that constitutes the path of Azure REST API URI.
+
+.PARAMETER ProgressAction
+  This is a common parameter, but this cmdlet does not use this parameter.
+
+.OUTPUTS
+  Returns a URI path to call Azure REST API.
+
+.EXAMPLE
+  PS> $path = Get-AzureRestMethodUriPath -SubscriptionId '11111111-1111-1111-1111-111111111111' -ResourceGroupName 'rg1' -ResourceProviderName 'Microsoft.Storage' -ResourceType 'storageAccounts' -Name 'stsample1234' -ApiVersion '2024-01-01' -QueryString 'param1=value1'
+
+.NOTES
+  Author: Takeshi Katano
+  Date: 2024-10-23
+
+  This function should be placed in a common module such as a utility/helper module because the capability of this function is common across modules.
+#>
+function Get-AzureRestMethodUriPath {
+  [CmdletBinding()]
+  [OutputType([string])]
+  param (
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+      [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
+      [string] $SubscriptionId,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [ValidateLength(1, 90)]
+      [string] $ResourceGroupName,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+      [string] $ResourceProviderName,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+      [string] $ResourceType,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [string] $Name,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
+      [ValidatePattern('^[0-9]{4}(-[0-9]{2}){2}$')]
+      [string] $ApiVersion,
+
+      [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $false)]
+      [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $false)]
+      [string] $QueryString
+  )
+
+  $additionalQueryString = if ($PSBoundParameters.ContainsKey('QueryString')) { '&' + $QueryString } else { '' }
+  $path = if ($PSCmdlet.ParameterSetName -eq 'WithResourceGroup') {
+      '/subscriptions/{0}/resourcegroups/{1}/providers/{2}/{3}/{4}?api-version={5}{6}' -f $SubscriptionId, $ResourceGroupName, $ResourceProviderName, $ResourceType, $Name, $ApiVersion, $additionalQueryString
+  }
+  elseif ($PSCmdlet.ParameterSetName -eq 'WithoutResourceGroup') {
+      '/subscriptions/{0}/providers/{1}/{2}?api-version={3}{4}' -f $SubscriptionId, $ResourceProviderName, $ResourceType, $ApiVersion, $additionalQueryString
+  }
+  else {
+      throw 'Invalid ParameterSetName'
+  }
+  return $path
+}
+
+
 <#
 .SYNOPSIS
 Imports configuration data from a file.
@@ -14,80 +249,84 @@ Returns a PSCustomObject containing the configuration data.
 .EXAMPLE
 PS> $configData = Import-WAFConfigFileData -file "config.txt"
 #>
-function Import-WAFConfigFileData($file) {
-    # Read the file content and store it in a variable
-    $filecontent,$linetable,$objarray,$count,$start,$stop,$configsection = $null
-    $filecontent = (Get-content $file).trim().tolower()
+function Import-WAFConfigFileData() {
+  param (
+    [Parameter(Mandatory = $true)]
+    [ValidateScript({ Test-Path $_ -PathType Leaf })]
+    [string]$ConfigFile
+  )
+  # Read the file content and store it in a variable
+  $filecontent, $linetable, $objarray, $count, $start, $stop, $configsection = $null
+  $filepath = (Resolve-Path -Path $configfile).Path
+  $filecontent = (Get-content $filepath).trim().tolower()
 
-    # Create an array to store the line number of each section
-    $linetable = @()
-    $objarray = [ordered]@{}
+  # Create an array to store the line number of each section
+  $linetable = @()
+  $objarray = [ordered]@{}
 
-    $filecontent = $filecontent | Where-Object {$_ -ne "" -and $_ -notlike "*#*"}
+  $filecontent = $filecontent | Where-Object { $_ -ne "" -and $_ -notlike "*#*" }
 
-    #Remove empty space.
-    foreach($line in $filecontent){
-        $index = $filecontent.IndexOf($line)
-        if ($line -match "^\[([^\]]+)\]$" -and ($filecontent[$index+1] -match "^\[([^\]]+)\]$" -or [string]::IsNullOrEmpty($filecontent[$index+1]))) {
-            # Set this line to empty because the next line is a section as well.
-            # This is to avoid the section name being added to the object since it has no parameters.
-            # This is because if we were to keep the note-property it would mess up logic for determining if a section is empty.
-            # Powershell will return $true on an emtpy note property - Because the property exists.
-            $filecontent[$index] = ""
+  #Remove empty space.
+  foreach ($line in $filecontent) {
+    $index = $filecontent.IndexOf($line)
+    if ($line -match "^\[([^\]]+)\]$" -and ($filecontent[$index + 1] -match "^\[([^\]]+)\]$" -or [string]::IsNullOrEmpty($filecontent[$index + 1]))) {
+      # Set this line to empty because the next line is a section as well.
+      # This is to avoid the section name being added to the object since it has no parameters.
+      # This is because if we were to keep the note-property it would mess up logic for determining if a section is empty.
+      # Powershell will return $true on an emtpy note property - Because the property exists.
+      $filecontent[$index] = ""
     }
-}
+  }
 
-    #Remove empty space again.
-    $filecontent = $filecontent | Where-Object {$_ -ne "" -and $_ -notlike "*#*"}
+  #Remove empty space again.
+  $filecontent = $filecontent | Where-Object { $_ -ne "" -and $_ -notlike "*#*" }
 
-    # Iterate through the file content and store the line number of each section
-    foreach ($line in $filecontent) {
-        if (-not [string]::IsNullOrWhiteSpace($line) -and -not $line.startswith("#")) {
-            #Get the Index of the current line
-            $index = $filecontent.IndexOf($line)
-
-            Write-host The Index is $index
-            # If the line is a section, store the line number
-            if ($line -match "^\[([^\]]+)\]$") {
-                # Store the section name and line number. Remove the brackets from the section name
-                Write-host the line is $line and $filecontent[$index+1] is the next line.
-                $linetable += $filecontent.indexof($line)
-            }
-        }
+  # Iterate through the file content and store the line number of each section
+  foreach ($line in $filecontent) {
+    if (-not [string]::IsNullOrWhiteSpace($line) -and -not $line.startswith("#")) {
+      #Get the Index of the current line
+      $index = $filecontent.IndexOf($line)
+      # If the line is a section, store the line number
+      if ($line -match "^\[([^\]]+)\]$") {
+        # Store the section name and line number. Remove the brackets from the section name
+        $linetable += $filecontent.indexof($line)
+      }
     }
+  }
 
-    # Iterate through the line numbers and extract the section content
-    $count = 0
-    foreach ($entry in $linetable) {
+  # Iterate through the line numbers and extract the section content
+  $count = 0
+  foreach ($entry in $linetable) {
  
-        # Get the section name
-        $name = $filecontent[$entry]
-        # Remove the brackets from the section name
-        $name = $name.replace("[", "").replace("]", "")
+    # Get the section name
+    $name = $filecontent[$entry]
+    # Remove the brackets from the section name
+    $name = $name.replace("[", "").replace("]", "")
 
-        # Get the start and stop line numbers for the section content
-        # If the section is the last one, set the stop line number to the end of the file
-        $start = $entry + 1
+    # Get the start and stop line numbers for the section content
+    # If the section is the last one, set the stop line number to the end of the file
+    $start = $entry + 1
 
-        if($linetable.count -eq $count+1){
-            $stop = $filecontent.count - 1
-        }else{
-            $stop = $linetable[$count + 1] -1
-        }
+    if ($linetable.count -eq $count + 1) {
+      $stop = $filecontent.count - 1
+    }
+    else {
+      $stop = $linetable[$count + 1] - 1
+    }
         
 
-        # Extract the section content
-        $configsection = $filecontent[$start..$stop]
+    # Extract the section content
+    $configsection = $filecontent[$start..$stop]
 
-        # Add the section content to the object array
-        $objarray += @{$name = $configsection}
+    # Add the section content to the object array
+    $objarray += @{$name = $configsection }
 
-        # Increment the count
-        $count++
-    }
+    # Increment the count
+    $count++
+  }
 
-    # Return the object array and cast to PSCustomObject
-    return [pscustomobject]$objarray
+  # Return the object array and cast to PSCustomObject
+  return [pscustomobject]$objarray
 }
 
 <#
@@ -113,158 +352,81 @@ None.
 PS> Connect-WAFAzure -TenantID "your-tenant-id" -SubscriptionIds @("sub1", "sub2") -AzureEnvironment "AzureCloud"
 #>
 function Connect-WAFAzure {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$TenantID,
-        [ValidateSet('AzureCloud', 'AzureChinaCloud', 'AzureGermanCloud', 'AzureUSGovernment')]
-        [string]$AzureEnvironment = 'AzureCloud'
-    )
+  param (
+    [Parameter(Mandatory = $true)]
+    [GUID]$TenantID,
+    [ValidateSet('AzureCloud', 'AzureChinaCloud', 'AzureGermanCloud', 'AzureUSGovernment')]
+    [string]$AzureEnvironment = 'AzureCloud'
+  )
 
-    # Connect To Azure Tenant
-    if (-not (Get-AzContext)) {
-        Connect-AzAccount -Tenant $TenantID -WarningAction SilentlyContinue -Environment $AzureEnvironment
-    }
+  # Connect To Azure Tenant
+  if (-not (Get-AzContext)) {
+    Connect-AzAccount -Tenant $TenantID -WarningAction SilentlyContinue -Environment $AzureEnvironment
+  }
 }
 
-<#
-.SYNOPSIS
-Imports JSON data from a file.
+Function Test-WAFTagPattern {
+  param (
+    [string[]]$InputValue
+  )
+  $pattern = '^[^<>&%\\?/]+=~[^<>&%\\?/]+$|[^<>&%\\?/]+!~[^<>&%\\?/]+$'
 
-.DESCRIPTION
-The Import-WAFAPRLJSON function reads the content of a JSON file, converts it to a PowerShell object, and returns it.
+  $allMatch = $true
 
-.PARAMETER file
-The path to the JSON file.
-
-.OUTPUTS
-Returns a PowerShell object containing the JSON data.
-
-.EXAMPLE
-PS> $jsonData = Import-WAFAPRLJSON -file "data.json"
-#>
-function Import-WAFAPRLJSON {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$file
-    )
-
-    # Validate file path, read content and convert to JSON
-    $return = (Test-Path $file) ? (Get-Content $file -Raw | ConvertFrom-Json -Depth 10) : ("Path does not exist")
-
-    # Return the converted JSON object
-    return $return
+  foreach ($value in $InputValue) {
+    if ($value -notmatch $pattern) {
+      $allMatch = $false
+      throw "Tag pattern [$value] is not valid."
+      break
+    }
+  }
+  return $allMatch
 }
 
-Function Test-TagPattern {
-    param (
-      [string[]]$InputValue
-    )
-    $pattern = '^[^<>&%\\?/]+=~[^<>&%\\?/]+$|[^<>&%\\?/]+!~[^<>&%\\?/]+$'
+function Test-WAFResourceGroupId {
+  param (
+    [string[]]$InputValue
+  )
+  $pattern = '\/subscriptions\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\/resourceGroups\/[a-zA-Z0-9._-]+'
 
-    $allMatch = $true
+  $allMatch = $true
 
-    $InputValue | ForEach-Object {
-      if ($_ -notmatch $Pattern) {
-        $allMatch = $false
-      }
+  foreach ($value in $InputValue) {
+    if ($value -notmatch $pattern) {
+      $allMatch = $false
+      throw "Resource Group ID [$value] is not valid."
+      break
     }
-    return $allMatch
   }
 
-  Function Test-ResourceGroupId {
-    param (
-      [string[]]$InputValue
-    )
-    $pattern = '\/subscriptions\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\/resourceGroups\/[a-zA-Z0-9._-]+'
+  return $allMatch
+}
 
-    $allMatch = $true
+Function Test-WAFSubscriptionId {
+  param (
+    [string[]]$InputValue
+  )
+  $pattern = '\/subscriptions\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+  $allMatch = $true
 
-    $InputValue | ForEach-Object {
-      if ($_ -notmatch $Pattern) {
-        $allMatch = $false
-      }
+  foreach ($value in $InputValue) {
+    if ($value -notmatch $pattern) {
+      $allMatch = $false
+      throw "Subscription ID [$value] is not valid."
+      break
     }
-    return $allMatch
   }
+  return $allMatch
+}
 
-  Function Test-SubscriptionId {
-    param (
-      [string[]]$InputValue
-    )
-    $pattern = '\/subscriptions\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
-
-    $allMatch = $true
-
-    $InputValue | ForEach-Object {
-      if ($_ -notmatch $Pattern) {
-        $allMatch = $false
-      }
-    }
-    return $allMatch
+function Test-WAFIsGuid {
+  param (
+    [Parameter(Mandatory = $true)]
+    $StringGuid
+  )
+  $ObjectGuid = [System.Guid]::Empty
+  if (-not [System.Guid]::TryParse($StringGuid, [ref]$ObjectGuid)) {
+    throw "The provided string [$StringGuid] is not a valid GUID."
   }
-
-  function Test-ScriptParameters {
-    $IsValid = $true
-
-    if ($RunbookFile) {
-
-      if (!(Test-Path $RunbookFile -PathType Leaf)) {
-        Write-Host "Runbook file (-RunbookFile) not found: [$RunbookFile]" -ForegroundColor Red
-        $IsValid = $false
-      }
-
-      if ($ConfigFile) {
-        Write-Host "Runbook file (-RunbookFile) and configuration file (-ConfigFile) cannot be used together." -ForegroundColor Red
-        $IsValid = $false
-      }
-
-      if (!($SubscriptionIds)) {
-        Write-Host "Subscription ID(s) (-SubscriptionIds) is required when using a runbook file (-RunbookFile)." -ForegroundColor Red
-        $IsValid = $false
-      }
-
-      if ($ResourceGroups -or $Tags) {
-        Write-Host "Resource group(s) (-ResourceGroups) and tags (-Tags) cannot be used with a runbook file (-RunbookFile)." -ForegroundColor Red
-        $IsValid = $false
-      }
-
-    } else {
-
-      if ($UseImplicitRunbookSelectors) {
-        Write-Host "Implicit runbook selectors (-UseImplicitRunbookSelectors) can only be used with a runbook file (-RunbookFile)." -ForegroundColor Red
-        $IsValid = $false
-      }
-
-      if ($ConfigFile) {
-
-        if (!(Test-Path $ConfigFile -PathType Leaf)) {
-          Write-Host "Configuration file (-ConfigFile) not found: [$ConfigFile]" -ForegroundColor Red
-          $IsValid = $false
-        }
-
-        if ($SubscriptionIds -or $ResourceGroups -or $Tags) {
-          Write-Host "Configuration file (-ConfigFile) and [Subscription ID(s) (-SubscriptionIds), resource group(s) (-ResourceGroups), or tags (-Tags)] cannot be used together." -ForegroundColor Red
-          $IsValid = $false
-        }
-
-        if ($TenantId) {
-          Write-Host "Tenant ID (-TenantId) cannot be used with a configuration file (-ConfigFile). Include tenant ID in the [tenantid] section of the config file." -ForegroundColor Red
-          $IsValid = $false
-        }
-
-      } else {
-
-        if (!($TenantId)) {
-          Write-Host "Tenant ID (-TenantId) is required." -ForegroundColor Red
-          $IsValid = $false
-        }
-
-        if (!($SubscriptionIds) -and !($ResourceGroups)) {
-          Write-Host "Subscription ID(s) (-SubscriptionIds) or resource group(s) (-ResourceGroups) are required." -ForegroundColor Red
-          $IsValid = $false
-        }
-      }
-    }
-
-    return $IsValid
-  }
+  return $true
+}

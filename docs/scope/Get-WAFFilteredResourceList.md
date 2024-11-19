@@ -14,8 +14,8 @@ Retrieves a filtered list of Azure resources based on subscription, resource gro
 
 ```
 Get-WAFFilteredResourceList [[-SubscriptionFilters] <Array>] [[-ResourceGroupFilters] <Array>]
- [[-ResourceFilters] <Array>] [[-UnfilteredResources] <Array>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ [[-ResourceFilters] <Array>] [[-UnfilteredResources] <Array>] [[-KeyColumn] <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -91,6 +91,21 @@ Aliases:
 Required: False
 Position: 4
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -KeyColumn
+{{ Fill KeyColumn Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 5
+Default value: Id
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
