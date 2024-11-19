@@ -224,3 +224,97 @@ Describe 'Connect-WAFAzure' {
         }
     }
 }
+
+Describe 'Test-WAFTagPattern' {
+    Context 'When given a valid tag pattern' {
+        It 'Should return true' {
+            $tagPattern = "env||environment=~preprod"
+            $result = Test-WAFTagPattern $tagPattern
+            $result | Should -Be $true
+        }
+    }
+    Context 'When given an invalid tag pattern' {
+        It 'Should throw the exception' {
+            $tagPattern = "env||environment~preprod"
+            {Test-WAFTagPattern $tagPattern} | Should -Throw 
+        }
+    }
+}
+
+Describe 'Test-WAFResourceGroupId'{
+    Context 'When given a valid resource group id' {
+        It 'Should return true with a valid resource group id' {
+            $resourceGroupId = "/subscriptions/$((new-guid).guid)/resourceGroups/RG-01"
+            $result = Test-WAFResourceGroupId $resourceGroupId
+            $result | Should -Be $true
+        }
+        It 'Should return true when the resource group id contains a trailing slash' {
+            $resourceGroupId = "/subscriptions/$((new-guid).guid)/resourceGroups/RG-01/"
+            $result = Test-WAFResourceGroupId $resourceGroupId
+            $result | Should -Be $true
+        }
+    }
+    Context 'When given an invalid resource group id' {
+        It 'Should throw the exception with a bad GUID' {
+            $resourceGroupId = "/subscriptions/$((new-guid).guid[1..-1])/resourceGroups/RG-01/"
+            {Test-WAFResourceGroupId $resourceGroupId} | Should -Throw 
+        }
+        It 'Should throw the exception with a bad resourceGroups typo - missing s' {
+            $resourceGroupId = "/subscriptions/$((new-guid).guid)/resourceGroup/RG-01/"
+            {Test-WAFResourceGroupId $resourceGroupId} | Should -Throw 
+        }
+        It 'Should throw the exception with a bad subscription typo - missing s' {
+            $resourceGroupId = "/subscription/$((new-guid).guid)/resourceGroups/RG-01/"
+            {Test-WAFResourceGroupId $resourceGroupId} | Should -Throw 
+        }
+        It 'Should throw the exception when missing the leading slash' {
+            $resourceGroupId = "subscriptions/$((new-guid).guid)/resourceGroups/RG-01"
+            {Test-WAFResourceGroupId $resourceGroupId} | Should -Throw 
+        }
+    }
+}
+
+Describe 'Test-WAFSubscriptionId'{
+    Context 'When given a valid subscription id' {
+        It 'Should return true with a valid subscription id' {
+            $subscriptionId = "/subscriptions/$((new-guid).guid)"
+            $result = Test-WAFSubscriptionId $subscriptionId
+            $result | Should -Be $true
+        }
+        It 'Should return true when the subscription id contains a trailing slash' {
+            $subscriptionId = "/subscriptions/$((new-guid).guid)/"
+            $result = Test-WAFSubscriptionId $subscriptionId
+            $result | Should -Be $true
+        }
+    }
+    Context 'When given an invalid subscription id' {
+        It 'Should throw the exception with a bad GUID' {
+            $subscriptionId = "/subscriptions/$((new-guid).guid[1..-1])/"
+            {Test-WAFSubscriptionId $subscriptionId} | Should -Throw 
+        }
+        It 'Should throw the exception with a bad subscription typo - missing s' {
+            $subscriptionId = "/subscription/$((new-guid).guid)/"
+            {Test-WAFSubscriptionId $subscriptionId} | Should -Throw 
+        }
+        It 'Should throw the exception when missing the leading slash' {
+            $subscriptionId = "subscriptions/$((new-guid).guid)"
+            {Test-WAFSubscriptionId $subscriptionId} | Should -Throw 
+        }
+    }
+}
+
+Describe 'Test-WAFIsGuid'{
+    Context 'When given a valid GUID' {
+        It 'Should return true with a valid GUID' {
+            $guid = [Guid]::NewGuid()
+            $result = Test-WAFIsGuid $guid
+            $result | Should -Be $true
+        }
+    }
+    Context 'When given an invalid GUID' {
+        It 'Should throw the exception with a bad GUID' {
+            $guid = [Guid]::NewGuid().guid[1..-1]
+            {Test-WAFIsGuid $guid} | Should -Throw 
+        }
+    }
+}
