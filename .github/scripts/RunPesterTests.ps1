@@ -19,7 +19,7 @@ if($moduleName)
 }
 else{
     # Grab directories
-    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory
+    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory | Where-Object {$_.Name -ne "runbook"}
 }
 
 $coveragePercent = @()
