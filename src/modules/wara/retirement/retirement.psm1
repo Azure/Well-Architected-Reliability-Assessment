@@ -7,8 +7,6 @@ using module ../utils/utils.psm1
     This module contains functions related to the capturing and collecting to active retirement health advisory events.
     It includes the following functions:
     - Get-WAFResourceRetirement
-    - Invoke-AzureRestApi
-    - Get-AzureRestMethodUriPath
     - New-WAFResourceRetirementObject
 
 .EXAMPLE

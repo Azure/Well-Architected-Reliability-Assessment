@@ -51,8 +51,8 @@ class ServiceHealthAlert {
     }
 
     static [string] GetEventType($Row) {
-        if ($Row.Properties.condition.allOf.anyOf | Select-Object -Property equals) {
-            return ($Row.Properties.condition.allOf.anyOf | Select-Object -Property equals | ForEach-Object {
+        if ($Row.Properties.condition.allOf | Select-Object -Property equals) {
+            return ($Row.Properties.condition.allOf | Select-Object -Property equals | ForEach-Object {
                 switch ($_.equals) {
                     'Incident' { 'Service Issues' }
                     'Informational' { 'Health Advisories' }

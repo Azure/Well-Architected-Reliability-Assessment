@@ -2,41 +2,6 @@ using module ../utils/utils.psd1
 
 <#
 .SYNOPSIS
-Retrieves all resource groups in the specified subscriptions.
-.DESCRIPTION
-The Get-WAFResourceGroup function queries Azure Resource Graph to retrieve all resource groups in the specified subscriptions.
-.PARAMETER SubscriptionIds
-An array of subscription IDs to scope the query.
-.OUTPUTS
-Returns an array of resource groups.
-.EXAMPLE
-$resourceGroups = Get-WAFResourceGroup -SubscriptionIds @('sub1', 'sub2')
-.NOTES
-This function uses the Invoke-WAFQuery function to perform the query.
-#>
-function Get-WAFResourceGroup {
-  [CmdletBinding()]
-  param (
-    [string[]]$SubscriptionIds
-  )
-
-  # Query to get all resource groups in the tenant
-  $q = "resourcecontainers
-  | where type == 'microsoft.resources/subscriptions'
-  | project subscriptionId, subscriptionName = name
-  | join (resourcecontainers
-      | where type == 'microsoft.resources/subscriptions/resourcegroups')
-      on subscriptionId
-  | project subscriptionName, subscriptionId, resourceGroup, id=tolower(id)"
-
-  $r = $SubscriptionIds ? (Invoke-WAFQuery -query $q -subscriptionIds $SubscriptionIds -usetenantscope) : (Invoke-WAFQuery -query $q -usetenantscope)
-
-  # Returns the resource groups
-  return $r
-}
-
-<#
-.SYNOPSIS
 Retrieves all resources with matching tags.
 .DESCRIPTION
 The Get-WAFTaggedResources function queries Azure Resource Graph to retrieve all resources that have matching tags.
