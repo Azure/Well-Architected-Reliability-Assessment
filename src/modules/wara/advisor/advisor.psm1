@@ -85,7 +85,10 @@ function Get-WAFAdvisorRecommendations {
     Date: 2024-08-07
 #>
 function Build-WAFAdvisorObject {
-    Param($AdvQueryResult)
+    [CmdletBinding()]
+    Param(
+        $AdvQueryResult
+        )
 
     $return = $AdvQueryResult.ForEach({ [advisorResourceObj]::new($_) })
 
