@@ -58,7 +58,7 @@ function Get-WAFAdvisorRecommendations {
 | project recommendationId = properties.recommendationTypeId, type = tolower(properties.impactedField), name = properties.impactedValue, id = resId1, subscriptionId = subscriptionId1,resourceGroup = resourceGroup, location = location1, category = properties.category, impact = properties.impact, description = properties.shortDescription.solution
 | order by ['id']"
    
-    $queryResults = Invoke-WAFQuery -Query $advquery -subscriptionId $Subid
+    $queryResults = Invoke-WAFQuery -Query $advquery -subscriptionId $SubscriptionIds
 
     $return = Build-WAFAdvisorObject -AdvQueryResult $queryResults
 
