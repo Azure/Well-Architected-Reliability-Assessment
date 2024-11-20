@@ -318,3 +318,22 @@ Describe 'Test-WAFIsGuid'{
         }
     }
 }
+
+Describe 'Repair-WAFSubscriptionId' {
+    Context 'When given a subscription id without /subscriptions/' {
+        It 'Should return a subscription id with /subscriptions/' {
+            $subscriptionId = "$((new-guid).guid)"
+            $result = Repair-WAFSubscriptionId $subscriptionId
+            $result | Should -Be "/subscriptions/$subscriptionId"
+        }
+    }
+    Context 'When given two subscription ids, one with /subscriptions/ and one without' {
+        It 'Should return both subscription ids with /subscriptions/' {
+            $subscriptionId1 = "/subscriptions/$((new-guid).guid)"
+            $subscriptionId2 = "$((new-guid).guid)"
+            $result = Repair-WAFSubscriptionId @($subscriptionId1,$subscriptionId2)
+            $result | Should -contain "/subscriptions/$subscriptionId2"
+            $result | Should -contain $subscriptionId1
+        }
+    }
+}

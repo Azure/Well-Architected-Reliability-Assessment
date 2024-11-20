@@ -430,3 +430,20 @@ function Test-WAFIsGuid {
   }
   return $true
 }
+
+function Repair-WAFSubscriptionId {
+  [CmdletBinding()]
+  param (
+    [string[]]$SubscriptionIds
+  )
+  $fixedSubscriptionIds = @()
+  foreach ($subscriptionId in $SubscriptionIds) {
+    if ($subscriptionId -notmatch '\/subscriptions\/') {
+      $fixedSubscriptionIds += "/subscriptions/$subscriptionId"
+    }
+    else {
+      $fixedSubscriptionIds += $subscriptionId
+    }
+  }
+  return $fixedSubscriptionIds
+}

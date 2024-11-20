@@ -58,19 +58,19 @@ Function Start-WARACollector {
     switch ($PSCmdlet.ParameterSetName) {
         'ConfigFileSet' {
             Write-Debug "Using ConfigFileSet parameter set"
+            Write-Debug "ConfigFile: $ConfigFile"
+            Write-Debug "Importing ConfigFile data"
             $ConfigData = Import-WAFConfigFileData -ConfigFile $ConfigFile
+            Write-Debug "Testing TenantId, SubscriptionIds, ResourceGroups, and Tags"
             Test-WAFIsGuid -StringGuid $ConfigData.TenantId
-            if ($ConfigData.SubscriptionIds) { Test-WAFSubscriptionId -SubscriptionId $ConfigData.SubscriptionIds }
-            if ($ConfigData.ResourceGroups) { Test-WAFResourceGroupId -ResourceGroupId $ConfigData.ResourceGroups }
-            if ($ConfigData.Tags) { Test-WAFTagPattern -TagPattern $ConfigData.Tags }
-        }
-        'RunbookSet' {
-            Write-Debug "Using RunbookSet parameter set"
-            # Add logic for RunbookSet parameter set
+            $ConfigData.TenantId = ([guid][string]$ConfigData.TenantId).Guid
+            $null =if ($ConfigData.SubscriptionIds) { Test-WAFSubscriptionId -SubscriptionId $ConfigData.SubscriptionIds }
+            $null =if ($ConfigData.ResourceGroups) { Test-WAFResourceGroupId -ResourceGroupId $ConfigData.ResourceGroups }
+            $null =if ($ConfigData.Tags) { Test-WAFTagPattern -TagPattern $ConfigData.Tags }
         }
         'Default' {
             Write-Debug "Using Default parameter set"
-            Write-Debug $TenantID
+            
         }
     }
 
@@ -82,10 +82,14 @@ Function Start-WARACollector {
     $Scope_ResourceGroups = $ConfigData.ResourceGroups ?? $ResourceGroups ?? @()
     $Scope_Tags = $ConfigData.Tags ?? $Tags ?? @()
 
+    $Scope_SubscriptionIds = Repair-WAFSubscriptionId -SubscriptionIds $Scope_SubscriptionIds
+
     Write-Debug "Tenant ID: $Scope_TenantId"
     Write-Debug "Subscription IDs: $Scope_SubscriptionIds"
     Write-Debug "Resource Groups: $Scope_ResourceGroups"
     Write-Debug "Tags: $Scope_Tags"
+
+    
 
     #Import Recommendation Object from APRL
     $RecommendationObject = Invoke-RestMethod "https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json"
@@ -104,25 +108,33 @@ Function Start-WARACollector {
     #Get all APRL recommendations from the Implicit Subscription ID scope
     Write-Debug "Getting all APRL recommendations from the Implicit Subscription ID scope"
     $Recommendations = Invoke-WAFQueryLoop -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '') -RecommendationObject $RecommendationObject
-    
+    Write-Debug "Count of Recommendations: $($Recommendations.count)"
+
     #Create impactedResourceObj objects from the recommendations
     Write-Debug "Creating impactedResourceObj objects from the recommendations"
     $impactedResourceObj = $Recommendations.ForEach({ [impactedResourceObj]::new($_) })
+    Write-Debug "Count of impactedResourceObj objects: $($impactedResourceObj.count)"
 
     #Filter impactedResourceObj objects by subscription, resourcegroup, and resource scope
     Write-Debug "Filtering impactedResourceObj objects by subscription, resourcegroup, and resource scope"
     $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $impactedResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
+    Write-Debug "Count of filtered impactedResourceObj objects: $($impactedResourceObj.count)"
 
     #Get Advisor Recommendations
     Write-Debug "Getting Advisor Recommendations"
     $advisorResourceObj = Get-WAFAdvisorRecommendations -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '') -HighAvailability
+    Write-Debug "Count of Advisor Recommendations: $($advisorResourceObj.count)"
 
     #Filter Advisor Recommendations by subscription, resourcegroup, and resource scope
     Write-Debug "Filtering Advisor Recommendations by subscription, resourcegroup, and resource scope"
     $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
+    Write-Debug "Count of filtered Advisor Recommendations: $($advisorResourceObj.count)"
 
     #If we passed tags, filter impactedResourceObj and advisorResourceObj by tagged resource group and tagged resource scope
     if (![String]::IsNullOrEmpty($Scope_Tags)) {
+
+        Write-Debug "Starting Tag Filtering"
+        Write-Debug "Scope Tags: $Scope_Tags"
 
         #Get all tagged resource groups from the Implicit Subscription ID scope
         Write-Debug "Getting all tagged resource groups from the Implicit Subscription ID scope"
@@ -137,14 +149,13 @@ Function Start-WARACollector {
         #Filter impactedResourceObj objects by tagged resource group and resource scope
         Write-Debug "Filtering impactedResourceObj objects by tagged resource group and resource scope"
         $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $impactedResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
+        Write-Debug "Count of tag filtered impactedResourceObj objects: $($impactedResourceObj.count)"
 
         #Filter Advisor Recommendations by tagged resource group and resource scope
         Write-Debug "Filtering Advisor Recommendations by tagged resource group and resource scope"
         $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
+        Write-Debug "Count of tag filtered Advisor Recommendations: $($advisorResourceObj.count)"
     }
-
-
-
 
     #Get Azure Outages
     Write-Debug "Getting Azure Outages"
