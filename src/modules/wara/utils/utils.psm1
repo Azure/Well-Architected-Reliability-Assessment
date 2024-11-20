@@ -406,7 +406,7 @@ Function Test-WAFSubscriptionId {
   param (
     [string[]]$InputValue
   )
-  $pattern = '(\/subscriptions\/)?[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+  $pattern = '^(\/subscriptions\/)?[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\/?$'
   $allMatch = $true
 
   foreach ($value in $InputValue) {

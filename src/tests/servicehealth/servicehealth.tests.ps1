@@ -41,6 +41,18 @@ Describe 'Build-WAFServiceHealthObject' {
             $ServiceHealthAlert.ActionGroup | Should -Contain 'ag-01'
             $ServiceHealthAlert.ActionGroup | Should -Contain 'ag-02'
         }
+        It 'Should contain the following counts of properties - EventType' {
+            $ServiceHealthAlert = Build-WAFServiceHealthObject -AdvQueryResult $test_ServicehealthData
+            $ServiceHealthAlert_CountOfAll = $ServiceHealthAlert | Group-Object -Property EventType | Select Name, Count | Where-Object { $_.Name -eq 'All' }
+            $ServiceHealthAlert_CountOfServiceIssues = $ServiceHealthAlert | Group-Object -Property EventType | Select Name, Count | Where-Object { $_.Name -eq 'Service Issues' }
+            $ServiceHealthAlert_CountOfSecurityAdvisory = $ServiceHealthAlert | Group-Object -Property EventType | Select Name, Count | Where-Object { $_.Name -eq 'Security Advisory' }
+            $ServiceHealthAlert_CountOfPlannedMaintenance = $ServiceHealthAlert | Group-Object -Property EventType | Select Name, Count | Where-Object { $_.Name -eq 'Planned Maintenance' }
+
+            $ServiceHealthAlert_CountOfAll.Count | Should -Be 3
+            $ServiceHealthAlert_CountOfServiceIssues.Count | Should -Be 2
+            $ServiceHealthAlert_CountOfSecurityAdvisory.Count | Should -Be 2
+            $ServiceHealthAlert_CountOfPlannedMaintenance.Count | Should -Be 2
+        }
     }
 }
 
@@ -59,7 +71,9 @@ Describe 'ServiceHealthAlert' {
     }
 
     Context 'When the class methods are called with a valid query result' {
-        $AlertWithMostParameters = $test_ServicehealthData | where {$_.eventName -eq "srvc-pm-alert"}
+        BeforeAll {
+            $AlertWithMostParameters = $test_ServicehealthData | where {$_.eventName -eq "srvc-pm-alert"}
+        }
 
         It '[ServiceHealthAlert]::GetEventType() should return a valid EventType' {
             $EventType = [ServiceHealthAlert]::GetEventType($test_ServicehealthData[1])
