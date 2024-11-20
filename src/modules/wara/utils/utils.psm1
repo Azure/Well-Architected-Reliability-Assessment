@@ -250,6 +250,7 @@ Returns a PSCustomObject containing the configuration data.
 PS> $configData = Import-WAFConfigFileData -file "config.txt"
 #>
 function Import-WAFConfigFileData() {
+  [CmdletBinding()]
   param (
     [Parameter(Mandatory = $true)]
     [ValidateScript({ Test-Path $_ -PathType Leaf })]
@@ -352,6 +353,7 @@ None.
 PS> Connect-WAFAzure -TenantID "your-tenant-id" -SubscriptionIds @("sub1", "sub2") -AzureEnvironment "AzureCloud"
 #>
 function Connect-WAFAzure {
+  [CmdletBinding()]
   param (
     [Parameter(Mandatory = $true)]
     [GUID]$TenantID,
@@ -366,6 +368,7 @@ function Connect-WAFAzure {
 }
 
 Function Test-WAFTagPattern {
+  [CmdletBinding()]
   param (
     [string[]]$InputValue
   )
@@ -384,6 +387,7 @@ Function Test-WAFTagPattern {
 }
 
 function Test-WAFResourceGroupId {
+  [CmdletBinding()]
   param (
     [string[]]$InputValue
   )
@@ -403,6 +407,7 @@ function Test-WAFResourceGroupId {
 }
 
 Function Test-WAFSubscriptionId {
+  [CmdletBinding()]
   param (
     [string[]]$InputValue
   )
@@ -420,6 +425,7 @@ Function Test-WAFSubscriptionId {
 }
 
 function Test-WAFIsGuid {
+  [CmdletBinding()]
   param (
     [Parameter(Mandatory = $true)]
     $StringGuid

@@ -44,10 +44,10 @@ Describe 'Build-WAFServiceHealthObject' {
         }
         It 'Should contain the following counts of properties - EventType' {
             $ServiceHealthAlert = Build-WAFServiceHealthObject -AdvQueryResult $test_ServicehealthData
-            $ServiceHealthAlert_CountOfAll = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object-Object { $_.Name -eq 'All' }
-            $ServiceHealthAlert_CountOfServiceIssues = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object-Object { $_.Name -eq 'Service Issues' }
-            $ServiceHealthAlert_CountOfSecurityAdvisory = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object-Object { $_.Name -eq 'Security Advisory' }
-            $ServiceHealthAlert_CountOfPlannedMaintenance = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object-Object { $_.Name -eq 'Planned Maintenance' }
+            $ServiceHealthAlert_CountOfAll = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object { $_.Name -eq 'All' }
+            $ServiceHealthAlert_CountOfServiceIssues = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object { $_.Name -eq 'Service Issues' }
+            $ServiceHealthAlert_CountOfSecurityAdvisory = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object { $_.Name -eq 'Security Advisory' }
+            $ServiceHealthAlert_CountOfPlannedMaintenance = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object { $_.Name -eq 'Planned Maintenance' }
 
             $ServiceHealthAlert_CountOfAll.Count | Should -Be 3
             $ServiceHealthAlert_CountOfServiceIssues.Count | Should -Be 2
