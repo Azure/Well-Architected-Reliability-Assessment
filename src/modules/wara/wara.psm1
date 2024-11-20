@@ -70,14 +70,14 @@ Function Start-WARACollector {
         }
         'Default' {
             Write-Debug "Using Default parameter set"
-            # Add logic for Default parameter set
+            Write-Debug $TenantID
         }
     }
 
 
 
     #Use Null Coalescing to set the values of parameters.
-    $Scope_TenantId = [String]$ConfigData.TenantId ?? $TenantID ?? (throw "Tenant ID is required.")
+    $Scope_TenantId = $ConfigData.TenantId ?? $TenantID ?? (throw "Tenant ID is required.")
     $Scope_SubscriptionIds = $ConfigData.SubscriptionIds ?? $SubscriptionIds ?? @()
     $Scope_ResourceGroups = $ConfigData.ResourceGroups ?? $ResourceGroups ?? @()
     $Scope_Tags = $ConfigData.Tags ?? $Tags ?? @()
@@ -117,6 +117,10 @@ Function Start-WARACollector {
     Write-Debug "Getting Advisor Recommendations"
     $advisorResourceObj = Get-WAFAdvisorRecommendations -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '') -HighAvailability
 
+    #Filter Advisor Recommendations by subscription, resourcegroup, and resource scope
+    Write-Debug "Filtering Advisor Recommendations by subscription, resourcegroup, and resource scope"
+    $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
+
     #If we passed tags, filter impactedResourceObj and advisorResourceObj by tagged resource group and tagged resource scope
     if (![String]::IsNullOrEmpty($Scope_Tags)) {
 
@@ -139,9 +143,7 @@ Function Start-WARACollector {
         $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
     }
 
-    #Filter Advisor Recommendations by subscription, resourcegroup, and resource scope
-    Write-Debug "Filtering Advisor Recommendations by subscription, resourcegroup, and resource scope"
-    $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
+
 
 
     #Get Azure Outages
