@@ -1,4 +1,5 @@
 using module ../../modules/wara/servicehealth/servicehealth.psd1
+
 BeforeAll {
     $modulePath = "$PSScriptRoot/../../modules/wara/servicehealth/servicehealth.psd1"
     Import-Module -Name $modulePath -Force
@@ -43,10 +44,10 @@ Describe 'Build-WAFServiceHealthObject' {
         }
         It 'Should contain the following counts of properties - EventType' {
             $ServiceHealthAlert = Build-WAFServiceHealthObject -AdvQueryResult $test_ServicehealthData
-            $ServiceHealthAlert_CountOfAll = $ServiceHealthAlert | Group-Object -Property EventType | Select Name, Count | Where-Object { $_.Name -eq 'All' }
-            $ServiceHealthAlert_CountOfServiceIssues = $ServiceHealthAlert | Group-Object -Property EventType | Select Name, Count | Where-Object { $_.Name -eq 'Service Issues' }
-            $ServiceHealthAlert_CountOfSecurityAdvisory = $ServiceHealthAlert | Group-Object -Property EventType | Select Name, Count | Where-Object { $_.Name -eq 'Security Advisory' }
-            $ServiceHealthAlert_CountOfPlannedMaintenance = $ServiceHealthAlert | Group-Object -Property EventType | Select Name, Count | Where-Object { $_.Name -eq 'Planned Maintenance' }
+            $ServiceHealthAlert_CountOfAll = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object-Object { $_.Name -eq 'All' }
+            $ServiceHealthAlert_CountOfServiceIssues = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object-Object { $_.Name -eq 'Service Issues' }
+            $ServiceHealthAlert_CountOfSecurityAdvisory = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object-Object { $_.Name -eq 'Security Advisory' }
+            $ServiceHealthAlert_CountOfPlannedMaintenance = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object-Object { $_.Name -eq 'Planned Maintenance' }
 
             $ServiceHealthAlert_CountOfAll.Count | Should -Be 3
             $ServiceHealthAlert_CountOfServiceIssues.Count | Should -Be 2
@@ -72,7 +73,8 @@ Describe 'ServiceHealthAlert' {
 
     Context 'When the class methods are called with a valid query result' {
         BeforeAll {
-            $AlertWithMostParameters = $test_ServicehealthData | where {$_.eventName -eq "srvc-pm-alert"}
+            $AlertWithMostParameters = $test_ServicehealthData | Where-Object {$_.eventName -eq "srvc-pm-alert"}
+            [void]$AlertWithMostParameters
         }
 
         It '[ServiceHealthAlert]::GetEventType() should return a valid EventType' {
