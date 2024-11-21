@@ -49,7 +49,8 @@ Function Start-WARACollector {
         [switch]$UseImplicitRunbookSelectors,
 
         [Parameter(ParameterSetName = 'Default')]
-        $RunbookFile
+        [ValidateScript({ Test-Path $_ -PathType Leaf })]
+        [string]$RunbookFile
     )
 
     Write-Debug "Debugging mode is enabled"
