@@ -13,8 +13,8 @@ Retrieves high availability recommendations from Azure Advisor.
 ## SYNTAX
 
 ```
-Get-WAFAdvisorRecommendations [[-Subid] <Array>] [-HighAvailability] [-Security] [-Cost] [-Performance]
- [-OperationalExcellence] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFAdvisorRecommendations [[-SubscriptionIds] <Array>] [-HighAvailability] [-Security] [-Cost]
+ [-Performance] [-OperationalExcellence] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,8 +30,8 @@ $subId = "22222222-2222-2222-2222-222222222222"
 
 ## PARAMETERS
 
-### -Subid
-The subscription ID for which to retrieve recommendations.
+### -SubscriptionIds
+{{ Fill SubscriptionIds Description }}
 
 ```yaml
 Type: Array
