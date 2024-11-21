@@ -4,7 +4,6 @@ BeforeAll {
     Import-Module -Name 'Az.Accounts' -Force
 }
 
-
 Describe 'New-WAFOutageObject' {
     Context 'When to get an OutageObject' {
         BeforeAll {
@@ -17,8 +16,8 @@ Describe 'New-WAFOutageObject' {
                 TrackingId      = 'XXXX-XXX'
                 Status          = 'Active'
                 LastUpdateTime  = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
-                StartTime       = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
-                EndTime         = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
+                StartTime       = Get-Date -Year 2024 -Month 6 -Day 7 -Hour 8 -Minute 9 -Second 10
+                EndTime         = Get-Date -Year 2024 -Month 11 -Day 12 -Hour 13 -Minute 14 -Second 15
                 Level           = 'Warning'
                 Title           = 'Mitigated - Storage Metrics UI Regression Impacting Non-Classic Storage Accounts in Azure Monitor'
                 Summary         = "<p><strong>What happened?</strong></p>"
@@ -89,18 +88,14 @@ Describe 'Get-WAFOutage' {
     Context 'When to get an OutageObject' {           
         BeforeAll {
             $moduleNameToInjectMock = 'outage'
-            Mock Invoke-AzureRestAPI {
+            Mock Invoke-AzureRestApi {
                 return @{ Content = $restApiResponseContent }
             } -ModuleName $moduleNameToInjectMock -Verifiable
-            
         }
 
         It 'Should return an OutageObject' {
             $restApiResponseFilePath = "$PSScriptRoot/../data/outage/restApiSingleResponseData.json"
             $restApiResponseContent = Get-Content $restApiResponseFilePath -Raw
-
-
-
             $subscriptionId = '11111111-1111-1111-1111-111111111111'
 
             $responseObject = ($restApiResponseContent | ConvertFrom-Json -Depth 15).value
