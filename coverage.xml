@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd"[]>
+<report name="Pester (11/20/2024 15:29:34)">
+  <sessioninfo id="this" start="1732116573189" dump="1732116574020" />
+  <package name="utils">
+    <class name="utils/utils" sourcefilename="utils.psm1">
+      <method name="Invoke-WAFQuery" desc="()" line="9">
+        <counter type="INSTRUCTION" missed="12" covered="0" />
+        <counter type="LINE" missed="7" covered="0" />
+        <counter type="METHOD" missed="1" covered="0" />
+      </method>
+      <method name="Invoke-AzureRestApi" desc="()" line="123">
+        <counter type="INSTRUCTION" missed="0" covered="18" />
+        <counter type="LINE" missed="0" covered="14" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Get-AzureRestMethodUriPath" desc="()" line="222">
+        <counter type="INSTRUCTION" missed="1" covered="8" />
+        <counter type="LINE" missed="1" covered="6" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Import-WAFConfigFileData" desc="()" line="256">
+        <counter type="INSTRUCTION" missed="0" covered="37" />
+        <counter type="LINE" missed="0" covered="29" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Connect-WAFAzure" desc="()" line="365">
+        <counter type="INSTRUCTION" missed="0" covered="3" />
+        <counter type="LINE" missed="0" covered="2" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Test-WAFTagPattern" desc="()" line="375">
+        <counter type="INSTRUCTION" missed="0" covered="7" />
+        <counter type="LINE" missed="0" covered="7" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Test-WAFResourceGroupId" desc="()" line="394">
+        <counter type="INSTRUCTION" missed="0" covered="7" />
+        <counter type="LINE" missed="0" covered="7" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Test-WAFSubscriptionId" desc="()" line="414">
+        <counter type="INSTRUCTION" missed="0" covered="7" />
+        <counter type="LINE" missed="0" covered="7" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Test-WAFIsGuid" desc="()" line="433">
+        <counter type="INSTRUCTION" missed="0" covered="4" />
+        <counter type="LINE" missed="0" covered="4" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Repair-WAFSubscriptionId" desc="()" line="445">
+        <counter type="INSTRUCTION" missed="0" covered="6" />
+        <counter type="LINE" missed="0" covered="6" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <counter type="INSTRUCTION" missed="13" covered="97" />
+      <counter type="LINE" missed="8" covered="82" />
+      <counter type="METHOD" missed="1" covered="9" />
+      <counter type="CLASS" missed="1" covered="0" />
+    </class>
+    <sourcefile name="utils.psm1">
+      <line nr="9" mi="3" ci="0" mb="0" cb="0" />
+      <line nr="12" mi="2" ci="0" mb="0" cb="0" />
+      <line nr="15" mi="1" ci="0" mb="0" cb="0" />
+      <line nr="17" mi="3" ci="0" mb="0" cb="0" />
+      <line nr="19" mi="1" ci="0" mb="0" cb="0" />
+      <line nr="22" mi="1" ci="0" mb="0" cb="0" />
+      <line nr="25" mi="1" ci="0" mb="0" cb="0" />
+      <line nr="123" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="124" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="125" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="126" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="127" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="129" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="130" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="131" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="132" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="135" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="136" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="137" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="139" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="140" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="222" mi="0" ci="3" mb="0" cb="0" />
+      <line nr="223" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="224" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="226" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="227" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="230" mi="1" ci="0" mb="0" cb="0" />
+      <line nr="232" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="256" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="260" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="261" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="262" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="265" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="266" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="268" mi="0" ci="3" mb="0" cb="0" />
+      <line nr="271" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="272" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="273" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="278" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="283" mi="0" ci="3" mb="0" cb="0" />
+      <line nr="286" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="287" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="289" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="291" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="293" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="299" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="300" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="303" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="305" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="309" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="311" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="312" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="315" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="320" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="323" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="326" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="330" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="365" mi="0" ci="2" mb="0" cb="0" />
+      <line nr="366" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="375" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="377" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="379" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="380" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="381" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="382" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="386" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="394" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="396" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="398" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="399" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="400" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="401" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="406" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="414" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="415" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="417" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="418" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="419" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="420" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="424" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="433" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="434" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="435" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="437" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="445" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="446" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="447" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="448" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="451" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="454" mi="0" ci="1" mb="0" cb="0" />
+      <counter type="INSTRUCTION" missed="13" covered="97" />
+      <counter type="LINE" missed="8" covered="82" />
+      <counter type="METHOD" missed="1" covered="9" />
+      <counter type="CLASS" missed="1" covered="0" />
+    </sourcefile>
+    <counter type="INSTRUCTION" missed="13" covered="97" />
+    <counter type="LINE" missed="8" covered="82" />
+    <counter type="METHOD" missed="1" covered="9" />
+    <counter type="CLASS" missed="1" covered="0" />
+  </package>
+  <counter type="INSTRUCTION" missed="13" covered="97" />
+  <counter type="LINE" missed="8" covered="82" />
+  <counter type="METHOD" missed="1" covered="9" />
+  <counter type="CLASS" missed="1" covered="0" />
+</report>

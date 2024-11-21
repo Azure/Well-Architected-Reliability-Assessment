@@ -21,7 +21,7 @@ using module ../utils/utils.psd1
     Author: Claudio Merola
     Date: 2024-08-07
 #>
-function Get-WAFAdvisorRecommendations {
+function Get-WAFAdvisorRecommendation {
     [CmdletBinding()]
     Param(
         [array]$SubscriptionIds,

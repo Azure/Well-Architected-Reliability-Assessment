@@ -16,11 +16,11 @@ $taggedResources = Get-WAFTaggedResources -tagArray @('env==prod', 'app==myapp')
 .NOTES
 This function uses the Invoke-WAFQuery function to perform the query.
 #>
-Function Get-WAFTaggedResources {
+Function Get-WAFTaggedResource {
   [CmdletBinding()]
 param(
   [array]$tagArray,
-  [string[]]$subscriptionId
+  [string[]]$subscriptionIds
 )
 
 $return = @()
@@ -48,7 +48,7 @@ foreach($tag in $tagArray){
 | summarize by id
 | order by ['id']"
 
-  $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionId
+  $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
   
   $return += $result
 }
@@ -76,11 +76,11 @@ $taggedRGResources = Get-WAFTaggedRGResources -tagKeys @('env') -tagValues @('pr
 .NOTES
 This function uses the Invoke-WAFQuery function to perform the query.
 #>
-Function Get-WAFTaggedRGResources {
+Function Get-WAFTaggedRGResource {
   [CmdletBinding()]
   param(
     [array]$tagArray,
-    [string[]]$subscriptionId
+    [string[]]$subscriptionIds
 )
 
 $return = @()
@@ -111,7 +111,7 @@ foreach($tag in $tagArray){
 | summarize by id
 | order by ['id']"
 
-    $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionId
+    $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
     
     $return += $result
 }
