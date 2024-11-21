@@ -65,8 +65,8 @@ Function Start-WARACollector {
             Write-Debug "Testing TenantId, SubscriptionIds, ResourceGroups, and Tags"
             Test-WAFIsGuid -StringGuid $ConfigData.TenantId
             $ConfigData.TenantId = ([guid][string]$ConfigData.TenantId).Guid
-            $null =if ($ConfigData.SubscriptionIds) { Test-WAFSubscriptionId -SubscriptionId $ConfigData.SubscriptionIds }
-            $null =if ($ConfigData.ResourceGroups) { Test-WAFResourceGroupId -ResourceGroupId $ConfigData.ResourceGroups }
+            $null =if ($ConfigData.SubscriptionIds) { Test-WAFSubscriptionId -InputValue $ConfigData.SubscriptionIds }
+            $null =if ($ConfigData.ResourceGroups) { Test-WAFResourceGroupId -InputValue $ConfigData.ResourceGroups }
             $null =if ($ConfigData.Tags) { Test-WAFTagPattern -TagPattern $ConfigData.Tags }
         }
         'Default' {
