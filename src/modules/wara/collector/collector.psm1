@@ -18,29 +18,29 @@ This function uses the Invoke-WAFQuery function to perform the query.
 #>
 Function Get-WAFTaggedResource {
   [CmdletBinding()]
-param(
-  [array]$tagArray,
-  [string[]]$subscriptionIds
-)
+  param(
+    [array]$tagArray,
+    [string[]]$subscriptionIds
+  )
 
-$return = @()
+  $return = @()
 
-foreach($tag in $tagArray){
-  switch -Wildcard ($tag)
-  {
+  foreach ($tag in $tagArray) {
+    
+    switch -Wildcard ($tag) {
       "*=~*" {
-          $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
-          $tagValues = $tag.Split("=~")[1].split("||") -join ("','")
-          $in = "in~"
+        $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
+        $tagValues = $tag.Split("=~")[1].split("||") -join ("','")
+        $in = "in~"
       }
       "*!~*" {
-          $tagKeys = $tag.Split("!~")[0].split("||") -join ("','")
-          $tagValues = $tag.Split("!~")[1].split("||") -join ("','")
-          $in = "!in~"
+        $tagKeys = $tag.Split("!~")[0].split("||") -join ("','")
+        $tagValues = $tag.Split("!~")[1].split("||") -join ("','")
+        $in = "!in~"
       }
-  }
+    }
 
-  $tagquery = "resources
+    $tagquery = "resources
 | mv-expand bagexpansion=array tags
 | where isnotempty(tags)
 | where tolower(tags[0]) in~ ('$tagkeys')  // Specify your tag names here
@@ -48,14 +48,15 @@ foreach($tag in $tagArray){
 | summarize by id
 | order by ['id']"
 
-  $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
-  
-  $return += $result
-}
+    $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
 
-$return = ($return | Group-Object id | Where-Object {$_.count -eq $tagArray.Count} | Select-Object Name).Name
+    $return += $result
+  }
 
-return $return
+  $return = ($return | Group-Object id | Where-Object { $_.count -eq $tagArray.Count } | Select-Object Name).Name
+
+
+  return $return
 }
 
 <#
@@ -81,28 +82,27 @@ Function Get-WAFTaggedRGResource {
   param(
     [array]$tagArray,
     [string[]]$subscriptionIds
-)
+  )
 
-$return = @()
+  $return = @()
 
-foreach($tag in $tagArray){
+  foreach ($tag in $tagArray) {
 
-    switch -Wildcard ($tag)
-    {
-        "*=~*" {
-            $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
-            $tagValues = $tag.Split("=~")[1].split("||") -join ("','")
-            $in = "in~"
-        }
-        "*!~*" {
-            $tagKeys = $tag.Split("!~")[0].split("||") -join ("','")
-            $tagValues = $tag.Split("!~")[1].split("||") -join ("','")
-            $in = "!in~"
-        }
+    switch -Wildcard ($tag) {
+      "*=~*" {
+        $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
+        $tagValues = $tag.Split("=~")[1].split("||") -join ("','")
+        $in = "in~"
+      }
+      "*!~*" {
+        $tagKeys = $tag.Split("!~")[0].split("||") -join ("','")
+        $tagValues = $tag.Split("!~")[1].split("||") -join ("','")
+        $in = "!in~"
+      }
     }
 
     $tagquery = `
-"resourcecontainers
+      "resourcecontainers
 | where type == 'microsoft.resources/subscriptions/resourcegroups'
 | mv-expand bagexpansion=array tags
 | where isnotempty(tags)
@@ -114,11 +114,11 @@ foreach($tag in $tagArray){
     $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
     
     $return += $result
-}
+  }
 
-$return = ($return | Group-Object id | Where-Object {$_.count -eq $tagArray.Count} | Select-Object Name).Name
+  $return = ($return | Group-Object id | Where-Object { $_.count -eq $tagArray.Count } | Select-Object Name).Name
 
-return $return
+  return $return
 }
 
 <#
@@ -139,26 +139,26 @@ This function uses the Invoke-WAFQuery function to perform the queries.
 #>
 Function Invoke-WAFQueryLoop {
   [CmdletBinding()]
-param(
-  $RecommendationObject,
-  [string[]]$subscriptionIds
-)
+  param(
+    $RecommendationObject,
+    [string[]]$subscriptionIds
+  )
 
-$Types = Get-WAFResourceType -SubscriptionIds $subscriptionIds
+  $Types = Get-WAFResourceType -SubscriptionIds $subscriptionIds
 
-$QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -FilterList $Types.type -KeyColumn "recommendationResourceType"
+  $QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -FilterList $Types.type -KeyColumn "recommendationResourceType"
 
-$return = $QueryObject.Where({$_.automationavailable -eq $True -and [String]::IsNullOrEmpty($_.recommendationTypeId)}) | ForEach-Object {
-  Write-Progress -Activity "Running Queries" -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100)
-  try{
-    Invoke-WAFQuery -query $_.query -subscriptionIds $subscriptionIds -ErrorAction Stop
+  $return = $QueryObject.Where({ $_.automationavailable -eq $True -and [String]::IsNullOrEmpty($_.recommendationTypeId) }) | ForEach-Object {
+    Write-Progress -Activity "Running Queries" -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100)
+    try {
+      Invoke-WAFQuery -query $_.query -subscriptionIds $subscriptionIds -ErrorAction Stop
+    }
+    catch {
+      Write-Host "Error running query for - " $_.aprlGuid
+    }
   }
-  catch{
-    Write-Host "Error running query for - " $_.aprlGuid
-  }
-}
 
-return $return
+  return $return
 }
 
 <#
@@ -177,17 +177,17 @@ This function uses the Invoke-WAFQuery function to perform the query.
 #>
 Function Get-WAFResourceType {
   [CmdletBinding()]
-param(
-  [String[]]$SubscriptionIds
-)
+  param(
+    [String[]]$SubscriptionIds
+  )
 
-$q = "Resources
+  $q = "Resources
 | summarize count() by type
 | project type"
 
-$r = $SubscriptionIds ? (Invoke-WAFQuery -query $q -subscriptionIds $SubscriptionIds) : (Invoke-WAFQuery -query $q -usetenantscope)
+  $r = $SubscriptionIds ? (Invoke-WAFQuery -query $q -subscriptionIds $SubscriptionIds) : (Invoke-WAFQuery -query $q -usetenantscope)
 
-return $r
+  return $r
 }
 
 <#
@@ -208,22 +208,22 @@ $filteredObjects = Get-WAFQueryByResourceType -ObjectList $objects -FilterList $
 #>
 function Get-WAFQueryByResourceType {
   [CmdletBinding()]
-param (
-  [Parameter(Mandatory = $true)]
-  [array]$ObjectList,
+  param (
+    [Parameter(Mandatory = $true)]
+    [array]$ObjectList,
 
-  [Parameter(Mandatory = $true)]
-  [array]$FilterList,
+    [Parameter(Mandatory = $true)]
+    [array]$FilterList,
 
-  [Parameter(Mandatory = $true)]
-  [string]$KeyColumn
-)
+    [Parameter(Mandatory = $true)]
+    [string]$KeyColumn
+  )
 
-$matchingObjects = foreach ($obj in $ObjectList) {
-  if ($obj.$KeyColumn -in $FilterList) {
-    $obj
+  $matchingObjects = foreach ($obj in $ObjectList) {
+    if ($obj.$KeyColumn -in $FilterList) {
+      $obj
+    }
   }
-}
 
-return $matchingObjects
+  return $matchingObjects
 }
