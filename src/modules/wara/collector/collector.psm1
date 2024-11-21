@@ -43,7 +43,7 @@ foreach($tag in $tagArray){
   $tagquery = "resources
 | mv-expand bagexpansion=array tags
 | where isnotempty(tags)
-| where tolower(tags[0]) $in ('$tagkeys')  // Specify your tag names here
+| where tolower(tags[0]) in~ ('$tagkeys')  // Specify your tag names here
 | where tolower(tags[1]) $in ('$tagvalues')  // Specify your tag values here
 | summarize by id
 | order by ['id']"
