@@ -13,7 +13,7 @@ Builds a list of advisory objects from Azure Advisor query results.
 ## SYNTAX
 
 ```
-Build-WAFAdvisorObject [[-AdvQueryResult] <Object>] [<CommonParameters>]
+Build-WAFAdvisorObject [[-AdvQueryResult] <Object>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -39,6 +39,21 @@ Aliases:
 
 Required: False
 Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -1,11 +1,11 @@
 ---
-external help file: utils-help.xml
-Module Name: utils
+external help file: outage-help.xml
+Module Name: outage
 online version:
 schema: 2.0.0
 ---
 
-# Test-WAFResourceGroupId
+# Repair-WAFSubscriptionId
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
@@ -13,7 +13,8 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Test-WAFResourceGroupId [[-InputValue] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Repair-WAFSubscriptionId [[-SubscriptionIds] <String[]>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,8 +31,8 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -InputValue
-{{ Fill InputValue Description }}
+### -SubscriptionIds
+{{ Fill SubscriptionIds Description }}
 
 ```yaml
 Type: String[]

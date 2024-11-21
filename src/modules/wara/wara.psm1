@@ -33,12 +33,12 @@ Function Start-WARACollector {
         [String[]]$Tags,
 
         [Parameter(ParameterSetName = 'Default')]
-        [ValidateSet('AzureCloud', 'AzureUSGovernment')]
-        $AzureEnvironment = 'AzureCloud',
+        [ValidateSet('AzureCloud', 'AzureUSGovernment', 'AzureGermanCloud', 'AzureChinaCloud')]
+        [string]$AzureEnvironment = 'AzureCloud',
 
         [Parameter(ParameterSetName = 'ConfigFileSet', Mandatory = $true)]
         [ValidateScript({ Test-Path $_ -PathType Leaf })]
-        $ConfigFile,
+        [string]$ConfigFile,
 
         [Parameter(ParameterSetName = 'Default')]
         [ValidatePattern('^https:\/\/.+$')]
@@ -49,7 +49,8 @@ Function Start-WARACollector {
         [switch]$UseImplicitRunbookSelectors,
 
         [Parameter(ParameterSetName = 'Default')]
-        $RunbookFile
+        [ValidateScript({ Test-Path $_ -PathType Leaf })]
+        [string]$RunbookFile
     )
 
     Write-Debug "Debugging mode is enabled"
