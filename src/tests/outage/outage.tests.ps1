@@ -4,7 +4,6 @@ BeforeAll {
     Import-Module -Name 'Az.Accounts' -Force
 }
 
-
 Describe 'New-WAFOutageObject' {
     Context 'When to get an OutageObject' {
         BeforeAll {
@@ -97,9 +96,6 @@ Describe 'Get-WAFOutage' {
         It 'Should return an OutageObject' {
             $restApiResponseFilePath = "$PSScriptRoot/../data/outage/restApiSingleResponseData.json"
             $restApiResponseContent = Get-Content $restApiResponseFilePath -Raw
-
-
-
             $subscriptionId = '11111111-1111-1111-1111-111111111111'
 
             $responseObject = ($restApiResponseContent | ConvertFrom-Json -Depth 15).value
