@@ -41,6 +41,9 @@ Invokes an Azure REST API then returns the response.
 ### [Invoke-WAFQueryLoop](Invoke-WAFQueryLoop.md)
 Invokes a loop to run queries for each recommendation object.
 
+### [Repair-WAFSubscriptionId](Repair-WAFSubscriptionId.md)
+{{ Fill in the Synopsis }}
+
 ### [Test-WAFIsGuid](Test-WAFIsGuid.md)
 {{ Fill in the Synopsis }}
 

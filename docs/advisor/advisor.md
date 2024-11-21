@@ -32,6 +32,9 @@ Invokes an Azure REST API then returns the response.
 ### [Invoke-WAFQuery](Invoke-WAFQuery.md)
 {{ Fill in the Synopsis }}
 
+### [Repair-WAFSubscriptionId](Repair-WAFSubscriptionId.md)
+{{ Fill in the Synopsis }}
+
 ### [Test-WAFIsGuid](Test-WAFIsGuid.md)
 {{ Fill in the Synopsis }}
 
