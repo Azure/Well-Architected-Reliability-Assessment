@@ -26,7 +26,7 @@ Function Get-WAFTaggedResource {
   $return = @()
 
   foreach ($tag in $tagArray) {
-    
+
     switch -Wildcard ($tag) {
       "*=~*" {
         $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
@@ -77,7 +77,7 @@ $taggedRGResources = Get-WAFTaggedRGResources -tagKeys @('env') -tagValues @('pr
 .NOTES
 This function uses the Invoke-WAFQuery function to perform the query.
 #>
-Function Get-WAFTaggedRGResource {
+Function Get-WAFTaggedResourceGroup {
   [CmdletBinding()]
   param(
     [array]$tagArray,
@@ -154,7 +154,7 @@ Function Invoke-WAFQueryLoop {
       Invoke-WAFQuery -query $_.query -subscriptionIds $subscriptionIds -ErrorAction Stop
     }
     catch {
-      Write-Host "Error running query for - " $_.aprlGuid
+      Write-Host "Error running query for - $($_.recommendationResourceType) - $($_.aprlGuid)"
     }
   }
 

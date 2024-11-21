@@ -1,0 +1,185 @@
+[
+  {
+    "type": "microsoft.alertsmanagement/actionrules"
+  },
+  {
+    "type": "microsoft.alertsmanagement/prometheusrulegroups"
+  },
+  {
+    "type": "microsoft.alertsmanagement/smartdetectoralertrules"
+  },
+  {
+    "type": "microsoft.automanage/configurationprofiles"
+  },
+  {
+    "type": "microsoft.automation/automationaccounts"
+  },
+  {
+    "type": "microsoft.automation/automationaccounts/configurations"
+  },
+  {
+    "type": "microsoft.automation/automationaccounts/runbooks"
+  },
+  {
+    "type": "microsoft.cognitiveservices/accounts"
+  },
+  {
+    "type": "microsoft.compute/availabilitysets"
+  },
+  {
+    "type": "microsoft.compute/disks"
+  },
+  {
+    "type": "microsoft.compute/restorepointcollections"
+  },
+  {
+    "type": "microsoft.compute/virtualmachines"
+  },
+  {
+    "type": "microsoft.compute/virtualmachines/extensions"
+  },
+  {
+    "type": "microsoft.compute/virtualmachinescalesets"
+  },
+  {
+    "type": "microsoft.containerregistry/registries"
+  },
+  {
+    "type": "microsoft.containerservice/managedclusters"
+  },
+  {
+    "type": "microsoft.dashboard/grafana"
+  },
+  {
+    "type": "microsoft.datamigration/services"
+  },
+  {
+    "type": "microsoft.datamigration/services/projects"
+  },
+  {
+    "type": "microsoft.eventgrid/systemtopics"
+  },
+  {
+    "type": "microsoft.insights/actiongroups"
+  },
+  {
+    "type": "microsoft.insights/activitylogalerts"
+  },
+  {
+    "type": "microsoft.insights/autoscalesettings"
+  },
+  {
+    "type": "microsoft.insights/components"
+  },
+  {
+    "type": "microsoft.insights/datacollectionendpoints"
+  },
+  {
+    "type": "microsoft.insights/datacollectionrules"
+  },
+  {
+    "type": "microsoft.insights/metricalerts"
+  },
+  {
+    "type": "microsoft.insights/scheduledqueryrules"
+  },
+  {
+    "type": "microsoft.insights/webtests"
+  },
+  {
+    "type": "microsoft.keyvault/vaults"
+  },
+  {
+    "type": "microsoft.logic/workflows"
+  },
+  {
+    "type": "microsoft.maintenance/maintenanceconfigurations"
+  },
+  {
+    "type": "microsoft.managedidentity/userassignedidentities"
+  },
+  {
+    "type": "microsoft.migrate/assessmentprojects"
+  },
+  {
+    "type": "microsoft.migrate/migrateprojects"
+  },
+  {
+    "type": "microsoft.monitor/accounts"
+  },
+  {
+    "type": "microsoft.network/applicationgateways"
+  },
+  {
+    "type": "microsoft.network/bastionhosts"
+  },
+  {
+    "type": "microsoft.network/loadbalancers"
+  },
+  {
+    "type": "microsoft.network/networkinterfaces"
+  },
+  {
+    "type": "microsoft.network/networksecuritygroups"
+  },
+  {
+    "type": "microsoft.network/networkwatchers"
+  },
+  {
+    "type": "microsoft.network/privateendpoints"
+  },
+  {
+    "type": "microsoft.network/publicipaddresses"
+  },
+  {
+    "type": "microsoft.network/routetables"
+  },
+  {
+    "type": "microsoft.network/trafficmanagerprofiles"
+  },
+  {
+    "type": "microsoft.network/virtualnetworks"
+  },
+  {
+    "type": "microsoft.offazure/mastersites"
+  },
+  {
+    "type": "microsoft.offazure/vmwaresites"
+  },
+  {
+    "type": "microsoft.operationalinsights/workspaces"
+  },
+  {
+    "type": "microsoft.operationsmanagement/solutions"
+  },
+  {
+    "type": "microsoft.portal/dashboards"
+  },
+  {
+    "type": "microsoft.recoveryservices/vaults"
+  },
+  {
+    "type": "microsoft.resources/deploymentscripts"
+  },
+  {
+    "type": "microsoft.sql/servers"
+  },
+  {
+    "type": "microsoft.sql/servers/databases"
+  },
+  {
+    "type": "microsoft.storage/storageaccounts"
+  },
+  {
+    "type": "microsoft.web/connections"
+  },
+  {
+    "type": "microsoft.web/serverfarms"
+  },
+  {
+    "type": "microsoft.web/sites"
+  },
+  {
+    "type": "microsoft.web/sites/slots"
+  }
+]
