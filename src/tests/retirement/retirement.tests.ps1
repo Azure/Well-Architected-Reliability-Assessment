@@ -1,7 +1,7 @@
 BeforeAll {
     $modulePath = "$PSScriptRoot/../../modules/wara/retirement/retirement.psm1"
     Import-Module -Name $modulePath -Force
-    
+    Import-Module -Name 'Az.Accounts' -Force
 }
 Describe 'New-WAFResourceRetirementObject' {
     Context 'When to get a RetirementObject' {
@@ -15,8 +15,8 @@ Describe 'New-WAFResourceRetirementObject' {
                 TrackingId      = 'XXXX-XXX'
                 Status          = 'Active'
                 LastUpdateTime  = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
-                StartTime       = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
-                EndTime         = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
+                StartTime       = Get-Date -Year 2024 -Month 6 -Day 7 -Hour 8 -Minute 9 -Second 10
+                EndTime         = Get-Date -Year 2024 -Month 11 -Day 12 -Hour 13 -Minute 14 -Second 15
                 Level           = 'Warning'
                 Title           = 'Azure Product Retirement: Azure Automanage Best Practices retires on 30 September 2027'
                 Summary         = "<p><strong><em>You're receiving this notice because you're currently using Automanage Best Practices.</em></strong></p>"
@@ -93,7 +93,7 @@ Describe 'Get-WAFResourceRetirement' {
             $restApiResponseFilePath = "$PSScriptRoot/../data/retirement/restApiSingleResponseData.json"
             $restApiResponseContent = Get-Content $restApiResponseFilePath -Raw
 
-            Mock Invoke-AzureRestAPI {
+            Mock Invoke-AzureRestApi {
                 return @{ Content = $restApiResponseContent }
             } -ModuleName $moduleNameToInjectMock -Verifiable
 
@@ -137,7 +137,7 @@ Describe 'Get-WAFResourceRetirement' {
             $restApiResponseFilePath = "$PSScriptRoot/../data/retirement/restApiMultipleResponseData.json"
             $restApiResponseContent = Get-Content $restApiResponseFilePath -Raw
             
-            Mock Invoke-AzureRestAPI {
+            Mock Invoke-AzureRestApi {
                 return @{ Content = $restApiResponseContent }
             } -ModuleName $moduleNameToInjectMock -Verifiable
 

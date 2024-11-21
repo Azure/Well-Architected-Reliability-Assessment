@@ -14,6 +14,30 @@ Contains various helper functions (Sorting, parsing, or building) and functions 
 ### [Connect-WAFAzure](Connect-WAFAzure.md)
 Connects to an Azure tenant.
 
+### [Get-AzureRestMethodUriPath](Get-AzureRestMethodUriPath.md)
+Retrieves the path of the Azure REST API URI.
+
 ### [Import-WAFConfigFileData](Import-WAFConfigFileData.md)
 Imports configuration data from a file.
+
+### [Invoke-AzureRestApi](Invoke-AzureRestApi.md)
+Invokes an Azure REST API then returns the response.
+
+### [Invoke-WAFQuery](Invoke-WAFQuery.md)
+{{ Fill in the Synopsis }}
+
+### [Repair-WAFSubscriptionId](Repair-WAFSubscriptionId.md)
+{{ Fill in the Synopsis }}
+
+### [Test-WAFIsGuid](Test-WAFIsGuid.md)
+{{ Fill in the Synopsis }}
+
+### [Test-WAFResourceGroupId](Test-WAFResourceGroupId.md)
+{{ Fill in the Synopsis }}
+
+### [Test-WAFSubscriptionId](Test-WAFSubscriptionId.md)
+{{ Fill in the Synopsis }}
+
+### [Test-WAFTagPattern](Test-WAFTagPattern.md)
+{{ Fill in the Synopsis }}
 
