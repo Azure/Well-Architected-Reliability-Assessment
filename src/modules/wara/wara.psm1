@@ -38,7 +38,7 @@ Function Start-WARACollector {
 
         [Parameter(ParameterSetName = 'ConfigFileSet', Mandatory = $true)]
         [ValidateScript({ Test-Path $_ -PathType Leaf })]
-        $ConfigFile,
+        [string]$ConfigFile,
 
         [Parameter(ParameterSetName = 'Default')]
         [ValidatePattern('^https:\/\/.+$')]
