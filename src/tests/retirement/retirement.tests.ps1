@@ -1,7 +1,7 @@
 BeforeAll {
     $modulePath = "$PSScriptRoot/../../modules/wara/retirement/retirement.psm1"
     Import-Module -Name $modulePath -Force
-    
+    Import-Module -Name 'Az.Accounts' -Force
 }
 Describe 'New-WAFResourceRetirementObject' {
     Context 'When to get a RetirementObject' {
