@@ -89,10 +89,9 @@ Describe 'Get-WAFOutage' {
     Context 'When to get an OutageObject' {           
         BeforeAll {
             $moduleNameToInjectMock = 'outage'
-            Mock Invoke-AzureRestAPI {
+            Mock Invoke-AzureRestApi {
                 return @{ Content = $restApiResponseContent }
             } -ModuleName $moduleNameToInjectMock -Verifiable
-            
         }
 
         It 'Should return an OutageObject' {

@@ -93,7 +93,7 @@ Describe 'Get-WAFResourceRetirement' {
             $restApiResponseFilePath = "$PSScriptRoot/../data/retirement/restApiSingleResponseData.json"
             $restApiResponseContent = Get-Content $restApiResponseFilePath -Raw
 
-            Mock Invoke-AzureRestAPI {
+            Mock Invoke-AzureRestApi {
                 return @{ Content = $restApiResponseContent }
             } -ModuleName $moduleNameToInjectMock -Verifiable
 
@@ -137,7 +137,7 @@ Describe 'Get-WAFResourceRetirement' {
             $restApiResponseFilePath = "$PSScriptRoot/../data/retirement/restApiMultipleResponseData.json"
             $restApiResponseContent = Get-Content $restApiResponseFilePath -Raw
             
-            Mock Invoke-AzureRestAPI {
+            Mock Invoke-AzureRestApi {
                 return @{ Content = $restApiResponseContent }
             } -ModuleName $moduleNameToInjectMock -Verifiable
 
