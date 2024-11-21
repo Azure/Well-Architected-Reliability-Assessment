@@ -33,8 +33,8 @@ Function Start-WARACollector {
         [String[]]$Tags,
 
         [Parameter(ParameterSetName = 'Default')]
-        [ValidateSet('AzureCloud', 'AzureUSGovernment')]
-        $AzureEnvironment = 'AzureCloud',
+        [ValidateSet('AzureCloud', 'AzureUSGovernment', 'AzureGermanCloud', 'AzureChinaCloud')]
+        [string]$AzureEnvironment = 'AzureCloud',
 
         [Parameter(ParameterSetName = 'ConfigFileSet', Mandatory = $true)]
         [ValidateScript({ Test-Path $_ -PathType Leaf })]
