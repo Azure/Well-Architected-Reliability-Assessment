@@ -67,7 +67,7 @@ Function Start-WARACollector {
             $ConfigData.TenantId = ([guid][string]$ConfigData.TenantId).Guid
             $null =if ($ConfigData.SubscriptionIds) { Test-WAFSubscriptionId -InputValue $ConfigData.SubscriptionIds }
             $null =if ($ConfigData.ResourceGroups) { Test-WAFResourceGroupId -InputValue $ConfigData.ResourceGroups }
-            $null =if ($ConfigData.Tags) { Test-WAFTagPattern -TagPattern $ConfigData.Tags }
+            $null =if ($ConfigData.Tags) { Test-WAFTagPattern -InputValue $ConfigData.Tags }
         }
         'Default' {
             Write-Debug "Using Default parameter set"
