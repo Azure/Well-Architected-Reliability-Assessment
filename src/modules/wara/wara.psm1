@@ -106,6 +106,17 @@ Function Start-WARACollector {
     $Scope_ImplicitSubscriptionIds = Get-WAFImplicitSubscriptionId -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Implicit Subscription Ids: $Scope_ImplicitSubscriptionIds"
 
+    #Get all resources from the Implicit Subscription ID scope - We use this later to add type, location, subscriptionid, resourcegroup to the impactedResourceObj objects
+    Write-Debug "Getting all resources from the Implicit Subscription ID scope"
+    $AllResources = Invoke-WAFQuery -subscriptionIds $Scope_SubscriptionIds.replace("/subscriptions/", '')
+    Write-Debug "Count of Resources: $($AllResources.count)"
+
+    #Create HashTable of all resources for faster lookup
+    Write-Debug "Creating HashTable of all resources for faster lookup"
+    $AllResourcesHash = @{}
+    $AllResources.ForEach({ $AllResourcesHash[$_.id] = $_ })
+    Write-Debug "All Resources Hash: $($AllResourcesHash).count"
+
     #Get all APRL recommendations from the Implicit Subscription ID scope
     Write-Debug "Getting all APRL recommendations from the Implicit Subscription ID scope"
     $Recommendations = Invoke-WAFQueryLoop -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace("/subscriptions/", '') -RecommendationObject $RecommendationObject
@@ -113,7 +124,8 @@ Function Start-WARACollector {
 
     #Create impactedResourceObj objects from the recommendations
     Write-Debug "Creating impactedResourceObj objects from the recommendations"
-    $impactedResourceObj = $Recommendations.ForEach({ [impactedResourceObj]::new($_) })
+    #$impactedResourceObj = $Recommendations.ForEach({ [impactedResourceObj]::new($_) })
+    $impactedResourceObj = Build-impactedResourceObj -impactedResource $Recommendations -allResources $AllResourcesHash -RecommendationObject $RecommendationObject
     Write-Debug "Count of impactedResourceObj objects: $($impactedResourceObj.count)"
 
     #Filter impactedResourceObj objects by subscription, resourcegroup, and resource scope
@@ -190,14 +202,37 @@ Function Start-WARACollector {
 
 }
 
+function Build-impactedResourceObj {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [PSObject]$impactedResources,
 
+        [Parameter(Mandatory = $true)]
+        [hashtable]$allResources,
 
-class impactedResourceObj {
+        [Parameter(Mandatory = $true)]
+        [PSObject]$RecommendationObject
+    )
+
+    $r = foreach($impacted in $impactedResources){
+        [impactedResourceObj]::new($impacted, $allResources).createValidationObject($RecommendationObject)
+    } 
+
+    return $r
+}
+
+ 
+class resourceObj {
     <# Define the class. Try constructors, properties, or methods. #>
     [string]    $validationAction
     [string]    $recommendationId
     [string]    $name
     [string]    $id
+    [string]    $type
+    [string]    $location
+    [string]    $subscriptionId
+    [string]    $resourceGroup
     [string]    $param1
     [string]    $param2
     [string]    $param3
@@ -205,19 +240,63 @@ class impactedResourceObj {
     [string]    $param5
     [string]    $checkName
     [string]    $selector
+}
 
-    impactedResourceObj([PSObject]$psObject) {
+
+class impactedResourceObj : resourceObj {
+
+    impactedResourceObj([PSObject]$impactedResource, [hashtable]$allResources) {
         $this.validationAction = "Azure Resource Graph"
-        $this.RecommendationId = $psObject.recommendationId
-        $this.Name = $psObject.name
-        $this.Id = $psObject.id
-        $this.Param1 = $psObject.param1
-        $this.Param2 = $psObject.param2
-        $this.Param3 = $psObject.param3
-        $this.Param4 = $psObject.param4
-        $this.Param5 = $psObject.param5
-        $this.checkName = $psObject.checkName
-        $this.selector = $psObject.selector ?? "APRL"
-        
+        $this.RecommendationId = $impactedResource.recommendationId
+        $this.Name = $impactedResource.name
+        $this.Id = $impactedResource.id
+        $this.type = $allResources[$this.id].type ?? "Unknown"
+        $this.location = $allResources[$this.id].location ?? "Unknown"
+        $this.subscriptionId = $allResources[$this.id].subscriptionId ?? $this.id.split("/")[2] ?? "Unknown"
+        $this.resourceGroup = $allResources[$this.id].resourceGroup ?? $this.id.split("/")[4] ?? "Unknown"
+        $this.Param1 = $impactedResource.param1
+        $this.Param2 = $impactedResource.param2
+        $this.Param3 = $impactedResource.param3
+        $this.Param4 = $impactedResource.param4
+        $this.Param5 = $impactedResource.param5
+        $this.checkName = $impactedResource.checkName
+        $this.selector = $impactedResource.selector ?? "APRL" 
+    }
+
+       [object] createValidationObject([PSObject]$RecommendationObject) {
+        $return = @($this)
+        $recommendationByType = $recommendationObject.where({$_.recommendationResourceType -eq $this.type -and $_.recommendationMetadataState -eq "Active" -and $_.automationavailable -eq $false})
+        foreach ($rec in $recommendationByType) {
+            $r = [resourceObj]::new()
+            $r.validationAction = [impactedResourceObj]::getValidationAction($rec.query)
+            $r.recommendationId = $rec.aprlGuid
+            $r.name = $this.name
+            $r.id = $this.id
+            $r.type = $this.type
+            $r.location = $this.location
+            $r.subscriptionId = $this.subscriptionId
+            $r.resourceGroup = $this.resourceGroup
+            $r.param1 = ''
+            $r.param2 = ''
+            $r.param3 = ''
+            $r.param4 = ''
+            $r.param5 = ''
+            $r.checkName = $this.checkName
+            $r.selector = $this.selector
+            $return += $r
+        }
+        return $return
+    }
+
+    static [string] getValidationAction($query) {
+       $return = switch -wildcard ($query){
+            "*development*" {'IMPORTANT - Query under development - Validate Resources manually'}
+            "*cannot-be-validated-with-arg*" {'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually'}
+            "*Azure Resource Graph*" {'IMPORTANT - This resource has a query but the automation is not available - Validate Resources manually'}
+            default { "Unknown" }
+        }
+        return $return
     }
 }
+
+

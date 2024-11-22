@@ -2,7 +2,7 @@ Function Invoke-WAFQuery {
   [CmdletBinding()]
   param (
     [string[]]$subscriptionIds,
-    [string]$query = "resources | project name, type, location, resourceGroup, subscriptionId"
+    [string]$query = "resources | project name, type, location, resourceGroup, subscriptionId, id"
   )
 
 

@@ -162,6 +162,7 @@ Function Invoke-WAFQueryLoop {
   return $return
 }
 
+
 <#
 .SYNOPSIS
 Retrieves all resource types in the specified subscriptions.
@@ -228,3 +229,4 @@ function Get-WAFQueryByResourceType {
 
   return $matchingObjects
 }
+
