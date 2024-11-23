@@ -25,7 +25,7 @@ using module ../utils/utils.psd1
 .DESCRIPTION
     The Get-WAFOutage function queries the Microsoft Resource Health API to retrieve recent outage events for a specified Azure subscription. It filters the events to include only those that have updated in the last three months.
 
-.PARAMETER SubscriptionId
+.PARAMETER SubscriptionIds
     The subscription ID for the Azure subscription to retrieve outage events.
 
 .PARAMETER ProgressAction
