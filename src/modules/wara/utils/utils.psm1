@@ -417,7 +417,7 @@ function Test-WAFIsGuid {
   [CmdletBinding()]
   param (
     [Parameter(Mandatory = $true)]
-    $StringGuid
+    [string]$StringGuid
   )
   $ObjectGuid = [System.Guid]::Empty
   if (-not [System.Guid]::TryParse($StringGuid, [ref]$ObjectGuid)) {
