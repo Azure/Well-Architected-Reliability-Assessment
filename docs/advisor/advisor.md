@@ -20,9 +20,6 @@ Connects to an Azure tenant.
 ### [Get-AzureRestMethodUriPath](Get-AzureRestMethodUriPath.md)
 Retrieves the path of the Azure REST API URI.
 
-### [Get-WAFAdvisorRecommendations](Get-WAFAdvisorRecommendations.md)
-Retrieves high availability recommendations from Azure Advisor.
-
 ### [Import-WAFConfigFileData](Import-WAFConfigFileData.md)
 Imports configuration data from a file.
 
