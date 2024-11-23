@@ -28,9 +28,6 @@ using module ../utils/utils.psd1
 .PARAMETER SubscriptionIds
     The subscription ID for the Azure subscription to retrieve outage events.
 
-.PARAMETER ProgressAction
-    This is a common parameter, but this cmdlet does not use this parameter.
-
 .OUTPUTS
     Returns a list of outage events, including the name and properties of each event.
 
@@ -137,9 +134,6 @@ function Get-WAFOutage {
 
 .PARAMETER Description
     The description of the outage event.
-
-.PARAMETER ProgressAction
-    This is a common parameter, but this cmdlet does not use this parameter.
 
 .OUTPUTS
     Returns an OutageObject as a PSCustomObject.
