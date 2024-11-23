@@ -1,4 +1,5 @@
 using module ../utils/utils.psm1
+
 <#
 .SYNOPSIS
     Retrieves active retirement health advisory events.
@@ -10,13 +11,11 @@ using module ../utils/utils.psm1
     - New-WAFResourceRetirementObject
 
 .EXAMPLE
-    PS> $retirementObjects = Get-WAFResourceRetirement -SubscriptionId '11111111-1111-1111-1111-111111111111'
+    PS> $retirementObjects = Get-WAFResourceRetirement -SubscriptionIds '11111111-1111-1111-1111-111111111111'
 
 .NOTES
     Author: Takeshi Katano
     Date: 2024-10-02
-
-    This module requires the Az.Accounts module to be installed and imported.
 #>
 
 <#
@@ -26,43 +25,39 @@ using module ../utils/utils.psm1
 .DESCRIPTION
     The Get-WAFResourceRetirement function takes a subscription ID and retrieves active retirement health advisory events.
 
-.PARAMETER SubscriptionId
+.PARAMETER SubscriptionIds
     A subscription ID to retrieves active retirement health advisory events.
-
-.PARAMETER ProgressAction
-    This is a common parameter, but this cmdlet does not use this parameter.
 
 .OUTPUTS
     Returns a list of retirement events, including the name and properties of each event.
 
 .EXAMPLE
-    PS> $retirementObjects = Get-WAFResourceRetirement -SubscriptionId '11111111-1111-1111-1111-111111111111'
+    PS> $retirementObjects = Get-WAFResourceRetirement -SubscriptionIds '11111111-1111-1111-1111-111111111111'
 
     This example retrieves the recent retirement events for the specified Azure subscription.
 
 .NOTES
     Author: Takeshi Katano
     Date: 2024-10-02
-
-    This function requires the Az.Accounts module to be installed and imported.
 #>
 function Get-WAFResourceRetirement {
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     param (
         [Parameter(Mandatory = $true)]
-        [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
+        [ValidateScript({ Test-WAFIsGuid -StringGuid $_ })]
         [string[]] $SubscriptionIds
     )
 
     $retirementObjects = @()
-    # NOTE:
-    # ARG query with ServiceHealthResources returns last 3 months of events.
-    # Azure portal shows last 1 months of events.
-    foreach ($SubscriptionId in $SubscriptionIds) {
+
+    foreach ($subscriptionId in $SubscriptionIds) {
+        # NOTE:
+        # ARG query with ServiceHealthResources returns last 3 months of events.
+        # Azure portal shows last 1 months of events.
         $cmdletParams = @{
             Method               = 'GET'
-            SubscriptionId       = $SubscriptionId
+            SubscriptionId       = $subscriptionId
             ResourceProviderName = 'Microsoft.ResourceHealth'
             ResourceType         = 'events'
             ApiVersion           = '2024-02-01'
@@ -76,7 +71,7 @@ function Get-WAFResourceRetirement {
 
         $return = foreach ($retirementEvent in $retirementEvents) {
             $cmdletParams = @{
-                SubscriptionId  = $SubscriptionId
+                SubscriptionId  = $subscriptionId
                 TrackingId      = $retirementEvent.name
                 Status          = $retirementEvent.properties.status
                 LastUpdateTime  = $retirementEvent.properties.lastUpdateTime
@@ -95,7 +90,6 @@ function Get-WAFResourceRetirement {
     }
     return $retirementObjects
 }
-
 
 <#
 .SYNOPSIS
@@ -140,9 +134,6 @@ function Get-WAFResourceRetirement {
 .PARAMETER Description
     The description of the retirement event.
 
-.PARAMETER ProgressAction
-    This is a common parameter, but this cmdlet does not use this parameter.
-
 .OUTPUTS
     Returns a ResourceRetirementObject as a PSCustomObject.
 
@@ -158,7 +149,7 @@ function New-WAFResourceRetirementObject {
     [OutputType([PSCustomObject])]
     param (
         [Parameter(Mandatory = $true)]
-        [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
+        [ValidateScript({ Test-WAFIsGuid -StringGuid $_ })]
         [string] $SubscriptionId,
 
         [Parameter(Mandatory = $true)]
