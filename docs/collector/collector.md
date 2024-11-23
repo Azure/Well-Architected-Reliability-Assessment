@@ -23,6 +23,12 @@ Filters objects by resource type.
 ### [Get-WAFResourceType](Get-WAFResourceType.md)
 Retrieves all resource types in the specified subscriptions.
 
+### [Get-WAFTaggedResource](Get-WAFTaggedResource.md)
+Retrieves all resources with matching tags.
+
+### [Get-WAFTaggedResourceGroup](Get-WAFTaggedResourceGroup.md)
+Retrieves all resources in resource groups with matching tags.
+
 ### [Import-WAFConfigFileData](Import-WAFConfigFileData.md)
 Imports configuration data from a file.
 
