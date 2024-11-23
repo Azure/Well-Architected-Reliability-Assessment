@@ -52,13 +52,12 @@ function Get-WAFOutage {
         [string[]] $SubscriptionIds
     )
 
-    # NOTE:
-    # ARG query with ServiceHealthResources returns last 3 months of events.
-    # Azure portal shows last 3 months of events maximum.
-
     $outageObjects = @()
 
     foreach ($subscriptionId in $SubscriptionIds) {
+        # NOTE:
+        # ARG query with ServiceHealthResources returns last 3 months of events.
+        # Azure portal shows last 3 months of events maximum.
         $cmdletParams = @{
             Method               = 'GET'
             SubscriptionId       = $subscriptionId
