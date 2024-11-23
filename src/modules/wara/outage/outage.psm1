@@ -58,41 +58,41 @@ function Get-WAFOutage {
 
     $outageObjects = @()
 
-    foreach($subscriptionId in $SubscriptionIds) {
- 
-    $cmdletParams = @{
-        Method               = 'GET'
-        SubscriptionId       = $subscriptionId
-        ResourceProviderName = 'Microsoft.ResourceHealth'
-        ResourceType         = 'events'
-        ApiVersion           = '2024-02-01'
-        QueryString          = @(
-            ('queryStartTime={0}' -f (Get-Date).AddMonths(-3).ToString('yyyy-MM-ddT00:00:00')),
-            '$filter=(properties/eventType eq ''ServiceIssue'')'
-        ) -join '&'
-    }
-    $response = Invoke-AzureRestApi @cmdletParams
-    $serviceIssueEvents = ($response.Content | ConvertFrom-Json).value
-
-    $return = foreach ($serviceIssueEvent in $serviceIssueEvents) {
+    foreach ($subscriptionId in $SubscriptionIds) {
         $cmdletParams = @{
-            SubscriptionId  = $subscriptionId
-            TrackingId      = $serviceIssueEvent.name
-            Status          = $serviceIssueEvent.properties.status
-            LastUpdateTime  = $serviceIssueEvent.properties.lastUpdateTime
-            StartTime       = $serviceIssueEvent.properties.impactStartTime
-            EndTime         = $serviceIssueEvent.properties.impactMitigationTime
-            Level           = $serviceIssueEvent.properties.level
-            Title           = $serviceIssueEvent.properties.title
-            Summary         = $serviceIssueEvent.properties.summary
-            Header          = $serviceIssueEvent.properties.header
-            ImpactedService = $serviceIssueEvent.properties.impact.impactedService
-            Description     = $serviceIssueEvent.properties.description
+            Method               = 'GET'
+            SubscriptionId       = $subscriptionId
+            ResourceProviderName = 'Microsoft.ResourceHealth'
+            ResourceType         = 'events'
+            ApiVersion           = '2024-02-01'
+            QueryString          = @(
+                ('queryStartTime={0}' -f (Get-Date).AddMonths(-3).ToString('yyyy-MM-ddT00:00:00')),
+                '$filter=(properties/eventType eq ''ServiceIssue'')'
+            ) -join '&'
         }
-        New-WAFOutageObject @cmdletParams
+        $response = Invoke-AzureRestApi @cmdletParams
+        $serviceIssueEvents = ($response.Content | ConvertFrom-Json).value
+
+        $return = foreach ($serviceIssueEvent in $serviceIssueEvents) {
+            $cmdletParams = @{
+                SubscriptionId  = $subscriptionId
+                TrackingId      = $serviceIssueEvent.name
+                Status          = $serviceIssueEvent.properties.status
+                LastUpdateTime  = $serviceIssueEvent.properties.lastUpdateTime
+                StartTime       = $serviceIssueEvent.properties.impactStartTime
+                EndTime         = $serviceIssueEvent.properties.impactMitigationTime
+                Level           = $serviceIssueEvent.properties.level
+                Title           = $serviceIssueEvent.properties.title
+                Summary         = $serviceIssueEvent.properties.summary
+                Header          = $serviceIssueEvent.properties.header
+                ImpactedService = $serviceIssueEvent.properties.impact.impactedService
+                Description     = $serviceIssueEvent.properties.description
+            }
+            New-WAFOutageObject @cmdletParams
+        }
+        $outageObjects += $return
     }
-    $outageObjects += $return
-}
+
     return $outageObjects
 }
 
