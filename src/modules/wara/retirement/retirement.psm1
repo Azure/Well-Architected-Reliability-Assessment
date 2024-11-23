@@ -50,10 +50,11 @@ function Get-WAFResourceRetirement {
     )
 
     $retirementObjects = @()
-    # NOTE:
-    # ARG query with ServiceHealthResources returns last 3 months of events.
-    # Azure portal shows last 1 months of events.
+
     foreach ($SubscriptionId in $SubscriptionIds) {
+        # NOTE:
+        # ARG query with ServiceHealthResources returns last 3 months of events.
+        # Azure portal shows last 1 months of events.
         $cmdletParams = @{
             Method               = 'GET'
             SubscriptionId       = $SubscriptionId
@@ -89,7 +90,6 @@ function Get-WAFResourceRetirement {
     }
     return $retirementObjects
 }
-
 
 <#
 .SYNOPSIS
