@@ -51,13 +51,13 @@ function Get-WAFResourceRetirement {
 
     $retirementObjects = @()
 
-    foreach ($SubscriptionId in $SubscriptionIds) {
+    foreach ($subscriptionId in $SubscriptionIds) {
         # NOTE:
         # ARG query with ServiceHealthResources returns last 3 months of events.
         # Azure portal shows last 1 months of events.
         $cmdletParams = @{
             Method               = 'GET'
-            SubscriptionId       = $SubscriptionId
+            SubscriptionId       = $subscriptionId
             ResourceProviderName = 'Microsoft.ResourceHealth'
             ResourceType         = 'events'
             ApiVersion           = '2024-02-01'
@@ -71,7 +71,7 @@ function Get-WAFResourceRetirement {
 
         $return = foreach ($retirementEvent in $retirementEvents) {
             $cmdletParams = @{
-                SubscriptionId  = $SubscriptionId
+                SubscriptionId  = $subscriptionId
                 TrackingId      = $retirementEvent.name
                 Status          = $retirementEvent.properties.status
                 LastUpdateTime  = $retirementEvent.properties.lastUpdateTime
