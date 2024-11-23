@@ -82,7 +82,7 @@ function Invoke-AzureRestApi {
 
     [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
     [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-    [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
+    [ValidateScript({ Test-WAFIsGuid -StringGuid $_ })]
     [string] $SubscriptionId,
 
     [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
@@ -181,7 +181,7 @@ function Get-AzureRestMethodUriPath {
   param (
     [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
     [Parameter(ParameterSetName = 'WithoutResourceGroup', Mandatory = $true)]
-    [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
+    [ValidateScript({ Test-WAFIsGuid -StringGuid $_ })]
     [string] $SubscriptionId,
 
     [Parameter(ParameterSetName = 'WithResourceGroup', Mandatory = $true)]
