@@ -58,11 +58,11 @@ function Get-WAFOutage {
 
     $outageObjects = @()
 
-    foreach($SubscriptionId in $SubscriptionIds) {
+    foreach($subscriptionId in $SubscriptionIds) {
  
     $cmdletParams = @{
         Method               = 'GET'
-        SubscriptionId       = $SubscriptionId
+        SubscriptionId       = $subscriptionId
         ResourceProviderName = 'Microsoft.ResourceHealth'
         ResourceType         = 'events'
         ApiVersion           = '2024-02-01'
@@ -76,7 +76,7 @@ function Get-WAFOutage {
 
     $return = foreach ($serviceIssueEvent in $serviceIssueEvents) {
         $cmdletParams = @{
-            SubscriptionId  = $SubscriptionId
+            SubscriptionId  = $subscriptionId
             TrackingId      = $serviceIssueEvent.name
             Status          = $serviceIssueEvent.properties.status
             LastUpdateTime  = $serviceIssueEvent.properties.lastUpdateTime
