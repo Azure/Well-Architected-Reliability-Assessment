@@ -1,4 +1,5 @@
 using module ../utils/utils.psd1
+
 <#
 .SYNOPSIS
     Retrieves recent support tickets.
@@ -10,13 +11,11 @@ using module ../utils/utils.psd1
     - New-WAFSupportTicketObject
 
 .EXAMPLE
-    PS> $serviceTiketObjects = Get-WAFSupportTicket -SubscriptionId '11111111-1111-1111-1111-111111111111'
+    PS> $serviceTiketObjects = Get-WAFSupportTicket -SubscriptionIds '11111111-1111-1111-1111-111111111111'
 
 .NOTES
     Author: Takeshi Katano
     Date: 2024-11-08
-
-    This module requires the Az.ResourceGraph module to be installed and imported.
 #>
 
 <#
@@ -26,39 +25,29 @@ using module ../utils/utils.psd1
 .DESCRIPTION
     The Get-WAFSupportTicket function queries the Azure Resource Graph to retrieve recent service tickets for a specified Azure subscription. It filters the service tickets to include only those that have created in the last three months.
 
-.PARAMETER SubscriptionId
+.PARAMETER SubscriptionIds
     The subscription ID for the Azure subscription to retrieve service tickets.
-
-.PARAMETER ProgressAction
-    This cmdlet does not use this parameter.
-
-.PARAMETER ProgressAction
-    This is a common parameter, but this cmdlet does not use this parameter.
 
 .OUTPUTS
     Returns a list of service tickets, including the name and properties of each tickets.
 
 .EXAMPLE
-    PS> $serviceTiketObjects = Get-WAFSupportTicket -SubscriptionId '11111111-1111-1111-1111-111111111111'
+    PS> $serviceTiketObjects = Get-WAFSupportTicket -SubscriptionIds '11111111-1111-1111-1111-111111111111'
 
     This example retrieves the recent service tickets for the specified Azure subscription.
 
 .NOTES
     Author: Takeshi Katano
     Date: 2024-11-08
-
-    This function requires the Az.ResourceGraph module to be installed and imported.
 #>
 function Get-WAFSupportTicket {
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     param (
         [Parameter(Mandatory = $true)]
-        [ValidatePattern('^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$')]
+        [ValidateScript({ Test-WAFIsGuid -StringGuid $_ })]
         [string[]] $SubscriptionIds
     )
-
-    Import-Module -Name 'Az.ResourceGraph'
 
     $argQuery = @'
 SupportResources
@@ -129,9 +118,6 @@ SupportResources
 
 .PARAMETER TechnicalTicketDetailsResourceId
     The resource ID of the related Azure resource to the support ticket if it's available.
-
-.PARAMETER ProgressAction
-    This is a common parameter, but this cmdlet does not use this parameter.
 
 .OUTPUTS
     Returns a SupportTicketObject as a PSCustomObject.
