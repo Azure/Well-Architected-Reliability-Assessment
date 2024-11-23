@@ -217,7 +217,7 @@ function Get-AzureRestMethodUriPath {
     '/subscriptions/{0}/providers/{1}/{2}?api-version={3}{4}' -f $SubscriptionId, $ResourceProviderName, $ResourceType, $ApiVersion, $additionalQueryString
   }
   else {
-    throw 'Invalid ParameterSetName'
+    throw "The parameter set name [$($PSCmdlet.ParameterSetName)] is invalid."
   }
   return $path
 }
