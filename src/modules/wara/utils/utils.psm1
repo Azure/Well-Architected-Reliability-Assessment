@@ -25,7 +25,6 @@ Function Invoke-WAFQuery {
   return $allResources
 }
 
-
 <#
 .SYNOPSIS
     Invokes an Azure REST API then returns the response.
@@ -60,9 +59,6 @@ Function Invoke-WAFQuery {
 .PARAMETER RequestBody
     The request body for invoke the Azure REST API.
 
-.PARAMETER ProgressAction
-    This is a common parameter, but this cmdlet does not use this parameter.
-
 .OUTPUTS
     Returns a REST API response as the PSHttpResponse.
 
@@ -74,7 +70,6 @@ Function Invoke-WAFQuery {
     Date: 2024-10-23
 
     This function requires the Az.Accounts module to be installed and imported.
-    This function should be placed in a common module such as a utility/helper module because the capability of this function is common across modules.
 #>
 function Invoke-AzureRestApi {
   [CmdletBinding()]
@@ -170,9 +165,6 @@ function Invoke-AzureRestApi {
 .PARAMETER QueryString
   The query string that constitutes the path of Azure REST API URI.
 
-.PARAMETER ProgressAction
-  This is a common parameter, but this cmdlet does not use this parameter.
-
 .OUTPUTS
   Returns a URI path to call Azure REST API.
 
@@ -182,8 +174,6 @@ function Invoke-AzureRestApi {
 .NOTES
   Author: Takeshi Katano
   Date: 2024-10-23
-
-  This function should be placed in a common module such as a utility/helper module because the capability of this function is common across modules.
 #>
 function Get-AzureRestMethodUriPath {
   [CmdletBinding()]
@@ -231,7 +221,6 @@ function Get-AzureRestMethodUriPath {
   }
   return $path
 }
-
 
 <#
 .SYNOPSIS
