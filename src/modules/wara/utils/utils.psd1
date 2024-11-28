@@ -51,7 +51,10 @@ PowerShellVersion = '7.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @()
+RequiredModules = @(
+    @{ ModuleName = 'Az.Accounts'; ModuleVersion = '4.0' },
+    @{ ModuleName = 'Az.ResourceGraph'; ModuleVersion = '1.0.1' }
+)
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
