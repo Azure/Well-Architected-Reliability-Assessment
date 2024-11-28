@@ -42,7 +42,7 @@ Function Start-WARACollector {
 
         [Parameter(ParameterSetName = 'Default')]
         [ValidatePattern('^https:\/\/.+$')]
-        [string]$RepoUrl = 'https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2',
+        [string]$RecommendationDataUri = 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json',
 
         # Runbook parameters...
         [Parameter(ParameterSetName = 'Default')]
@@ -93,7 +93,7 @@ Function Start-WARACollector {
     
 
     #Import Recommendation Object from APRL
-    $RecommendationObject = Invoke-RestMethod "https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json"
+    $RecommendationObject = Invoke-RestMethod $RecommendationDataUri
 
     #TODO: Test if the parameters are valid
 
