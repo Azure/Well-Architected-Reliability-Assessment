@@ -194,28 +194,40 @@ Describe Import-WAFConfigFileData {
         }
     }  
 }
+
 Describe 'Connect-WAFAzure' {
     Context 'When TenantID is provided' {
-
-        BeforeEach {
-            Mock Connect-AzAccount { @{ } } -Verifiable -ModuleName utils
+        It 'Should call Connect-AzAccount if Get-AzContext returns no context (There is no existing context)' {
             Mock Get-AzContext { return $null } -Verifiable -ModuleName utils
-        }
-        It 'Should call Connect-AzAccount with the correct parameters' {
-            $TenantID = [Guid]::NewGuid()
-            $AzureEnvironment = 'AzureCloud'
+            Mock Connect-AzAccount { @{ } } -Verifiable -ModuleName utils
 
-            Connect-WAFAzure -TenantID $TenantID -AzureEnvironment $AzureEnvironment
+            $tenantId = [Guid]::NewGuid()
+            $azureEnvironment = 'AzureCloud'
+
+            Connect-WAFAzure -TenantID $tenantId -AzureEnvironment $azureEnvironment
 
             # Verify that Connect-AzAccount was called
             Should -InvokeVerifiable
         }
 
-        It 'Should not call Connect-AzAccount if Get-AzContext returns a context' {
-            Mock Get-AzContext { return $true } -ModuleName utils
+        It 'Should call Connect-AzAccount if Get-AzContext returns a context of different tenant' {
+            Mock Get-AzContext { return @{ Tenant = @{ Id = [Guid]::NewGuid() } } } -Verifiable -ModuleName utils
             Mock Connect-AzAccount { @{ } } -Verifiable -ModuleName utils
 
             $tenantId = [Guid]::NewGuid()
+            $azureEnvironment = 'AzureCloud'
+
+            Connect-WAFAzure -TenantID $tenantId -AzureEnvironment $azureEnvironment
+
+            # Verify that Connect-AzAccount was called
+            Should -InvokeVerifiable
+        }
+
+        It 'Should not call Connect-AzAccount if Get-AzContext returns a context of the same tenant' {
+            $tenantId = [Guid]::NewGuid()
+
+            Mock Get-AzContext { return @{ Tenant = @{ Id = $tenantId } } } -ModuleName utils
+            Mock Connect-AzAccount { @{ } } -Verifiable -ModuleName utils
 
             Connect-WAFAzure -TenantID $tenantId
 
