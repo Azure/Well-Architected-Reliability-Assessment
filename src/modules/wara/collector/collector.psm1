@@ -54,7 +54,7 @@ function Get-WAFTaggedResource {
 | summarize by id
 | order by ['id']"
 
-        $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
+        $result = Invoke-WAFQuery -Query $tagquery -SubscriptionIds $subscriptionIds
 
         $return += $result
     }
@@ -123,7 +123,7 @@ function Get-WAFTaggedResourceGroup {
 | summarize by id
 | order by ['id']"
 
-        $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
+        $result = Invoke-WAFQuery -Query $tagquery -SubscriptionIds $subscriptionIds
     
         $return += $result
     }
@@ -167,10 +167,10 @@ function Invoke-WAFQueryLoop {
 
     $QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -FilterList $Types.type -KeyColumn 'recommendationResourceType'
 
-    $return = $QueryObject.Where({ $_.automationavailable -eq $True -and [string]::IsNullOrEmpty($_.recommendationTypeId) }) | ForEach-Object {
+    $return = $QueryObject.Where({ $_.automationavailable -eq $true -and [string]::IsNullOrEmpty($_.recommendationTypeId) }) | ForEach-Object {
         Write-Progress -Activity 'Running Queries' -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100) -Id 1
         try {
-            Invoke-WAFQuery -query $_.query -subscriptionIds $subscriptionIds -ErrorAction Stop
+            Invoke-WAFQuery -Query $_.query -SubscriptionIds $subscriptionIds -ErrorAction Stop
         }
         catch {
             Write-Host "Error running query for - $($_.recommendationResourceType) - $($_.aprlGuid)"
@@ -210,7 +210,7 @@ function Get-WAFResourceType {
 | summarize count() by type
 | project type"
 
-    $r = $SubscriptionIds ? (Invoke-WAFQuery -query $q -subscriptionIds $SubscriptionIds) : (Invoke-WAFQuery -query $q -usetenantscope)
+    $r = $SubscriptionIds ? (Invoke-WAFQuery -Query $q -SubscriptionIds $SubscriptionIds) : (Invoke-WAFQuery -Query $q -usetenantscope)  # TODO: Invoke-WAFQuery does not have a -usetenantscope parameter
 
     return $r
 }

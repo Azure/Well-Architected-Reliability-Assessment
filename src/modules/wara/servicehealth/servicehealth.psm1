@@ -16,7 +16,7 @@ function Get-WAFServiceHealth {
 ) on subscriptionId
 | project subscriptionId, subscriptionName, eventName = name, type, location, resourceGroup, properties"
 
-    $queryResults = Invoke-WAFQuery -Query $Servicequery -subscriptionIds $SubscriptionIds
+    $queryResults = Invoke-WAFQuery -Query $Servicequery -SubscriptionIds $SubscriptionIds
 
     $AllServiceHealth = Build-WAFServiceHealthObject -AdvQueryResult $queryResults
     
