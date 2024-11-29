@@ -1,11 +1,11 @@
 function Invoke-WAFQuery {
     [CmdletBinding()]
     param (
-        [string[]] $subscriptionIds,
-        [string] $query = "resources | project name, type, location, resourceGroup, subscriptionId, id"
+        [string[]] $SubscriptionIds,
+        [string] $Query = 'resources | project name, type, location, resourceGroup, subscriptionId, id'
     )
 
-    $result = $subscriptionIds ? (Search-AzGraph -Query $query -first 1000 -Subscription $subscriptionIds) : (Search-AzGraph -Query $query -first 1000 -usetenantscope) # -first 1000 returns the first 1000 results and subsequently reduces the amount of queries required to get data.
+    $result = $SubscriptionIds ? (Search-AzGraph -Query $Query -First 1000 -Subscription $SubscriptionIds) : (Search-AzGraph -Query $Query -First 1000 -UseTenantScope) # -first 1000 returns the first 1000 results and subsequently reduces the amount of queries required to get data.
 
     # Collection to store all resources
     $allResources = @($result)
@@ -13,9 +13,9 @@ function Invoke-WAFQuery {
     # Loop to paginate through the results using the skip token
     $result = while ($result.SkipToken) {
         # Retrieve the next set of results using the skip token
-        $result = $subscriptionId ? (Search-AzGraph -Query $query -SkipToken $result.SkipToken -Subscription $subscriptionIds -First 1000) : (Search-AzGraph -query $query -SkipToken $result.SkipToken -First 1000 -UseTenantScope)
+        $result = $SubscriptionId ? (Search-AzGraph -Query $Query -SkipToken $result.SkipToken -Subscription $SubscriptionIds -First 1000) : (Search-AzGraph -Query $Query -SkipToken $result.SkipToken -First 1000 -UseTenantScope)
         # Add the results to the collection
-        write-output $result
+        Write-Output $result
     }
 
     $allResources += $result
@@ -254,30 +254,30 @@ function Import-WAFConfigFileData {
     $linetable = @()
     $objarray = [ordered]@{}
 
-    $filecontent = $filecontent | Where-Object { $_ -ne "" -and $_ -notlike "*#*" }
+    $filecontent = $filecontent | Where-Object { $_ -ne '' -and $_ -notlike '*#*' }
 
     #Remove empty space.
     foreach ($line in $filecontent) {
         $index = $filecontent.IndexOf($line)
-        if ($line -match "^\[([^\]]+)\]$" -and ($filecontent[$index + 1] -match "^\[([^\]]+)\]$" -or [string]::IsNullOrEmpty($filecontent[$index + 1]))) {
+        if ($line -match '^\[([^\]]+)\]$' -and ($filecontent[$index + 1] -match '^\[([^\]]+)\]$' -or [string]::IsNullOrEmpty($filecontent[$index + 1]))) {
             # Set this line to empty because the next line is a section as well.
             # This is to avoid the section name being added to the object since it has no parameters.
             # This is because if we were to keep the note-property it would mess up logic for determining if a section is empty.
             # Powershell will return $true on an emtpy note property - Because the property exists.
-            $filecontent[$index] = ""
+            $filecontent[$index] = ''
         }
     }
 
     #Remove empty space again.
-    $filecontent = $filecontent | Where-Object { $_ -ne "" -and $_ -notlike "*#*" }
+    $filecontent = $filecontent | Where-Object { $_ -ne '' -and $_ -notlike '*#*' }
 
     # Iterate through the file content and store the line number of each section
     foreach ($line in $filecontent) {
-        if (-not [string]::IsNullOrWhiteSpace($line) -and -not $line.startswith("#")) {
+        if (-not [string]::IsNullOrWhiteSpace($line) -and -not $line.startswith('#')) {
             #Get the Index of the current line
             $index = $filecontent.IndexOf($line)
             # If the line is a section, store the line number
-            if ($line -match "^\[([^\]]+)\]$") {
+            if ($line -match '^\[([^\]]+)\]$') {
                 # Store the section name and line number. Remove the brackets from the section name
                 $linetable += $filecontent.indexof($line)
             }
@@ -291,7 +291,7 @@ function Import-WAFConfigFileData {
         # Get the section name
         $name = $filecontent[$entry]
         # Remove the brackets from the section name
-        $name = $name.replace("[", "").replace("]", "")
+        $name = $name.replace('[', '').replace(']', '')
 
         # Get the start and stop line numbers for the section content
         # If the section is the last one, set the stop line number to the end of the file
