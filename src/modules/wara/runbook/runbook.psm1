@@ -1,31 +1,29 @@
 <#
 .SYNOPSIS
-WARA Runbook module
+    WARA Runbook module.
 
 .DESCRIPTION
-Enables developers to consume WARA runbook files
+    Enables developers to consume WARA runbook files.
 #>
 
 function Read-Runbook {
-    param(
+    param (
         [Parameter(Mandatory = $true)]
-        [string]$RunbookPath
+        [string] $RunbookPath
     )
 
     # First, check to make sure the runbook actually exists...
     if (!(Test-Path $RunbookPath -PathType Leaf)) {
-
         # If not, fail early.
         Write-Error "[-RunbookPath]: No runbook found at [$RunbookPath]."
         $null
-
-    } else {
-
+    }
+    else {
         # If so, let's read this runbook!
         $runbook = @{
-            Parameters = @{}
-            Selectors = @{}
-            Checks = @{}
+            Parameters     = @{}
+            Selectors      = @{}
+            Checks         = @{}
             QueryOverrides = @()
         }
         
@@ -34,24 +32,24 @@ function Read-Runbook {
 
         # Try to load parameters
         $runbookJson.parameters.PSObject.Properties | ForEach-Object {
-          $runbook.Parameters[$_.Name] = $_.Value
+            $runbook.Parameters[$_.Name] = $_.Value
         }
 
         # Try to load selectors
         $runbookJson.selectors.PSObject.Properties | ForEach-Object {
-          $runbook.Selectors[$_.Name.ToLower()] = $_.Value
+            $runbook.Selectors[$_.Name.ToLower()] = $_.Value
         }
 
         # Try to load checks
         $runbookJson.checks.PSObject.Properties | ForEach-Object {
-          $runbook.Checks[$_.Name.ToLower()] = $_.Value
+            $runbook.Checks[$_.Name.ToLower()] = $_.Value
         }
 
         # Try to load query overrides
         $runbookJson.query_overrides | ForEach-Object {
-          $runbook.QueryOverrides += [string]$_
+            $runbook.QueryOverrides += [string]$_
         }
 
-        return [pscustomobject]$runbook
+        return [PSCustomObject]$runbook
     }
 }

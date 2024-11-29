@@ -7,7 +7,6 @@
 #
 
 @{
-
     # Script module or binary module file associated with this manifest.
     RootModule        = 'collector.psm1'
 
@@ -27,7 +26,7 @@
     CompanyName       = 'Microsoft'
 
     # Copyright statement for this module
-    Copyright         = '(c) 2023 Microsoft. All rights reserved.'
+    Copyright         = '(c) Microsoft. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description       = 'This module contains functions for querying Azure resources using Azure Resource Graph.'
@@ -69,8 +68,14 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = @('Get-WAFResourceGroup', 'Get-WAFTaggedResource', 'Get-WAFTaggedResourceGroup', 
-        'Invoke-WAFQueryLoop', 'Get-WAFResourceType', 'Get-WAFQueryByResourceType')
+    FunctionsToExport = @(
+        'Get-WAFResourceGroup',
+        'Get-WAFTaggedResource',
+        'Get-WAFTaggedResourceGroup', 
+        'Invoke-WAFQueryLoop',
+        'Get-WAFResourceType',
+        'Get-WAFQueryByResourceType'
+    )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport   = @()
@@ -92,9 +97,7 @@
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData       = @{
-
         PSData = @{
-
             # Tags applied to this module. These help with module discovery in online galleries.
             # Tags = @()
 
@@ -118,9 +121,7 @@
 
             # External dependent modules of this module
             # ExternalModuleDependencies = @()
-
         } # End of PSData hashtable
-
     } # End of PrivateData hashtable
 
     # HelpInfo URI of this module
@@ -128,6 +129,4 @@
 
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
     # DefaultCommandPrefix = ''
-
 }
-

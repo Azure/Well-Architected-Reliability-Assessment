@@ -54,6 +54,7 @@ Describe 'Get-AzureRestMethodUriPath' {
         }
     }
 }
+
 Describe 'Invoke-AzureRestApi' {
     BeforeAll {
         $expected = 'JsonText'
@@ -160,7 +161,6 @@ Describe Import-WAFConfigFileData {
 
         $result = Import-WAFConfigFileData $TestConfigFile1
 
-
         $expectedTenantId = "12121212-1212-1212-1212-121212121212"
         $expectedSubscriptionIds = @(
             "/subscriptions/0000000-0000-0000-0000-000000000000"
@@ -245,77 +245,87 @@ Describe 'Test-WAFTagPattern' {
             $result | Should -Be $true
         }
     }
+
     Context 'When given an invalid tag pattern' {
         It 'Should throw the exception' {
             $tagPattern = "env||environment~preprod"
-            {Test-WAFTagPattern $tagPattern} | Should -Throw 
+            { Test-WAFTagPattern $tagPattern } | Should -Throw 
         }
     }
 }
 
-Describe 'Test-WAFResourceGroupId'{
+Describe 'Test-WAFResourceGroupId' {
     Context 'When given a valid resource group id' {
         It 'Should return true with a valid resource group id' {
             $resourceGroupId = "/subscriptions/$((new-guid).guid)/resourceGroups/RG-01"
             $result = Test-WAFResourceGroupId $resourceGroupId
             $result | Should -Be $true
         }
+
         It 'Should return true when the resource group id contains a trailing slash' {
             $resourceGroupId = "/subscriptions/$((new-guid).guid)/resourceGroups/RG-01/"
             $result = Test-WAFResourceGroupId $resourceGroupId
             $result | Should -Be $true
         }
     }
+
     Context 'When given an invalid resource group id' {
         It 'Should throw the exception with a bad GUID' {
             $resourceGroupId = "/subscriptions/$((new-guid).guid[1..-1])/resourceGroups/RG-01/"
-            {Test-WAFResourceGroupId $resourceGroupId} | Should -Throw 
+            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw 
         }
+
         It 'Should throw the exception with a bad resourceGroups typo - missing s' {
             $resourceGroupId = "/subscriptions/$((new-guid).guid)/resourceGroup/RG-01/"
-            {Test-WAFResourceGroupId $resourceGroupId} | Should -Throw 
+            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw 
         }
+
         It 'Should throw the exception with a bad subscription typo - missing s' {
             $resourceGroupId = "/subscription/$((new-guid).guid)/resourceGroups/RG-01/"
-            {Test-WAFResourceGroupId $resourceGroupId} | Should -Throw 
+            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw 
         }
+
         It 'Should throw the exception when missing the leading slash' {
             $resourceGroupId = "subscriptions/$((new-guid).guid)/resourceGroups/RG-01"
-            {Test-WAFResourceGroupId $resourceGroupId} | Should -Throw 
+            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw 
         }
     }
 }
 
-Describe 'Test-WAFSubscriptionId'{
+Describe 'Test-WAFSubscriptionId' {
     Context 'When given a valid subscription id' {
         It 'Should return true with a valid subscription id' {
             $subscriptionId = "/subscriptions/$((new-guid).guid)"
             $result = Test-WAFSubscriptionId $subscriptionId
             $result | Should -Be $true
         }
+
         It 'Should return true when the subscription id contains a trailing slash' {
             $subscriptionId = "/subscriptions/$((new-guid).guid)/"
             $result = Test-WAFSubscriptionId $subscriptionId
             $result | Should -Be $true
         }
     }
+
     Context 'When given an invalid subscription id' {
         It 'Should throw the exception with a bad GUID' {
             $subscriptionId = "/subscriptions/$((new-guid).guid[1..-1])/"
-            {Test-WAFSubscriptionId $subscriptionId} | Should -Throw 
+            { Test-WAFSubscriptionId $subscriptionId } | Should -Throw 
         }
+
         It 'Should throw the exception with a bad subscription typo - missing s' {
             $subscriptionId = "/subscription/$((new-guid).guid)/"
-            {Test-WAFSubscriptionId $subscriptionId} | Should -Throw 
+            { Test-WAFSubscriptionId $subscriptionId } | Should -Throw 
         }
+
         It 'Should throw the exception when missing the leading slash' {
             $subscriptionId = "subscriptions/$((new-guid).guid)"
-            {Test-WAFSubscriptionId $subscriptionId} | Should -Throw 
+            { Test-WAFSubscriptionId $subscriptionId } | Should -Throw 
         }
     }
 }
 
-Describe 'Test-WAFIsGuid'{
+Describe 'Test-WAFIsGuid' {
     Context 'When given a valid GUID' {
         It 'Should return true with a valid GUID' {
             $guid = [Guid]::NewGuid()
@@ -323,10 +333,11 @@ Describe 'Test-WAFIsGuid'{
             $result | Should -Be $true
         }
     }
+
     Context 'When given an invalid GUID' {
         It 'Should throw the exception with a bad GUID' {
             $guid = [Guid]::NewGuid().guid[1..-1]
-            {Test-WAFIsGuid $guid} | Should -Throw 
+            { Test-WAFIsGuid $guid } | Should -Throw 
         }
     }
 }
@@ -339,11 +350,12 @@ Describe 'Repair-WAFSubscriptionId' {
             $result | Should -Be "/subscriptions/$subscriptionId"
         }
     }
+
     Context 'When given two subscription ids, one with /subscriptions/ and one without' {
         It 'Should return both subscription ids with /subscriptions/' {
             $subscriptionId1 = "/subscriptions/$((new-guid).guid)"
             $subscriptionId2 = "$((new-guid).guid)"
-            $result = Repair-WAFSubscriptionId @($subscriptionId1,$subscriptionId2)
+            $result = Repair-WAFSubscriptionId @($subscriptionId1, $subscriptionId2)
             $result | Should -contain "/subscriptions/$subscriptionId2"
             $result | Should -contain $subscriptionId1
         }

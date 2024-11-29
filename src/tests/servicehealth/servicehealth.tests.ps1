@@ -42,6 +42,7 @@ Describe 'Build-WAFServiceHealthObject' {
             $ServiceHealthAlert.ActionGroup | Should -Contain 'ag-01'
             $ServiceHealthAlert.ActionGroup | Should -Contain 'ag-02'
         }
+
         It 'Should contain the following counts of properties - EventType' {
             $ServiceHealthAlert = Build-WAFServiceHealthObject -AdvQueryResult $test_ServicehealthData
             $ServiceHealthAlert_CountOfAll = $ServiceHealthAlert | Group-Object -Property EventType | Select-Object Name, Count | Where-Object { $_.Name -eq 'All' }
@@ -73,7 +74,7 @@ Describe 'ServiceHealthAlert' {
 
     Context 'When the class methods are called with a valid query result' {
         BeforeAll {
-            $AlertWithMostParameters = $test_ServicehealthData | Where-Object {$_.eventName -eq "srvc-pm-alert"}
+            $AlertWithMostParameters = $test_ServicehealthData | Where-Object { $_.eventName -eq 'srvc-pm-alert' }
             [void]$AlertWithMostParameters
         }
 
@@ -81,14 +82,17 @@ Describe 'ServiceHealthAlert' {
             $EventType = [ServiceHealthAlert]::GetEventType($test_ServicehealthData[1])
             $EventType | Should -Be 'Security Advisory'
         }
+
         It '[ServiceHealthAlert]::GetServices() should return a valid Services' {
             $Services = [ServiceHealthAlert]::GetServices($AlertWithMostParameters)
             $Services | Should -Be 'Azure Container Registry, Azure Database for PostgreSQL, Azure Database for PostgreSQL flexible servers, Azure Kubernetes Service (AKS), Storage, Virtual Network'
         }
+
         It '[ServiceHealthAlert]::GetRegions() should return a valid Regions' {
             $Regions = [ServiceHealthAlert]::GetRegions($AlertWithMostParameters)
             $Regions | Should -Be 'Central US, East US 2, UK South, UK West'
         }
+
         It '[ServiceHealthAlert]::GetActionGroupName() should return a valid ActionGroupName' {
             $ActionGroupName = [ServiceHealthAlert]::GetActionGroupName($test_ServicehealthData[0])
             $ActionGroupName | Should -Be 'ag-01'

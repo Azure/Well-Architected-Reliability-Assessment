@@ -23,14 +23,18 @@ using module ../utils/utils.psd1
 #>
 function Get-WAFAdvisorRecommendation {
     [CmdletBinding()]
-    Param(
-        [array]$SubscriptionIds,
-        [switch]$HighAvailability,
-        [switch]$Security,
-        [switch]$Cost,
-        [switch]$Performance,
-        [switch]$OperationalExcellence
+    param (
+        [array] $SubscriptionIds,
 
+        [switch] $HighAvailability,
+
+        [switch] $Security,
+
+        [switch] $Cost,
+
+        [switch] $Performance,
+
+        [switch] $OperationalExcellence
     )
 
     # Initialize an array to hold the selected categories
@@ -48,7 +52,6 @@ function Get-WAFAdvisorRecommendation {
     # Convert the categories array to a comma-separated string
     $categoriesString = $categories -join "','"
 
-
     $advquery = `
 "advisorresources 
 | where type == 'microsoft.advisor/recommendations' and tostring(properties.category) in ('$categoriesString') 
@@ -64,7 +67,6 @@ function Get-WAFAdvisorRecommendation {
 
     return $return
 }
-
 
 <#
 .SYNOPSIS
@@ -86,28 +88,27 @@ function Get-WAFAdvisorRecommendation {
 #>
 function Build-WAFAdvisorObject {
     [CmdletBinding()]
-    Param(
+    param (
         $AdvQueryResult
-        )
+    )
 
     $return = $AdvQueryResult.ForEach({ [advisorResourceObj]::new($_) })
 
     return $return
-
 }
 
 class advisorResourceObj {
     <# Define the class. Try constructors, properties, or methods. #>
-    [string]    $recommendationId
-    [string]    $type
-    [string]    $name
-    [string]    $id
-    [string]    $subscriptionId
-    [string]    $resourceGroup
-    [string]    $location
-    [string]    $category
-    [string]    $impact
-    [string]    $description
+    [string] $recommendationId
+    [string] $type
+    [string] $name
+    [string] $id
+    [string] $subscriptionId
+    [string] $resourceGroup
+    [string] $location
+    [string] $category
+    [string] $impact
+    [string] $description
 
     advisorResourceObj([PSObject]$psObject) {
         $this.RecommendationId = $psObject.recommendationId
@@ -122,4 +123,3 @@ class advisorResourceObj {
         $this.Description = $psObject.description 
     }
 }
-

@@ -7,7 +7,6 @@
 #
 
 @{
-
     # Script module or binary module file associated with this manifest.
     RootModule        = 'runbook.psm1'
 
@@ -91,9 +90,7 @@
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData       = @{
-
         PSData = @{
-
             # Tags applied to this module. These help with module discovery in online galleries.
             # Tags = @()
 
@@ -117,9 +114,7 @@
 
             # External dependent modules of this module
             # ExternalModuleDependencies = @()
-
         } # End of PSData hashtable
-
     } # End of PrivateData hashtable
 
     # HelpInfo URI of this module
@@ -127,6 +122,4 @@
 
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
     # DefaultCommandPrefix = ''
-
 }
-
