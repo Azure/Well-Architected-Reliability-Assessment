@@ -124,7 +124,7 @@ Describe 'New-WAFSupportTicketObject' {
             }
         }
 
-         It 'Should return a SupportTicketObject with resource ID' {
+        It 'Should return a SupportTicketObject with resource ID' {
             $resourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/test-rg/providers/Resource.Provider/resourceType/resource'
             $expected.'Related Resource' = $resourceId
             $cmdletParams.TechnicalTicketDetailsResourceId = $resourceId

@@ -3,6 +3,7 @@ BeforeAll {
     Import-Module -Name $modulePath -Force
     Import-Module -Name 'Az.Accounts' -Force
 }
+
 Describe 'New-WAFResourceRetirementObject' {
     Context 'When to get a RetirementObject' {
         BeforeAll {
@@ -11,31 +12,31 @@ Describe 'New-WAFResourceRetirementObject' {
 
         BeforeEach {
             $commonCmdletParams = @{
-                SubscriptionId  = '11111111-1111-1111-1111-111111111111'
-                TrackingId      = 'XXXX-XXX'
-                Status          = 'Active'
-                LastUpdateTime  = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
-                StartTime       = Get-Date -Year 2024 -Month 6 -Day 7 -Hour 8 -Minute 9 -Second 10
-                EndTime         = Get-Date -Year 2024 -Month 11 -Day 12 -Hour 13 -Minute 14 -Second 15
-                Level           = 'Warning'
-                Title           = 'Azure Product Retirement: Azure Automanage Best Practices retires on 30 September 2027'
-                Summary         = "<p><strong><em>You're receiving this notice because you're currently using Automanage Best Practices.</em></strong></p>"
-                Header          = 'Your service might have been impacted by an Azure service issue'
-                Description     = Get-Content $retirementDescriptionFilePath -Raw
+                SubscriptionId = '11111111-1111-1111-1111-111111111111'
+                TrackingId     = 'XXXX-XXX'
+                Status         = 'Active'
+                LastUpdateTime = Get-Date -Year 2024 -Month 1 -Day 2 -Hour 3 -Minute 4 -Second 5
+                StartTime      = Get-Date -Year 2024 -Month 6 -Day 7 -Hour 8 -Minute 9 -Second 10
+                EndTime        = Get-Date -Year 2024 -Month 11 -Day 12 -Hour 13 -Minute 14 -Second 15
+                Level          = 'Warning'
+                Title          = 'Azure Product Retirement: Azure Automanage Best Practices retires on 30 September 2027'
+                Summary        = "<p><strong><em>You're receiving this notice because you're currently using Automanage Best Practices.</em></strong></p>"
+                Header         = 'Your service might have been impacted by an Azure service issue'
+                Description    = Get-Content $retirementDescriptionFilePath -Raw
             }
 
             $expected = @{
-                subscription    = $commonCmdletParams.SubscriptionId
-                trackingId      = $commonCmdletParams.TrackingId
-                status          = $commonCmdletParams.Status
-                lastUpdateTime  = $commonCmdletParams.LastUpdateTime.ToString('yyyy-MM-dd HH:mm:ss')
-                startTime       = $commonCmdletParams.StartTime.ToString('yyyy-MM-dd HH:mm:ss')
-                endTime         = $commonCmdletParams.EndTime.ToString('yyyy-MM-dd HH:mm:ss')
-                level           = $commonCmdletParams.Level
-                title           = $commonCmdletParams.Title
-                summary         = $commonCmdletParams.Summary
-                header          = $commonCmdletParams.Header
-                description     = $commonCmdletParams.Description
+                subscription   = $commonCmdletParams.SubscriptionId
+                trackingId     = $commonCmdletParams.TrackingId
+                status         = $commonCmdletParams.Status
+                lastUpdateTime = $commonCmdletParams.LastUpdateTime.ToString('yyyy-MM-dd HH:mm:ss')
+                startTime      = $commonCmdletParams.StartTime.ToString('yyyy-MM-dd HH:mm:ss')
+                endTime        = $commonCmdletParams.EndTime.ToString('yyyy-MM-dd HH:mm:ss')
+                level          = $commonCmdletParams.Level
+                title          = $commonCmdletParams.Title
+                summary        = $commonCmdletParams.Summary
+                header         = $commonCmdletParams.Header
+                description    = $commonCmdletParams.Description
             }
         }
 

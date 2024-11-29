@@ -63,8 +63,6 @@ Describe 'Get-WAFTaggedResourceGroup' {
 Describe 'Invoke-WAFQueryLoop' {
     Context 'When given a recommendation object and a list of subscriptionIds' {
         It 'Should return a list of resources' {
-
-            
             #Mock the Get-WAFResourceType function to return the test data
             Mock Get-WAFResourceType { return $test_Types } -module collector -Verifiable
             
@@ -84,7 +82,6 @@ Describe 'Invoke-WAFQueryLoop' {
 Describe 'Get-WAFQueryByResourceType' {
     Context 'When given a current recommendation object and a good filter list' {
         It 'Should return the correct list of recommendations' {
-            
             #Run the function
             $QueryObject = Get-WAFQueryByResourceType -ObjectList $test_RecommendationObject -FilterList $test_Types.type -KeyColumn "recommendationResourceType"
             

@@ -2,45 +2,51 @@ using module ../utils/utils.psd1
 
 <#
 .SYNOPSIS
-Retrieves all resources with matching tags.
+    Retrieves all resources with matching tags.
+
 .DESCRIPTION
-The Get-WAFTaggedResources function queries Azure Resource Graph to retrieve all resources that have matching tags.
+    The Get-WAFTaggedResources function queries Azure Resource Graph to retrieve all resources that have matching tags.
+
 .PARAMETER tagArray
-An array of tags to filter resources by. Each tag should be in the format 'key==value'.
+    An array of tags to filter resources by. Each tag should be in the format 'key==value'.
+
 .PARAMETER SubscriptionIds
-An array of subscription IDs to scope the query.
+    An array of subscription IDs to scope the query.
+
 .OUTPUTS
-Returns an array of resources with matching tags.
+    Returns an array of resources with matching tags.
+
 .EXAMPLE
-$taggedResources = Get-WAFTaggedResources -tagArray @('env==prod', 'app==myapp') -SubscriptionIds @('sub1', 'sub2')
+    $taggedResources = Get-WAFTaggedResources -tagArray @('env==prod', 'app==myapp') -SubscriptionIds @('sub1', 'sub2')
+
 .NOTES
-This function uses the Invoke-WAFQuery function to perform the query.
+    This function uses the Invoke-WAFQuery function to perform the query.
 #>
-Function Get-WAFTaggedResource {
-  [CmdletBinding()]
-  param(
-    [array]$tagArray,
-    [string[]]$subscriptionIds
-  )
+function Get-WAFTaggedResource {
+    [CmdletBinding()]
+    param (
+        [array] $tagArray,
 
-  $return = @()
+        [string[]] $subscriptionIds
+    )
 
-  foreach ($tag in $tagArray) {
+    $return = @()
 
-    switch -Wildcard ($tag) {
-      "*=~*" {
-        $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
-        $tagValues = $tag.Split("=~")[1].split("||") -join ("','")
-        $in = "in~"
-      }
-      "*!~*" {
-        $tagKeys = $tag.Split("!~")[0].split("||") -join ("','")
-        $tagValues = $tag.Split("!~")[1].split("||") -join ("','")
-        $in = "!in~"
-      }
-    }
+    foreach ($tag in $tagArray) {
+        switch -Wildcard ($tag) {
+            "*=~*" {
+                $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
+                $tagValues = $tag.Split("=~")[1].split("||") -join ("','")
+                $in = "in~"
+            }
+            "*!~*" {
+                $tagKeys = $tag.Split("!~")[0].split("||") -join ("','")
+                $tagValues = $tag.Split("!~")[1].split("||") -join ("','")
+                $in = "!in~"
+            }
+        }
 
-    $tagquery = "resources
+        $tagquery = "resources
 | mv-expand bagexpansion=array tags
 | where isnotempty(tags)
 | where tolower(tags[0]) in~ ('$tagkeys')  // Specify your tag names here
@@ -48,61 +54,67 @@ Function Get-WAFTaggedResource {
 | summarize by id
 | order by ['id']"
 
-    $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
+        $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
 
-    $return += $result
-  }
+        $return += $result
+    }
 
-  $return = ($return | Group-Object id | Where-Object { $_.count -eq $tagArray.Count } | Select-Object Name).Name
+    $return = ($return | Group-Object id | Where-Object { $_.count -eq $tagArray.Count } | Select-Object Name).Name
 
-
-  return $return
+    return $return
 }
 
 <#
 .SYNOPSIS
-Retrieves all resources in resource groups with matching tags.
+    Retrieves all resources in resource groups with matching tags.
+
 .DESCRIPTION
-The Get-WAFTaggedRGResources function queries Azure Resource Graph to retrieve all resources in resource groups that have matching tags.
+    The Get-WAFTaggedRGResources function queries Azure Resource Graph to retrieve all resources in resource groups that have matching tags.
+
 .PARAMETER tagKeys
-An array of tag keys to filter resource groups by.
+    An array of tag keys to filter resource groups by.
+
 .PARAMETER tagValues
-An array of tag values to filter resource groups by.
+    An array of tag values to filter resource groups by.
+
 .PARAMETER SubscriptionIds
-An array of subscription IDs to scope the query.
+    An array of subscription IDs to scope the query.
+
 .OUTPUTS
-Returns an array of resources in resource groups with matching tags.
+    Returns an array of resources in resource groups with matching tags.
+
 .EXAMPLE
-$taggedRGResources = Get-WAFTaggedRGResources -tagKeys @('env') -tagValues @('prod') -SubscriptionIds @('sub1', 'sub2')
+    $taggedRGResources = Get-WAFTaggedRGResources -tagKeys @('env') -tagValues @('prod') -SubscriptionIds @('sub1', 'sub2')
+
 .NOTES
-This function uses the Invoke-WAFQuery function to perform the query.
+    This function uses the Invoke-WAFQuery function to perform the query.
 #>
-Function Get-WAFTaggedResourceGroup {
-  [CmdletBinding()]
-  param(
-    [array]$tagArray,
-    [string[]]$subscriptionIds
-  )
+function Get-WAFTaggedResourceGroup {
+    [CmdletBinding()]
+    param (
+        [array] $tagArray,
 
-  $return = @()
+        [string[]] $subscriptionIds
+    )
 
-  foreach ($tag in $tagArray) {
+    $return = @()
 
-    switch -Wildcard ($tag) {
-      "*=~*" {
-        $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
-        $tagValues = $tag.Split("=~")[1].split("||") -join ("','")
-        $in = "in~"
-      }
-      "*!~*" {
-        $tagKeys = $tag.Split("!~")[0].split("||") -join ("','")
-        $tagValues = $tag.Split("!~")[1].split("||") -join ("','")
-        $in = "!in~"
-      }
-    }
+    foreach ($tag in $tagArray) {
+        switch -Wildcard ($tag) {
+            "*=~*" {
+                $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
+                $tagValues = $tag.Split("=~")[1].split("||") -join ("','")
+                $in = "in~"
+            }
+            "*!~*" {
+                $tagKeys = $tag.Split("!~")[0].split("||") -join ("','")
+                $tagValues = $tag.Split("!~")[1].split("||") -join ("','")
+                $in = "!in~"
+            }
+        }
 
-    $tagquery = `
-      "resourcecontainers
+        $tagquery = `
+            "resourcecontainers
 | where type == 'microsoft.resources/subscriptions/resourcegroups'
 | mv-expand bagexpansion=array tags
 | where isnotempty(tags)
@@ -111,122 +123,138 @@ Function Get-WAFTaggedResourceGroup {
 | summarize by id
 | order by ['id']"
 
-    $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
+        $result = Invoke-WAFQuery -query $tagquery -subscriptionIds $subscriptionIds
     
-    $return += $result
-  }
+        $return += $result
+    }
 
-  $return = ($return | Group-Object id | Where-Object { $_.count -eq $tagArray.Count } | Select-Object Name).Name
+    $return = ($return | Group-Object id | Where-Object { $_.count -eq $tagArray.Count } | Select-Object Name).Name
 
-  return $return
+    return $return
 }
 
 <#
 .SYNOPSIS
-Invokes a loop to run queries for each recommendation object.
+    Invokes a loop to run queries for each recommendation object.
+
 .DESCRIPTION
-The Invoke-WAFQueryLoop function runs queries for each recommendation object and retrieves the resources.
+    The Invoke-WAFQueryLoop function runs queries for each recommendation object and retrieves the resources.
+
 .PARAMETER RecommendationObject
-An array of recommendation objects to query.
+    An array of recommendation objects to query.
+
 .PARAMETER subscriptionIds
-An array of subscription IDs to scope the query.
+    An array of subscription IDs to scope the query.
+
 .OUTPUTS
-Returns an array of resources for each recommendation object.
+    Returns an array of resources for each recommendation object.
+
 .EXAMPLE
-$resources = Invoke-WAFQueryLoop -RecommendationObject $recommendations -subscriptionIds @('sub1', 'sub2')
+    $resources = Invoke-WAFQueryLoop -RecommendationObject $recommendations -subscriptionIds @('sub1', 'sub2')
+
 .NOTES
-This function uses the Invoke-WAFQuery function to perform the queries.
+    This function uses the Invoke-WAFQuery function to perform the queries.
 #>
-Function Invoke-WAFQueryLoop {
-  [CmdletBinding()]
-  param(
-    $RecommendationObject,
-    [string[]]$subscriptionIds
-  )
+function Invoke-WAFQueryLoop {
+    [CmdletBinding()]
+    param (
+        $RecommendationObject,
 
-  $Types = Get-WAFResourceType -SubscriptionIds $subscriptionIds
+        [string[]] $subscriptionIds
+    )
 
-  $QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -FilterList $Types.type -KeyColumn "recommendationResourceType"
+    $Types = Get-WAFResourceType -SubscriptionIds $subscriptionIds
 
-  $return = $QueryObject.Where({ $_.automationavailable -eq $True -and [String]::IsNullOrEmpty($_.recommendationTypeId) }) | ForEach-Object {
-    Write-Progress -Activity "Running Queries" -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100) -Id 1
-    try {
-      Invoke-WAFQuery -query $_.query -subscriptionIds $subscriptionIds -ErrorAction Stop
+    $QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -FilterList $Types.type -KeyColumn 'recommendationResourceType'
+
+    $return = $QueryObject.Where({ $_.automationavailable -eq $True -and [string]::IsNullOrEmpty($_.recommendationTypeId) }) | ForEach-Object {
+        Write-Progress -Activity 'Running Queries' -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100) -Id 1
+        try {
+            Invoke-WAFQuery -query $_.query -subscriptionIds $subscriptionIds -ErrorAction Stop
+        }
+        catch {
+            Write-Host "Error running query for - $($_.recommendationResourceType) - $($_.aprlGuid)"
+        }
     }
-    catch {
-      Write-Host "Error running query for - $($_.recommendationResourceType) - $($_.aprlGuid)"
-    }
-  }
-  Write-Progress -Activity "Running Queries" -Status "Completed" -Completed -Id 1
+    Write-Progress -Activity 'Running Queries' -Status 'Completed' -Completed -Id 1
 
-  return $return
+    return $return
 }
-
 
 <#
 .SYNOPSIS
-Retrieves all resource types in the specified subscriptions.
-.DESCRIPTION
-The Get-WAFResourceType function queries Azure Resource Graph to retrieve all resource types in the specified subscriptions.
-.PARAMETER SubscriptionIds
-An array of subscription IDs to scope the query.
-.OUTPUTS
-Returns an array of resource types.
-.EXAMPLE
-$resourceTypes = Get-WAFResourceType -SubscriptionIds @('sub1', 'sub2')
-.NOTES
-This function uses the Invoke-WAFQuery function to perform the query.
-#>
-Function Get-WAFResourceType {
-  [CmdletBinding()]
-  param(
-    [String[]]$SubscriptionIds
-  )
+    Retrieves all resource types in the specified subscriptions.
 
-  $q = "Resources
+.DESCRIPTION
+    The Get-WAFResourceType function queries Azure Resource Graph to retrieve all resource types in the specified subscriptions.
+
+.PARAMETER SubscriptionIds
+    An array of subscription IDs to scope the query.
+
+.OUTPUTS
+    Returns an array of resource types.
+
+.EXAMPLE
+    $resourceTypes = Get-WAFResourceType -SubscriptionIds @('sub1', 'sub2')
+
+.NOTES
+    This function uses the Invoke-WAFQuery function to perform the query.
+#>
+function Get-WAFResourceType {
+    [CmdletBinding()]
+    param (
+        [string[]] $SubscriptionIds
+    )
+
+    $q = "Resources
 | summarize count() by type
 | project type"
 
-  $r = $SubscriptionIds ? (Invoke-WAFQuery -query $q -subscriptionIds $SubscriptionIds) : (Invoke-WAFQuery -query $q -usetenantscope)
+    $r = $SubscriptionIds ? (Invoke-WAFQuery -query $q -subscriptionIds $SubscriptionIds) : (Invoke-WAFQuery -query $q -usetenantscope)
 
-  return $r
+    return $r
 }
 
 <#
 .SYNOPSIS
-Filters objects by resource type.
+    Filters objects by resource type.
+
 .DESCRIPTION
-The Get-WAFQueryByResourceType function filters a list of objects by resource type.
+    The Get-WAFQueryByResourceType function filters a list of objects by resource type.
+
 .PARAMETER ObjectList
-An array of objects to filter.
+    An array of objects to filter.
+
 .PARAMETER FilterList
-An array of resource types to filter by.
+    An array of resource types to filter by.
+
 .PARAMETER KeyColumn
-The key column to use for filtering.
+    The key column to use for filtering.
+
 .OUTPUTS
-Returns an array of objects that match the specified resource types.
+    Returns an array of objects that match the specified resource types.
+
 .EXAMPLE
-$filteredObjects = Get-WAFQueryByResourceType -ObjectList $objects -FilterList $types -KeyColumn "type"
+    $filteredObjects = Get-WAFQueryByResourceType -ObjectList $objects -FilterList $types -KeyColumn "type"
 #>
 function Get-WAFQueryByResourceType {
-  [CmdletBinding()]
-  param (
-    [Parameter(Mandatory = $true)]
-    [array]$ObjectList,
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [array] $ObjectList,
 
-    [Parameter(Mandatory = $true)]
-    [array]$FilterList,
+        [Parameter(Mandatory = $true)]
+        [array] $FilterList,
 
-    [Parameter(Mandatory = $true)]
-    [string]$KeyColumn
-  )
+        [Parameter(Mandatory = $true)]
+        [string] $KeyColumn
+    )
 
-  $matchingObjects = foreach ($obj in $ObjectList) {
-    if ($obj.$KeyColumn -in $FilterList) {
-      $obj
+    $matchingObjects = foreach ($obj in $ObjectList) {
+        if ($obj.$KeyColumn -in $FilterList) {
+            $obj
+        }
     }
-  }
 
-  return $matchingObjects
+    return $matchingObjects
 }
-

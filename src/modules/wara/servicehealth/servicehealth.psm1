@@ -2,8 +2,8 @@ using module ../utils/utils.psd1
 
 function Get-WAFServiceHealth {
     [CmdletBinding()]
-    Param(
-        [String[]]$SubscriptionIds
+    param (
+        [string[]] $SubscriptionIds
     )
 
     $Servicequery = `
@@ -24,7 +24,9 @@ function Get-WAFServiceHealth {
 }
 
 function Build-WAFServiceHealthObject {
-    Param($AdvQueryResult)
+    param (
+        $AdvQueryResult
+    )
 
     $return = $AdvQueryResult.ForEach({ [ServiceHealthAlert]::new($_) })
 
@@ -32,13 +34,13 @@ function Build-WAFServiceHealthObject {
 }
 
 class ServiceHealthAlert {
-    [string]$Name
-    [string]$Subscription
-    [string]$Enabled
-    [string]$EventType
-    [string]$Services
-    [string]$Regions
-    [string]$ActionGroup
+    [string] $Name
+    [string] $Subscription
+    [string] $Enabled
+    [string] $EventType
+    [string] $Services
+    [string] $Regions
+    [string] $ActionGroup
 
     ServiceHealthAlert([PSCustomObject]$row) {
         $this.Name = $Row.eventName
