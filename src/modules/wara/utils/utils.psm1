@@ -21,7 +21,7 @@ function Invoke-WAFQuery {
     $allResources += $result
 
     # Output all resources
-    return ,$allResources
+    return $allResources
 }
 
 <#
