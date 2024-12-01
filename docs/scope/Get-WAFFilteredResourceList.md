@@ -13,8 +13,8 @@ Retrieves a filtered list of Azure resources based on subscription, resource gro
 ## SYNTAX
 
 ```
-Get-WAFFilteredResourceList [[-SubscriptionFilters] <Array>] [[-ResourceGroupFilters] <Array>]
- [[-ResourceFilters] <Array>] [[-UnfilteredResources] <Array>] [[-KeyColumn] <String>]
+Get-WAFFilteredResourceList [[-SubscriptionFilters] <String[]>] [[-ResourceGroupFilters] <String[]>]
+ [[-ResourceFilters] <String[]>] [-UnfilteredResources] <Array> [[-KeyColumn] <String>]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -39,7 +39,7 @@ $filteredResources = Get-WAFFilteredResourceList -SubscriptionFilters $subscript
 An array of subscription identifiers to filter the resources.
 
 ```yaml
-Type: Array
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
@@ -54,7 +54,7 @@ Accept wildcard characters: False
 An array of resource group identifiers to filter the resources.
 
 ```yaml
-Type: Array
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
@@ -69,7 +69,7 @@ Accept wildcard characters: False
 An array of resource identifiers to filter the resources.
 
 ```yaml
-Type: Array
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
@@ -88,7 +88,7 @@ Type: Array
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 4
 Default value: None
 Accept pipeline input: False

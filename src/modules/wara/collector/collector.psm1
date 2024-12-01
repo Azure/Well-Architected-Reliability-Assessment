@@ -25,14 +25,17 @@ using module ../utils/utils.psd1
 function Get-WAFTaggedResource {
     [CmdletBinding()]
     param (
-        [array] $tagArray,
+        [Parameter(Mandatory = $true)]
+        [string[]] $TagArray,
 
-        [string[]] $subscriptionIds
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $SubscriptionIds
     )
 
     $return = @()
 
-    foreach ($tag in $tagArray) {
+    foreach ($tag in $TagArray) {
         switch -Wildcard ($tag) {
             "*=~*" {
                 $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
@@ -54,12 +57,12 @@ function Get-WAFTaggedResource {
 | summarize by id
 | order by ['id']"
 
-        $result = Invoke-WAFQuery -Query $tagquery -SubscriptionIds $subscriptionIds
+        $result = Invoke-WAFQuery -Query $tagquery -SubscriptionIds $SubscriptionIds
 
         $return += $result
     }
 
-    $return = ($return | Group-Object id | Where-Object { $_.count -eq $tagArray.Count } | Select-Object Name).Name
+    $return = ($return | Group-Object id | Where-Object { $_.count -eq $TagArray.Count } | Select-Object Name).Name
 
     return $return
 }
@@ -92,14 +95,17 @@ function Get-WAFTaggedResource {
 function Get-WAFTaggedResourceGroup {
     [CmdletBinding()]
     param (
-        [array] $tagArray,
+        [Parameter(Mandatory = $true)]
+        [string[]] $TagArray,
 
-        [string[]] $subscriptionIds
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $SubscriptionIds
     )
 
     $return = @()
 
-    foreach ($tag in $tagArray) {
+    foreach ($tag in $TagArray) {
         switch -Wildcard ($tag) {
             "*=~*" {
                 $tagKeys = $tag.Split("=~")[0].split("||") -join ("','")
@@ -123,12 +129,12 @@ function Get-WAFTaggedResourceGroup {
 | summarize by id
 | order by ['id']"
 
-        $result = Invoke-WAFQuery -Query $tagquery -SubscriptionIds $subscriptionIds
+        $result = Invoke-WAFQuery -Query $tagquery -SubscriptionIds $SubscriptionIds
     
         $return += $result
     }
 
-    $return = ($return | Group-Object id | Where-Object { $_.count -eq $tagArray.Count } | Select-Object Name).Name
+    $return = ($return | Group-Object id | Where-Object { $_.count -eq $TagArray.Count } | Select-Object Name).Name
 
     return $return
 }
@@ -158,16 +164,19 @@ function Get-WAFTaggedResourceGroup {
 function Invoke-WAFQueryLoop {
     [CmdletBinding()]
     param (
-        $RecommendationObject,
+        [Parameter(Mandatory = $true)]
+        [PSCustomObject[]] $RecommendationObject,
 
-        [string[]] $subscriptionIds
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $SubscriptionIds
     )
 
-    $Types = Get-WAFResourceType -SubscriptionIds $subscriptionIds
+    $Types = Get-WAFResourceType -SubscriptionIds $SubscriptionIds
 
     $QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -FilterList $Types.type -KeyColumn 'recommendationResourceType'
 
-    $return = $QueryObject.Where({ $_.automationavailable -eq $true -and [string]::IsNullOrEmpty($_.recommendationTypeId) }) | ForEach-Object {
+    $return = $QueryObject.Where({ $_.automationAvailable -eq $true -and [string]::IsNullOrEmpty($_.recommendationTypeId) }) | ForEach-Object {
         Write-Progress -Activity 'Running Queries' -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100) -Id 1
         try {
             (Invoke-WAFQuery -Query $_.query -SubscriptionIds $subscriptionIds -ErrorAction Stop)
@@ -203,6 +212,8 @@ function Invoke-WAFQueryLoop {
 function Get-WAFResourceType {
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [string[]] $SubscriptionIds
     )
 
@@ -241,10 +252,10 @@ function Get-WAFQueryByResourceType {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [array] $ObjectList,
+        [PSCustomObject[]] $ObjectList,
 
         [Parameter(Mandatory = $true)]
-        [array] $FilterList,
+        [string[]] $FilterList,
 
         [Parameter(Mandatory = $true)]
         [string] $KeyColumn

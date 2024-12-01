@@ -146,12 +146,12 @@ function Start-WARACollector {
 
         #Get all tagged resource groups from the Implicit Subscription ID scope
         Write-Debug 'Getting all tagged resource groups from the Implicit Subscription ID scope'
-        $Filter_TaggedResourceGroupIds = Get-WAFTaggedResourceGroup -tagArray $Scope_Tags -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
+        $Filter_TaggedResourceGroupIds = Get-WAFTaggedResourceGroup -TagArray $Scope_Tags -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
         Write-Debug "Count of Tagged Resource Group Ids: $($Filter_TaggedResourceGroupIds.count)"
 
         #Get all tagged resources from the Implicit Subscription ID scope
         Write-Debug 'Getting all tagged resources from the Implicit Subscription ID scope'
-        $Filter_TaggedResourceIds = Get-WAFTaggedResource -tagArray $Scope_Tags -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
+        $Filter_TaggedResourceIds = Get-WAFTaggedResource -TagArray $Scope_Tags -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
         Write-Debug "Count of Tagged Resource Ids: $($Filter_TaggedResourceIds.count)"
 
         #Filter impactedResourceObj objects by tagged resource group and resource scope

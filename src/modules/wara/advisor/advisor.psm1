@@ -24,6 +24,8 @@ using module ../utils/utils.psd1
 function Get-WAFAdvisorRecommendation {
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [array] $SubscriptionIds,
 
         [switch] $HighAvailability,
@@ -89,7 +91,9 @@ function Get-WAFAdvisorRecommendation {
 function Build-WAFAdvisorObject {
     [CmdletBinding()]
     param (
-        $AdvQueryResult
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [PSCustomObject[]] $AdvQueryResult
     )
 
     $return = $AdvQueryResult.ForEach({ [advisorResourceObj]::new($_) })

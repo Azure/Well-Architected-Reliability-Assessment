@@ -13,7 +13,7 @@ Retrieves all resource types in the specified subscriptions.
 ## SYNTAX
 
 ```
-Get-WAFResourceType [[-SubscriptionIds] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFResourceType [-SubscriptionIds] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,7 +36,7 @@ Type: String[]
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 1
 Default value: None
 Accept pipeline input: False

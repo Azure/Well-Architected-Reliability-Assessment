@@ -3,6 +3,8 @@ using module ../utils/utils.psd1
 function Get-WAFServiceHealth {
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [string[]] $SubscriptionIds
     )
 
@@ -25,7 +27,9 @@ function Get-WAFServiceHealth {
 
 function Build-WAFServiceHealthObject {
     param (
-        $AdvQueryResult
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [PSCustomObject[]] $AdvQueryResult
     )
 
     $return = $AdvQueryResult.ForEach({ [ServiceHealthAlert]::new($_) })

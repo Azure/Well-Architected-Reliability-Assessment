@@ -13,7 +13,7 @@ Retrieves all resources in resource groups with matching tags.
 ## SYNTAX
 
 ```
-Get-WAFTaggedResourceGroup [[-tagArray] <Array>] [[-subscriptionIds] <String[]>]
+Get-WAFTaggedResourceGroup [-TagArray] <String[]> [-SubscriptionIds] <String[]>
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -29,22 +29,22 @@ $taggedRGResources = Get-WAFTaggedRGResources -tagKeys @('env') -tagValues @('pr
 
 ## PARAMETERS
 
-### -tagArray
+### -TagArray
 {{ Fill tagArray Description }}
 
 ```yaml
-Type: Array
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -subscriptionIds
+### -SubscriptionIds
 An array of subscription IDs to scope the query.
 
 ```yaml
@@ -52,7 +52,7 @@ Type: String[]
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 2
 Default value: None
 Accept pipeline input: False

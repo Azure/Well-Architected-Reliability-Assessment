@@ -13,7 +13,8 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Build-WAFServiceHealthObject [[-AdvQueryResult] <Object>] [<CommonParameters>]
+Build-WAFServiceHealthObject [-AdvQueryResult] <PSObject[]> [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -34,12 +35,27 @@ PS C:\> {{ Add example code here }}
 {{ Fill AdvQueryResult Description }}
 
 ```yaml
-Type: Object
+Type: PSObject[]
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

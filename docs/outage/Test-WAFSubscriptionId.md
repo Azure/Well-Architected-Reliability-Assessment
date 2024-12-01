@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Test-WAFSubscriptionId [[-InputValue] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Test-WAFSubscriptionId [-InputValue] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -38,7 +38,7 @@ Type: String[]
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 0
 Default value: None
 Accept pipeline input: False

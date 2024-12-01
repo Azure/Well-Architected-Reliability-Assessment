@@ -13,7 +13,7 @@ Filters objects by resource type.
 ## SYNTAX
 
 ```
-Get-WAFQueryByResourceType [-ObjectList] <Array> [-FilterList] <Array> [-KeyColumn] <String>
+Get-WAFQueryByResourceType [-ObjectList] <PSObject[]> [-FilterList] <String[]> [-KeyColumn] <String>
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -33,7 +33,7 @@ $filteredObjects = Get-WAFQueryByResourceType -ObjectList $objects -FilterList $
 An array of objects to filter.
 
 ```yaml
-Type: Array
+Type: PSObject[]
 Parameter Sets: (All)
 Aliases:
 
@@ -48,7 +48,7 @@ Accept wildcard characters: False
 An array of resource types to filter by.
 
 ```yaml
-Type: Array
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
