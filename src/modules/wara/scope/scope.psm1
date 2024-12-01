@@ -278,24 +278,29 @@ function Get-WAFImplicitSubscriptionId {
 function Get-WAFFilteredResourceList {
     [CmdletBinding()]
     param (
-        [array] $SubscriptionFilters = @(),
+        [Parameter(Mandatory = $false)]
+        [string[]] $SubscriptionFilters = @(),
 
-        [array] $ResourceGroupFilters = @(),
+        [Parameter(Mandatory = $false)]
+        [string[]] $ResourceGroupFilters = @(),
 
-        [array] $ResourceFilters = @(),
+        [Parameter(Mandatory = $false)]
+        [string[]] $ResourceFilters = @(),
 
+        [Parameter(Mandatory = $true)]
         [array] $UnfilteredResources,
 
+        [Parameter(Mandatory = $false)]
         [string] $KeyColumn = 'Id'
     )
 
     # TODO: ADD FILTERS FOR TAGS
 
-    $SubscriptionFilters ? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn $KeyColumn) : $(Write-Debug "Subscription Filters not provided.")
+    $SubscriptionFilters ? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn $KeyColumn) : $(Write-Debug 'Subscription Filters not provided.')
 
-    $ResourceGroupFilters ? $($ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn $KeyColumn) : $(Write-Debug "Resource Group Filters not provided.")
+    $ResourceGroupFilters ? $($ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn $KeyColumn) : $(Write-Debug 'Resource Group Filters not provided.')
 
-    $ResourceFilters ? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn $KeyColumn) : $(Write-Debug "Resource Filters not provided.")
+    $ResourceFilters ? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn $KeyColumn) : $(Write-Debug 'Resource Filters not provided.')
 
     # Originally used to remove duplicates but there was some weird interaction with the return object that caused it to duplicate the entire array. 
     $FilteredResources = $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources | Select-Object -Property * -Unique

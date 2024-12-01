@@ -1,7 +1,11 @@
 function Invoke-WAFQuery {
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $false)]
+        [AllowEmptyCollection()]
         [string[]] $SubscriptionIds,
+
+        [Parameter(Mandatory = $false)]
         [string] $Query = 'resources | project name, type, location, resourceGroup, subscriptionId, id'
     )
 
@@ -21,7 +25,7 @@ function Invoke-WAFQuery {
     $allResources += $result
 
     # Output all resources
-    return $allResources
+    return ,$allResources
 }
 
 <#
@@ -346,6 +350,7 @@ function Connect-WAFAzure {
         [Parameter(Mandatory = $true)]
         [GUID] $TenantID,
 
+        [Parameter(Mandatory = $false)]
         [ValidateSet('AzureCloud', 'AzureChinaCloud', 'AzureGermanCloud', 'AzureUSGovernment')]
         [string] $AzureEnvironment = 'AzureCloud'
     )
@@ -359,6 +364,7 @@ function Connect-WAFAzure {
 function Test-WAFTagPattern {
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $true)]
         [string[]] $InputValue
     )
 
@@ -378,6 +384,7 @@ function Test-WAFTagPattern {
 function Test-WAFResourceGroupId {
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $true)]
         [string[]] $InputValue
     )
 
@@ -397,6 +404,7 @@ function Test-WAFResourceGroupId {
 function Test-WAFSubscriptionId {
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $true)]
         [string[]] $InputValue
     )
 
@@ -429,6 +437,8 @@ function Test-WAFIsGuid {
 
 function Repair-WAFSubscriptionId {
     [CmdletBinding()]
+    [Parameter(Mandatory = $true)]
+    [AllowEmptyCollection()]
     param (
         [string[]] $SubscriptionIds
     )
