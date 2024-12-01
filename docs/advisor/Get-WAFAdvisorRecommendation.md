@@ -13,8 +13,8 @@ Retrieves high availability recommendations from Azure Advisor.
 ## SYNTAX
 
 ```
-Get-WAFAdvisorRecommendation [[-SubscriptionIds] <Array>] [-HighAvailability] [-Security] [-Cost]
- [-Performance] [-OperationalExcellence] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-WAFAdvisorRecommendation [-SubscriptionIds] <Array> [-HighAvailability] [-Security] [-Cost] [-Performance]
+ [-OperationalExcellence] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -38,7 +38,7 @@ Type: Array
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 1
 Default value: None
 Accept pipeline input: False

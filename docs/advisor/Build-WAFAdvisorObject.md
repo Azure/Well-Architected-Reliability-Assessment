@@ -13,7 +13,7 @@ Builds a list of advisory objects from Azure Advisor query results.
 ## SYNTAX
 
 ```
-Build-WAFAdvisorObject [[-AdvQueryResult] <Object>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Build-WAFAdvisorObject [-AdvQueryResult] <PSObject[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,11 +33,11 @@ $advQueryResult = Get-WAFAdvisorRecommendations -Subid "12345"
 An array of query results from Azure Advisor.
 
 ```yaml
-Type: Object
+Type: PSObject[]
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 1
 Default value: None
 Accept pipeline input: False

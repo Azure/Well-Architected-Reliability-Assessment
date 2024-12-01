@@ -13,7 +13,7 @@ Invokes a loop to run queries for each recommendation object.
 ## SYNTAX
 
 ```
-Invoke-WAFQueryLoop [[-RecommendationObject] <Object>] [[-subscriptionIds] <String[]>]
+Invoke-WAFQueryLoop [-RecommendationObject] <PSObject[]> [-SubscriptionIds] <String[]>
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -33,18 +33,18 @@ $resources = Invoke-WAFQueryLoop -RecommendationObject $recommendations -subscri
 An array of recommendation objects to query.
 
 ```yaml
-Type: Object
+Type: PSObject[]
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -subscriptionIds
+### -SubscriptionIds
 An array of subscription IDs to scope the query.
 
 ```yaml
@@ -52,7 +52,7 @@ Type: String[]
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 2
 Default value: None
 Accept pipeline input: False
