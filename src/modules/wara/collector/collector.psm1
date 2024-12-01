@@ -170,7 +170,7 @@ function Invoke-WAFQueryLoop {
     $return = $QueryObject.Where({ $_.automationavailable -eq $true -and [string]::IsNullOrEmpty($_.recommendationTypeId) }) | ForEach-Object {
         Write-Progress -Activity 'Running Queries' -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100) -Id 1
         try {
-            Invoke-WAFQuery -Query $_.query -SubscriptionIds $subscriptionIds -ErrorAction Stop
+            (Invoke-WAFQuery -Query $_.query -SubscriptionIds $subscriptionIds -ErrorAction Stop)
         }
         catch {
             Write-Host "Error running query for - $($_.recommendationResourceType) - $($_.aprlGuid)"
