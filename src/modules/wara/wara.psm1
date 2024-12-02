@@ -71,6 +71,18 @@ function Start-WARACollector {
         }
         'Default' {
             Write-Debug 'Using Default parameter set'
+
+            Write-Debug "Parameter set values: $($PSBoundParameters.Keys)"
+
+           if($PSBoundParameters.keys.contains( 'SubscriptionIds') -or $PSBoundParameters.keys.contains('ResourceGroups')) {
+                Write-Debug "We contain the parameters."
+            }
+            else{
+                Write-Debug "We do not contain the parameters."
+                throw "The parameter SubscriptionIds or ResourceGroups is required when using the Default parameter set."
+            }        
+            
+            
         }
     }
 
@@ -110,7 +122,7 @@ function Start-WARACollector {
     Write-Debug 'Creating HashTable of all resources for faster lookup'
     $AllResourcesHash = @{}
     $AllResources.ForEach({ $AllResourcesHash[$_.id] = $_ })
-    Write-Debug "All Resources Hash: $($AllResourcesHash).count"
+    Write-Debug "All Resources Hash: $($AllResourcesHash.count)"
 
     #Get all APRL recommendations from the Implicit Subscription ID scope
     Write-Debug 'Getting all APRL recommendations from the Implicit Subscription ID scope'
