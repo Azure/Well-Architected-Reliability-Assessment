@@ -1,8 +1,6 @@
 function Start-WARACollector {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
-        [Parameter(ParameterSetName = 'Default')]
-        [switch] $Debugging,
 
         [Parameter(ParameterSetName = 'Default')]
         [switch] $SAP,
@@ -43,6 +41,10 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Default')]
         [ValidatePattern('^https:\/\/.+$')]
         [string] $RecommendationDataUri = 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json',
+
+        [Parameter(ParameterSetName = 'Default')]
+        [ValidatePattern('^https:\/\/.+$')]
+        [string] $RecommendationResourceTypesUri = 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv',
 
         # Runbook parameters...
         [Parameter(ParameterSetName = 'Default')]
@@ -102,6 +104,10 @@ function Start-WARACollector {
     #Import Recommendation Object from APRL
     $RecommendationObject = Invoke-RestMethod $RecommendationDataUri
 
+    #Import WARA InScope Resource Types CSV from APRL
+    $RecommendationResourceTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv | Where-Object {$_.WARAinScope -eq 'yes'}
+
+
     #TODO: Test if the parameters are valid
 
     #Connect to Azure
@@ -118,6 +124,16 @@ function Start-WARACollector {
     $AllResources = Invoke-WAFQuery -SubscriptionIds $Scope_SubscriptionIds.replace('/subscriptions/', '')
     Write-Debug "Count of Resources: $($AllResources.count)"
 
+    #Filter all resources by subscription, resourcegroup, and resource scope
+    Write-Debug 'Filtering all resources by subscription, resourcegroup, and resource scope'
+    $AllResources = Get-WAFFilteredResourceList -UnfilteredResources $AllResources -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
+    Write-Debug "Count of filtered Resources: $($AllResources.count)"
+
+    #Filter all resources by InScope Resource Types
+    Write-Debug 'Filtering all resources by WARA InScope Resource Types'
+    $AllResources = Get-WAFResourcesByList -ObjectList $AllResources -FilterList $RecommendationResourceTypes.ResourceType -KeyColumn 'type'
+    Write-Debug "Count of filtered by type Resources: $($AllResources.count)"
+
     #Create HashTable of all resources for faster lookup
     Write-Debug 'Creating HashTable of all resources for faster lookup'
     $AllResourcesHash = @{}
@@ -129,16 +145,31 @@ function Start-WARACollector {
     $Recommendations = Invoke-WAFQueryLoop -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '') -RecommendationObject $RecommendationObject
     Write-Debug "Count of Recommendations: $($Recommendations.count)"
 
+    #Filter recommendation objects by subscription, resourcegroup, and resource scope
+    Write-Debug 'Filtering APRL recommendation objects by subscription, resourcegroup, and resource scope'
+    $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $Recommendations -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
+    Write-Debug "Count of APRL recommendation objects: $($impactedResourceObj.count)"
+
     #Create impactedResourceObj objects from the recommendations
     Write-Debug 'Creating impactedResourceObj objects from the recommendations'
     #$impactedResourceObj = $Recommendations.ForEach({ [impactedResourceObj]::new($_) })
     $impactedResourceObj = Build-impactedResourceObj -impactedResource $Recommendations -allResources $AllResourcesHash -RecommendationObject $RecommendationObject
     Write-Debug "Count of impactedResourceObj objects: $($impactedResourceObj.count)"
 
-    #Filter impactedResourceObj objects by subscription, resourcegroup, and resource scope
-    Write-Debug 'Filtering impactedResourceObj objects by subscription, resourcegroup, and resource scope'
-    $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $impactedResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
-    Write-Debug "Count of filtered impactedResourceObj objects: $($impactedResourceObj.count)"
+    #Filter impactedResourceObj objects by InScope Resource Types
+    Write-Debug 'Filtering impactedResourceObj objects by InScope Resource Types'
+    $impactedResourceObj = Get-WAFResourcesByList -ObjectList $impactedResourceObj -FilterList $RecommendationResourceTypes.ResourceType -KeyColumn 'type'
+    Write-Debug "Count of filtered by type impactedResourceObj objects: $($impactedResourceObj.count)"
+
+    #Create validationResourceObj objects from the impactedResourceObj objects
+    Write-Debug 'Creating validationResourceObj objects from the impactedResourceObj objects'
+    $validationResourceObj = Build-validationResourceObj -validationResources $impactedResourceObj -allResources $AllResourcesHash -RecommendationObject $RecommendationObject
+    Write-Debug "Count of validationResourceObj objects: $($validationResourceObj.count)"
+
+    #Combine impactedResourceObj and validationResourceObj objects
+    Write-Debug 'Combining impactedResourceObj and validationResourceObj objects'
+    $impactedResourceObj += $validationResourceObj
+    Write-Debug "Count of combined impactedResourceObj objects: $($impactedResourceObj.count)"
 
     #Get Advisor Recommendations
     Write-Debug 'Getting Advisor Recommendations'
@@ -222,12 +253,35 @@ function Build-impactedResourceObj {
     )
 
     $r = foreach ($impacted in $impactedResources) {
-        [impactedResourceObj]::new($impacted, $allResources).createValidationObject($RecommendationObject)
+        [impactedResourceObj]::new($impacted, $allResources)
     }
+
+
     return $r
 }
 
-class resourceObj {
+Function Build-validationResourceObj {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [PSObject] $validationResources,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable] $allResources,
+
+        [Parameter(Mandatory = $true)]
+        [PSObject] $RecommendationObject
+    )
+
+
+    $r = foreach ($validation in $validationResources) {
+        [validationObj]::new($validation, $allResources, $RecommendationObject).createValidationObjects($RecommendationObject)
+    }
+
+    return $r
+}
+
+class aprlResourceObj {
     <# Define the class. Try constructors, properties, or methods. #>
     [string] $validationAction
     [string] $recommendationId
@@ -246,7 +300,7 @@ class resourceObj {
     [string] $selector
 }
 
-class impactedResourceObj : resourceObj {
+class impactedResourceObj : aprlResourceObj {
     impactedResourceObj([PSObject]$impactedResource, [hashtable]$allResources) {
         $this.validationAction = "Azure Resource Graph"
         $this.RecommendationId = $impactedResource.recommendationId
@@ -264,13 +318,52 @@ class impactedResourceObj : resourceObj {
         $this.checkName = $impactedResource.checkName
         $this.selector = $impactedResource.selector ?? "APRL" 
     }
+}
 
-    [object] createValidationObject([PSObject]$RecommendationObject) {
-        $return = @($this)
+class validationObj : aprlResourceObj {
+
+    validationObj([string]$resourceId, [hashtable]$allResources, [PSObject]$recommendationObject) {
+        $resource = $allResources[$resourceId]
+        if ($null -eq $resource) {
+            throw "Resource with ID $resourceId not found in allResources."
+        }
+
+        $impactedResource = [PSCustomObject]@{
+            recommendationId = $resource.recommendationId
+            name = $resource.name
+            id = $resource.id
+            param1 = $resource.param1
+            param2 = $resource.param2
+            param3 = $resource.param3
+            param4 = $resource.param4
+            param5 = $resource.param5
+            checkName = $resource.checkName
+            selector = $resource.selector
+        }
+
+        $this.validationAction = "Azure Resource Graph"
+        $this.recommendationId = $impactedResource.recommendationId
+        $this.name = $impactedResource.name
+        $this.id = $impactedResource.id
+        $this.type = $resource.type ?? "Unknown"
+        $this.location = $resource.location ?? "Unknown"
+        $this.subscriptionId = $resource.subscriptionId ?? $resource.id.split("/")[2] ?? "Unknown"
+        $this.resourceGroup = $resource.resourceGroup ?? $resource.id.split("/")[4] ?? "Unknown"
+        $this.param1 = $impactedResource.param1
+        $this.param2 = $impactedResource.param2
+        $this.param3 = $impactedResource.param3
+        $this.param4 = $impactedResource.param4
+        $this.param5 = $impactedResource.param5
+        $this.checkName = $impactedResource.checkName
+        $this.selector = $impactedResource.selector ?? "APRL"
+    }
+
+    [object[]] createValidationObjects([PSObject]$recommendationObject) {
+        $return = @()
         $recommendationByType = $recommendationObject.where({ $_.recommendationResourceType -eq $this.type -and $_.recommendationMetadataState -eq "Active" -and $_.automationavailable -eq $false })
         foreach ($rec in $recommendationByType) {
-            $r = [resourceObj]::new()
-            $r.validationAction = [impactedResourceObj]::getValidationAction($rec.query)
+            $r = [aprlResourceObj]::new()
+            $r.validationAction = [validationObj]::getValidationAction($rec.query)
             $r.recommendationId = $rec.aprlGuid
             $r.name = $this.name
             $r.id = $this.id

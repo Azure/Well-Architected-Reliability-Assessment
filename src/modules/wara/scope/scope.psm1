@@ -186,13 +186,24 @@ function Get-WAFResourcesByList {
         [array] $FilterList,
 
         [Parameter(Mandatory = $true)]
-        [string] $KeyColumn
-    )
+        [string] $KeyColumn,
 
+        [parameter(Mandatory = $false)]
+        [switch] $NotIn
+    )
+if($NotIn){
+    $matchingObjects = foreach ($obj in $ObjectList) {
+        if ($obj.$KeyColumn -notin $FilterList) {
+            $obj
+        }
+    }
+    return $matchingObjects
+} else {
     $matchingObjects = foreach ($obj in $ObjectList) {
         if ($obj.$KeyColumn -in $FilterList) {
             $obj
         }
+    }
     }
 
     return $matchingObjects
