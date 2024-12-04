@@ -169,7 +169,7 @@ function Start-WARACollector {
     #Combine impactedResourceObj and validationResourceObj objects
     Write-Debug 'Combining impactedResourceObj and validationResourceObj objects'
     $impactedResourceObj += $validationResourceObj
-    Write-Debug "Count of combined impactedResourceObj objects: $($impactedResourceObj.count)"
+    Write-Debug "Count of combined validationResourceObj impactedResourceObj objects: $($impactedResourceObj.count)"
 
     #Get Advisor Recommendations
     Write-Debug 'Getting Advisor Recommendations'
@@ -275,7 +275,7 @@ Function Build-validationResourceObj {
 
 
     $r = foreach ($validation in $validationResources) {
-        [validationObj]::new($validation, $allResources, $RecommendationObject).createValidationObjects($RecommendationObject)
+        [validationResourceObj]::new($validation, $allResources, $RecommendationObject).createValidationResourceObjects($RecommendationObject)
     }
 
     return $r
@@ -320,9 +320,9 @@ class impactedResourceObj : aprlResourceObj {
     }
 }
 
-class validationObj : aprlResourceObj {
+class validationResourceObj : aprlResourceObj {
 
-    validationObj([string]$resourceId, [hashtable]$allResources, [PSObject]$recommendationObject) {
+    validationResourceObj([string]$resourceId, [hashtable]$allResources, [PSObject]$recommendationObject) {
         $resource = $allResources[$resourceId]
         if ($null -eq $resource) {
             throw "Resource with ID $resourceId not found in allResources."
@@ -358,12 +358,12 @@ class validationObj : aprlResourceObj {
         $this.selector = $impactedResource.selector ?? "APRL"
     }
 
-    [object[]] createValidationObjects([PSObject]$recommendationObject) {
+    [object[]] createValidationResourceObjects([PSObject]$recommendationObject) {
         $return = @()
         $recommendationByType = $recommendationObject.where({ $_.recommendationResourceType -eq $this.type -and $_.recommendationMetadataState -eq "Active" -and $_.automationavailable -eq $false })
         foreach ($rec in $recommendationByType) {
             $r = [aprlResourceObj]::new()
-            $r.validationAction = [validationObj]::getValidationAction($rec.query)
+            $r.validationAction = [validationResourceObj]::getValidationAction($rec.query)
             $r.recommendationId = $rec.aprlGuid
             $r.name = $this.name
             $r.id = $this.id
