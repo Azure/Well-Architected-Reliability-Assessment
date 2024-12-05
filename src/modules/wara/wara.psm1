@@ -115,7 +115,7 @@ function Start-WARACollector {
 
     #Get all resources from the Implicit Subscription ID scope - We use this later to add type, location, subscriptionid, resourcegroup to the impactedResourceObj objects
     Write-Debug 'Getting all resources from the Implicit Subscription ID scope'
-    $AllResources = Invoke-WAFQuery -SubscriptionIds $Scope_SubscriptionIds.replace('/subscriptions/', '')
+    $AllResources = Invoke-WAFQuery -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
     Write-Debug "Count of Resources: $($AllResources.count)"
 
     #Create HashTable of all resources for faster lookup
