@@ -197,7 +197,6 @@ if($NotIn){
             $obj
         }
     }
-    return $matchingObjects
 } else {
     $matchingObjects = foreach ($obj in $ObjectList) {
         if ($obj.$KeyColumn -in $FilterList) {
