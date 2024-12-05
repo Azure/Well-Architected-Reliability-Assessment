@@ -221,7 +221,7 @@ function Get-WAFResourceType {
 | summarize count() by type
 | project type"
 
-    $r = $SubscriptionIds ? (Invoke-WAFQuery -Query $q -SubscriptionIds $SubscriptionIds) : (Invoke-WAFQuery -Query $q -usetenantscope)  # TODO: Invoke-WAFQuery does not have a -usetenantscope parameter
+    $r = $SubscriptionIds ? (Invoke-WAFQuery -Query $q -SubscriptionIds $SubscriptionIds) : (Invoke-WAFQuery -Query $q)
 
     return $r
 }
