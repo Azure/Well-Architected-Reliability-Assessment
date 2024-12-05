@@ -170,7 +170,6 @@ function Start-WARACollector {
 
     #Create impactedResourceObj objects from the recommendations
     Write-Debug 'Creating impactedResourceObj objects from the recommendations'
-    #$impactedResourceObj = $Recommendations.ForEach({ [impactedResourceObj]::new($_) })
     $impactedResourceObj = Build-impactedResourceObj -impactedResource $impactedResourceObj -allResources $AllResourcesHash -RecommendationObject $RecommendationObjectHash
     Write-Debug "Count of impactedResourceObj objects: $($impactedResourceObj.count)"
 
