@@ -420,7 +420,7 @@ class validationResourceFactory {
                 $r.param3 = ''
                 $r.param4 = ''
                 $r.param5 = ''
-                $r.checkName = $impactedResource.checkName
+                $r.checkName = ''
                 $r.selector = $impactedResource.selector ?? "APRL"
                 $r
             }
