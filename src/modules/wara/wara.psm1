@@ -179,7 +179,7 @@ function Start-WARACollector {
     #Create list of validationResourceIds from the impactedResourceObj objects
     Write-Debug 'Creating hashtable of validationResources from the impactedResourceObj objects'
     $validationResources = @{}
-    foreach ($obj in $impactedResourceObj | Select id, name, type, location, subscriptionid, resourcegroup, checkname, selector) {
+    foreach ($obj in $impactedResourceObj | Select-Object id, name, type, location, subscriptionid, resourcegroup, checkname, selector) {
         $key = "$($obj.id)"
         if (-not $validationResources.ContainsKey($key)) {
             $validationResources[$key] = $obj
