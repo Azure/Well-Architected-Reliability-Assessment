@@ -65,8 +65,8 @@ function Start-WARACollector {
             Write-Debug 'Importing ConfigFile data'
             $ConfigData = Import-WAFConfigFileData -ConfigFile $ConfigFile
             Write-Debug 'Testing TenantId, SubscriptionIds, ResourceGroups, and Tags'
-            Test-WAFIsGuid -StringGuid $ConfigData.TenantId
             $ConfigData.TenantId = ([guid][string]$ConfigData.TenantId).Guid
+            Test-WAFIsGuid -StringGuid $ConfigData.TenantId
             $null = if ($ConfigData.SubscriptionIds) { Test-WAFSubscriptionId -InputValue $ConfigData.SubscriptionIds }
             $null = if ($ConfigData.ResourceGroups) { Test-WAFResourceGroupId -InputValue $ConfigData.ResourceGroups }
             $null = if ($ConfigData.Tags) { Test-WAFTagPattern -InputValue $ConfigData.Tags }
