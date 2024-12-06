@@ -17,7 +17,7 @@ function Invoke-WAFQuery {
     # Loop to paginate through the results using the skip token
     $result = while ($result.SkipToken) {
         # Retrieve the next set of results using the skip token
-        $result = $SubscriptionId ? (Search-AzGraph -Query $Query -SkipToken $result.SkipToken -Subscription $SubscriptionIds -First 1000) : (Search-AzGraph -Query $Query -SkipToken $result.SkipToken -First 1000 -UseTenantScope)
+        $result = $SubscriptionIds ? (Search-AzGraph -Query $Query -SkipToken $result.SkipToken -Subscription $SubscriptionIds -First 1000) : (Search-AzGraph -Query $Query -SkipToken $result.SkipToken -First 1000 -UseTenantScope)
         # Add the results to the collection
         Write-Output $result
     }

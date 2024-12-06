@@ -361,7 +361,7 @@ class impactedResourceFactory {
     [object[]] createImpactedResourceObjects() {
         $return = foreach ($impactedResource in $this.impactedResources) {
             $r = [aprlResourceObj]::new()
-            $r.validationAction = "Azure Resource Graph"
+            $r.validationAction = "APRL - Queries"
             $r.RecommendationId = $impactedResource.recommendationId
             $r.Name = $impactedResource.name
             $r.Id = $impactedResource.id
