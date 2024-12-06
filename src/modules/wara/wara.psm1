@@ -166,13 +166,13 @@ function Start-WARACollector {
 
     #Filter resource recommendation objects by subscription, resourcegroup, and resource scope
     Write-Debug 'Filtering APRL recommendation objects by subscription, resourcegroup, and resource scope'
-    $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $Recommendations -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
+    $Filter_Recommendations = Get-WAFFilteredResourceList -UnfilteredResources $Recommendations -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Count of APRL recommendation objects: $($impactedResourceObj.count)"
 
 
     #Create impactedResourceObj objects from the recommendations
     Write-Debug 'Creating impactedResourceObj objects from the recommendations'
-    $impactedResourceObj = Build-impactedResourceObj -impactedResource $impactedResourceObj -allResources $AllResourcesHash -RecommendationObject $RecommendationObjectHash
+    $impactedResourceObj = Build-impactedResourceObj -impactedResource $Filter_Recommendations -allResources $AllResourcesHash -RecommendationObject $RecommendationObjectHash
     Write-Debug "Count of impactedResourceObj objects: $($impactedResourceObj.count)"
 
 
