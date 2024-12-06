@@ -116,7 +116,9 @@ function Start-WARACollector {
 
 
     #Import WARA InScope Resource Types CSV from APRL
+    Write-Debug 'Importing WARA InScope Resource Types CSV from GitHub'
     $RecommendationResourceTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv | Where-Object { $_.WARAinScope -eq 'yes' }
+    Write-Debug "Count of WARA InScope Resource Types: $($RecommendationResourceTypes.count)"
 
 
     #Connect to Azure
@@ -146,13 +148,13 @@ function Start-WARACollector {
     #Filter all resources by subscription, resourcegroup, and resource scope
     Write-Debug 'Filtering all resources by subscription, resourcegroup, and resource scope'
     $Scope_AllResources = Get-WAFFilteredResourceList -UnfilteredResources $AllResources -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
-    Write-Debug "Count of filtered Resources: $($AllResources.count)"
+    Write-Debug "Count of filtered Resources: $($Scope_AllResources.count)"
 
 
     #Filter all resources by InScope Resource Types - We do this because we need to be able to compare resource ids to generate the generic recommendations(Resource types that have no recommendations or are not in advisor but also need to be validated)
     Write-Debug 'Filtering all resources by WARA InScope Resource Types'
     $Scope_AllResources = Get-WAFResourcesByList -ObjectList $Scope_AllResources -FilterList $RecommendationResourceTypes.ResourceType -KeyColumn 'type'
-    Write-Debug "Count of filtered by type Resources: $($AllResources.count)"
+    Write-Debug "Count of filtered by type Resources: $($Scope_AllResources.count)"
 
 
 
