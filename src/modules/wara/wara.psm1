@@ -66,7 +66,7 @@ function Start-WARACollector {
             $ConfigData = Import-WAFConfigFileData -ConfigFile $ConfigFile
             Write-Debug 'Testing TenantId, SubscriptionIds, ResourceGroups, and Tags'
             $ConfigData.TenantId = ([guid][string]$ConfigData.TenantId).Guid
-            Test-WAFIsGuid -StringGuid $ConfigData.TenantId
+            $null = Test-WAFIsGuid -StringGuid $ConfigData.TenantId
             $null = if ($ConfigData.SubscriptionIds) { Test-WAFSubscriptionId -InputValue $ConfigData.SubscriptionIds }
             $null = if ($ConfigData.ResourceGroups) { Test-WAFResourceGroupId -InputValue $ConfigData.ResourceGroups }
             $null = if ($ConfigData.Tags) { Test-WAFTagPattern -InputValue $ConfigData.Tags }
@@ -119,6 +119,11 @@ function Start-WARACollector {
     Write-Debug 'Importing WARA InScope Resource Types CSV from GitHub'
     $RecommendationResourceTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv | Where-Object { $_.WARAinScope -eq 'yes' }
     Write-Debug "Count of WARA InScope Resource Types: $($RecommendationResourceTypes.count)"
+
+    #Create SpecialTypes Object from WARA InScope Resource Types
+    Write-Debug 'Creating SpecialTypes Object from WARA InScope Resource Types'
+    $SpecialTypes = ($RecommendationResourceTypes | Where { $_.InAprlAndOrAdvisor -eq "No" }).ResourceType
+    Write-Debug "Count of SpecialTypes: $($SpecialTypes.count)"
 
 
     #Connect to Azure
@@ -192,7 +197,7 @@ function Start-WARACollector {
     #Adding the resources AFTER the first loop ensures that we do not add resources that are already in the impactedResourceObj objects.
     #This means we do not have to worry about overwriting the objects.
     Write-Debug "Add In Scope resources to validationResources HashTable"
-    foreach ($obj in $Scope_AllResources){
+    foreach ($obj in $Scope_AllResources) {
         $key = "$($obj.id)"
         if (-not $validationResources.ContainsKey($key)) {
             $validationResources[$key] = $obj
@@ -203,7 +208,7 @@ function Start-WARACollector {
 
     #Create validationResourceObj objects from the impactedResourceObj objects
     Write-Debug 'Creating validationResourceObj objects from the impactedResourceObj objects'
-    $validationResourceObj = Build-validationResourceObj -validationResources $validationResources -RecommendationObject $RecommendationObject
+    $validationResourceObj = Build-validationResourceObj -validationResources $validationResources -RecommendationObject $RecommendationObject -SpecialTypes $SpecialTypes
     Write-Debug "Count of validationResourceObj objects: $($validationResourceObj.count)"
 
 
@@ -256,6 +261,10 @@ function Start-WARACollector {
         Write-Debug "Count of tag filtered Advisor Recommendations: $($advisorResourceObj.count)"
     }
 
+    #Build Resource Type Object
+    Write-Debug 'Building Resource Type Object'
+    $resourceTypeObj = Build-resourceTypeObj -impactedResourceObj $impactedResourceObj -SpecialTypes $SpecialTypes
+    Write-Debug "Count of Resource Type Object: $($resourceTypeObj.count)"
 
     #Get Azure Outages
     Write-Debug 'Getting Azure Outages'
@@ -281,6 +290,7 @@ function Start-WARACollector {
     Write-Debug 'Creating output JSON'
     $outputJson = [PSCustomObject]@{
         impactedResources = $impactedResourceObj
+        resourceType      = $resourceTypeObj
         advisory          = $advisorResourceObj
         outages           = $outageResourceObj
         retirements       = $retirementResourceObj
@@ -321,15 +331,66 @@ Function Build-validationResourceObj {
         [hashtable] $validationResources,
 
         [Parameter(Mandatory = $true)]
-        [PSObject] $RecommendationObject
+        [PSObject] $RecommendationObject,
+
+        [Parameter(Mandatory = $true)]
+        [PSObject] $SpecialTypes
     )
 
-    $validatorObj = [validationResourceFactory]::new($RecommendationObject, $validationResources)
+    $validatorObj = [validationResourceFactory]::new($RecommendationObject, $validationResources, $SpecialTypes)
     $r = $validatorObj.createValidationResourceObjects()
 
     return $r
 }
 
+Function Build-resourceTypeObj {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [PSObject] $impactedResourceObj,
+
+        [Parameter(Mandatory = $true)]
+        [PSObject] $SpecialTypes
+    )
+
+    $return = [resourceTypeFactory]::new($impactedResourceObj, $SpecialTypes).createResourceTypeObjects()
+
+    return $return
+}
+
+class aprlResourceTypeObj {
+    [string] ${Resource Type}
+    [int] ${Number Of Resources}
+    [string] ${Available in APRL/ADVISOR?}
+    [string] ${Assessment Owner}
+    [string] $Status
+    [string] $Notes
+}
+
+class resourceTypeFactory {
+    [PSObject]$impactedResourceObj
+    [PSObject]$SpecialTypes
+
+    resourceTypeFactory([PSObject]$impactedResourceObj, [PSObject]$SpecialTypes) {
+        $this.impactedResourceObj = $impactedResourceObj | Group-Object Type | Select-Object Name, Count
+        $this.SpecialTypes = $SpecialTypes
+    }
+
+    [object[]] createResourceTypeObjects() {
+        $return = foreach ($type in $this.impactedResourceObj) {
+            $r = [aprlResourceTypeObj]::new()
+            $r.'Resource Type' = $type.Name
+            $r.'Number Of Resources' = $type.Count
+            $r.'Available in APRL/ADVISOR?' = $(($this.SpecialTypes -contains $type.Name) ? "No" : "Yes")
+            $r.'Assessment Owner' = "APRL"
+            $r.Status = "Active"
+            $r.notes = ""
+
+            $r
+        }
+        return $return
+    }
+}
 
 class aprlResourceObj {
     [string] $validationAction
@@ -387,12 +448,17 @@ class impactedResourceFactory {
 
 
 class validationResourceFactory {
-    [PSObject] $recommendationObject
-    [hashtable] $validationResources
+    # This class is used to create validationResourceObj objects
+    
+    # Properties
+    [PSObject] $recommendationObject # The recommendation object
+    [hashtable] $validationResources # The validation resources
+    [PSObject] $SpecialTypes # Resource types that we want to create a recommendation for but do not have a recommendation for
 
-    validationResourceFactory([PSObject]$recommendationObject, [hashtable]$validationResources) {
+    validationResourceFactory([PSObject]$recommendationObject, [hashtable]$validationResources, [PSObject]$SpecialTypes) {
         $this.recommendationObject = $recommendationObject
         $this.validationResources = $validationResources
+        $this.SpecialTypes = $SpecialTypes
     }
 
     [object[]] createValidationResourceObjects() {
@@ -401,16 +467,35 @@ class validationResourceFactory {
         $return = foreach ($v in $this.validationResources.GetEnumerator()) {
 
             $impactedResource = $v.value
-            $recommendationByType = $this.recommendationObject.where({$_.recommendationResourceType -eq $impactedResource.type -and $_.recommendationMetadataState -eq "Active" -and $_.automationavailable -eq $false -and [string]::IsNullOrEmpty($_.recommendationTypeId)})
-            
-            if([String]::IsNullOrEmpty($recommendationByType)){
-                $recommendationByType = [PSCustomObject]@{ query = "No Recommendations" }
-            }
 
-            foreach ($rec in $recommendationByType) {
+            $recommendationByType = $this.recommendationObject.where({ $_.automationAvailable -eq $false -and $impactedResource.type -eq $_.recommendationResourceType -and $_.recommendationMetadataState -eq "Active" -and [string]::IsNullOrEmpty($_.recommendationTypeId) })
+
+
+            if ($null -ne $recommendationByType) {
+                foreach ($rec in $recommendationByType) {
+                    $r = [aprlResourceObj]::new()
+                    $r.validationAction = [validationResourceFactory]::getValidationAction($rec.query)
+                    $r.recommendationId = $rec.aprlGuid
+                    $r.name = $impactedResource.name
+                    $r.id = $impactedResource.id
+                    $r.type = $impactedResource.type
+                    $r.location = $impactedResource.location
+                    $r.subscriptionId = $impactedResource.subscriptionId
+                    $r.resourceGroup = $impactedResource.resourceGroup
+                    $r.param1 = ''
+                    $r.param2 = ''
+                    $r.param3 = ''
+                    $r.param4 = ''
+                    $r.param5 = ''
+                    $r.checkName = ''
+                    $r.selector = $impactedResource.selector ?? "APRL"
+                    $r
+                }
+            }
+            elseif ($impactedResource.type -in $this.SpecialTypes) {
                 $r = [aprlResourceObj]::new()
-                $r.validationAction = [validationResourceFactory]::getValidationAction($rec.query)
-                $r.recommendationId = $rec.aprlGuid
+                $r.validationAction = [validationResourceFactory]::getValidationAction("No Recommendations")
+                $r.recommendationId = ''
                 $r.name = $impactedResource.name
                 $r.id = $impactedResource.id
                 $r.type = $impactedResource.type
@@ -426,7 +511,11 @@ class validationResourceFactory {
                 $r.selector = $impactedResource.selector ?? "APRL"
                 $r
             }
+            else {
+                Write-Error "No recommendation found for $($impactedResource.type) with resource id $($impactedResource.id)"
+            }
         }
+            
         
         return $return
     }
