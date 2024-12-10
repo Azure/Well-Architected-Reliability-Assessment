@@ -146,3 +146,20 @@ class advisorResourceObj {
         $this.Description = $psObject.description 
     }
 }
+
+Function Get-WAFAdvisorMetadata {
+
+    $securetoken = Get-AzAccessToken -AsSecureString -ResourceUrl "https://management.azure.com/" -WarningAction SilentlyContinue
+    
+    $token = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureToken.token))
+
+    $authHeaders = @{
+      'Authorization' = 'Bearer ' + $token
+    }
+
+    $AdvisorMetadataURI = 'https://management.azure.com/providers/Microsoft.Advisor/metadata?api-version=2023-01-01'
+
+    $r = Invoke-RestMethod -Uri $AdvisorMetadataURI -Headers $authHeaders -Method Get
+
+    return $r.value.properties[0].supportedValues
+}

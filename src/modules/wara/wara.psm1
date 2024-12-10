@@ -218,9 +218,20 @@ function Start-WARACollector {
     Write-Debug "Count of combined validationResourceObj impactedResourceObj objects: $($impactedResourceObj.count)"
 
 
+    #Get Advisor Metadata to include recommendations that are not in Advisor under 'HighAvailability'
+    Write-Debug 'Getting Advisor Metadata'
+    $AdvisorMetadata = Get-WAFAdvisorMetadata
+    Write-Debug "Count of Advisor Metadata: $($AdvisorMetadata.count)"
+
+    #Get Other Recommendations
+    Write-Debug 'Getting Other Recommendations'
+    $OtherRecommendations = Get-WARAOtherRecommendations -RecommendationObject $RecommendationObject -AdvisorMetadata $AdvisorMetadata
+    Write-Debug "Count of Other Recommendations: $($OtherRecommendations.count)"
+
+
     #Get Advisor Recommendations
     Write-Debug 'Getting Advisor Recommendations'
-    $advisorResourceObj = Get-WAFAdvisorRecommendation -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '') -HighAvailability
+    $advisorResourceObj = Get-WAFAdvisorRecommendation -AdditionalRecommendationIds $OtherRecommendations -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '') -HighAvailability
     Write-Debug "Count of Advisor Recommendations: $($advisorResourceObj.count)"
 
 
@@ -354,6 +365,24 @@ Function Build-resourceTypeObj {
     )
 
     $return = [resourceTypeFactory]::new($impactedResourceObj, $SpecialTypes).createResourceTypeObjects()
+
+    return $return
+}
+
+Function Get-WARAOtherRecommendations {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [PSObject] $RecommendationObject,
+
+        [Parameter(Mandatory = $true)]
+        [PSObject] $AdvisorMetadata
+    )
+
+    $metadata = $AdvisorMetadata.where({$_.recommendationCategory -ne 'HighAvailability'}).id
+
+    #Returns recommendations that are in APRL but not in Advisor under 'HighAvailability'
+    $return = $RecommendationObject.recommendationTypeId | Where-Object {$_ -in $metadata}
 
     return $return
 }
