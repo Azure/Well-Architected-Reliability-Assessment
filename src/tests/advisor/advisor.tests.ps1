@@ -5,9 +5,11 @@ BeforeAll {
     Import-Module -Name $modulePath -Force
     $objectlist = get-content $testDataPath -Raw | ConvertFrom-Json -depth 20
     $test_AdvisorData = get-content $test_AdvisorDataPath -raw | ConvertFrom-Json -depth 100
-    Mock Invoke-WAFQuery { return $objectlist } -ModuleName advisor
-    Mock Get-AzAccessToken { return 'fakeToken' } -ModuleName advisor
-    Mock Invoke-RestMethod { return $test_AdvisorData } -ModuleName advisor
+    Mock Invoke-WAFQuery { return $objectlist } -ModuleName advisor -Verifiable
+    Mock Get-AzAccessToken {return @{
+        token = ConvertTo-SecureString -String "fake-token" -AsPlainText -Force
+    }} -ModuleName advisor -Verifiable
+    Mock Invoke-RestMethod { return $test_AdvisorData } -ModuleName advisor -Verifiable
 }
 
 Describe 'Build-WAFAdvisorObject' {
@@ -52,6 +54,7 @@ Describe 'Get-WAFAdvisorMetadata' {
     Context 'When the function is called' {
         It 'Should return the metadata' {
             $result = Get-WAFAdvisorMetadata
+            Should -InvokeVerifiable
             $result | Should -BeOfType 'System.Object'
             $result | Should -HaveCount 1426
         }
