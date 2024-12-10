@@ -234,6 +234,11 @@ function Start-WARACollector {
     $advisorResourceObj = Get-WAFAdvisorRecommendation -AdditionalRecommendationIds $OtherRecommendations -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '') -HighAvailability
     Write-Debug "Count of Advisor Recommendations: $($advisorResourceObj.count)"
 
+    #Prior to filtering, capture all "global" recommendations that are microsoft.subscriptions/subscriptions since these get filtered out.
+    Write-Debug 'Capturing global recommendations that are microsoft.subscriptions/subscriptions'
+    $globalRecommendations = $advisorResourceObj | Where-Object { $_.type -eq 'microsoft.subscriptions/subscriptions' }
+    Write-Debug "Count of global recommendations: $($globalRecommendations.count)"
+
 
     #Filter Advisor Recommendations by subscription, resource group, and resource scope
     Write-Debug 'Filtering Advisor Recommendations by subscription, resource group, and resource scope'
@@ -272,10 +277,15 @@ function Start-WARACollector {
         Write-Debug "Count of tag filtered Advisor Recommendations: $($advisorResourceObj.count)"
     }
 
+    #Add global recommendations back to advisorResourceObj
+    Write-Debug 'Adding global recommendations back to advisorResourceObj'
+    $advisorResourceObj += $globalRecommendations
+    Write-Debug "Count of advisorResourceObj with global recommendations: $($advisorResourceObj.count)"
+
     #Build Resource Type Object
-    Write-Debug 'Building Resource Type Object'
-    $resourceTypeObj = Build-resourceTypeObj -impactedResourceObj $impactedResourceObj -SpecialTypes $SpecialTypes
-    Write-Debug "Count of Resource Type Object: $($resourceTypeObj.count)"
+    Write-Debug 'Building Resource Type Object with impactedResourceObj and advisorResourceObj'
+    $resourceTypeObj = Build-resourceTypeObj -resourceObj $($impactedResourceObj+$advisorResourceObj) -SpecialTypes $SpecialTypes
+    Write-Debug "Count of Resource Type Object : $($resourceTypeObj.count)"
 
     #Get Azure Outages
     Write-Debug 'Getting Azure Outages'
@@ -358,13 +368,13 @@ Function Build-resourceTypeObj {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [PSObject] $impactedResourceObj,
+        [PSObject] $ResourceObj,
 
         [Parameter(Mandatory = $true)]
         [PSObject] $SpecialTypes
     )
 
-    $return = [resourceTypeFactory]::new($impactedResourceObj, $SpecialTypes).createResourceTypeObjects()
+    $return = [resourceTypeFactory]::new($ResourceObj, $SpecialTypes).createResourceTypeObjects()
 
     return $return
 }

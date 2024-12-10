@@ -1,9 +1,13 @@
 BeforeAll {
     $modulePath = "$PSScriptRoot/../../modules/wara/advisor/advisor.psd1" 
     $testDataPath = "$PSScriptRoot/../data/advisor/bigAdvisorTestData.json"
+    $test_AdvisorDataPath = "$PSScriptRoot/../data/advisor/test_advisormetadata.json"
     Import-Module -Name $modulePath -Force
     $objectlist = get-content $testDataPath -Raw | ConvertFrom-Json -depth 20
+    $test_AdvisorData = get-content $test_AdvisorDataPath -raw | ConvertFrom-Json -depth 100
     Mock Invoke-WAFQuery { return $objectlist } -ModuleName advisor
+    Mock Get-AzAccessToken { return 'fakeToken' } -ModuleName Az.Accounts
+    Mock Invoke-RestMethod { return $test_AdvisorData }
 }
 
 Describe 'Build-WAFAdvisorObject' {
@@ -40,6 +44,16 @@ Describe 'Get-WAFAdvisorRecommendations' {
             $result.category            | Should -Contain 'HighAvailability'
             $result.impact              | Should -Contain 'High'
             $result.description         | Should -Contain 'Create an Azure Service Health alert'
+        }
+    }
+}
+
+Describe 'Get-WAFAdvisorMetadata' {
+    Context 'When the function is called' {
+        It 'Should return the metadata' {
+            $result = Get-WAFAdvisorMetadata
+            $result | Should -BeOfType 'System.Object'
+            $result | Should -HaveCount 1426
         }
     }
 }
