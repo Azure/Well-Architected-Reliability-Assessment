@@ -6,8 +6,8 @@ BeforeAll {
     $objectlist = get-content $testDataPath -Raw | ConvertFrom-Json -depth 20
     $test_AdvisorData = get-content $test_AdvisorDataPath -raw | ConvertFrom-Json -depth 100
     Mock Invoke-WAFQuery { return $objectlist } -ModuleName advisor
-    Mock Get-AzAccessToken { return 'fakeToken' } -ModuleName Az.Accounts
-    Mock Invoke-RestMethod { return $test_AdvisorData }
+    Mock Get-AzAccessToken { return 'fakeToken' } -ModuleName advisor
+    Mock Invoke-RestMethod { return $test_AdvisorData } -ModuleName advisor
 }
 
 Describe 'Build-WAFAdvisorObject' {
