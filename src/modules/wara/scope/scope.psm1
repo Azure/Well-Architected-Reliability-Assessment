@@ -178,6 +178,7 @@ function Get-WAFSubscriptionsByList {
     Date: 2024-08-07
 #>
 function Get-WAFResourcesByList {
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
         [array] $ObjectList,
@@ -186,13 +187,25 @@ function Get-WAFResourcesByList {
         [array] $FilterList,
 
         [Parameter(Mandatory = $true)]
-        [string] $KeyColumn
-    )
+        [string] $KeyColumn,
 
+        [parameter(Mandatory = $false)]
+        [switch] $NotIn
+    )
+if($NotIn.IsPresent){
+    write-Debug "Filtering for objects not in the list"
+    $matchingObjects = foreach ($obj in $ObjectList) {
+        if ($obj.$KeyColumn -notin $FilterList) {
+            $obj
+        }
+    }
+} else {
+    write-Debug "Filtering for objects in the list"
     $matchingObjects = foreach ($obj in $ObjectList) {
         if ($obj.$KeyColumn -in $FilterList) {
             $obj
         }
+    }
     }
 
     return $matchingObjects

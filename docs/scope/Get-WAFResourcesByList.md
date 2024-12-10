@@ -13,7 +13,7 @@ Filters a list of objects based on resource identifiers.
 ## SYNTAX
 
 ```
-Get-WAFResourcesByList [-ObjectList] <Array> [-FilterList] <Array> [-KeyColumn] <String>
+Get-WAFResourcesByList [-ObjectList] <Array> [-FilterList] <Array> [-KeyColumn] <String> [-NotIn]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -77,6 +77,21 @@ Aliases:
 Required: True
 Position: 3
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NotIn
+{{ Fill NotIn Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
