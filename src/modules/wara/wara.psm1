@@ -122,7 +122,7 @@ function Start-WARACollector {
 
     #Create SpecialTypes Object from WARA InScope Resource Types
     Write-Debug 'Creating SpecialTypes Object from WARA InScope Resource Types'
-    $SpecialTypes = ($RecommendationResourceTypes | Where { $_.InAprlAndOrAdvisor -eq "No" }).ResourceType
+    $SpecialTypes = ($RecommendationResourceTypes | Where-Object { $_.InAprlAndOrAdvisor -eq "No" }).ResourceType
     Write-Debug "Count of SpecialTypes: $($SpecialTypes.count)"
 
 
