@@ -14,7 +14,7 @@ Invokes a loop to run queries for each recommendation object.
 
 ```
 Invoke-WAFQueryLoop [-RecommendationObject] <PSObject[]> [-SubscriptionIds] <String[]>
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [[-AddedTypes] <String[]>] [[-ProgressId] <Int32>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -55,6 +55,36 @@ Aliases:
 Required: True
 Position: 2
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AddedTypes
+{{ Fill AddedTypes Description }}
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 3
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressId
+{{ Fill ProgressId Description }}
+
+```yaml
+Type: Int32
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 4
+Default value: 1
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
