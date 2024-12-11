@@ -32,7 +32,7 @@ function Start-WARACollector {
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Default')]
         [ValidateScript({ Test-WAFIsGuid $_ })]
-        [string] $TenantID,
+        [GUID] $TenantID,
 
         [Parameter(ParameterSetName = 'Default')]
         [ValidateScript({ Test-WAFTagPattern $_ })]
@@ -62,6 +62,15 @@ function Start-WARACollector {
         [ValidateScript({ Test-Path $_ -PathType Leaf })]
         [string] $RunbookFile
     )
+
+    $StopWatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+    $ScriptParams = foreach($param in $PSBoundParameters.GetEnumerator()) {
+        Write-Debug "Parameter: $($param.Key) Value: $($param.Value)"
+        [PSCustomObject]@{
+            $param.key = $param.value
+        }
+    }
 
     Write-Debug 'Debugging mode is enabled'
     Write-Progress -Activity 'WARA Collector' -Status 'Starting WARA Collector' -PercentComplete 0 -Id 1
@@ -101,6 +110,8 @@ function Start-WARACollector {
     $Scope_SubscriptionIds = $ConfigData.SubscriptionIds ?? $SubscriptionIds ?? @()
     $Scope_ResourceGroups = $ConfigData.ResourceGroups ?? $ResourceGroups ?? @()
     $Scope_Tags = $ConfigData.Tags ?? $Tags ?? @()
+
+    $Scope_TenantId = ([guid][string]$Scope_TenantId).Guid
 
     Write-Progress -Activity 'WARA Collector' -Status 'Setting Scope' -PercentComplete 3 -Id 1
     $Scope_SubscriptionIds = Repair-WAFSubscriptionId -SubscriptionIds $Scope_SubscriptionIds
@@ -391,11 +402,38 @@ function Start-WARACollector {
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Azure Service Health' -PercentComplete 90 -Id 1
     $serviceHealthObjects = Get-WAFServiceHealth -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
 
+    $StopWatch.Stop()
+    Write-Debug "Elapsed Time: $($StopWatch.Elapsed.toString("hh\:mm\:ss"))"
+
+    #Create Script Details Object
+    Write-Debug 'Creating Script Details Object'
+    $ScriptDetails = [PSCustomObject]@{
+        Version = $(Get-Module -name $MyInvocation.MyCommand.ModuleName).Version
+        ElapsedTime = $StopWatch.Elapsed.toString("hh\:mm\:ss")
+        SAP = $SAP
+        AVD = $AVD
+        AVS = $AVS
+        HPC = $HPC
+        TenantId = $Scope_TenantId
+        SubscriptionIds = $Scope_SubscriptionIds
+        ResourceGroups = $Scope_ResourceGroups
+        ImplicitSubscriptionIds = $Scope_ImplicitSubscriptionIds
+        Tags = $Scope_Tags
+        AzureEnvironment = $AzureEnvironment
+        RecommendationDataUri = $RecommendationDataUri
+        RecommendationResourceTypesUri = $RecommendationResourceTypesUri
+        UseImplicitRunbookSelectors = $UseImplicitRunbookSelectors
+        RunbookFile = $RunbookFile
+        ConfigFile = $ConfigFile 
+        ConfigData = $ConfigData 
+        RunTimeParameters = $ScriptParams 
+    }
 
     #Create output JSON
     Write-Debug 'Creating output JSON'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating Output JSON' -PercentComplete 93 -Id 1
     $outputJson = [PSCustomObject]@{
+        scriptDetails     = $ScriptDetails
         impactedResources = $impactedResourceObj
         resourceType      = $resourceTypeObj
         advisory          = $advisorResourceObj
@@ -724,4 +762,3 @@ class specializedResourceFactory {
         return $return
     }
 }
-
