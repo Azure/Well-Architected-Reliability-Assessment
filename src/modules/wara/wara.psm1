@@ -403,7 +403,7 @@ function Start-WARACollector {
     $serviceHealthObjects = Get-WAFServiceHealth -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
 
     $StopWatch.Stop()
-    Write-Debug "Elapsed Time: $($StopWatch.Elapsed.TotalSeconds) seconds"
+    Write-Debug "Elapsed Time: $($StopWatch.Elapsed.toString("hh\:mm\:ss"))"
 
     #Create Script Details Object
     Write-Debug 'Creating Script Details Object'
