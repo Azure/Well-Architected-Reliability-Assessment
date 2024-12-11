@@ -1,3 +1,68 @@
+    <#
+    .SYNOPSIS
+    Starts the WARA Collector process.
+
+    .DESCRIPTION
+    The Start-WARACollector function initiates the WARA Collector process, which collects and processes data based on the specified parameters. It supports multiple parameter sets, including Default, Specialized, and ConfigFileSet.
+
+    .PARAMETER SAP
+    Switch to enable SAP workload processing.
+
+    .PARAMETER AVD
+    Switch to enable AVD workload processing.
+
+    .PARAMETER AVS
+    Switch to enable AVS workload processing.
+
+    .PARAMETER HPC
+    Switch to enable HPC workload processing.
+
+    .PARAMETER SubscriptionIds
+    Array of subscription IDs to include in the process. Validated using Test-WAFSubscriptionId.
+
+    .PARAMETER ResourceGroups
+    Array of resource groups to include in the process. Validated using Test-WAFResourceGroupId.
+
+    .PARAMETER TenantID
+    The tenant ID to use for the process. This parameter is mandatory and validated using Test-WAFIsGuid.
+
+    .PARAMETER Tags
+    Array of tags to include in the process. Validated using Test-WAFTagPattern.
+
+    .PARAMETER AzureEnvironment
+    Specifies the Azure environment to use. Default is 'AzureCloud'. Valid values are 'AzureCloud', 'AzureUSGovernment', 'AzureGermanCloud', and 'AzureChinaCloud'.
+
+    .PARAMETER ConfigFile
+    Path to the configuration file. This parameter is mandatory for the ConfigFileSet parameter set and validated using Test-Path.
+
+    .PARAMETER RecommendationDataUri
+    URI for the recommendation data. Default is 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json'.
+
+    .PARAMETER RecommendationResourceTypesUri
+    URI for the recommendation resource types. Default is 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv'.
+
+    .PARAMETER UseImplicitRunbookSelectors
+    Switch to enable the use of implicit runbook selectors.
+
+    .PARAMETER RunbookFile
+    Path to the runbook file. Validated using Test-Path.
+
+    .EXAMPLE
+    Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
+
+    .EXAMPLE
+    Start-WARACollector -ConfigFile "C:\path\to\config.txt"
+
+    .EXAMPLE
+    Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001" -Tags "Env||Environment!~Dev||QA" -AVD -SAP -HPC
+
+    .EXAMPLE
+    Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
+
+    .NOTES
+    Author: Kyle Poineal
+    Date: 12/11/2024
+    #>
 function Start-WARACollector {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
