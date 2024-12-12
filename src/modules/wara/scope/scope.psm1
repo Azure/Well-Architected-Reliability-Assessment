@@ -62,6 +62,9 @@ General notes
 .PARAMETER KeyColumn
     The name of the property in the objects that contains the resource group identifier.
 
+.OUTPUTS
+    Returns an array of filtered resources.
+
 .EXAMPLE
     $objectList = @(
         @{ Id = "/subscriptions/12345/resourceGroups/myResourceGroup/providers/Microsoft.Compute/virtualMachines/myVM" },
@@ -87,13 +90,14 @@ function Get-WAFResourceGroupsByList {
         [string] $KeyColumn
     )
 
-    $matchingObjects = foreach ($obj in $ObjectList) {
+    $matchingObjects = @()
+    $matchingObjects += foreach ($obj in $ObjectList) {
         if (($obj.$KeyColumn.split('/')[0..4] -join '/') -in $FilterList) {
             $obj
         }
     }
 
-    return $matchingObjects
+    return ,$matchingObjects
 }
 
 <#
@@ -112,6 +116,9 @@ function Get-WAFResourceGroupsByList {
 
 .PARAMETER KeyColumn
     The name of the property in the objects that contains the subscription identifier.
+
+.OUTPUTS
+    Returns an array of filtered resources.
 
 .EXAMPLE
     $objectList = @(
@@ -138,13 +145,14 @@ function Get-WAFSubscriptionsByList {
         [string] $KeyColumn
     )
 
-    $matchingObjects = foreach ($obj in $ObjectList) {
+    $matchingObjects = @()
+    $matchingObjects += foreach ($obj in $ObjectList) {
         if (($obj.$KeyColumn.split('/')[0..2] -join '/') -in $FilterList) {
             $obj
         }
     }
 
-    return $matchingObjects
+    return ,$matchingObjects
 }
 
 <#
@@ -163,6 +171,9 @@ function Get-WAFSubscriptionsByList {
 
 .PARAMETER KeyColumn
     The name of the property in the objects that contains the resource identifier.
+
+.OUTPUTS
+    Returns an array of filtered resources.
 
 .EXAMPLE
     $objectList = @(
@@ -192,23 +203,26 @@ function Get-WAFResourcesByList {
         [parameter(Mandatory = $false)]
         [switch] $NotIn
     )
+
+    $matchingObjects = @()
+
 if($NotIn.IsPresent){
     write-Debug "Filtering for objects not in the list"
-    $matchingObjects = foreach ($obj in $ObjectList) {
+    $matchingObjects += foreach ($obj in $ObjectList) {
         if ($obj.$KeyColumn -notin $FilterList) {
             $obj
         }
     }
 } else {
     write-Debug "Filtering for objects in the list"
-    $matchingObjects = foreach ($obj in $ObjectList) {
+    $matchingObjects += foreach ($obj in $ObjectList) {
         if ($obj.$KeyColumn -in $FilterList) {
             $obj
         }
     }
     }
 
-    return $matchingObjects
+    return ,$matchingObjects
 }
 
 <#
@@ -309,14 +323,18 @@ function Get-WAFFilteredResourceList {
 
     # TODO: ADD FILTERS FOR TAGS
 
+    $SubscriptionFilteredResources = @()
     $SubscriptionFilters ? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn $KeyColumn) : $(Write-Debug 'Subscription Filters not provided.')
 
+    $ResourceGroupFilteredResources = @()
     $ResourceGroupFilters ? $($ResourceGroupFilteredResources = Get-WAFResourceGroupsByList -ObjectList $UnfilteredResources -FilterList $ResourceGroupFilters -KeyColumn $KeyColumn) : $(Write-Debug 'Resource Group Filters not provided.')
 
+    $ResourceFilteredResources = @()
     $ResourceFilters ? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn $KeyColumn) : $(Write-Debug 'Resource Filters not provided.')
 
     # Originally used to remove duplicates but there was some weird interaction with the return object that caused it to duplicate the entire array. 
-    $FilteredResources = $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources | Select-Object -Property * -Unique
+    $FilteredResources = @()
+    $FilteredResources += $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources | Select-Object -Property * -Unique
 
-    return $FilteredResources
+    return ,$FilteredResources
 }
