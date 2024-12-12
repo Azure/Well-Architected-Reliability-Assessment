@@ -24,29 +24,6 @@
 
 <#
 .SYNOPSIS
-Short description
-
-.DESCRIPTION
-Long description
-
-.PARAMETER ObjectList
-Parameter description
-
-.PARAMETER FilterList
-Parameter description
-
-.PARAMETER KeyColumn
-Parameter description
-
-.EXAMPLE
-An example
-
-.NOTES
-General notes
-#>
-
-<#
-.SYNOPSIS
     Filters a list of objects based on resource group identifiers.
 
 .DESCRIPTION
@@ -206,20 +183,20 @@ function Get-WAFResourcesByList {
 
     $matchingObjects = @()
 
-if($NotIn.IsPresent){
-    write-Debug "Filtering for objects not in the list"
-    $matchingObjects += foreach ($obj in $ObjectList) {
-        if ($obj.$KeyColumn -notin $FilterList) {
-            $obj
+    if($NotIn.IsPresent){
+        Write-Debug 'Filtering for objects not in the list'
+        $matchingObjects += foreach ($obj in $ObjectList) {
+            if ($obj.$KeyColumn -notin $FilterList) {
+                $obj
+            }
         }
-    }
-} else {
-    write-Debug "Filtering for objects in the list"
-    $matchingObjects += foreach ($obj in $ObjectList) {
-        if ($obj.$KeyColumn -in $FilterList) {
-            $obj
+    } else {
+        Write-Debug 'Filtering for objects in the list'
+        $matchingObjects += foreach ($obj in $ObjectList) {
+            if ($obj.$KeyColumn -in $FilterList) {
+                $obj
+            }
         }
-    }
     }
 
     return ,$matchingObjects
