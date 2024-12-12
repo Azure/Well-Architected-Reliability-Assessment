@@ -1,3 +1,38 @@
+<#
+.SYNOPSIS
+    Invokes an Azure Resource Graph query.
+
+.DESCRIPTION
+    The `Invoke-WAFQuery` function executes an Azure Resource Graph query and returns the results. It handles pagination and consolidates results from multiple subscriptions if provided.
+
+.PARAMETER Query
+    The Kusto query string to execute against Azure Resource Graph.
+
+.PARAMETER SubscriptionId
+    An array of subscription IDs to scope the query to.
+
+.INPUTS
+    System.String. The query string.
+    System.String[]. The array of subscription IDs.
+
+.OUTPUTS
+    System.Object[]. Returns an array of query results.
+
+.EXAMPLE
+    PS> $query = "Resources | where type =~ 'Microsoft.Compute/virtualMachines'"
+    PS> $results = Invoke-WAFQuery -Query $query -SubscriptionId @("59f6f1ab-6d68-4c90-b4e5-ad2d71cefc57")
+
+    This example retrieves all virtual machines within the specified subscription.
+
+.EXAMPLE
+    PS> $results = Invoke-WAFQuery -Query $query -SubscriptionId $subscriptionIds
+
+    This example executes the query across multiple subscriptions.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: [Today's Date]
+#>
 function Invoke-WAFQuery {
     [CmdletBinding()]
     param (
@@ -230,16 +265,30 @@ function Get-AzureRestMethodUriPath {
     Imports configuration data from a file.
 
 .DESCRIPTION
-    The Import-WAFConfigFileData function reads the content of a configuration file, extracts sections, and returns the data as a PSCustomObject.
+    The `Import-WAFConfigFileData` function reads the content of a configuration file, extracts sections, and returns the data as a `PSCustomObject`. The configuration file should have sections defined by square brackets `[SectionName]` and key-value pairs within each section.
 
-.PARAMETER file
+.PARAMETER ConfigFile
     The path to the configuration file.
 
+.INPUTS
+    System.String. The function accepts a string representing the path to the configuration file.
+
 .OUTPUTS
-    Returns a PSCustomObject containing the configuration data.
+    System.Management.Automation.PSCustomObject. Returns a custom object containing the configuration data.
 
 .EXAMPLE
-    PS> $configData = Import-WAFConfigFileData -file "config.txt"
+    PS> $configData = Import-WAFConfigFileData -ConfigFile "C:\config\settings.txt"
+
+    This example imports configuration data from the specified file.
+
+.EXAMPLE
+    PS> Import-WAFConfigFileData -ConfigFile "config.txt"
+
+    This example imports configuration data from 'config.txt' in the current directory.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2024-12-12
 #>
 function Import-WAFConfigFileData {
     [CmdletBinding()]
@@ -361,6 +410,39 @@ function Connect-WAFAzure {
     }
 }
 
+<#
+.SYNOPSIS
+    Validates an array of tag patterns.
+
+.DESCRIPTION
+    The `Test-WAFTagPattern` function checks if each tag pattern in the input array follows the required format. Tags should be specified in the format 'Key!~Value||Key2!~Value2'.
+
+.PARAMETER InputValue
+    An array of tag patterns to validate.
+
+.INPUTS
+    System.String[]. The function accepts an array of tag pattern strings.
+
+.OUTPUTS
+    None. Throws an error if validation fails.
+
+.EXAMPLE
+    PS> Test-WAFTagPattern -InputValue @("Env!~Prod||Test", "Owner!~JohnDoe")
+
+    This example validates valid tag patterns.
+
+.EXAMPLE
+    PS> Test-WAFTagPattern -InputValue @("InvalidTagPattern")
+
+    Error:
+    The tag pattern 'InvalidTagPattern' is invalid.
+
+    This example demonstrates validation failure for an invalid tag pattern.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2024-12-12
+#>
 function Test-WAFTagPattern {
     [CmdletBinding()]
     param (
@@ -381,6 +463,39 @@ function Test-WAFTagPattern {
     return $allMatch
 }
 
+<#
+.SYNOPSIS
+    Validates an array of resource group IDs.
+
+.DESCRIPTION
+    The `Test-WAFResourceGroupId` function checks if each resource group ID in the input array follows the correct Azure resource group ID format.
+
+.PARAMETER InputValue
+    An array of resource group IDs to validate.
+
+.INPUTS
+    System.String[]. The function accepts an array of resource group ID strings.
+
+.OUTPUTS
+    None. Throws an error if validation fails.
+
+.EXAMPLE
+    PS> Test-WAFResourceGroupId -InputValue @("/subscriptions/59f6f1ab-6d68-4c90-b4e5-ad2d71cefc57/resourceGroups/MyResourceGroup")
+
+    This example validates a valid resource group ID.
+
+.EXAMPLE
+    PS> Test-WAFResourceGroupId -InputValue @("invalid-resource-group-id")
+
+    Error:
+    The resource group ID 'invalid-resource-group-id' is invalid.
+
+    This example demonstrates validation failure when an invalid resource group ID is provided.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2024-12-12
+#>
 function Test-WAFResourceGroupId {
     [CmdletBinding()]
     param (
@@ -401,6 +516,39 @@ function Test-WAFResourceGroupId {
     return $allMatch
 }
 
+<#
+.SYNOPSIS
+    Validates an array of subscription IDs.
+
+.DESCRIPTION
+    The `Test-WAFSubscriptionId` function checks if each subscription ID in the input array is a valid GUID format. It throws an error if any subscription ID is invalid.
+
+.PARAMETER InputValue
+    An array of subscription IDs to validate.
+
+.INPUTS
+    System.String[]. The function accepts an array of subscription ID strings.
+
+.OUTPUTS
+    None. Throws an error if validation fails.
+
+.EXAMPLE
+    PS> Test-WAFSubscriptionId -InputValue @("59f6f1ab-6d68-4c90-b4e5-ad2d71cefc57", "invalid-guid")
+
+    Error:
+    The subscription ID 'invalid-guid' is not a valid GUID.
+
+    This example demonstrates validation failure when an invalid subscription ID is provided.
+
+.EXAMPLE
+    PS> Test-WAFSubscriptionId -InputValue @("59f6f1ab-6d68-4c90-b4e5-ad2d71cefc57")
+
+    This example validates a valid subscription ID without any error.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2024-12-12
+#>
 function Test-WAFSubscriptionId {
     [CmdletBinding()]
     param (
@@ -421,6 +569,42 @@ function Test-WAFSubscriptionId {
     return $allMatch
 }
 
+<#
+.SYNOPSIS
+    Validates whether a string is a valid GUID.
+
+.DESCRIPTION
+    The `Test-WAFIsGuid` function checks if the input string is a valid GUID format.
+
+.PARAMETER StringGuid
+    The string to validate as a GUID.
+
+.INPUTS
+    System.String. The function accepts a string representing the GUID to validate.
+
+.OUTPUTS
+    System.Boolean. Returns `$true` if the input is a valid GUID, `$false` otherwise.
+
+.EXAMPLE
+    Test-WAFIsGuid -StringGuid "59f6f1ab-6d68-4c90-b4e5-ad2d71cefc57"
+
+    Output:
+    True
+
+    This example checks if the provided string is a valid GUID.
+
+.EXAMPLE
+    Test-WAFIsGuid -StringGuid "invalid-guid"
+
+    Output:
+    False
+
+    This example demonstrates that an invalid GUID returns `$false`.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2024-12-12
+#>
 function Test-WAFIsGuid {
     [CmdletBinding()]
     param (
@@ -435,6 +619,54 @@ function Test-WAFIsGuid {
     return $true
 }
 
+<#
+    .SYNOPSIS
+        Ensures that subscription IDs are in the correct ARM resource ID format by adding "/subscriptions/" prefix if missing.
+
+    .DESCRIPTION
+        The `Repair-WAFSubscriptionId` function accepts an array of subscription IDs and checks each one to ensure it follows the Azure Resource Manager (ARM) resource ID format. If a subscription ID does not start with "/subscriptions/", the function prefixes it with "/subscriptions/". This standardizes the subscription IDs for consistent use in ARM queries and operations.
+
+    .PARAMETER SubscriptionIds
+        An array of subscription ID strings to validate and correct if necessary.
+
+    .INPUTS
+        System.String[]. You can pipe an array of subscription ID strings to this function.
+
+    .OUTPUTS
+        System.String[]. Returns an array of subscription IDs, each starting with "/subscriptions/".
+
+    .EXAMPLE
+        PS> $subs = @("59f6f1ab-6d68-4c90-b4e5-ad2d71cefc57", "/subscriptions/abcd1234-5678-90ab-cdef-1234567890ab")
+        PS> $fixedSubs = Repair-WAFSubscriptionId -SubscriptionIds $subs
+        PS> $fixedSubs
+
+        Output:
+        /subscriptions/59f6f1ab-6d68-4c90-b4e5-ad2d71cefc57
+        /subscriptions/abcd1234-5678-90ab-cdef-1234567890ab
+
+        This example demonstrates that the function adds the "/subscriptions/" prefix to a subscription ID that lacks it and leaves properly formatted IDs unchanged.
+
+    .EXAMPLE
+        PS> $subs = @()
+        PS> $fixedSubs = Repair-WAFSubscriptionId -SubscriptionIds $subs
+
+        This example shows that the function correctly handles an empty array without errors, returning an empty array.
+
+    .EXAMPLE
+        PS> $subs = @("invalid-guid", "12345678-1234-1234-1234-1234567890ab")
+        PS> $fixedSubs = Repair-WAFSubscriptionId -SubscriptionIds $subs
+        PS> $fixedSubs
+
+        Output:
+        /subscriptions/invalid-guid
+        /subscriptions/12345678-1234-1234-1234-1234567890ab
+
+        This example illustrates that the function does not validate the format of the GUID itself; it only ensures the prefix is present.
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2024-12-12
+    #>
 function Repair-WAFSubscriptionId {
     [CmdletBinding()]
     [Parameter(Mandatory = $true)]
