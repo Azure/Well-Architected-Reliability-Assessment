@@ -298,8 +298,6 @@ function Get-WAFFilteredResourceList {
         [string] $KeyColumn = 'Id'
     )
 
-    # TODO: ADD FILTERS FOR TAGS
-
     $SubscriptionFilteredResources = @()
     $SubscriptionFilters ? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn $KeyColumn) : $(Write-Debug 'Subscription Filters not provided.')
 
