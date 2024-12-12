@@ -24,29 +24,6 @@
 
 <#
 .SYNOPSIS
-Short description
-
-.DESCRIPTION
-Long description
-
-.PARAMETER ObjectList
-Parameter description
-
-.PARAMETER FilterList
-Parameter description
-
-.PARAMETER KeyColumn
-Parameter description
-
-.EXAMPLE
-An example
-
-.NOTES
-General notes
-#>
-
-<#
-.SYNOPSIS
     Filters a list of objects based on resource group identifiers.
 
 .DESCRIPTION
