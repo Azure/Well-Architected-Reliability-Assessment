@@ -24,20 +24,20 @@ Imports configuration data from a file.
 Invokes an Azure REST API then returns the response.
 
 ### [Invoke-WAFQuery](Invoke-WAFQuery.md)
-{{ Fill in the Synopsis }}
+Invokes a query against Azure Resource Graph.
 
 ### [Repair-WAFSubscriptionId](Repair-WAFSubscriptionId.md)
-{{ Fill in the Synopsis }}
+Repairs a subscription ID.
 
 ### [Test-WAFIsGuid](Test-WAFIsGuid.md)
-{{ Fill in the Synopsis }}
+Tests if a string is a GUID.
 
 ### [Test-WAFResourceGroupId](Test-WAFResourceGroupId.md)
-{{ Fill in the Synopsis }}
+Tests if a string is a resource group ID.
 
 ### [Test-WAFSubscriptionId](Test-WAFSubscriptionId.md)
-{{ Fill in the Synopsis }}
+Tests if a string is a subscription ID.
 
 ### [Test-WAFTagPattern](Test-WAFTagPattern.md)
-{{ Fill in the Synopsis }}
+Tests if a string is a tag pattern.
 
