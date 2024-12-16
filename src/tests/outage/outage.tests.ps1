@@ -186,3 +186,28 @@ Describe 'Get-WAFOutage' {
         }
     }
 }
+
+Describe 'Get-WAFOldOutage' {
+    Context 'When queried should return the base outage data from the API' {
+        BeforeAll {
+            $moduleNameToInjectMock = 'outage'
+            Mock Invoke-AzureRestApi {
+                return @{ Content = $restApiResponseContent }
+            } -ModuleName $moduleNameToInjectMock -Verifiable
+        }
+
+        It 'Should return an OutageObject' {
+            $restApiResponseFilePath = "$PSScriptRoot/../data/outage/restApiSingleResponseData.json"
+            $restApiResponseContent = Get-Content $restApiResponseFilePath -Raw 
+            $subscriptionId = '11111111-1111-1111-1111-111111111111'
+
+            $responseObject = ($restApiResponseContent | ConvertFrom-Json -Depth 15).value
+
+            $result = Get-WAFOldOutage -SubscriptionIds $subscriptionId
+
+            Should -InvokeVerifiable
+            $result | Should -BeOfType [PSCustomObject]
+
+        }
+    }
+}

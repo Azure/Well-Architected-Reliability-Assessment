@@ -447,7 +447,7 @@ function Start-WARACollector {
     #Get Azure Outages
     Write-Debug 'Getting Azure Outages'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Azure Outages' -PercentComplete 81 -Id 1
-    $outageResourceObj = Get-WAFOutage -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
+    $outageResourceObj = Get-WAFOldOutage -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
 
 
     #Get Azure Retirements
