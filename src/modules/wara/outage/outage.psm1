@@ -66,7 +66,7 @@ function Get-WAFOldOutage {
             ) -join '&'
         }
         $response = Invoke-AzureRestApi @cmdletParams
-        ($response.Content | ConvertFrom-Json).value | select name, properties
+        ($response.Content | ConvertFrom-Json).value | Select-Object name, properties
     }
 
     return $serviceIssueEvents
