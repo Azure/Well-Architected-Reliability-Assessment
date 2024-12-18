@@ -262,7 +262,7 @@ Function Get-WAFAdvisorMetadata {
     $securetoken = Get-AzAccessToken -AsSecureString -ResourceUrl "https://management.azure.com/" -WarningAction SilentlyContinue
     
     # Convert the secure token to a plain text token
-    $token = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureToken.token))
+    $token = ConvertFrom-SecureString -SecureString $securetoken.token -AsPlainText
 
     # Create the authorization headers
     $authHeaders = @{
