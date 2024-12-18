@@ -29,7 +29,7 @@
     Copyright         = '(c) Microsoft. All rights reserved.'
 
     # Description of the functionality provided by this module
-    # Description = ''
+    Description = 'This module contains functions related to the Azure Well-Architected-Reliability-Assessment (WARA) service.'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '7.4'
