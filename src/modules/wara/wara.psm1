@@ -86,6 +86,10 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
         [switch] $HPC,
+        [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
+        [Parameter(ParameterSetName = 'ConfigFileSet')]
+        [switch] $PassThru,
 
         [Parameter(ParameterSetName = 'Default')]
         [ValidateScript({ Test-WAFSubscriptionId $_ })]
@@ -510,7 +514,12 @@ function Start-WARACollector {
 
     Write-Debug 'Output JSON'
     Write-Progress -Activity 'WARA Collector' -Status 'Output JSON' -PercentComplete 100 -Id 1 -Completed
-    return $outputJson
+    #Output JSON to file
+    $OutputPath = ('.\WARA-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.json')
+    #Output JSON to file
+    Write-Debug "Output Path: $OutputPath"
+    $outputJson | ConvertTo-Json -Depth 15 | Out-file $OutputPath
+    if($PassThru){return $outputJson}
 }
 
 
