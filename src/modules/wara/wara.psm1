@@ -625,7 +625,7 @@ class resourceTypeFactory {
     [PSObject]$TypesNotInAPRLOrAdvisor
 
     resourceTypeFactory([PSObject]$impactedResourceObj, [PSObject]$TypesNotInAPRLOrAdvisor) {
-        $this.impactedResourceObj = $impactedResourceObj | Group-Object Type | Select-Object Name, Count
+        $this.impactedResourceObj = $impactedResourceObj | Group-Object -Property type | Select-Object Name, @{Name='Count';Expression={($_.Group | Group-Object id ).count}}
         $this.TypesNotInAPRLOrAdvisor = $TypesNotInAPRLOrAdvisor
     }
 
