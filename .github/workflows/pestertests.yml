@@ -6,12 +6,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # Update permissions to allow writing
+  contents: read # Update permissions to allow reading
 
 jobs: 
   build:
     permissions:
-      contents: write  # Update permissions to allow writing
+      contents: read  # Update permissions to allow reading
     name: RunPesterTests
     runs-on: ubuntu-latest
     steps:
