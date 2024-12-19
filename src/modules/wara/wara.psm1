@@ -86,6 +86,10 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
         [switch] $HPC,
+        [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
+        [Parameter(ParameterSetName = 'ConfigFileSet')]
+        [switch] $PassThru,
 
         [Parameter(ParameterSetName = 'Default')]
         [ValidateScript({ Test-WAFSubscriptionId $_ })]
@@ -447,7 +451,7 @@ function Start-WARACollector {
     #Get Azure Outages
     Write-Debug 'Getting Azure Outages'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Azure Outages' -PercentComplete 81 -Id 1
-    $outageResourceObj = Get-WAFOutage -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
+    $outageResourceObj = Get-WAFOldOutage -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
 
 
     #Get Azure Retirements
@@ -510,7 +514,13 @@ function Start-WARACollector {
 
     Write-Debug 'Output JSON'
     Write-Progress -Activity 'WARA Collector' -Status 'Output JSON' -PercentComplete 100 -Id 1 -Completed
-    return $outputJson
+    #Output JSON to file
+    $OutputPath = ('.\WARA-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.json')
+    #Output JSON to file
+    Write-Host "Output Path: $OutputPath" -ForegroundColor Yellow
+    if($PassThru){return $outputJson}
+    $outputJson | ConvertTo-Json -Depth 15 | Out-file $OutputPath
+    
 }
 
 
@@ -616,7 +626,7 @@ class resourceTypeFactory {
     [PSObject]$TypesNotInAPRLOrAdvisor
 
     resourceTypeFactory([PSObject]$impactedResourceObj, [PSObject]$TypesNotInAPRLOrAdvisor) {
-        $this.impactedResourceObj = $impactedResourceObj | Group-Object Type | Select-Object Name, Count
+        $this.impactedResourceObj = $impactedResourceObj | Group-Object -Property type | Select-Object Name, @{Name='Count';Expression={($_.Group | Group-Object id ).count}}
         $this.TypesNotInAPRLOrAdvisor = $TypesNotInAPRLOrAdvisor
     }
 
