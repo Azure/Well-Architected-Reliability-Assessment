@@ -517,9 +517,10 @@ function Start-WARACollector {
     #Output JSON to file
     $OutputPath = ('.\WARA-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.json')
     #Output JSON to file
-    Write-Debug "Output Path: $OutputPath"
-    $outputJson | ConvertTo-Json -Depth 15 | Out-file $OutputPath
+    Write-Host "Output Path: $OutputPath" -ForegroundColor Yellow
     if($PassThru){return $outputJson}
+    $outputJson | ConvertTo-Json -Depth 15 | Out-file $OutputPath
+    
 }
 
 
