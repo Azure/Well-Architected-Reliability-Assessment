@@ -8,6 +8,7 @@ Describe 'New-WAFOutageObject' {
     Context 'When to get an OutageObject' {
         BeforeAll {
             $outageDescriptionFilePath = "$PSScriptRoot/../data/outage/outageDescriptionData.txt"
+            $null = $outageDescriptionFilePath
         }
 
         BeforeEach {
@@ -38,6 +39,7 @@ Describe 'New-WAFOutageObject' {
                 header         = $commonCmdletParams.Header
                 description    = $commonCmdletParams.Description
             }
+            $null = $expected
         }
 
         It 'Should return an OutageObject with a single impacted service' {
@@ -202,6 +204,7 @@ Describe 'Get-WAFOldOutage' {
             $subscriptionId = '11111111-1111-1111-1111-111111111111'
 
             $responseObject = ($restApiResponseContent | ConvertFrom-Json -Depth 15).value
+            $null = $responseObject
 
             $result = Get-WAFOldOutage -SubscriptionIds $subscriptionId
 
