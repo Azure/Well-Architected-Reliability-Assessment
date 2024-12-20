@@ -86,6 +86,7 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
         [switch] $HPC,
+        
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
@@ -707,7 +708,7 @@ class validationResourceFactory {
     # Properties
     [PSObject] $recommendationObject # The recommendation object
     [hashtable] $validationResources # The validation resources
-    [PSObject] $TypesNotInAPRLOrAdvisor # Resource types that we want to create a recommendation for but do not have a recommendation for
+    [PSObject] $TypesNotInAPRLOrAdvisor # Resource types that we want to create a recommendation for but do not have a recommendation for.
 
     validationResourceFactory([PSObject]$recommendationObject, [hashtable]$validationResources, [PSObject]$TypesNotInAPRLOrAdvisor) {
         $this.recommendationObject = $recommendationObject
