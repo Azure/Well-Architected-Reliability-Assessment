@@ -1,72 +1,71 @@
-    <#
-    .SYNOPSIS
+<#
+.SYNOPSIS
     Starts the WARA Collector process.
 
-    .DESCRIPTION
+.DESCRIPTION
     The Start-WARACollector function initiates the WARA Collector process, which collects and processes data based on the specified parameters. It supports multiple parameter sets, including Default, Specialized, and ConfigFileSet.
 
-    .PARAMETER SAP
+.PARAMETER SAP
     Switch to enable SAP workload processing.
 
-    .PARAMETER AVD
+.PARAMETER AVD
     Switch to enable AVD workload processing.
 
-    .PARAMETER AVS
+.PARAMETER AVS
     Switch to enable AVS workload processing.
 
-    .PARAMETER HPC
+.PARAMETER HPC
     Switch to enable HPC workload processing.
 
-    .PARAMETER SubscriptionIds
+.PARAMETER SubscriptionIds
     Array of subscription IDs to include in the process. Validated using Test-WAFSubscriptionId.
 
-    .PARAMETER ResourceGroups
+.PARAMETER ResourceGroups
     Array of resource groups to include in the process. Validated using Test-WAFResourceGroupId.
 
-    .PARAMETER TenantID
+.PARAMETER TenantID
     The tenant ID to use for the process. This parameter is mandatory and validated using Test-WAFIsGuid.
 
-    .PARAMETER Tags
+.PARAMETER Tags
     Array of tags to include in the process. Validated using Test-WAFTagPattern.
 
-    .PARAMETER AzureEnvironment
+.PARAMETER AzureEnvironment
     Specifies the Azure environment to use. Default is 'AzureCloud'. Valid values are 'AzureCloud', 'AzureUSGovernment', 'AzureGermanCloud', and 'AzureChinaCloud'.
 
-    .PARAMETER ConfigFile
+.PARAMETER ConfigFile
     Path to the configuration file. This parameter is mandatory for the ConfigFileSet parameter set and validated using Test-Path.
 
-    .PARAMETER RecommendationDataUri
+.PARAMETER RecommendationDataUri
     URI for the recommendation data. Default is 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json'.
 
-    .PARAMETER RecommendationResourceTypesUri
+.PARAMETER RecommendationResourceTypesUri
     URI for the recommendation resource types. Default is 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv'.
 
-    .PARAMETER UseImplicitRunbookSelectors
+.PARAMETER UseImplicitRunbookSelectors
     Switch to enable the use of implicit runbook selectors.
 
-    .PARAMETER RunbookFile
+.PARAMETER RunbookFile
     Path to the runbook file. Validated using Test-Path.
 
-    .EXAMPLE
+.EXAMPLE
     Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
 
-    .EXAMPLE
+.EXAMPLE
     Start-WARACollector -ConfigFile "C:\path\to\config.txt"
 
-    .EXAMPLE
+.EXAMPLE
     Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001" -Tags "Env||Environment!~Dev||QA" -AVD -SAP -HPC
 
-    .EXAMPLE
+.EXAMPLE
     Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
 
-    .NOTES
+.NOTES
     Author: Kyle Poineal
     Date: 12/11/2024
-    #>
+#>
 function Start-WARACollector {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
-
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
@@ -161,15 +160,14 @@ function Start-WARACollector {
         }
         'Default' {
             Write-Debug 'Using Default parameter set'
-
             Write-Debug "Parameter set values: $($PSBoundParameters.Keys)"
 
-            if ($PSBoundParameters.keys.contains( 'SubscriptionIds') -or $PSBoundParameters.keys.contains('ResourceGroups')) {
-                Write-Debug "We contain the parameters."
+            if ($PSBoundParameters.keys.contains('SubscriptionIds') -or $PSBoundParameters.keys.contains('ResourceGroups')) {
+                Write-Debug 'We contain the parameters.'
             }
             else {
-                Write-Debug "We do not contain the parameters."
-                throw "The parameter SubscriptionIds or ResourceGroups is required when using the Default parameter set."
+                Write-Debug 'We do not contain the parameters.'
+                throw 'The parameter SubscriptionIds or ResourceGroups is required when using the Default parameter set.'
             }
         }
     }
@@ -193,33 +191,31 @@ function Start-WARACollector {
 
     if ($SAP) {
         Write-Debug 'SAP switch is enabled'
-        $SpecializedWorkloads += "specialized.workload/sap"
+        $SpecializedWorkloads += 'specialized.workload/sap'
     }
     if ($AVD) {
         Write-Debug 'AVD switch is enabled'
-        $SpecializedWorkloads += "specialized.workload/avd"
+        $SpecializedWorkloads += 'specialized.workload/avd'
     }
     if ($AVS) {
         Write-Debug 'AVS switch is enabled'
-        $SpecializedWorkloads += "specialized.workload/avs"
+        $SpecializedWorkloads += 'specialized.workload/avs'
     }
     if ($HPC) {
         Write-Debug 'HPC switch is enabled'
-        $SpecializedWorkloads += "specialized.workload/hpc"
+        $SpecializedWorkloads += 'specialized.workload/hpc'
     }
 
     if ($SpecializedWorkloads) {
         Write-Debug "Specialized Workloads: $SpecializedWorkloads"
     }
 
-
     #Import Recommendation Object from APRL
     Write-Progress -Activity 'WARA Collector' -Status 'Importing APRL Recommendation Object from GitHub' -PercentComplete 5 -Id 1
     Write-Debug 'Importing APRL Recommendation Object from GitHub'
     $RecommendationObject = Invoke-RestMethod $RecommendationDataUri
     Write-Debug "Count of APRL Recommendation Object: $($RecommendationObject.count)"
-    
-    
+
     #Create Recommendation Object HashTable for faster lookup
     Write-Debug 'Creating Recommendation Object HashTable for faster lookup'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating Recommendation Object HashTable' -PercentComplete 8 -Id 1
@@ -227,20 +223,17 @@ function Start-WARACollector {
     $RecommendationObject.ForEach({ $RecommendationObjectHash[$_.aprlGuid] = $_ })
     Write-Debug "Count of Recommendation Object Hashtable: $($RecommendationObjectHash.count)"
 
-
     #Import WARA InScope Resource Types CSV from APRL
     Write-Debug 'Importing WARA InScope Resource Types CSV from GitHub'
     Write-Progress -Activity 'WARA Collector' -Status 'Importing WARA InScope Resource Types CSV' -PercentComplete 11 -Id 1
     $RecommendationResourceTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv | Where-Object { $_.WARAinScope -eq 'yes' }
     Write-Debug "Count of WARA InScope Resource Types: $($RecommendationResourceTypes.count)"
-    
-    
+
     #Add Specialized Workloads to WARA InScope Resource Types
     Write-Debug 'Adding Specialized Workloads to WARA InScope Resource Types'
     Write-Progress -Activity 'WARA Collector' -Status 'Adding Specialized Workloads to WARA InScope Resource Types' -PercentComplete 14 -Id 1
     $RecommendationResourceTypes += $SpecializedWorkloads
     Write-Debug "Count of WARA InScope Resource Types with Specialized Workloads: $($RecommendationResourceTypes.count)"
-    
 
     #Create TypesNotInAPRLOrAdvisor Object from WARA InScope Resource Types
     Write-Debug 'Creating TypesNotInAPRLOrAdvisor Object from WARA InScope Resource Types'
@@ -248,12 +241,10 @@ function Start-WARACollector {
     $TypesNotInAPRLOrAdvisor = ($RecommendationResourceTypes | Where-Object { $_.InAprlAndOrAdvisor -eq "No" }).ResourceType
     Write-Debug "Count of TypesNotInAPRLOrAdvisor: $($TypesNotInAPRLOrAdvisor.count)"
 
-
     #Connect to Azure
     Write-Debug 'Connecting to Azure if not connected.'
     Write-Progress -Activity 'WARA Collector' -Status 'Connecting to Azure' -PercentComplete 20 -Id 1
     Connect-WAFAzure -TenantId $Scope_TenantId -AzureEnvironment $AzureEnvironment
-
 
     #Get Implicit Subscription Ids from Scope
     Write-Debug 'Getting Implicit Subscription Ids from Scope'
@@ -261,13 +252,11 @@ function Start-WARACollector {
     $Scope_ImplicitSubscriptionIds = Get-WAFImplicitSubscriptionId -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Implicit Subscription Ids: $Scope_ImplicitSubscriptionIds"
 
-
     #Get all resources from the Implicit Subscription ID scope - We use this later to add type, location, subscriptionid, resourcegroup to the impactedResourceObj objects
     Write-Debug 'Getting all resources from the Implicit Subscription ID scope'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting All Resources' -PercentComplete 26 -Id 1
     $AllResources = Invoke-WAFQuery -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
     Write-Debug "Count of Resources: $($AllResources.count)"
-
 
     #Create HashTable of all resources for faster lookup
     Write-Debug 'Creating HashTable of all resources for faster lookup'
@@ -276,13 +265,11 @@ function Start-WARACollector {
     $AllResources.ForEach({ $AllResourcesHash[$_.id] = $_ })
     Write-Debug "All Resources Hash: $($AllResourcesHash.count)"
 
-
     #Filter all resources by subscription, resourcegroup, and resource scope
     Write-Debug 'Filtering all resources by subscription, resourcegroup, and resource scope'
     Write-Progress -Activity 'WARA Collector' -Status 'Filtering All Resources' -PercentComplete 32 -Id 1
     $Scope_AllResources = Get-WAFFilteredResourceList -UnfilteredResources $AllResources -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Count of filtered Resources: $($Scope_AllResources.count)"
-
 
     #Filter all resources by InScope Resource Types - We do this because we need to be able to compare resource ids to generate the generic recommendations(Resource types that have no recommendations or are not in advisor but also need to be validated)
     Write-Debug 'Filtering all resources by WARA InScope Resource Types'
@@ -290,14 +277,11 @@ function Start-WARACollector {
     $Scope_AllResources = Get-WAFResourcesByList -ObjectList $Scope_AllResources -FilterList $RecommendationResourceTypes.ResourceType -KeyColumn 'type'
     Write-Debug "Count of filtered by type Resources: $($Scope_AllResources.count)"
 
-
-
     #Get all APRL recommendations from the Implicit Subscription ID scope
     Write-Debug 'Getting all APRL recommendations from the Implicit Subscription ID scope'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting APRL Recommendations' -PercentComplete 38 -Id 1
     $Recommendations = Invoke-WAFQueryLoop -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '') -RecommendationObject $RecommendationObject -AddedTypes $SpecializedWorkloads -ProgressId 2
     Write-Debug "Count of Recommendations: $($Recommendations.count)"
-
 
     #Filter resource recommendation objects by subscription, resourcegroup, and resource scope
     Write-Debug 'Filtering APRL recommendation objects by subscription, resourcegroup, and resource scope'
@@ -305,13 +289,11 @@ function Start-WARACollector {
     $Filter_Recommendations = Get-WAFFilteredResourceList -UnfilteredResources $Recommendations -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Count of APRL recommendation objects: $($Filter_Recommendations.count)"
 
-
     #Create impactedResourceObj objects from the recommendations
     Write-Debug 'Creating impactedResourceObj objects from the recommendations'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating Impacted Resource Objects' -PercentComplete 44 -Id 1
     $impactedResourceObj = Build-impactedResourceObj -impactedResource $Filter_Recommendations -allResources $AllResourcesHash -RecommendationObject $RecommendationObjectHash
     Write-Debug "Count of impactedResourceObj objects: $($impactedResourceObj.count)"
-
 
     #Create list of validationResourceIds from the impactedResourceObj objects
     Write-Debug 'Creating hashtable of validationResources from the impactedResourceObj objects'
@@ -329,7 +311,7 @@ function Start-WARACollector {
     #By adding the $Scope_AllResources to the validationResources HashTable, we can ensure that we have all resources in the scope that need to be validated.
     #Adding the resources AFTER the first loop ensures that we do not add resources that are already in the impactedResourceObj objects.
     #This means we do not have to worry about overwriting the objects.
-    Write-Debug "Add In Scope resources to validationResources HashTable"
+    Write-Debug 'Add In Scope resources to validationResources HashTable'
     Write-Progress -Activity 'WARA Collector' -Status 'Adding In Scope Resources to Validation Resources' -PercentComplete 50 -Id 1
     foreach ($obj in $Scope_AllResources) {
         $key = "$($obj.id)"
@@ -339,20 +321,17 @@ function Start-WARACollector {
     }
     Write-Debug "Count of validationResourceIds: $($validationResources.count)"
 
-
     #Create validationResourceObj objects from the impactedResourceObj objects
     Write-Debug 'Creating validationResourceObj objects from the impactedResourceObj objects'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating Validation Resource Objects' -PercentComplete 53 -Id 1
     $validationResourceObj = Build-validationResourceObj -validationResources $validationResources -RecommendationObject $RecommendationObject -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
     Write-Debug "Count of validationResourceObj objects: $($validationResourceObj.count)"
 
-
     #Combine impactedResourceObj and validationResourceObj objects
     Write-Debug 'Combining impactedResourceObj and validationResourceObj objects'
     Write-Progress -Activity 'WARA Collector' -Status 'Combining Impacted and Validation Resource Objects' -PercentComplete 56 -Id 1
     $impactedResourceObj += $validationResourceObj
     Write-Debug "Count of combined validationResourceObj impactedResourceObj objects: $($impactedResourceObj.count)"
-
 
     #Get Advisor Metadata to include recommendations that are not in Advisor under 'HighAvailability'
     Write-Debug 'Getting Advisor Metadata'
@@ -366,7 +345,6 @@ function Start-WARACollector {
     $OtherRecommendations = Get-WARAOtherRecommendations -RecommendationObject $RecommendationObject -AdvisorMetadata $AdvisorMetadata
     Write-Debug "Count of Other Recommendations: $($OtherRecommendations.count)"
 
-
     #Get Advisor Recommendations
     Write-Debug 'Getting Advisor Recommendations'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Advisor Recommendations' -PercentComplete 65 -Id 1
@@ -379,21 +357,17 @@ function Start-WARACollector {
     $globalRecommendations = $advisorResourceObj | Where-Object { $_.type -eq 'microsoft.subscriptions/subscriptions' }
     Write-Debug "Count of global recommendations: $($globalRecommendations.count)"
 
-
     #Filter Advisor Recommendations by subscription, resource group, and resource scope
     Write-Debug 'Filtering Advisor Recommendations by subscription, resource group, and resource scope'
     Write-Progress -Activity 'WARA Collector' -Status 'Filtering Advisor Recommendations' -PercentComplete 71 -Id 1
     $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Count of filtered Advisor Recommendations: $($advisorResourceObj.count)"
 
-
     #If we passed tags, filter impactedResourceObj and advisorResourceObj by tagged resource group and tagged resource scope
     if (![string]::IsNullOrEmpty($Scope_Tags)) {
-
         Write-Debug 'Starting Tag Filtering'
         Write-Progress -Activity 'WARA Collector' -Status 'Starting Tag Filtering' -PercentComplete 72 -Id 1
         Write-Debug "Scope Tags: $Scope_Tags"
-
 
         #Get all tagged resource groups from the Implicit Subscription ID scope
         Write-Debug 'Getting all tagged resource groups from the Implicit Subscription ID scope'
@@ -401,20 +375,17 @@ function Start-WARACollector {
         $Filter_TaggedResourceGroupIds = Get-WAFTaggedResourceGroup -TagArray $Scope_Tags -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
         Write-Debug "Count of Tagged Resource Group Ids: $($Filter_TaggedResourceGroupIds.count)"
 
-
         #Get all tagged resources from the Implicit Subscription ID scope
         Write-Debug 'Getting all tagged resources from the Implicit Subscription ID scope'
         Write-Progress -Activity 'WARA Collector' -Status 'Getting Tagged Resources' -PercentComplete 73 -Id 1
         $Filter_TaggedResourceIds = Get-WAFTaggedResource -TagArray $Scope_Tags -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
         Write-Debug "Count of Tagged Resource Ids: $($Filter_TaggedResourceIds.count)"
 
-
         #Filter impactedResourceObj objects by tagged resource group and resource scope
         Write-Debug 'Filtering impactedResourceObj objects by tagged resource group and resource scope'
         Write-Progress -Activity 'WARA Collector' -Status 'Filtering Impacted Resource Objects' -PercentComplete 73 -Id 1
         $impactedResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $impactedResourceObj -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
         Write-Debug "Count of tag filtered impactedResourceObj objects: $($impactedResourceObj.count)"
-
 
         #Filter Advisor Recommendations by tagged resource group and resource scope
         Write-Debug 'Filtering Advisor Recommendations by tagged resource group and resource scope'
@@ -473,13 +444,13 @@ function Start-WARACollector {
     $serviceHealthObjects = Get-WAFServiceHealth -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
 
     $StopWatch.Stop()
-    Write-Debug "Elapsed Time: $($StopWatch.Elapsed.toString("hh\:mm\:ss"))"
+    Write-Debug "Elapsed Time: $($StopWatch.Elapsed.toString('hh\:mm\:ss'))"
 
     #Create Script Details Object
     Write-Debug 'Creating Script Details Object'
     $ScriptDetails = [PSCustomObject]@{
         Version = $(Get-Module -name $MyInvocation.MyCommand.ModuleName).Version
-        ElapsedTime = $StopWatch.Elapsed.toString("hh\:mm\:ss")
+        ElapsedTime = $StopWatch.Elapsed.toString('hh\:mm\:ss')
         SAP = $SAP
         AVD = $AVD
         AVS = $AVS
@@ -520,10 +491,8 @@ function Start-WARACollector {
     #Output JSON to file
     Write-Host "Output Path: $OutputPath" -ForegroundColor Yellow
     if($PassThru){return $outputJson}
-    $outputJson | ConvertTo-Json -Depth 15 | Out-file $OutputPath
-    
+    $outputJson | ConvertTo-Json -Depth 15 | Out-file $OutputPath   
 }
-
 
 function Build-impactedResourceObj {
     [CmdletBinding()]
@@ -538,13 +507,11 @@ function Build-impactedResourceObj {
         [hashtable] $RecommendationObject
     )
 
-
     $impactedResourceObj = [impactedResourceFactory]::new($impactedResources, $allResources, $RecommendationObject)
     $r = $impactedResourceObj.createImpactedResourceObjects()
 
     return $r
 }
-
 
 Function Build-validationResourceObj {
     [CmdletBinding()]
@@ -700,11 +667,9 @@ class impactedResourceFactory {
     }
 }
 
-
-
 class validationResourceFactory {
     # This class is used to create validationResourceObj objects
-    
+
     # Properties
     [PSObject] $recommendationObject # The recommendation object
     [hashtable] $validationResources # The validation resources
@@ -724,7 +689,6 @@ class validationResourceFactory {
             $impactedResource = $v.value
 
             $recommendationByType = $this.recommendationObject.where({ $_.automationAvailable -eq $false -and $impactedResource.type -eq $_.recommendationResourceType -and $_.recommendationMetadataState -eq "Active" -and [string]::IsNullOrEmpty($_.recommendationTypeId) })
-
 
             if ($null -ne $recommendationByType) {
                 foreach ($rec in $recommendationByType) {
@@ -770,8 +734,7 @@ class validationResourceFactory {
                 Write-Error "No recommendation found for $($impactedResource.type) with resource id $($impactedResource.id)"
             }
         }
-            
-        
+
         return $return
     }
 
@@ -789,7 +752,7 @@ class validationResourceFactory {
 
 class specializedResourceFactory {
     # This class is used to create specializedResourceObj objects
-    
+
     # Properties
     [PSObject] $specializedResources # The specialized resources
     [PSObject] $RecommendationObject # The recommendation object
@@ -822,7 +785,6 @@ class specializedResourceFactory {
                 $r.selector = "APRL"
                 $r
             }
-      
         }
         return $return
     }
