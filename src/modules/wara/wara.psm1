@@ -132,9 +132,9 @@ function Start-WARACollector {
         [string] $RunbookFile
     )
 
-    $StopWatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-    $ScriptParams = foreach($param in $PSBoundParameters.GetEnumerator()) {
+    $scriptParams = foreach($param in $PSBoundParameters.GetEnumerator()) {
         Write-Debug "Parameter: $($param.Key) Value: $($param.Value)"
         [PSCustomObject]@{
             $param.key = $param.value
@@ -443,14 +443,14 @@ function Start-WARACollector {
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Azure Service Health' -PercentComplete 90 -Id 1
     $serviceHealthObjects = Get-WAFServiceHealth -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
 
-    $StopWatch.Stop()
-    Write-Debug "Elapsed Time: $($StopWatch.Elapsed.toString('hh\:mm\:ss'))"
+    $stopWatch.Stop()
+    Write-Debug "Elapsed Time: $($stopWatch.Elapsed.toString('hh\:mm\:ss'))"
 
     #Create Script Details Object
     Write-Debug 'Creating Script Details Object'
-    $ScriptDetails = [PSCustomObject]@{
+    $scriptDetails = [PSCustomObject]@{
         Version = $(Get-Module -name $MyInvocation.MyCommand.ModuleName).Version
-        ElapsedTime = $StopWatch.Elapsed.toString('hh\:mm\:ss')
+        ElapsedTime = $stopWatch.Elapsed.toString('hh\:mm\:ss')
         SAP = $SAP
         AVD = $AVD
         AVS = $AVS
@@ -474,7 +474,7 @@ function Start-WARACollector {
     Write-Debug 'Creating output JSON'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating Output JSON' -PercentComplete 93 -Id 1
     $outputJson = [PSCustomObject]@{
-        scriptDetails     = $ScriptDetails
+        scriptDetails     = $scriptDetails
         impactedResources = $impactedResourceObj
         resourceType      = $resourceTypeObj
         advisory          = $advisorResourceObj
@@ -487,11 +487,11 @@ function Start-WARACollector {
     Write-Debug 'Output JSON'
     Write-Progress -Activity 'WARA Collector' -Status 'Output JSON' -PercentComplete 100 -Id 1 -Completed
     #Output JSON to file
-    $OutputPath = ('.\WARA-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.json')
+    $outputPath = ('.\WARA-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.json')
     #Output JSON to file
-    Write-Host "Output Path: $OutputPath" -ForegroundColor Yellow
+    Write-Host "Output Path: $outputPath" -ForegroundColor Yellow
     if($PassThru){return $outputJson}
-    $outputJson | ConvertTo-Json -Depth 15 | Out-file $OutputPath   
+    $outputJson | ConvertTo-Json -Depth 15 | Out-file $outputPath   
 }
 
 function Build-impactedResourceObj {
