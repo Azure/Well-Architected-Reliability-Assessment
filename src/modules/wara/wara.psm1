@@ -425,18 +425,15 @@ function Start-WARACollector {
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Azure Outages' -PercentComplete 81 -Id 1
     $outageResourceObj = Get-WAFOldOutage -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
 
-
     #Get Azure Retirements
     Write-Debug 'Getting Azure Retirements'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Azure Retirements' -PercentComplete 84 -Id 1
     $retirementResourceObj = Get-WAFResourceRetirement -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
 
-
     #Get Azure Support Tickets
     Write-Debug 'Getting Azure Support Tickets'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Azure Support Tickets' -PercentComplete 87 -Id 1
     $supportTicketObjects = Get-WAFSupportTicket -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
-
 
     #Get Azure Service Health
     Write-Debug 'Getting Azure Service Health'
@@ -449,25 +446,25 @@ function Start-WARACollector {
     #Create Script Details Object
     Write-Debug 'Creating Script Details Object'
     $scriptDetails = [PSCustomObject]@{
-        Version = $(Get-Module -name $MyInvocation.MyCommand.ModuleName).Version
-        ElapsedTime = $stopWatch.Elapsed.toString('hh\:mm\:ss')
-        SAP = $SAP
-        AVD = $AVD
-        AVS = $AVS
-        HPC = $HPC
-        TenantId = $Scope_TenantId
-        SubscriptionIds = $Scope_SubscriptionIds
-        ResourceGroups = $Scope_ResourceGroups
-        ImplicitSubscriptionIds = $Scope_ImplicitSubscriptionIds
-        Tags = $Scope_Tags
-        AzureEnvironment = $AzureEnvironment
-        RecommendationDataUri = $RecommendationDataUri
+        Version                        = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+        ElapsedTime                    = $stopWatch.Elapsed.toString('hh\:mm\:ss')
+        SAP                            = $SAP
+        AVD                            = $AVD
+        AVS                            = $AVS
+        HPC                            = $HPC
+        TenantId                       = $Scope_TenantId
+        SubscriptionIds                = $Scope_SubscriptionIds
+        ResourceGroups                 = $Scope_ResourceGroups
+        ImplicitSubscriptionIds        = $Scope_ImplicitSubscriptionIds
+        Tags                           = $Scope_Tags
+        AzureEnvironment               = $AzureEnvironment
+        RecommendationDataUri          = $RecommendationDataUri
         RecommendationResourceTypesUri = $RecommendationResourceTypesUri
-        UseImplicitRunbookSelectors = $UseImplicitRunbookSelectors
-        RunbookFile = $RunbookFile
-        ConfigFile = $ConfigFile 
-        ConfigData = $ConfigData 
-        RunTimeParameters = $ScriptParams 
+        UseImplicitRunbookSelectors    = $UseImplicitRunbookSelectors
+        RunbookFile                    = $RunbookFile
+        ConfigFile                     = $ConfigFile 
+        ConfigData                     = $ConfigData 
+        RunTimeParameters              = $scriptParams 
     }
 
     #Create output JSON
@@ -490,7 +487,7 @@ function Start-WARACollector {
     $outputPath = ('.\WARA-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.json')
     #Output JSON to file
     Write-Host "Output Path: $outputPath" -ForegroundColor Yellow
-    if($PassThru){return $outputJson}
+    if ($PassThru) { return $outputJson }
     $outputJson | ConvertTo-Json -Depth 15 | Out-file $outputPath   
 }
 
