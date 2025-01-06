@@ -85,7 +85,7 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
         [switch] $HPC,
-        
+
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
@@ -292,7 +292,7 @@ function Start-WARACollector {
     #Create impactedResourceObj objects from the recommendations
     Write-Debug 'Creating impactedResourceObj objects from the recommendations'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating Impacted Resource Objects' -PercentComplete 44 -Id 1
-    $impactedResourceObj = Build-impactedResourceObj -impactedResource $Filter_Recommendations -allResources $AllResourcesHash -RecommendationObject $RecommendationObjectHash
+    $impactedResourceObj = Build-ImpactedResourceObj -ImpactedResource $Filter_Recommendations -AllResources $AllResourcesHash -RecommendationObject $RecommendationObjectHash
     Write-Debug "Count of impactedResourceObj objects: $($impactedResourceObj.count)"
 
     #Create list of validationResourceIds from the impactedResourceObj objects
@@ -324,7 +324,7 @@ function Start-WARACollector {
     #Create validationResourceObj objects from the impactedResourceObj objects
     Write-Debug 'Creating validationResourceObj objects from the impactedResourceObj objects'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating Validation Resource Objects' -PercentComplete 53 -Id 1
-    $validationResourceObj = Build-validationResourceObj -validationResources $validationResources -RecommendationObject $RecommendationObject -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
+    $validationResourceObj = Build-ValidationResourceObj -ValidationResources $validationResources -RecommendationObject $RecommendationObject -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
     Write-Debug "Count of validationResourceObj objects: $($validationResourceObj.count)"
 
     #Combine impactedResourceObj and validationResourceObj objects
@@ -398,11 +398,11 @@ function Start-WARACollector {
     #Some of the specialized workloads have queries that run. If this is the case then we need to check if the impactedResourceObj contains these resource types and if not add them to the impactedResourceObj.
     if ($SpecializedWorkloads) {
         Write-Debug 'Building Specialized Resource Object'
-        
+
         Write-Progress -Activity 'WARA Collector' -Status 'Building Specialized Resource Object' -PercentComplete 74 -Id 1
-        $specializedResourceObj = build-specializedResourceObj -SpecializedResourceObj $SpecializedWorkloads -recommendationObject $RecommendationObject
+        $specializedResourceObj = Build-SpecializedResourceObj -SpecializedResourceObj $SpecializedWorkloads -RecommendationObject $RecommendationObject
         Write-Debug "Count of Specialized Resource Object: $($specializedResourceObj.count)"
-        
+
         Write-Debug 'Adding Specialized Resource Object to impactedResourceObj'
         $impactedResourceObj += $specializedResourceObj
         Write-Debug "Count of impactedResourceObj with Specialized Resource Object: $($impactedResourceObj.count)"
@@ -417,7 +417,7 @@ function Start-WARACollector {
     #Build Resource Type Object
     Write-Debug 'Building Resource Type Object with impactedResourceObj and advisorResourceObj'
     Write-Progress -Activity 'WARA Collector' -Status 'Building Resource Type Object' -PercentComplete 78 -Id 1
-    $resourceTypeObj = Build-resourceTypeObj -ResourceObj ($impactedResourceObj + $advisorResourceObj) -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
+    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj ($impactedResourceObj + $advisorResourceObj) -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
     Write-Debug "Count of Resource Type Object : $($resourceTypeObj.count)"
 
     #Get Azure Outages
@@ -462,9 +462,9 @@ function Start-WARACollector {
         RecommendationResourceTypesUri = $RecommendationResourceTypesUri
         UseImplicitRunbookSelectors    = $UseImplicitRunbookSelectors
         RunbookFile                    = $RunbookFile
-        ConfigFile                     = $ConfigFile 
-        ConfigData                     = $ConfigData 
-        RunTimeParameters              = $scriptParams 
+        ConfigFile                     = $ConfigFile
+        ConfigData                     = $ConfigData
+        RunTimeParameters              = $scriptParams
     }
 
     #Create output JSON
@@ -488,33 +488,33 @@ function Start-WARACollector {
     #Output JSON to file
     Write-Host "Output Path: $outputPath" -ForegroundColor Yellow
     if ($PassThru) { return $outputJson }
-    $outputJson | ConvertTo-Json -Depth 15 | Out-file $outputPath   
+    $outputJson | ConvertTo-Json -Depth 15 | Out-file $outputPath
 }
 
-function Build-impactedResourceObj {
+function Build-ImpactedResourceObj {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [PSObject] $impactedResources,
+        [PSCustomObject] $ImpactedResources,
 
         [Parameter(Mandatory = $true)]
-        [hashtable] $allResources,
+        [Hashtable] $AllResources,
 
         [Parameter(Mandatory = $true)]
-        [hashtable] $RecommendationObject
+        [Hashtable] $RecommendationObject
     )
 
-    $impactedResourceObj = [impactedResourceFactory]::new($impactedResources, $allResources, $RecommendationObject)
+    $impactedResourceObj = [impactedResourceFactory]::new($ImpactedResources, $AllResources, $RecommendationObject)
     $r = $impactedResourceObj.createImpactedResourceObjects()
 
     return $r
 }
 
-Function Build-validationResourceObj {
+function Build-ValidationResourceObj {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [hashtable] $validationResources,
+        [Hashtable] $ValidationResources,
 
         [Parameter(Mandatory = $true)]
         [PSObject] $RecommendationObject,
@@ -529,7 +529,7 @@ Function Build-validationResourceObj {
     return $r
 }
 
-Function Build-resourceTypeObj {
+function Build-ResourceTypeObj {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -544,22 +544,22 @@ Function Build-resourceTypeObj {
     return $return
 }
 
-function build-specializedResourceObj {
+function Build-SpecializedResourceObj {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
         [PSObject] $SpecializedResourceObj,
 
         [Parameter(Mandatory = $true)]
-        [PSObject] $recommendationObject
+        [PSObject] $RecommendationObject
     )
 
-    $return = [specializedResourceFactory]::new($SpecializedResourceObj,$recommendationObject).createSpecializedResourceObjects()
+    $return = [specializedResourceFactory]::new($SpecializedResourceObj, $RecommendationObject).createSpecializedResourceObjects()
 
     return $return
 }
 
-Function Get-WARAOtherRecommendations {
+function Get-WARAOtherRecommendations {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
