@@ -11,18 +11,20 @@ This repository holds scripts and automation built for the Well-Architected Reli
 ## Getting Started
 
 ### Quick Start
-1. Install the WARA module from the PowerShell Gallery.
-2. Import the WARA module.
-3. Start the WARA collector.
-
 These instructions are the same for any platform that supports PowerShell. The following instructions have been tested on Azure Cloud Shell, Windows, and Linux.
+
+1. Install the WARA module from the PowerShell Gallery.
 ```powershell
 # Installs the WARA module from the PowerShell Gallery.
 Install-Module WARA
-
+```
+2. Import the WARA module.
+```powershell
 # Import the WARA module.
 Import-Module WARA
-
+```
+3. Start the WARA collector. (Replace these values with your own)
+```powershell
 # Start the WARA collector.
 Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
 ```
