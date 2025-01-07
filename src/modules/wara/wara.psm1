@@ -189,21 +189,23 @@ function Start-WARACollector {
     Write-Debug "Resource Groups: $Scope_ResourceGroups"
     Write-Debug "Tags: $Scope_Tags"
 
+    $SpecializedWorkloads = @()
+
     if ($SAP) {
         Write-Debug 'SAP switch is enabled'
-        $SpecializedWorkloads += 'specialized.workload/sap'
+        $SpecializedWorkloads += 'SAP'
     }
     if ($AVD) {
         Write-Debug 'AVD switch is enabled'
-        $SpecializedWorkloads += 'specialized.workload/avd'
+        $SpecializedWorkloads += 'AVD'
     }
     if ($AVS) {
         Write-Debug 'AVS switch is enabled'
-        $SpecializedWorkloads += 'specialized.workload/avs'
+        $SpecializedWorkloads += 'AVS'
     }
     if ($HPC) {
         Write-Debug 'HPC switch is enabled'
-        $SpecializedWorkloads += 'specialized.workload/hpc'
+        $SpecializedWorkloads += 'HPC'
     }
 
     if ($SpecializedWorkloads) {
@@ -762,14 +764,14 @@ class specializedResourceFactory {
     [object[]] createSpecializedResourceObjects() {
         $return = foreach ($s in $this.specializedResources) {
 
-            $thisType = $this.RecommendationObject.where({ $_.recommendationResourceType -eq $s})
+            $thisType = $this.RecommendationObject.where({$s -in $_.tags -and $_.recommendationMetadataState -eq "Active"})
             foreach ($type in $thisType){
                 $r = [aprlResourceObj]::new()
                 $r.validationAction = [specializedResourceFactory]::getValidationAction($type.query)
                 $r.recommendationId = $type.aprlGuid
                 $r.name = ''
                 $r.id = ''
-                $r.type = $s
+                $r.type = $type.recommendationResourceType
                 $r.location = ''
                 $r.subscriptionId = ''
                 $r.resourceGroup = ''
