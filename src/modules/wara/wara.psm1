@@ -579,6 +579,37 @@ function Get-WARAOtherRecommendations {
     return $return
 }
 
+
+<#
+.SYNOPSIS
+    Represents a resource type object for APRL.
+
+.DESCRIPTION
+    The `aprlResourceTypeObj` class encapsulates the details of a resource type in APRL, including the number of resources, availability in APRL/ADVISOR, assessment owner, status, and notes.
+
+.PROPERTIES
+    [string] ${Resource Type}
+        The type of the resource.
+
+    [int] ${Number Of Resources}
+        The number of resources of this type.
+
+    [string] ${Available in APRL/ADVISOR?}
+        Indicates whether the resource type is available in APRL or ADVISOR.
+
+    [string] ${Assessment Owner}
+        The owner of the assessment.
+
+    [string] $Status
+        The status of the resource type.
+
+    [string] $Notes
+        Additional notes about the resource type.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class aprlResourceTypeObj {
     [string] ${Resource Type}
     [int] ${Number Of Resources}
@@ -588,6 +619,25 @@ class aprlResourceTypeObj {
     [string] $Notes
 }
 
+<#
+.SYNOPSIS
+    Factory class to create resource type objects.
+
+.DESCRIPTION
+    The `resourceTypeFactory` class is responsible for creating instances of `aprlResourceTypeObj` based on impacted resources and types not in APRL or ADVISOR.
+
+.CONSTRUCTORS
+    resourceTypeFactory([PSObject]$impactedResourceObj, [PSObject]$TypesNotInAPRLOrAdvisor)
+        Initializes a new instance of the `resourceTypeFactory` class.
+
+.METHODS
+    [object[]] createResourceTypeObjects()
+        Creates and returns an array of `aprlResourceTypeObj` instances.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class resourceTypeFactory {
     [PSObject]$impactedResourceObj
     [PSObject]$TypesNotInAPRLOrAdvisor
@@ -597,6 +647,24 @@ class resourceTypeFactory {
         $this.TypesNotInAPRLOrAdvisor = $TypesNotInAPRLOrAdvisor
     }
 
+    <#
+    .SYNOPSIS
+        Creates resource type objects.
+
+    .DESCRIPTION
+        The `createResourceTypeObjects` method creates and returns an array of `aprlResourceTypeObj` instances based on the impacted resources and types not in APRL or ADVISOR.
+
+    .OUTPUTS
+        System.Object[]. Returns an array of `aprlResourceTypeObj` instances.
+
+    .EXAMPLE
+        $factory = [resourceTypeFactory]::new($impactedResourceObj, $TypesNotInAPRLOrAdvisor)
+        $resourceTypes = $factory.createResourceTypeObjects()
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     [object[]] createResourceTypeObjects() {
         $return = foreach ($type in $this.impactedResourceObj) {
             $r = [aprlResourceTypeObj]::new()
@@ -613,6 +681,63 @@ class resourceTypeFactory {
     }
 }
 
+<#
+.SYNOPSIS
+    Represents an APRL resource object.
+
+.DESCRIPTION
+    The `aprlResourceObj` class encapsulates the details of an APRL resource, including validation action, recommendation ID, name, ID, type, location, subscription ID, resource group, parameters, check name, and selector.
+
+.PROPERTIES
+    [string] $validationAction
+        The validation action for the resource.
+
+    [string] $recommendationId
+        The recommendation ID for the resource.
+
+    [string] $name
+        The name of the resource.
+
+    [string] $id
+        The ID of the resource.
+
+    [string] $type
+        The type of the resource.
+
+    [string] $location
+        The location of the resource.
+
+    [string] $subscriptionId
+        The subscription ID of the resource.
+
+    [string] $resourceGroup
+        The resource group of the resource.
+
+    [string] $param1
+        Additional parameter 1.
+
+    [string] $param2
+        Additional parameter 2.
+
+    [string] $param3
+        Additional parameter 3.
+
+    [string] $param4
+        Additional parameter 4.
+
+    [string] $param5
+        Additional parameter 5.
+
+    [string] $checkName
+        The check name for the resource.
+
+    [string] $selector
+        The selector for the resource.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class aprlResourceObj {
     [string] $validationAction
     [string] $recommendationId
@@ -631,6 +756,25 @@ class aprlResourceObj {
     [string] $selector
 }
 
+<#
+.SYNOPSIS
+    Factory class to create impacted resource objects.
+
+.DESCRIPTION
+    The `impactedResourceFactory` class is responsible for creating instances of `aprlResourceObj` based on impacted resources, all resources, and recommendation objects.
+
+.CONSTRUCTORS
+    impactedResourceFactory([PSObject]$impactedResources, [hashtable]$allResources, [hashtable]$RecommendationObject)
+        Initializes a new instance of the `impactedResourceFactory` class.
+
+.METHODS
+    [object[]] createImpactedResourceObjects()
+        Creates and returns an array of `aprlResourceObj` instances.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class impactedResourceFactory {
     [PSObject] $impactedResources
     [hashtable] $allResources
@@ -642,6 +786,24 @@ class impactedResourceFactory {
         $this.RecommendationObject = $RecommendationObject
     }
 
+    <#
+    .SYNOPSIS
+        Creates impacted resource objects.
+
+    .DESCRIPTION
+        The `createImpactedResourceObjects` method creates and returns an array of `aprlResourceObj` instances based on the impacted resources, all resources, and recommendation objects.
+
+    .OUTPUTS
+        System.Object[]. Returns an array of `aprlResourceObj` instances.
+
+    .EXAMPLE
+        $factory = [impactedResourceFactory]::new($impactedResources, $allResources, $RecommendationObject)
+        $impactedResources = $factory.createImpactedResourceObjects()
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     [object[]] createImpactedResourceObjects() {
         $return = foreach ($impactedResource in $this.impactedResources) {
             $r = [aprlResourceObj]::new()
@@ -666,6 +828,28 @@ class impactedResourceFactory {
     }
 }
 
+<#
+.SYNOPSIS
+    Factory class to create validation resource objects.
+
+.DESCRIPTION
+    The `validationResourceFactory` class is responsible for creating instances of `aprlResourceObj` for validation purposes based on recommendation objects, validation resources, and types not in APRL or ADVISOR.
+
+.CONSTRUCTORS
+    validationResourceFactory([PSObject]$recommendationObject, [hashtable]$validationResources, [PSObject]$TypesNotInAPRLOrAdvisor)
+        Initializes a new instance of the `validationResourceFactory` class.
+
+.METHODS
+    [object[]] createValidationResourceObjects()
+        Creates and returns an array of `aprlResourceObj` instances for validation purposes.
+
+    static [string] getValidationAction($query)
+        Determines the validation action based on the query.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class validationResourceFactory {
     # This class is used to create validationResourceObj objects
 
@@ -680,6 +864,24 @@ class validationResourceFactory {
         $this.TypesNotInAPRLOrAdvisor = $TypesNotInAPRLOrAdvisor
     }
 
+    <#
+    .SYNOPSIS
+        Creates validation resource objects.
+
+    .DESCRIPTION
+        The `createValidationResourceObjects` method creates and returns an array of `aprlResourceObj` instances for validation purposes based on the recommendation objects, validation resources, and types not in APRL or ADVISOR.
+
+    .OUTPUTS
+        System.Object[]. Returns an array of `aprlResourceObj` instances for validation purposes.
+
+    .EXAMPLE
+        $factory = [validationResourceFactory]::new($recommendationObject, $validationResources, $TypesNotInAPRLOrAdvisor)
+        $validationResources = $factory.createValidationResourceObjects()
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     [object[]] createValidationResourceObjects() {
         $return = @()
 
@@ -737,6 +939,26 @@ class validationResourceFactory {
         return $return
     }
 
+    <#
+    .SYNOPSIS
+        Determines the validation action based on the query.
+
+    .DESCRIPTION
+        The `getValidationAction` method determines the validation action based on the provided query string.
+
+    .PARAMETER query
+        The query string to evaluate.
+
+    .OUTPUTS
+        System.String. Returns the validation action as a string.
+
+    .EXAMPLE
+        $action = [validationResourceFactory]::getValidationAction("No Recommendations")
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     static [string] getValidationAction($query) {
         $return = switch -wildcard ($query) {
             "*development*" { 'IMPORTANT - Query under development - Validate Resources manually' }
@@ -749,6 +971,28 @@ class validationResourceFactory {
     }
 }
 
+<#
+.SYNOPSIS
+    Factory class to create specialized resource objects.
+
+.DESCRIPTION
+    The `specializedResourceFactory` class is responsible for creating instances of `aprlResourceObj` for specialized resources based on recommendation objects.
+
+.CONSTRUCTORS
+    specializedResourceFactory([PSObject]$specializedResources, [PSObject]$RecommendationObject)
+        Initializes a new instance of the `specializedResourceFactory` class.
+
+.METHODS
+    [object[]] createSpecializedResourceObjects()
+        Creates and returns an array of `aprlResourceObj` instances for specialized resources.
+
+    static [string] getValidationAction($query)
+        Determines the validation action based on the query.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class specializedResourceFactory {
     # This class is used to create specializedResourceObj objects
 
@@ -761,6 +1005,24 @@ class specializedResourceFactory {
         $this.RecommendationObject = $RecommendationObject
     }
 
+    <#
+    .SYNOPSIS
+        Creates specialized resource objects.
+
+    .DESCRIPTION
+        The `createSpecializedResourceObjects` method creates and returns an array of `aprlResourceObj` instances for specialized resources based on the recommendation objects.
+
+    .OUTPUTS
+        System.Object[]. Returns an array of `aprlResourceObj` instances for specialized resources.
+
+    .EXAMPLE
+        $factory = [specializedResourceFactory]::new($specializedResources, $RecommendationObject)
+        $specializedResources = $factory.createSpecializedResourceObjects()
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     [object[]] createSpecializedResourceObjects() {
         $return = foreach ($s in $this.specializedResources) {
 
@@ -788,6 +1050,26 @@ class specializedResourceFactory {
         return $return
     }
 
+    <#
+    .SYNOPSIS
+        Determines the validation action based on the query.
+
+    .DESCRIPTION
+        The `getValidationAction` method determines the validation action based on the provided query string.
+
+    .PARAMETER query
+        The query string to evaluate.
+
+    .OUTPUTS
+        System.String. Returns the validation action as a string.
+
+    .EXAMPLE
+        $action = [specializedResourceFactory]::getValidationAction("No Recommendations")
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     static [string] getValidationAction($query) {
         $return = switch -wildcard ($query) {
             "*development*" { 'IMPORTANT - Query under development - Validate Resources manually' }
