@@ -10,6 +10,12 @@ This repository holds scripts and automation built for the Well-Architected Reli
 
 ## Getting Started
 
+### Requirements
+- PowerShell 7.4
+- Azure PowerShell Module
+- Az.Accounts PowerShell Module 3.0 or later
+- Az.ResourceGraph PowerShell Module 1.0 or later
+
 ### Quick Start
 These instructions are the same for any platform that supports PowerShell. The following instructions have been tested on Azure Cloud Shell, Windows, and Linux.
 
