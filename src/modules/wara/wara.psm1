@@ -512,7 +512,7 @@ function Build-ImpactedResourceObj {
     $impactedResourceObj = [impactedResourceFactory]::new($ImpactedResources, $AllResources, $RecommendationObject)
     $r = $impactedResourceObj.createImpactedResourceObjects()
 
-    return $r
+    return ,$r
 }
 
 function Build-ValidationResourceObj {
@@ -531,7 +531,7 @@ function Build-ValidationResourceObj {
     $validatorObj = [validationResourceFactory]::new($RecommendationObject, $validationResources, $TypesNotInAPRLOrAdvisor)
     $r = $validatorObj.createValidationResourceObjects()
 
-    return $r
+    return ,$r
 }
 
 function Build-ResourceTypeObj {
@@ -546,7 +546,7 @@ function Build-ResourceTypeObj {
 
     $return = [resourceTypeFactory]::new($ResourceObj, $TypesNotInAPRLOrAdvisor).createResourceTypeObjects()
 
-    return $return
+    return ,$return
 }
 
 function Build-SpecializedResourceObj {
@@ -561,7 +561,7 @@ function Build-SpecializedResourceObj {
 
     $return = [specializedResourceFactory]::new($SpecializedResourceObj, $RecommendationObject).createSpecializedResourceObjects()
 
-    return $return
+    return ,$return
 }
 
 function Get-WARAOtherRecommendations {
@@ -579,7 +579,7 @@ function Get-WARAOtherRecommendations {
     #Returns recommendations that are in APRL but not in Advisor under 'HighAvailability'
     $return = $RecommendationObject.recommendationTypeId | Where-Object { $_ -in $metadata }
 
-    return $return
+    return ,$return
 }
 
 
