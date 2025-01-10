@@ -135,6 +135,18 @@ function Start-WARACollector {
         [string] $RunbookFile
     )
 
+    Write-host "Checking Version.." -ForegroundColor Cyan
+    $LocalVersion = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+    $GalleryVersion = (Find-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+
+    if($LocalVersion -lt $GalleryVersion){
+        Write-Host "A newer version of the module is available. Please update the module to the latest version and re-run the command." -ForegroundColor Cyan -
+        Write-host "You can update by running 'Update-Module -Name $($MyInvocation.MyCommand.ModuleName)'" -ForegroundColor Cyan
+        Write-Host "Local Install Version: $LocalVersion" -ForegroundColor Yellow
+        Write-Host "PowerShell Gallery Version: $GalleryVersion" -ForegroundColor Green
+        throw 'Module is out of date.'
+    }
+
     $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
     $scriptParams = foreach ($param in $PSBoundParameters.GetEnumerator()) {
@@ -451,7 +463,7 @@ function Start-WARACollector {
     #Create Script Details Object
     Write-Debug 'Creating Script Details Object'
     $scriptDetails = [PSCustomObject]@{
-        Version                        = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+        Version                        = "2.1.19"#$(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
         ElapsedTime                    = $stopWatch.Elapsed.toString('hh\:mm\:ss')
         SAP                            = $SAP
         AVD                            = $AVD
