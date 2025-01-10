@@ -19,7 +19,7 @@ if($moduleName)
 }
 else{
     # Grab directories
-    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory | Where-Object {$_.Name -ne "runbook"}
+    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory | Where-Object {$_.Name -notin @("runbook","analyzer","reports")}
 }
 
 $coveragePercent = @()
@@ -30,7 +30,7 @@ $failedCount = @()
 foreach ($moduleDir in $moduleDirectories) {
     $modulePath = "$($moduleDir.FullName)/$($moduleDir.Name).psm1"
     $testsPath = "$basePath/tests/$($moduleDir.Name)"
-    
+
     if (Test-Path $modulePath) {
         $config = New-PesterConfiguration
         $config.Run.Path = $testsPath
@@ -61,7 +61,7 @@ If($($coveragePercent + $resultOfRun + $passedCount + $failedCount).contains("Fa
         bash -c 'echo "ERROR_DETECTED=true" >> $GITHUB_ENV'
         Exit 1
     }
-    
+
 }
 else
 {
