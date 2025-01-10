@@ -18,6 +18,9 @@ This repository holds scripts and automation built for the Well-Architected Reli
 ## Getting Started
 
 ### Requirements
+
+These are the requirements for the collector. Requirements for the analyzer and report will be added in the future.
+
 - PowerShell 7.4
 - Azure PowerShell Module
   - If you don't have the Azure PowerShell module installed, you can install it by running the following command:
