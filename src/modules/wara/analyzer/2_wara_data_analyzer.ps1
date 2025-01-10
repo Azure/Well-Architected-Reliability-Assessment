@@ -140,7 +140,7 @@ $Script:Runtime = Measure-Command -Expression {
       $workingFolderPath = Get-Location
       Set-Location -Path $workingFolderPath;
       $Script:clonePath = "$workingFolderPath\Azure-Proactive-Resiliency-Library-v2"
-      if ((Get-ChildItem -Path $Script:clonePath -Force | Measure-Object).Count -gt 0) {
+      if ((Get-ChildItem -Path $Script:clonePath -Force -ErrorAction 'Ignore' | Measure-Object).Count -gt 0) {
         Write-Debug 'APRL Folder does exist. Reseting it...'
         Get-Item -Path $Script:clonePath | Remove-Item -Recurse -Force
         git clone $RepoUrl $Script:clonePath --quiet
