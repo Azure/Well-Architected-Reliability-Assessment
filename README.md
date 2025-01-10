@@ -115,11 +115,11 @@ Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
 ### Start-WARAAnalyzer
 The `Start-WARAAnalyzer` cmdlet is used to analyze the collected data and generate the core WARA Action Plan Excel file.
 
+Please note that whatever directory you run the `Start-WARAAnalyzer` cmdlet in, the Excel file will be created in that directory. For example: if you run the `Start-WARAAnalyzer` cmdlet in the `C:\Temp` directory, the Excel file will be created in the `C:\Temp` directory.
+
 You can review all of the parameters of Start-WARAAnalyzer [here](docs/wara/Start-WARAAnalyzer.md).
 
 #### Examples
-
-
 
 #### Run the analyzer against a specific JSON file.
 ```PowerShell
@@ -128,6 +128,8 @@ Start-WARAAnalyzer -JSONFile 'C:\Temp\WARA_File_2024-04-01_10_01.json' -Debuggin
 
 ### Start-WARAReport
 The `Start-WARAReport` cmdlet is used to generate the WARA reports.
+
+Please note that whatever directory you run the `Start-WARAReport` cmdlet in, the Word and PowerPoint files will be created in that directory. For example: if you run the `Start-WARAReport` cmdlet in the `C:\Temp` directory, the Word and PowerPoint files will be created in the `C:\Temp` directory.
 
 You can review all of the parameters of Start-WARAReport [here](docs/wara/Start-WARAReport.md).
 #### Examples
