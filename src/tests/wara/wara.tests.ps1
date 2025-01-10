@@ -31,12 +31,7 @@ Describe 'Build-ImpactedResourceObj' {
                 AllResources         = $allResourcesHash
                 RecommendationObject = $recommendationObjectHash
             } {
-                $params = @{
-                    ImpactedResources    = $ImpactedResource
-                    AllResources         = $AllResources
-                    RecommendationObject = $RecommendationObject
-                }
-                $result = Build-ImpactedResourceObj @params
+                $result = Build-ImpactedResourceObj -ImpactedResources $ImpactedResource -AllResources $AllResources -RecommendationObject $RecommendationObject
 
                 $result.GetType().FullName | Should -Be 'System.Object[]'
                 $result[0].GetType().FullName | Should -Be 'aprlResourceObj'
@@ -51,12 +46,7 @@ Describe 'Build-ImpactedResourceObj' {
                 AllResources         = $allResourcesHash
                 RecommendationObject = $recommendationObjectHash
             } {
-                $params = @{
-                    ImpactedResources    = $ImpactedResources
-                    AllResources         = $AllResources
-                    RecommendationObject = $RecommendationObject
-                }
-                $result = Build-ImpactedResourceObj @params
+                $result = Build-ImpactedResourceObj -ImpactedResources $ImpactedResources -AllResources $AllResources -RecommendationObject $RecommendationObject
 
                 $result.GetType().FullName | Should -Be 'System.Object[]'
                 $result | ForEach-Object {
@@ -91,14 +81,9 @@ Describe 'Build-ImpactedResourceObj' {
                     selector         = $ImpactedResource.selector ?? 'APRL'
                 }
 
-                $params = @{
-                    ImpactedResources    = $ImpactedResource
-                    AllResources         = $AllResources
-                    RecommendationObject = $RecommendationObject
-                }
-                $result = Build-ImpactedResourceObj @params
-
+                $result = Build-ImpactedResourceObj -ImpactedResources $ImpactedResource -AllResources $AllResources -RecommendationObject $RecommendationObject
                 $actual = $result[0]
+
                 $actual.validationAction | Should -Be $expected.validationAction
                 $actual.RecommendationId | Should -Be $expected.RecommendationId
                 $actual.Name | Should -Be $expected.Name
