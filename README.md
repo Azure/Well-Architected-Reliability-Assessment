@@ -13,8 +13,32 @@ This repository holds scripts and automation built for the Well-Architected Reli
 ### Requirements
 - PowerShell 7.4
 - Azure PowerShell Module
+  - If you don't have the Azure PowerShell module installed, you can install it by running the following command:
+    ```powershell
+    Install-Module -Name Az
+     ```
+  - If you have the Azure PowerShell module installed, you can update it by running the following command:
+    ```powershell
+    Update-Module -Name Az
+    ```
 - Az.Accounts PowerShell Module 3.0 or later
+  - If you don't have the Az.Accounts module installed, you can install it by running the following command:
+    ```powershell
+    Install-Module -Name Az.Accounts
+    ```
+  - If you have the Az.Accounts module installed, you can update it by running the following command:
+    ```powershell
+    Update-Module -Name Az.Accounts
+    ```
 - Az.ResourceGraph PowerShell Module 1.0 or later
+  - If you don't have the Az.ResourceGraph module installed, you can install it by running the following command:
+    ```powershell
+    Install-Module -Name Az.ResourceGraph
+    ```
+    - If you have the Az.ResourceGraph module installed, you can update it by running the following command:
+    ```powershell
+    Update-Module -Name Az.ResourceGraph
+    ```
 
 ### Quick Start
 These instructions are the same for any platform that supports PowerShell. The following instructions have been tested on Azure Cloud Shell, Windows, and Linux.
