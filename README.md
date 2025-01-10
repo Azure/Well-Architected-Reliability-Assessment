@@ -9,6 +9,7 @@ The main goal of the Well-Architected Reliability Assessment is to provide an in
 This repository holds scripts and automation built for the Well-Architected Reliability Assessment and is currently under development.
 ## Table of Contents
 - [Getting Started](#getting-started)
+  - [Quick Workflow Example](#quick-workflow-example)
 - [Requirements](#requirements)
 - [Quick Starts](#quick-starts)
   - [Start-WARACollector](#start-waracollector)
@@ -18,6 +19,28 @@ This repository holds scripts and automation built for the Well-Architected Reli
 - [Modules](#modules)
 
 ## Getting Started
+
+### Quick Workflow Example
+```PowerShell
+# Assume we running from a C:\WARA directory
+
+# Installs the WARA module from the PowerShell Gallery.
+Install-Module WARA
+
+# Imports the WARA module to the PowerShell session.
+Import-Module WARA
+
+# Start the WARA collector.
+Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
+
+# Assume output from collector is 'C:\WARA\WARA_File_2024-04-01_10_01.json'
+Start-WARAAnalyzer -JSONFile 'C:\WARA\WARA_File_2024-04-01_10_01.json'
+
+# Assume output from analyzer is 'C:\WARA\WARA Action Plan 2024-03-07_16_06.xlsx'
+Start-WARAReport -ExcelFile 'C:\WARA\WARA Action Plan 2024-03-07_16_06.xlsx'
+
+#You will now have your PowerPoint and Word reports generated under the C:\WARA directory.
+```
 
 ### Requirements
 
