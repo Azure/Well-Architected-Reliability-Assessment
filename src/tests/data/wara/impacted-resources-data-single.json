@@ -1,0 +1,15 @@
+[
+    {
+        "recommendationId": "e6c7e1cc-2f47-264d-aa50-1da421314472",
+        "name": "resource-620",
+        "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-53/providers/microsoft.storage/storageaccounts/resource-620",
+        "param1": "Param1",
+        "param2": "Param2",
+        "param3": "Param3",
+        "param4": "Param4",
+        "param5": "Param5",
+        "checkName": "CheckName",
+        "selector": "Selector",
+        "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-53/providers/microsoft.storage/storageaccounts/resource-620"
+    }
+]
