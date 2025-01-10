@@ -14,6 +14,8 @@ This repository holds scripts and automation built for the Well-Architected Reli
   - [Start-WARACollector](#start-waracollector)
   - [Start-WARAAnalyzer](#start-waraanalyzer)
   - [Start-WARAReport](#start-warareport)
+- [Project Structure](#project-structure)
+- [Modules](#modules)
 
 ## Getting Started
 
@@ -139,7 +141,7 @@ Start-WARAReport -ExcelFile 'C:\WARA_Script\WARA Action Plan 2024-03-07_16_06.xl
 This repository is meant to be used for the development of the Well-Architected Reliability Assessment automation. This project uses outputs from the Azure Well-Architected Framework and Azure Advisor to provide insights into the reliability of an Azure workload.
 
 ## Modules
-
+- [🔍wara](docs/wara/wara.md)
 - [🎗️advisor](docs/advisor/advisor.md)
 - [📦collector](docs/collector/collector.md)
 - [🌩️outage](docs/outage/outage.md)
