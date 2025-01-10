@@ -13,16 +13,12 @@ Describe 'Build-ImpactedResourceObj' {
     Context 'When called with valid parameters' {
         BeforeAll {
             # Recommendation object hash
-            $recommendationObjectFilePath = "$PSScriptRoot/../data/wara/recommendations-subset.json"
-            $recommendationObjectContent = Get-Content $recommendationObjectFilePath -Raw
-            $recommendationObject = ($recommendationObjectContent | ConvertFrom-Json -Depth 10)
+            $recommendationObject = Get-Content -Raw -LiteralPath "$PSScriptRoot/../data/wara/recommendations-subset.json" | ConvertFrom-Json -Depth 10
             $recommendationObjectHash = @{}
             $recommendationObject.ForEach({ $recommendationObjectHash[$_.aprlGuid] = $_ })
 
             # All resources hash
-            $allResourcesFilePath = "$PSScriptRoot/../data/wara/all-resources-data.json"
-            $allResourcesContent = Get-Content $allResourcesFilePath -Raw
-            $allResources = ($allResourcesContent | ConvertFrom-Json -Depth 10)
+            $allResources = Get-Content -Raw -LiteralPath "$PSScriptRoot/../data/wara/all-resources-data.json" | ConvertFrom-Json -Depth 10
             $allResourcesHash = @{}
             $allResources.ForEach({ $allResourcesHash[$_.id] = $_ })
         }
