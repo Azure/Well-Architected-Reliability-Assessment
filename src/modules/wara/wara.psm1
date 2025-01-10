@@ -17,6 +17,9 @@
 .PARAMETER HPC
     Switch to enable HPC workload processing.
 
+.PARAMETER PassThru
+    Switch to enable the PassThru parameter. PassThru returns the output object.
+
 .PARAMETER SubscriptionIds
     Array of subscription IDs to include in the process. Validated using Test-WAFSubscriptionId.
 
@@ -134,7 +137,7 @@ function Start-WARACollector {
 
     $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-    $scriptParams = foreach($param in $PSBoundParameters.GetEnumerator()) {
+    $scriptParams = foreach ($param in $PSBoundParameters.GetEnumerator()) {
         Write-Debug "Parameter: $($param.Key) Value: $($param.Value)"
         [PSCustomObject]@{
             $param.key = $param.value
@@ -581,30 +584,32 @@ function Get-WARAOtherRecommendations {
 
 
 <#
+.CLASS
+    impactedResourceObj
+
 .SYNOPSIS
     Represents a resource type object for APRL.
 
 .DESCRIPTION
     The `aprlResourceTypeObj` class encapsulates the details of a resource type in APRL, including the number of resources, availability in APRL/ADVISOR, assessment owner, status, and notes.
 
-.PROPERTIES
-    [string] ${Resource Type}
-        The type of the resource.
+.PROPERTY Resource Type
+    The type of the resource.
 
-    [int] ${Number Of Resources}
-        The number of resources of this type.
+.PROPERTY Number Of Resources
+    The number of resources of this type.
 
-    [string] ${Available in APRL/ADVISOR?}
-        Indicates whether the resource type is available in APRL or ADVISOR.
+.PROPERTY Available in APRL/ADVISOR?
+    Indicates whether the resource type is available in APRL or ADVISOR.
 
-    [string] ${Assessment Owner}
-        The owner of the assessment.
+.PROPERTY Assessment Owner
+    The owner of the assessment.
 
-    [string] $Status
-        The status of the resource type.
+.PROPERTY Status
+    The status of the resource type.
 
-    [string] $Notes
-        Additional notes about the resource type.
+.PROPERTY Notes
+    Additional notes about the resource type.
 
 .NOTES
     Author: Kyle Poineal
@@ -620,6 +625,15 @@ class aprlResourceTypeObj {
 }
 
 <#
+.CLASS
+    validationResourceFactory
+
+.PROPERTY  RecommendationObject
+    The recommendation object.
+
+.PROPERTY  validationResources
+    The validation resources.
+
 .SYNOPSIS
     Factory class to create resource type objects.
 
@@ -630,10 +644,6 @@ class aprlResourceTypeObj {
     resourceTypeFactory([PSObject]$impactedResourceObj, [PSObject]$TypesNotInAPRLOrAdvisor)
         Initializes a new instance of the `resourceTypeFactory` class.
 
-.METHODS
-    [object[]] createResourceTypeObjects()
-        Creates and returns an array of `aprlResourceTypeObj` instances.
-
 .NOTES
     Author: Kyle Poineal
     Date: 2023-10-07
@@ -643,11 +653,17 @@ class resourceTypeFactory {
     [PSObject]$TypesNotInAPRLOrAdvisor
 
     resourceTypeFactory([PSObject]$impactedResourceObj, [PSObject]$TypesNotInAPRLOrAdvisor) {
-        $this.impactedResourceObj = $impactedResourceObj | Group-Object -Property type | Select-Object Name, @{Name='Count';Expression={($_.Group | Group-Object id ).count}}
+        $this.impactedResourceObj = $impactedResourceObj | Group-Object -Property type | Select-Object Name, @{Name = 'Count'; Expression = { ($_.Group | Group-Object id ).count } }
         $this.TypesNotInAPRLOrAdvisor = $TypesNotInAPRLOrAdvisor
     }
 
     <#
+    .CLASS
+        aprlResourceTypeObj
+
+    .METHOD
+        createResourceTypeObjects
+
     .SYNOPSIS
         Creates resource type objects.
 
@@ -682,57 +698,59 @@ class resourceTypeFactory {
 }
 
 <#
+.CLASS
+    aprlResourceObj
+
 .SYNOPSIS
     Represents an APRL resource object.
 
 .DESCRIPTION
     The `aprlResourceObj` class encapsulates the details of an APRL resource, including validation action, recommendation ID, name, ID, type, location, subscription ID, resource group, parameters, check name, and selector.
 
-.PROPERTIES
-    [string] $validationAction
-        The validation action for the resource.
+.PROPERTY  validationAction
+    The validation action for the resource.
 
-    [string] $recommendationId
-        The recommendation ID for the resource.
+.PROPERTY recommendationId
+    The recommendation ID for the resource.
 
-    [string] $name
-        The name of the resource.
+.PROPERTY name
+    The name of the resource.
 
-    [string] $id
-        The ID of the resource.
+.PROPERTY id
+    The ID of the resource.
 
-    [string] $type
-        The type of the resource.
+.PROPERTY type
+    The type of the resource.
 
-    [string] $location
-        The location of the resource.
+.PROPERTY location
+    The location of the resource.
 
-    [string] $subscriptionId
-        The subscription ID of the resource.
+.PROPERTY subscriptionId
+    The subscription ID of the resource.
 
-    [string] $resourceGroup
-        The resource group of the resource.
+.PROPERTY resourceGroup
+    The resource group of the resource.
 
-    [string] $param1
-        Additional parameter 1.
+.PROPERTY param1
+    Additional parameter 1.
 
-    [string] $param2
-        Additional parameter 2.
+.PROPERTY param2
+    Additional parameter 2.
 
-    [string] $param3
-        Additional parameter 3.
+.PROPERTY param3
+    Additional parameter 3.
 
-    [string] $param4
-        Additional parameter 4.
+.PROPERTY param4
+    Additional parameter 4.
 
-    [string] $param5
-        Additional parameter 5.
+.PROPERTY param5
+    Additional parameter 5.
 
-    [string] $checkName
-        The check name for the resource.
+.PROPERTY checkName
+    The check name for the resource.
 
-    [string] $selector
-        The selector for the resource.
+.PROPERTY selector
+    The selector for the resource.
 
 .NOTES
     Author: Kyle Poineal
@@ -757,6 +775,18 @@ class aprlResourceObj {
 }
 
 <#
+.CLASS
+    impactedResourceFactory
+
+.PROPERTY  impactedResources
+    The impacted resources.
+
+.PROPERTY allResources
+    All resources.
+
+.PROPERTY  RecommendationObject
+    The recommendation object.
+
 .SYNOPSIS
     Factory class to create impacted resource objects.
 
@@ -787,6 +817,12 @@ class impactedResourceFactory {
     }
 
     <#
+    .CLASS
+        impactedResourceFactory
+
+    .METHOD
+        createImpactedResourceObjects
+
     .SYNOPSIS
         Creates impacted resource objects.
 
@@ -829,6 +865,9 @@ class impactedResourceFactory {
 }
 
 <#
+.CLASS
+    specializedResourceFactory
+
 .SYNOPSIS
     Factory class to create validation resource objects.
 
@@ -845,6 +884,15 @@ class impactedResourceFactory {
 
     static [string] getValidationAction($query)
         Determines the validation action based on the query.
+
+.PROPERTY recommendationObject
+    The recommendation object.
+
+.PROPERTY validationResources
+    The validation resources.
+
+.PROPERTY TypesNotInAPRLOrAdvisor
+    Resource types that we want to create a recommendation for but do not have a recommendation for.
 
 .NOTES
     Author: Kyle Poineal
@@ -865,6 +913,12 @@ class validationResourceFactory {
     }
 
     <#
+    .CLASS
+        validationResourceFactory
+
+    .METHOD
+        createValidationResourceObjects
+
     .SYNOPSIS
         Creates validation resource objects.
 
@@ -940,6 +994,12 @@ class validationResourceFactory {
     }
 
     <#
+    .CLASS
+        validationResourceFactory
+
+    .METHOD
+        getValidationAction
+
     .SYNOPSIS
         Determines the validation action based on the query.
 
@@ -972,6 +1032,15 @@ class validationResourceFactory {
 }
 
 <#
+.CLASS
+    specializedResourceFactory
+
+.PROPERTY recommendationObject
+    The recommendation object.
+
+.PROPERTY specializedResources
+    The specialized resources.
+
 .SYNOPSIS
     Factory class to create specialized resource objects.
 
@@ -980,14 +1049,11 @@ class validationResourceFactory {
 
 .CONSTRUCTORS
     specializedResourceFactory([PSObject]$specializedResources, [PSObject]$RecommendationObject)
-        Initializes a new instance of the `specializedResourceFactory` class.
+    Initializes a new instance of the `specializedResourceFactory` class.
 
-.METHODS
-    [object[]] createSpecializedResourceObjects()
-        Creates and returns an array of `aprlResourceObj` instances for specialized resources.
-
-    static [string] getValidationAction($query)
-        Determines the validation action based on the query.
+.EXAMPLE
+    $factory = [specializedResourceFactory]::new($specializedResources, $RecommendationObject)
+    $specializedResources = $factory.createSpecializedResourceObjects()
 
 .NOTES
     Author: Kyle Poineal
@@ -1006,6 +1072,12 @@ class specializedResourceFactory {
     }
 
     <#
+    .CLASS
+        specializedResourceFactory
+
+    .METHOD
+        createSpecializedResourceObjects
+
     .SYNOPSIS
         Creates specialized resource objects.
 
@@ -1026,8 +1098,8 @@ class specializedResourceFactory {
     [object[]] createSpecializedResourceObjects() {
         $return = foreach ($s in $this.specializedResources) {
 
-            $thisType = $this.RecommendationObject.where({$s -in $_.tags -and $_.recommendationMetadataState -eq "Active"})
-            foreach ($type in $thisType){
+            $thisType = $this.RecommendationObject.where({ $s -in $_.tags -and $_.recommendationMetadataState -eq "Active" })
+            foreach ($type in $thisType) {
                 $r = [aprlResourceObj]::new()
                 $r.validationAction = [specializedResourceFactory]::getValidationAction($type.query)
                 $r.recommendationId = $type.aprlGuid
@@ -1051,6 +1123,12 @@ class specializedResourceFactory {
     }
 
     <#
+    .CLASS
+        specializedResourceFactory
+
+    .METHOD
+        getValidationAction
+
     .SYNOPSIS
         Determines the validation action based on the query.
 
