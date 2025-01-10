@@ -1,9 +1,3 @@
----
-external help file: wara-help.xml
-Module Name: wara
-online version:
-schema: 2.0.0
----
 
 # Start-WARACollector
 

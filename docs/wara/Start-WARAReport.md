@@ -1,9 +1,3 @@
----
-external help file: reports-help.xml
-Module Name: reports
-online version: https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
-schema: 2.0.0
----
 
 # Start-WARAReport
 
