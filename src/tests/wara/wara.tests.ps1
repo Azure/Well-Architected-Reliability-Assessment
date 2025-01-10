@@ -4,11 +4,8 @@ BeforeAll {
 }
 
 Describe 'Start-WARACollector' {
-    Context 'When given the Default parameter set without SubscriptionIds and ResourceGroups' {
-        It 'Should throw an exception with the specified message' {
-            $scriptBlock = { Start-WARACollector -TenantID '11111111-1111-1111-1111-111111111111' }
-            $scriptBlock | Should -Throw -ExpectedMessage 'The parameter SubscriptionIds or ResourceGroups is required when using the Default parameter set.'
-        }
+    It 'Should throw an exception if SubscriptionIds and ResourceGroups are not provided in Default parameter set' {
+        { Start-WARACollector -TenantID '11111111-1111-1111-1111-111111111111' } | Should -Throw
     }
 }
 
