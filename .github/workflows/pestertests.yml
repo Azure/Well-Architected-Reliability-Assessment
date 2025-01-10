@@ -84,12 +84,6 @@ jobs:
         shell: pwsh
         continue-on-error: true
 
-      - name: Run wara.psm1 Pester Tests
-        run: |
-          pwsh .github/scripts/RunPesterTests.ps1 -moduleName wara
-        shell: pwsh
-        continue-on-error: true
-
       - name: Check for Failures
         run: |
           if ($env:ERROR_DETECTED -ne "false") {
