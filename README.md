@@ -7,6 +7,13 @@ The Well-Architected Reliability Assessment is aimed to assess an Azure workload
 The main goal of the Well-Architected Reliability Assessment is to provide an in-depth and comprehensive end-to-end Architecture and Resources review of an existing Workload to identify critical reliability, resiliency, availability, and recovery risks to the scoped workload on Azure.
 
 This repository holds scripts and automation built for the Well-Architected Reliability Assessment and is currently under development.
+## Table of Contents
+- [Getting Started](#getting-started)
+- [Requirements](#requirements)
+- [Quick Starts](#quick-starts)
+  - [Start-WARACollector](#start-waracollector)
+  - [Start-WARAAnalyzer](#start-waraanalyzer)
+  - [Start-WARAReport](#start-warareport)
 
 ## Getting Started
 
@@ -40,8 +47,12 @@ This repository holds scripts and automation built for the Well-Architected Reli
     Update-Module -Name Az.ResourceGraph
     ```
 
-### Quick Start
+## Quick Starts
+
+### Start-WARACollector
 These instructions are the same for any platform that supports PowerShell. The following instructions have been tested on Azure Cloud Shell, Windows, and Linux.
+
+You can review all of the parameters on the Start-WARACollector [here](docs/wara/Start-WARACollector.md).
 
 1. Install the WARA module from the PowerShell Gallery.
 ```powershell
@@ -59,11 +70,7 @@ Import-Module WARA
 Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
 ```
 
-
-
-### Example Usage
-
-You can review all of the parameters on the Start-WARACollector [here](docs/wara/Start-WARACollector.md).
+### Examples
 
 #### Run the collector against a specific subscription.
 ```PowerShell
@@ -98,6 +105,31 @@ Start-WARACollector -ConfigFile "C:\path\to\config.txt"
 #### Run the collector using a configuration file and using the specialized resource types (AVD, SAP, HPC, AVS).
 ```PowerShell
 Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
+```
+
+### Start-WARAAnalyzer
+The `Start-WARAAnalyzer` cmdlet is used to analyze the collected data and generate the core WARA Action Plan Excel file.
+
+You can review all of the parameters of Start-WARAAnalyzer [here](docs/wara/Start-WARAAnalyzer.md).
+
+#### Examples
+
+
+
+#### Run the analyzer against a specific JSON file.
+```PowerShell
+Start-WARAAnalyzer -JSONFile 'C:\Temp\WARA_File_2024-04-01_10_01.json' -Debugging
+```
+
+### Start-WARAReport
+The `Start-WARAReport` cmdlet is used to generate the WARA reports.
+
+You can review all of the parameters of Start-WARAReport [here](docs/wara/Start-WARAReport.md).
+#### Examples
+
+#### Create the Word and PowerPoint reports from the Action Plan Excel output.
+```PowerShell
+Start-WARAReport -ExcelFile 'C:\WARA_Script\WARA Action Plan 2024-03-07_16_06.xlsx'
 ```
 
 ## Project Structure
