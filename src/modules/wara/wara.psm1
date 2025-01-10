@@ -135,6 +135,7 @@ function Start-WARACollector {
         [string] $RunbookFile
     )
 
+    Write-host "Checking Version.." -ForegroundColor Cyan
     $LocalVersion = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
     $GalleryVersion = (Find-Module -Name $MyInvocation.MyCommand.ModuleName).Version
 
