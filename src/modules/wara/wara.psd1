@@ -11,7 +11,7 @@
     RootModule        = 'wara.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.6'
+    ModuleVersion     = '0.0.7'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -29,7 +29,7 @@
     Copyright         = '(c) Microsoft. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description = 'This module contains functions related to the Azure Well-Architected-Reliability-Assessment (WARA) service.'
+    Description       = 'This module contains functions related to the Azure Well-Architected-Reliability-Assessment (WARA) service.'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '7.4'
@@ -105,16 +105,24 @@
             # Tags = @()
 
             # A URL to the license for this module.
-            # LicenseUri = ''
+            LicenseUri = 'https://github.com/Azure/Well-Architected-Reliability-Assessment/blob/main/LICENSE'
 
             # A URL to the main website for this project.
-            # ProjectUri = ''
+            ProjectUri = 'https://github.com/Azure/Well-Architected-Reliability-Assessment'
 
             # A URL to an icon representing this module.
             # IconUri = ''
 
             # ReleaseNotes of this module
-            # ReleaseNotes = ''
+            ReleaseNotes =
+@"
+## 0.0.7.
+- **Initial release for testing** of the WARA module.
+- **Added** the following functions:
+    - `Start-WARACollector`
+- Improved performance for data processing.
+- Fixed minor bugs.
+"@
 
             # Prerelease string of this module
             # Prerelease = ''

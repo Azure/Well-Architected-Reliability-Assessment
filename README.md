@@ -1,5 +1,6 @@
 [![RunPesterTests](https://github.com/Azure/Well-Architected-Reliability-Assessment/actions/workflows/pestertests.yml/badge.svg)](https://github.com/Azure/Well-Architected-Reliability-Assessment/actions/workflows/pestertests.yml)
 [![PSScriptAnalyzer](https://github.com/Azure/Well-Architected-Reliability-Assessment/actions/workflows/powershell.yml/badge.svg)](https://github.com/Azure/Well-Architected-Reliability-Assessment/actions/workflows/powershell.yml)
+
 # Well-Architected-Reliability-Assessment
 The Well-Architected Reliability Assessment is aimed to assess an Azure workload implementation across the reliability pillar of the Microsoft Azure Well-Architected Framework. A workload is a resource or collection of resources that provide end-to-end functionality to one or multiple clients (humans or systems). An application can have multiple workloads, with multiple APIs and databases working together to deliver specific functionality.
 
@@ -8,7 +9,72 @@ The main goal of the Well-Architected Reliability Assessment is to provide an in
 This repository holds scripts and automation built for the Well-Architected Reliability Assessment and is currently under development.
 
 ## Getting Started
-Fill this out later
+
+### Requirements
+- PowerShell 7.4
+- Azure PowerShell Module
+- Az.Accounts PowerShell Module 3.0 or later
+- Az.ResourceGraph PowerShell Module 1.0 or later
+
+### Quick Start
+These instructions are the same for any platform that supports PowerShell. The following instructions have been tested on Azure Cloud Shell, Windows, and Linux.
+
+1. Install the WARA module from the PowerShell Gallery.
+```powershell
+# Installs the WARA module from the PowerShell Gallery.
+Install-Module WARA
+```
+2. Import the WARA module.
+```powershell
+# Import the WARA module.
+Import-Module WARA
+```
+3. Start the WARA collector. (Replace these values with your own)
+```powershell
+# Start the WARA collector.
+Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
+```
+
+
+
+### Example Usage
+
+You can review all of the parameters on the Start-WARACollector [here](docs/wara/Start-WARACollector.md).
+
+#### Run the collector against a specific subscription.
+```PowerShell
+Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
+```
+
+#### Run the collector against a multiple specific subscriptions.
+```PowerShell
+Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds @("/subscriptions/00000000-0000-0000-0000-000000000000","/subscriptions/)00000000-0000-0000-0000-000000000001")
+```
+
+#### Run the collector against a specific subscription and resource group.
+```PowerShell
+Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001"
+```
+
+#### Run the collector against a specific subscription and resource group and filtering by tag key/values.
+```PowerShell
+Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001" -Tags "Env||Environment!~Dev||QA" -AVD -SAP -HPC
+```
+
+#### Run the collector against a specific subscription and resource group, filtering by tag key/values and using the specialized resource types (AVD, SAP, HPC, AVS).
+```PowerShell
+Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001" -Tags "Env||Environment!~Dev||QA" -AVD -SAP -HPC
+```
+
+#### Run the collector using a configuration file.
+```PowerShell
+Start-WARACollector -ConfigFile "C:\path\to\config.txt"
+```
+
+#### Run the collector using a configuration file and using the specialized resource types (AVD, SAP, HPC, AVS).
+```PowerShell
+Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
+```
 
 ## Project Structure
 This repository is meant to be used for the development of the Well-Architected Reliability Assessment automation. This project uses outputs from the Azure Well-Architected Framework and Azure Advisor to provide insights into the reliability of an Azure workload.
