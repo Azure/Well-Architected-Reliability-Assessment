@@ -7,10 +7,45 @@ The Well-Architected Reliability Assessment is aimed to assess an Azure workload
 The main goal of the Well-Architected Reliability Assessment is to provide an in-depth and comprehensive end-to-end Architecture and Resources review of an existing Workload to identify critical reliability, resiliency, availability, and recovery risks to the scoped workload on Azure.
 
 This repository holds scripts and automation built for the Well-Architected Reliability Assessment and is currently under development.
+## Table of Contents
+- [Getting Started](#getting-started)
+  - [Quick Workflow Example](#quick-workflow-example)
+- [Requirements](#requirements)
+- [Quick Starts](#quick-starts)
+  - [Start-WARACollector](#start-waracollector)
+  - [Start-WARAAnalyzer](#start-waraanalyzer)
+  - [Start-WARAReport](#start-warareport)
+- [Project Structure](#project-structure)
+- [Modules](#modules)
 
 ## Getting Started
 
+### Quick Workflow Example
+```PowerShell
+# Assume we running from a C:\WARA directory
+
+# Installs the WARA module from the PowerShell Gallery.
+Install-Module WARA
+
+# Imports the WARA module to the PowerShell session.
+Import-Module WARA
+
+# Start the WARA collector.
+Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
+
+# Assume output from collector is 'C:\WARA\WARA_File_2024-04-01_10_01.json'
+Start-WARAAnalyzer -JSONFile 'C:\WARA\WARA_File_2024-04-01_10_01.json'
+
+# Assume output from analyzer is 'C:\WARA\WARA Action Plan 2024-03-07_16_06.xlsx'
+Start-WARAReport -ExcelFile 'C:\WARA\WARA Action Plan 2024-03-07_16_06.xlsx'
+
+#You will now have your PowerPoint and Word reports generated under the C:\WARA directory.
+```
+
 ### Requirements
+
+These are the requirements for the collector. Requirements for the analyzer and report will be added in the future.
+
 - PowerShell 7.4
 - Azure PowerShell Module
   - If you don't have the Azure PowerShell module installed, you can install it by running the following command:
@@ -40,8 +75,12 @@ This repository holds scripts and automation built for the Well-Architected Reli
     Update-Module -Name Az.ResourceGraph
     ```
 
-### Quick Start
+## Quick Starts
+
+### Start-WARACollector
 These instructions are the same for any platform that supports PowerShell. The following instructions have been tested on Azure Cloud Shell, Windows, and Linux.
+
+You can review all of the parameters on the Start-WARACollector [here](docs/wara/Start-WARACollector.md).
 
 1. Install the WARA module from the PowerShell Gallery.
 ```powershell
@@ -59,11 +98,7 @@ Import-Module WARA
 Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
 ```
 
-
-
-### Example Usage
-
-You can review all of the parameters on the Start-WARACollector [here](docs/wara/Start-WARACollector.md).
+### Examples
 
 #### Run the collector against a specific subscription.
 ```PowerShell
@@ -100,11 +135,38 @@ Start-WARACollector -ConfigFile "C:\path\to\config.txt"
 Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
 ```
 
+### Start-WARAAnalyzer
+The `Start-WARAAnalyzer` cmdlet is used to analyze the collected data and generate the core WARA Action Plan Excel file.
+
+Please note that whatever directory you run the `Start-WARAAnalyzer` cmdlet in, the Excel file will be created in that directory. For example: if you run the `Start-WARAAnalyzer` cmdlet in the `C:\Temp` directory, the Excel file will be created in the `C:\Temp` directory.
+
+You can review all of the parameters of Start-WARAAnalyzer [here](docs/wara/Start-WARAAnalyzer.md).
+
+#### Examples
+
+#### Run the analyzer against a specific JSON file.
+```PowerShell
+Start-WARAAnalyzer -JSONFile 'C:\Temp\WARA_File_2024-04-01_10_01.json' -Debugging
+```
+
+### Start-WARAReport
+The `Start-WARAReport` cmdlet is used to generate the WARA reports.
+
+Please note that whatever directory you run the `Start-WARAReport` cmdlet in, the Word and PowerPoint files will be created in that directory. For example: if you run the `Start-WARAReport` cmdlet in the `C:\Temp` directory, the Word and PowerPoint files will be created in the `C:\Temp` directory.
+
+You can review all of the parameters of Start-WARAReport [here](docs/wara/Start-WARAReport.md).
+#### Examples
+
+#### Create the Word and PowerPoint reports from the Action Plan Excel output.
+```PowerShell
+Start-WARAReport -ExcelFile 'C:\WARA_Script\WARA Action Plan 2024-03-07_16_06.xlsx'
+```
+
 ## Project Structure
 This repository is meant to be used for the development of the Well-Architected Reliability Assessment automation. This project uses outputs from the Azure Well-Architected Framework and Azure Advisor to provide insights into the reliability of an Azure workload.
 
 ## Modules
-
+- [🔍wara](docs/wara/wara.md)
 - [🎗️advisor](docs/advisor/advisor.md)
 - [📦collector](docs/collector/collector.md)
 - [🌩️outage](docs/outage/outage.md)

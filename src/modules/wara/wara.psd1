@@ -11,7 +11,7 @@
     RootModule        = 'wara.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.8'
+    ModuleVersion     = '0.0.10'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -116,15 +116,7 @@
             # IconUri = ''
 
             # ReleaseNotes of this module
-            ReleaseNotes =
-@"
-## 0.0.7.
-- **Initial release for testing** of the WARA module.
-- **Added** the following functions:
-    - `Start-WARACollector`
-- Improved performance for data processing.
-- Fixed minor bugs.
-"@
+            # ReleaseNotes = ''
 
             # Prerelease string of this module
             # Prerelease = ''

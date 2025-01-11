@@ -140,7 +140,7 @@ $Script:Runtime = Measure-Command -Expression {
       $workingFolderPath = Get-Location
       Set-Location -Path $workingFolderPath;
       $Script:clonePath = "$workingFolderPath\Azure-Proactive-Resiliency-Library-v2"
-      if ((Get-ChildItem -Path $Script:clonePath -Force | Measure-Object).Count -gt 0) {
+      if ((Get-ChildItem -Path $Script:clonePath -Force -ErrorAction 'Ignore' | Measure-Object).Count -gt 0) {
         Write-Debug 'APRL Folder does exist. Reseting it...'
         Get-Item -Path $Script:clonePath | Remove-Item -Recurse -Force
         git clone $RepoUrl $Script:clonePath --quiet
@@ -157,7 +157,6 @@ $Script:Runtime = Measure-Command -Expression {
       }
     }
   }
-
   function Convert-JSON {
     Write-Host 'Processing JSON File'
 
@@ -284,61 +283,70 @@ $Script:Runtime = Measure-Command -Expression {
 
       } else {
         # This isn't a runbook recommendation...
+        # Getting the recommendation details from the YAML file...
         $RecomTitle = $Script:ServicesYAMLContent | Where-Object { $_.aprlGuid -eq $Recom.recommendationId }
 
+        # Filtering recommendations not superceded or present in Advisor...
         if ([string]::IsNullOrEmpty($RecomTitle.recommendationTypeId) -or (![string]::IsNullOrEmpty($RecomTitle.recommendationTypeId) -and $RecomTitle.recommendationTypeId -notin $CoreAdvisories.recommendationId)) {
+          # Getting tickets related to the Impacted resource...
           $Ticket = $Script:SupportTickets | Where-Object { $_.'Related Resource' -eq $Recom.id }
-          if (($RecomTitle.recommendationMetadataState -eq 'Active') -or $Recom.validationAction -eq 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' -or $Recom.validationAction -eq 'IMPORTANT - Query under development - Validate Resources manually' ) {
-            $Tickets = if ($Ticket.'Ticket ID'.count -gt 1) { $Ticket.'Ticket ID' | ForEach-Object { $_ + ' /' } }else { $Ticket.'Ticket ID' }
-            $Tickets = [string]$Tickets
-            $Tickets = if ($Tickets -like '* /*') { $Tickets -replace '.$' }else { $Tickets }
-            $tmp = @{
-              'How was the resource/recommendation validated or what actions need to be taken?' = $Recom.validationAction;
-              recommendationId                                                                  = $Recom.recommendationId;
-              recommendationTitle                                                               = $RecomTitle.description;
-              resourceType                                                                      = $RecomTitle.recommendationResourceType;
-              impact                                                                            = $RecomTitle.recommendationImpact;
-              subscriptionId                                                                    = $Recom.subscriptionId;
-              resourceGroup                                                                     = $Recom.resourceGroup;
-              name                                                                              = $Recom.name;
-              id                                                                                = $Recom.id;
-              location                                                                          = $Recom.location;
-              param1                                                                            = $Recom.param1;
-              param2                                                                            = $Recom.param2;
-              param3                                                                            = $Recom.param3;
-              param4                                                                            = $Recom.param4;
-              param5                                                                            = $Recom.param5;
-              supportTicketId                                                                   = $Tickets;
-              source                                                                            = $Recom.selector;
-              checkName                                                                         = $Recom.checkName;
-              'WAF Pillar'                                                                      = 'Reliability';
-              tagged                                                                            = $Recom.tagged
+          # Filtering only active recommendations...
+          if ($RecomTitle.recommendationMetadataState -eq 'Active'){
+            # Filtering only recommendations, generic resource types without recommendations will be populated next
+            if ( $Recom.validationAction -ne 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if Applicable, if not Delete this line') {
+              $Tickets = if ($Ticket.'Ticket ID'.count -gt 1) { $Ticket.'Ticket ID' | ForEach-Object { $_ + ' /' } }else { $Ticket.'Ticket ID' }
+              $Tickets = [string]$Tickets
+              $Tickets = if ($Tickets -like '* /*') { $Tickets -replace '.$' }else { $Tickets }
+              $tmp = @{
+                'How was the resource/recommendation validated or what actions need to be taken?' = $Recom.validationAction;
+                recommendationId                                                                  = $Recom.recommendationId;
+                recommendationTitle                                                               = $RecomTitle.description;
+                resourceType                                                                      = $RecomTitle.recommendationResourceType;
+                impact                                                                            = $RecomTitle.recommendationImpact;
+                subscriptionId                                                                    = $Recom.subscriptionId;
+                resourceGroup                                                                     = $Recom.resourceGroup;
+                name                                                                              = $Recom.name;
+                id                                                                                = $Recom.id;
+                location                                                                          = $Recom.location;
+                param1                                                                            = $Recom.param1;
+                param2                                                                            = $Recom.param2;
+                param3                                                                            = $Recom.param3;
+                param4                                                                            = $Recom.param4;
+                param5                                                                            = $Recom.param5;
+                supportTicketId                                                                   = $Tickets;
+                source                                                                            = $Recom.selector;
+                checkName                                                                         = $Recom.checkName;
+                'WAF Pillar'                                                                      = 'Reliability';
+                tagged                                                                            = $Recom.tagged
+              }
+              $Script:MergedRecommendation += $tmp
             }
-            $Script:MergedRecommendation += $tmp
-          } elseif ($Recom.validationAction -eq 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if Applicable, if not Delete this line' ) {
-            $tmp = @{
-              'How was the resource/recommendation validated or what actions need to be taken?' = $Recom.validationAction;
-              recommendationId                                                                  = '';
-              recommendationTitle                                                               = $RecomTitle.description;
-              resourceType                                                                      = $Recom.recommendationId;
-              impact                                                                            = '';
-              subscriptionId                                                                    = $Recom.subscriptionId;
-              resourceGroup                                                                     = $Recom.resourceGroup;
-              name                                                                              = $Recom.name;
-              id                                                                                = $Recom.id;
-              location                                                                          = $Recom.location;
-              param1                                                                            = $Recom.param1;
-              param2                                                                            = $Recom.param2;
-              param3                                                                            = $Recom.param3;
-              param4                                                                            = $Recom.param4;
-              param5                                                                            = $Recom.param5;
-              supportTicketId                                                                   = $Tickets;
-              source                                                                            = $Recom.selector;
-              checkName                                                                         = $Recom.checkName;
-              'WAF Pillar'                                                                      = 'Reliability';
-              tagged                                                                            = $Recom.tagged
+            # Populating resource types without recommendations
+            else {
+              $tmp = @{
+                'How was the resource/recommendation validated or what actions need to be taken?' = $Recom.validationAction;
+                recommendationId                                                                  = '';
+                recommendationTitle                                                               = $RecomTitle.description;
+                resourceType                                                                      = $Recom.recommendationId;
+                impact                                                                            = '';
+                subscriptionId                                                                    = $Recom.subscriptionId;
+                resourceGroup                                                                     = $Recom.resourceGroup;
+                name                                                                              = $Recom.name;
+                id                                                                                = $Recom.id;
+                location                                                                          = $Recom.location;
+                param1                                                                            = $Recom.param1;
+                param2                                                                            = $Recom.param2;
+                param3                                                                            = $Recom.param3;
+                param4                                                                            = $Recom.param4;
+                param5                                                                            = $Recom.param5;
+                supportTicketId                                                                   = $Tickets;
+                source                                                                            = $Recom.selector;
+                checkName                                                                         = $Recom.checkName;
+                'WAF Pillar'                                                                      = 'Reliability';
+                tagged                                                                            = $Recom.tagged
+              }
+              $Script:MergedRecommendation += $tmp
             }
-            $Script:MergedRecommendation += $tmp
           }
         }
       }
@@ -1058,7 +1066,7 @@ $Script:Runtime = Measure-Command -Expression {
   }
 
   #Call the functions
-  $Script:Version = '2.1.18'
+  $Script:Version = '2.1.19'
   Write-Host 'Version: ' -NoNewline
   Write-Host $Script:Version -ForegroundColor DarkBlue
 
