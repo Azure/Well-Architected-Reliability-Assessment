@@ -46,7 +46,7 @@ Start-WARAReport -ExcelFile 'C:\WARA\WARA Action Plan 2024-03-07_16_06.xlsx
 
 These are the requirements for the collector. Requirements for the analyzer and report will be added in the future.
 
-- PowerShell 7.4
+- [PowerShell 7.4](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)
 - Azure PowerShell Module
   - If you don't have the Azure PowerShell module installed, you can install it by running the following command:
     ```powershell
