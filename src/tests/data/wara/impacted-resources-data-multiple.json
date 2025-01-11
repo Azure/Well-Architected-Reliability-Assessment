@@ -1,105 +1,105 @@
 [
-    {
-        "recommendationId": "e6c7e1cc-2f47-264d-aa50-1da421314472",
-        "name": "resource-614",
-        "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614",
-        "param1": "Param1",
-        "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614"
-    },
-    {
-        "recommendationId": "e6c7e1cc-2f47-264d-aa50-1da421314472",
-        "name": "resource-620",
-        "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-53/providers/microsoft.storage/storageaccounts/resource-620",
-        "param1": "Param1",
-        "param2": "Param2",
-        "param3": "Param3",
-        "param4": "Param4",
-        "param5": "Param5",
-        "checkName": "CheckName",
-        "selector": "Selector",
-        "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-53/providers/microsoft.storage/storageaccounts/resource-620"
-    },
-    {
-        "recommendationId": "2ad78dec-5a4d-4a30-8fd1-8584335ad781",
-        "name": "resource-347",
-        "id": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-7/providers/microsoft.storage/storageaccounts/resource-347",
-        "param1": "Param1",
-        "param2": "Param2",
-        "param3": "Param3",
-        "ResourceId": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-7/providers/microsoft.storage/storageaccounts/resource-347"
-    },
-    {
-        "recommendationId": "2ad78dec-5a4d-4a30-8fd1-8584335ad781",
-        "name": "resource-784",
-        "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-3/providers/microsoft.storage/storageaccounts/resource-784",
-        "param1": "Param1",
-        "param2": "Param2",
-        "param3": "Param3",
-        "param4": "Param4",
-        "param5": "Param5",
-        "checkName": "CheckName",
-        "selector": "Selector",
-        "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-3/providers/microsoft.storage/storageaccounts/resource-784"
-    },
-    {
-        "recommendationId": "dc55be60-6f8c-461e-a9d5-a3c7686ed94e",
-        "name": "resource-614",
-        "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614",
-        "param1": "Param1",
-        "param2": "Param2",
-        "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614"
-    },
-    {
-        "recommendationId": "dc55be60-6f8c-461e-a9d5-a3c7686ed94e",
-        "name": "resource-615",
-        "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-615",
-        "param1": "Param1",
-        "param2": "Param2",
-        "param3": "Param3",
-        "param4": "Param4",
-        "param5": "Param5",
-        "checkName": "CheckName",
-        "selector": "Selector",
-        "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-615"
-    },
-    {
-        "recommendationId": "f075a1bd-de9e-4819-9a1d-1ac41037a74f",
-        "name": "resource-708",
-        "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-5/providers/microsoft.servicebus/namespaces/resource-708",
-        "param1": "Param1",
-        "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-5/providers/microsoft.servicebus/namespaces/resource-708"
-    },
-    {
-        "recommendationId": "f075a1bd-de9e-4819-9a1d-1ac41037a74f",
-        "name": "resource-705",
-        "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-35/providers/microsoft.servicebus/namespaces/resource-705",
-        "param1": "Param1",
-        "param2": "Param2",
-        "param3": "Param3",
-        "param4": "Param4",
-        "param5": "Param5",
-        "checkName": "CheckName",
-        "selector": "Selector",
-        "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-35/providers/microsoft.servicebus/namespaces/resource-705"
-    },
-    {
-        "recommendationId": "ca87914f-aac4-4783-ab67-82a6f936f194",
-        "name": "resource-601",
-        "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-61/providers/microsoft.dbforpostgresql/flexibleservers/resource-601",
-        "param1": "Param1",
-        "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-61/providers/microsoft.dbforpostgresql/flexibleservers/resource-601"
-    },
-    {
-        "recommendationId": "ca87914f-aac4-4783-ab67-82a6f936f194",
-        "name": "resource-766",
-        "id": "/subscriptions/5555555-5555-5555-5555-555555555555/resourcegroups/rg-39/providers/microsoft.dbforpostgresql/flexibleservers/resource-766",
-        "param1": "Param1",
-        "param2": "Param2",
-        "param3": "Param3",
-        "param4": "Param4",
-        "param5": "Param5",
-        "checkName": "CheckName",
-        "selector": "Selector",
-        "ResourceId": "/subscriptions/5555555-5555-5555-5555-555555555555/resourcegroups/rg-39/providers/microsoft.dbforpostgresql/flexibleservers/resource-766"
-    }
+  {
+    "recommendationId": "e6c7e1cc-2f47-264d-aa50-1da421314472",
+    "name": "resource-614",
+    "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614",
+    "param1": "Param1",
+    "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614"
+  },
+  {
+    "recommendationId": "e6c7e1cc-2f47-264d-aa50-1da421314472",
+    "name": "resource-620",
+    "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-53/providers/microsoft.storage/storageaccounts/resource-620",
+    "param1": "Param1",
+    "param2": "Param2",
+    "param3": "Param3",
+    "param4": "Param4",
+    "param5": "Param5",
+    "checkName": "CheckName",
+    "selector": "Selector",
+    "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-53/providers/microsoft.storage/storageaccounts/resource-620"
+  },
+  {
+    "recommendationId": "2ad78dec-5a4d-4a30-8fd1-8584335ad781",
+    "name": "resource-347",
+    "id": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-7/providers/microsoft.storage/storageaccounts/resource-347",
+    "param1": "Param1",
+    "param2": "Param2",
+    "param3": "Param3",
+    "ResourceId": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-7/providers/microsoft.storage/storageaccounts/resource-347"
+  },
+  {
+    "recommendationId": "2ad78dec-5a4d-4a30-8fd1-8584335ad781",
+    "name": "resource-784",
+    "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-3/providers/microsoft.storage/storageaccounts/resource-784",
+    "param1": "Param1",
+    "param2": "Param2",
+    "param3": "Param3",
+    "param4": "Param4",
+    "param5": "Param5",
+    "checkName": "CheckName",
+    "selector": "Selector",
+    "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-3/providers/microsoft.storage/storageaccounts/resource-784"
+  },
+  {
+    "recommendationId": "dc55be60-6f8c-461e-a9d5-a3c7686ed94e",
+    "name": "resource-614",
+    "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614",
+    "param1": "Param1",
+    "param2": "Param2",
+    "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614"
+  },
+  {
+    "recommendationId": "dc55be60-6f8c-461e-a9d5-a3c7686ed94e",
+    "name": "resource-615",
+    "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-615",
+    "param1": "Param1",
+    "param2": "Param2",
+    "param3": "Param3",
+    "param4": "Param4",
+    "param5": "Param5",
+    "checkName": "CheckName",
+    "selector": "Selector",
+    "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-615"
+  },
+  {
+    "recommendationId": "f075a1bd-de9e-4819-9a1d-1ac41037a74f",
+    "name": "resource-708",
+    "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-5/providers/microsoft.servicebus/namespaces/resource-708",
+    "param1": "Param1",
+    "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-5/providers/microsoft.servicebus/namespaces/resource-708"
+  },
+  {
+    "recommendationId": "f075a1bd-de9e-4819-9a1d-1ac41037a74f",
+    "name": "resource-705",
+    "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-35/providers/microsoft.servicebus/namespaces/resource-705",
+    "param1": "Param1",
+    "param2": "Param2",
+    "param3": "Param3",
+    "param4": "Param4",
+    "param5": "Param5",
+    "checkName": "CheckName",
+    "selector": "Selector",
+    "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-35/providers/microsoft.servicebus/namespaces/resource-705"
+  },
+  {
+    "recommendationId": "ca87914f-aac4-4783-ab67-82a6f936f194",
+    "name": "resource-601",
+    "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-61/providers/microsoft.dbforpostgresql/flexibleservers/resource-601",
+    "param1": "Param1",
+    "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-61/providers/microsoft.dbforpostgresql/flexibleservers/resource-601"
+  },
+  {
+    "recommendationId": "ca87914f-aac4-4783-ab67-82a6f936f194",
+    "name": "resource-766",
+    "id": "/subscriptions/5555555-5555-5555-5555-555555555555/resourcegroups/rg-39/providers/microsoft.dbforpostgresql/flexibleservers/resource-766",
+    "param1": "Param1",
+    "param2": "Param2",
+    "param3": "Param3",
+    "param4": "Param4",
+    "param5": "Param5",
+    "checkName": "CheckName",
+    "selector": "Selector",
+    "ResourceId": "/subscriptions/5555555-5555-5555-5555-555555555555/resourcegroups/rg-39/providers/microsoft.dbforpostgresql/flexibleservers/resource-766"
+  }
 ]

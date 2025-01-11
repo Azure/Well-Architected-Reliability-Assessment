@@ -1,123 +1,123 @@
 [
-    {
-        "aprlGuid": "e6c7e1cc-2f47-264d-aa50-1da421314472",
-        "recommendationTypeId": null,
-        "recommendationMetadataState": "Active",
-        "learnMoreLink": [
-            {
-                "name": "Azure Storage redundancy",
-                "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy"
-            },
-            {
-                "name": "Change the redundancy configuration for a storage account",
-                "url": "https://learn.microsoft.com/azure/storage/common/redundancy-migration"
-            }
-        ],
-        "recommendationControl": "HighAvailability",
-        "longDescription": "Redundancy ensures storage accounts meet availability and durability targets amidst failures, weighing lower costs against higher availability. Locally redundant storage offers the least durability at the lowest cost.\n",
-        "pgVerified": true,
-        "description": "Ensure that storage accounts are zone or region redundant",
-        "potentialBenefits": "High availability and durability for storage",
-        "tags": null,
-        "recommendationResourceType": "Microsoft.Storage/storageAccounts",
-        "recommendationImpact": "High",
-        "automationAvailable": true,
-        "query": "// Azure Resource Graph Query\r\n// This query will return all storage accounts that are not using Zone or Region replication\r\nResources\r\n| where type =~ \"Microsoft.Storage/storageAccounts\"\r\n| where location in~ (\"australiaeast\", \"brazilsouth\", \"canadacentral\", \"centralindia\", \"centralus\", \"eastasia\", \"eastus\", \"eastus2\", \"francecentral\", \"germanywestcentral\", \"israelcentral\", \"italynorth\", \"japaneast\", \"japanwest\", \"koreacentral\", \"mexicocentral\", \"newzealandnorth\", \"northeurope\", \"norwayeast\", \"polandcentral\", \"qatarcentral\", \"southafricanorth\", \"southcentralus\", \"southeastasia\", \"spaincentral\", \"swedencentral\", \"switzerlandnorth\", \"uaenorth\", \"uksouth\", \"westeurope\", \"westus2\", \"westus3\", \"usgovvirginia\", \"chinanorth3\")\r\n| where sku.name in~ (\"Standard_LRS\", \"Premium_LRS\")\r\n| project recommendationId = \"e6c7e1cc-2f47-264d-aa50-1da421314472\", name, id, tags, param1 = strcat(\"sku: \", sku.name)\r\n\r\n"
-    },
-    {
-        "aprlGuid": "2ad78dec-5a4d-4a30-8fd1-8584335ad781",
-        "recommendationTypeId": null,
-        "recommendationMetadataState": "Active",
-        "learnMoreLink": [
-            {
-                "name": "Legacy storage account types",
-                "url": "https://learn.microsoft.com/azure/storage/common/storage-account-overview#legacy-storage-account-types"
-            },
-            {
-                "name": "Upgrade to a general-purpose v2 storage account",
-                "url": "https://learn.microsoft.com/azure/storage/common/storage-account-upgrade"
-            }
-        ],
-        "recommendationControl": "Scalability",
-        "longDescription": "General-purpose v2 accounts are recommended for most storage scenarios offering the latest features or the lowest per-gigabyte pricing. Legacy accounts like Standard general-purpose v1 and Blob Storage aren't advised by Microsoft but may fit specific scenarios.\n",
-        "pgVerified": true,
-        "description": "Consider upgrading legacy storage accounts to v2 storage accounts",
-        "potentialBenefits": "Latest features, lowest cost",
-        "tags": null,
-        "recommendationResourceType": "Microsoft.Storage/storageAccounts",
-        "recommendationImpact": "Low",
-        "automationAvailable": true,
-        "query": "// Azure Resource Graph Query\r\n// Find all Azure Storage Accounts, that upgradeable to General purpose v2.\r\nResources\r\n| where type =~ \"Microsoft.Storage/storageAccounts\" and kind in~ (\"Storage\", \"BlobStorage\")\r\n| extend\r\n    param1 = strcat(\"AccountKind: \", case(kind =~ \"Storage\", \"Storage (general purpose v1)\", kind =~ \"BlobStorage\", \"BlobStorage\", kind)),\r\n    param2 = strcat(\"Performance: \", sku.tier),\r\n    param3 = strcat(\"Replication: \", sku.name)\r\n| project recommendationId = \"2ad78dec-5a4d-4a30-8fd1-8584335ad781\", name, id, tags, param1, param2, param3\r\n\r\n"
-    },
-    {
-        "aprlGuid": "dc55be60-6f8c-461e-a9d5-a3c7686ed94e",
-        "recommendationTypeId": null,
-        "recommendationMetadataState": "Disabled",
-        "learnMoreLink": [
-            {
-                "name": "Learn More",
-                "url": "https://learn.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop#azure-virtual-desktop-limitations"
-            },
-            {
-                "name": "Private Link",
-                "url": "https://learn.microsoft.com/en-us/azure/well-architected/azure-virtual-desktop/networking#private-endpoints-private-link"
-            }
-        ],
-        "recommendationControl": "Security",
-        "longDescription": "Leverage Azure Private Link Service for secure access to Azure Storage and services via Private Endpoint in your VNet. Eliminate the need for public IPs, ensuring data privacy. Enjoy granular access control for enhanced security.\n",
-        "pgVerified": true,
-        "description": "Enable Azure Private Link service for storage accounts",
-        "potentialBenefits": "Secure, private access to storage with no public IPs",
-        "tags": null,
-        "recommendationResourceType": "Microsoft.Storage/storageAccounts",
-        "recommendationImpact": "Medium",
-        "automationAvailable": true,
-        "query": "// Azure Resource Graph Query\r\n// This resource graph query will return all storage accounts that does not have a Private Endpoint Connection or where a private endpoint exists but public access is enabled\r\nresources\r\n| where type =~ \"Microsoft.Storage/StorageAccounts\"\r\n| where isnull(properties.privateEndpointConnections) or properties.privateEndpointConnections[0].properties.provisioningState != (\"Succeeded\") or (isnull(properties.networkAcls) and properties.publicNetworkAccess == 'Enabled')\r\n| extend param1 = strcat('Private Endpoint: ', iif(array_length(properties.privateEndpointConnections) != 0,split(properties.privateEndpointConnections[0].properties.privateEndpoint.id,'/')[8],'No Private Endpoint'))\r\n| extend param2 = strcat('Access: ', iif(properties.publicNetworkAccess == 'Disabled', 'Public Access Disabled', iif(isnotnull(properties.networkAcls), 'NetworkACLs in place','Public Access Enabled')))\r\n| project recommendationId = \"dc55be60-6f8c-461e-a9d5-a3c7686ed94e\", name, id, tags, param1, param2\r\n"
-    },
-    {
-        "aprlGuid": "f075a1bd-de9e-4819-9a1d-1ac41037a74f",
-        "recommendationTypeId": null,
-        "recommendationMetadataState": "Active",
-        "learnMoreLink": [
-            {
-                "name": "Azure support for TLS 1.0 and TLS 1.1 will end by 31 October 2024",
-                "url": "https://azure.microsoft.com/updates/azure-support-tls-will-end-by-31-october-2024-2/"
-            },
-            {
-                "name": "Configure the minimum TLS version for a Service Bus namespace",
-                "url": "https://learn.microsoft.com/azure/service-bus-messaging/transport-layer-security-configure-minimum-version"
-            }
-        ],
-        "recommendationControl": "ServiceUpgradeAndRetirement",
-        "longDescription": "As of 31 October 2024, TLS 1.0 and TLS 1.1 will no longer be supported on Azure including Service Bus to enhance security and provide best-in-class encryption for your data. Change the minimum TLS version for your Service Bus namespace to TLS v1.2 or higher.\n",
-        "pgVerified": false,
-        "description": "Configure the minimum TLS version for Service Bus namespaces to TLS v1.2 or higher",
-        "potentialBenefits": "Avoids service disruption",
-        "tags": null,
-        "recommendationResourceType": "Microsoft.ServiceBus/namespaces",
-        "recommendationImpact": "High",
-        "automationAvailable": true,
-        "query": "// Azure Resource Graph Query\r\n// Provides a list of Service Bus Namespace resources that have the lower minimum TLS version.\r\nresources\r\n| where type =~ \"Microsoft.ServiceBus/namespaces\"\r\n| where properties.minimumTlsVersion in (\"1.0\", \"1.1\")\r\n| project\r\n    recommendationId = \"f075a1bd-de9e-4819-9a1d-1ac41037a74f\",\r\n    name,\r\n    id,\r\n    tags,\r\n    param1 = strcat(\"minimumTlsVersion: \", properties.minimumTlsVersion)\r\n"
-    },
-    {
-        "aprlGuid": "ca87914f-aac4-4783-ab67-82a6f936f194",
-        "recommendationTypeId": null,
-        "recommendationMetadataState": "Active",
-        "learnMoreLink": [
-            {
-                "name": "Overview of high availability with Azure Database for PostgreSQL",
-                "url": "https://learn.microsoft.com/azure/postgresql/flexible-server/concepts-high-availability"
-            }
-        ],
-        "recommendationControl": "HighAvailability",
-        "longDescription": "Enable HA with zone redundancy on flexible server instances to deploy a standby replica in a different zone, offering automatic failover capability for improved reliability and disaster recovery.\n",
-        "pgVerified": true,
-        "description": "Enable HA with zone redundancy",
-        "potentialBenefits": "Enhanced uptime and data protection",
-        "tags": null,
-        "recommendationResourceType": "Microsoft.DBforPostgreSQL/flexibleServers",
-        "recommendationImpact": "High",
-        "automationAvailable": true,
-        "query": "// Azure Resource Graph Query\r\n// Find Database for PostgreSQL instances that are not zone redundant\r\nresources\r\n| where type == \"microsoft.dbforpostgresql/flexibleservers\"\r\n| where location in~ (\"australiaeast\", \"brazilsouth\", \"canadacentral\", \"centralindia\", \"centralus\", \"eastasia\", \"eastus\", \"eastus2\", \"francecentral\", \"germanywestcentral\", \"israelcentral\", \"italynorth\", \"japaneast\", \"japanwest\", \"koreacentral\", \"mexicocentral\", \"newzealandnorth\", \"northeurope\", \"norwayeast\", \"polandcentral\", \"qatarcentral\", \"southafricanorth\", \"southcentralus\", \"southeastasia\", \"spaincentral\", \"swedencentral\", \"switzerlandnorth\", \"uaenorth\", \"uksouth\", \"westeurope\", \"westus2\", \"westus3\", \"usgovvirginia\", \"chinanorth3\")\r\n| where properties.highAvailability.mode != \"ZoneRedundant\"\r\n| project recommendationId = \"ca87914f-aac4-4783-ab67-82a6f936f194\", name, id, tags, param1 = \"ZoneRedundant: False\"\r\n"
-    }
+  {
+    "aprlGuid": "e6c7e1cc-2f47-264d-aa50-1da421314472",
+    "recommendationTypeId": null,
+    "recommendationMetadataState": "Active",
+    "learnMoreLink": [
+      {
+        "name": "Azure Storage redundancy",
+        "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy"
+      },
+      {
+        "name": "Change the redundancy configuration for a storage account",
+        "url": "https://learn.microsoft.com/azure/storage/common/redundancy-migration"
+      }
+    ],
+    "recommendationControl": "HighAvailability",
+    "longDescription": "Redundancy ensures storage accounts meet availability and durability targets amidst failures, weighing lower costs against higher availability. Locally redundant storage offers the least durability at the lowest cost.\n",
+    "pgVerified": true,
+    "description": "Ensure that storage accounts are zone or region redundant",
+    "potentialBenefits": "High availability and durability for storage",
+    "tags": null,
+    "recommendationResourceType": "Microsoft.Storage/storageAccounts",
+    "recommendationImpact": "High",
+    "automationAvailable": true,
+    "query": "// Azure Resource Graph Query\r\n// This query will return all storage accounts that are not using Zone or Region replication\r\nResources\r\n| where type =~ \"Microsoft.Storage/storageAccounts\"\r\n| where location in~ (\"australiaeast\", \"brazilsouth\", \"canadacentral\", \"centralindia\", \"centralus\", \"eastasia\", \"eastus\", \"eastus2\", \"francecentral\", \"germanywestcentral\", \"israelcentral\", \"italynorth\", \"japaneast\", \"japanwest\", \"koreacentral\", \"mexicocentral\", \"newzealandnorth\", \"northeurope\", \"norwayeast\", \"polandcentral\", \"qatarcentral\", \"southafricanorth\", \"southcentralus\", \"southeastasia\", \"spaincentral\", \"swedencentral\", \"switzerlandnorth\", \"uaenorth\", \"uksouth\", \"westeurope\", \"westus2\", \"westus3\", \"usgovvirginia\", \"chinanorth3\")\r\n| where sku.name in~ (\"Standard_LRS\", \"Premium_LRS\")\r\n| project recommendationId = \"e6c7e1cc-2f47-264d-aa50-1da421314472\", name, id, tags, param1 = strcat(\"sku: \", sku.name)\r\n\r\n"
+  },
+  {
+    "aprlGuid": "2ad78dec-5a4d-4a30-8fd1-8584335ad781",
+    "recommendationTypeId": null,
+    "recommendationMetadataState": "Active",
+    "learnMoreLink": [
+      {
+        "name": "Legacy storage account types",
+        "url": "https://learn.microsoft.com/azure/storage/common/storage-account-overview#legacy-storage-account-types"
+      },
+      {
+        "name": "Upgrade to a general-purpose v2 storage account",
+        "url": "https://learn.microsoft.com/azure/storage/common/storage-account-upgrade"
+      }
+    ],
+    "recommendationControl": "Scalability",
+    "longDescription": "General-purpose v2 accounts are recommended for most storage scenarios offering the latest features or the lowest per-gigabyte pricing. Legacy accounts like Standard general-purpose v1 and Blob Storage aren't advised by Microsoft but may fit specific scenarios.\n",
+    "pgVerified": true,
+    "description": "Consider upgrading legacy storage accounts to v2 storage accounts",
+    "potentialBenefits": "Latest features, lowest cost",
+    "tags": null,
+    "recommendationResourceType": "Microsoft.Storage/storageAccounts",
+    "recommendationImpact": "Low",
+    "automationAvailable": true,
+    "query": "// Azure Resource Graph Query\r\n// Find all Azure Storage Accounts, that upgradeable to General purpose v2.\r\nResources\r\n| where type =~ \"Microsoft.Storage/storageAccounts\" and kind in~ (\"Storage\", \"BlobStorage\")\r\n| extend\r\n    param1 = strcat(\"AccountKind: \", case(kind =~ \"Storage\", \"Storage (general purpose v1)\", kind =~ \"BlobStorage\", \"BlobStorage\", kind)),\r\n    param2 = strcat(\"Performance: \", sku.tier),\r\n    param3 = strcat(\"Replication: \", sku.name)\r\n| project recommendationId = \"2ad78dec-5a4d-4a30-8fd1-8584335ad781\", name, id, tags, param1, param2, param3\r\n\r\n"
+  },
+  {
+    "aprlGuid": "dc55be60-6f8c-461e-a9d5-a3c7686ed94e",
+    "recommendationTypeId": null,
+    "recommendationMetadataState": "Disabled",
+    "learnMoreLink": [
+      {
+        "name": "Learn More",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop#azure-virtual-desktop-limitations"
+      },
+      {
+        "name": "Private Link",
+        "url": "https://learn.microsoft.com/en-us/azure/well-architected/azure-virtual-desktop/networking#private-endpoints-private-link"
+      }
+    ],
+    "recommendationControl": "Security",
+    "longDescription": "Leverage Azure Private Link Service for secure access to Azure Storage and services via Private Endpoint in your VNet. Eliminate the need for public IPs, ensuring data privacy. Enjoy granular access control for enhanced security.\n",
+    "pgVerified": true,
+    "description": "Enable Azure Private Link service for storage accounts",
+    "potentialBenefits": "Secure, private access to storage with no public IPs",
+    "tags": null,
+    "recommendationResourceType": "Microsoft.Storage/storageAccounts",
+    "recommendationImpact": "Medium",
+    "automationAvailable": true,
+    "query": "// Azure Resource Graph Query\r\n// This resource graph query will return all storage accounts that does not have a Private Endpoint Connection or where a private endpoint exists but public access is enabled\r\nresources\r\n| where type =~ \"Microsoft.Storage/StorageAccounts\"\r\n| where isnull(properties.privateEndpointConnections) or properties.privateEndpointConnections[0].properties.provisioningState != (\"Succeeded\") or (isnull(properties.networkAcls) and properties.publicNetworkAccess == 'Enabled')\r\n| extend param1 = strcat('Private Endpoint: ', iif(array_length(properties.privateEndpointConnections) != 0,split(properties.privateEndpointConnections[0].properties.privateEndpoint.id,'/')[8],'No Private Endpoint'))\r\n| extend param2 = strcat('Access: ', iif(properties.publicNetworkAccess == 'Disabled', 'Public Access Disabled', iif(isnotnull(properties.networkAcls), 'NetworkACLs in place','Public Access Enabled')))\r\n| project recommendationId = \"dc55be60-6f8c-461e-a9d5-a3c7686ed94e\", name, id, tags, param1, param2\r\n"
+  },
+  {
+    "aprlGuid": "f075a1bd-de9e-4819-9a1d-1ac41037a74f",
+    "recommendationTypeId": null,
+    "recommendationMetadataState": "Active",
+    "learnMoreLink": [
+      {
+        "name": "Azure support for TLS 1.0 and TLS 1.1 will end by 31 October 2024",
+        "url": "https://azure.microsoft.com/updates/azure-support-tls-will-end-by-31-october-2024-2/"
+      },
+      {
+        "name": "Configure the minimum TLS version for a Service Bus namespace",
+        "url": "https://learn.microsoft.com/azure/service-bus-messaging/transport-layer-security-configure-minimum-version"
+      }
+    ],
+    "recommendationControl": "ServiceUpgradeAndRetirement",
+    "longDescription": "As of 31 October 2024, TLS 1.0 and TLS 1.1 will no longer be supported on Azure including Service Bus to enhance security and provide best-in-class encryption for your data. Change the minimum TLS version for your Service Bus namespace to TLS v1.2 or higher.\n",
+    "pgVerified": false,
+    "description": "Configure the minimum TLS version for Service Bus namespaces to TLS v1.2 or higher",
+    "potentialBenefits": "Avoids service disruption",
+    "tags": null,
+    "recommendationResourceType": "Microsoft.ServiceBus/namespaces",
+    "recommendationImpact": "High",
+    "automationAvailable": true,
+    "query": "// Azure Resource Graph Query\r\n// Provides a list of Service Bus Namespace resources that have the lower minimum TLS version.\r\nresources\r\n| where type =~ \"Microsoft.ServiceBus/namespaces\"\r\n| where properties.minimumTlsVersion in (\"1.0\", \"1.1\")\r\n| project\r\n    recommendationId = \"f075a1bd-de9e-4819-9a1d-1ac41037a74f\",\r\n    name,\r\n    id,\r\n    tags,\r\n    param1 = strcat(\"minimumTlsVersion: \", properties.minimumTlsVersion)\r\n"
+  },
+  {
+    "aprlGuid": "ca87914f-aac4-4783-ab67-82a6f936f194",
+    "recommendationTypeId": null,
+    "recommendationMetadataState": "Active",
+    "learnMoreLink": [
+      {
+        "name": "Overview of high availability with Azure Database for PostgreSQL",
+        "url": "https://learn.microsoft.com/azure/postgresql/flexible-server/concepts-high-availability"
+      }
+    ],
+    "recommendationControl": "HighAvailability",
+    "longDescription": "Enable HA with zone redundancy on flexible server instances to deploy a standby replica in a different zone, offering automatic failover capability for improved reliability and disaster recovery.\n",
+    "pgVerified": true,
+    "description": "Enable HA with zone redundancy",
+    "potentialBenefits": "Enhanced uptime and data protection",
+    "tags": null,
+    "recommendationResourceType": "Microsoft.DBforPostgreSQL/flexibleServers",
+    "recommendationImpact": "High",
+    "automationAvailable": true,
+    "query": "// Azure Resource Graph Query\r\n// Find Database for PostgreSQL instances that are not zone redundant\r\nresources\r\n| where type == \"microsoft.dbforpostgresql/flexibleservers\"\r\n| where location in~ (\"australiaeast\", \"brazilsouth\", \"canadacentral\", \"centralindia\", \"centralus\", \"eastasia\", \"eastus\", \"eastus2\", \"francecentral\", \"germanywestcentral\", \"israelcentral\", \"italynorth\", \"japaneast\", \"japanwest\", \"koreacentral\", \"mexicocentral\", \"newzealandnorth\", \"northeurope\", \"norwayeast\", \"polandcentral\", \"qatarcentral\", \"southafricanorth\", \"southcentralus\", \"southeastasia\", \"spaincentral\", \"swedencentral\", \"switzerlandnorth\", \"uaenorth\", \"uksouth\", \"westeurope\", \"westus2\", \"westus3\", \"usgovvirginia\", \"chinanorth3\")\r\n| where properties.highAvailability.mode != \"ZoneRedundant\"\r\n| project recommendationId = \"ca87914f-aac4-4783-ab67-82a6f936f194\", name, id, tags, param1 = \"ZoneRedundant: False\"\r\n"
+  }
 ]

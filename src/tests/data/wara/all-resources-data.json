@@ -1,182 +1,182 @@
 [
-    {
-        "name": "resource-614",
-        "type": "microsoft.storage/storageaccounts",
-        "location": "westus2",
-        "resourceGroup": "rg-49",
-        "subscriptionId": "0000000-0000-0000-0000-000000000000",
-        "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614",
-        "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614"
-    },
-    {
-        "name": "resource-620",
-        "type": "microsoft.storage/storageaccounts",
-        "location": "italynorth",
-        "resourceGroup": "rg-53",
-        "subscriptionId": "0000000-0000-0000-0000-000000000000",
-        "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-53/providers/microsoft.storage/storageaccounts/resource-620",
-        "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-53/providers/microsoft.storage/storageaccounts/resource-620"
-    },
-    {
-        "name": "resource-347",
-        "type": "microsoft.storage/storageaccounts",
-        "location": "koreacentral",
-        "resourceGroup": "rg-7",
-        "subscriptionId": "2222222-2222-2222-2222-222222222222",
-        "id": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-7/providers/microsoft.storage/storageaccounts/resource-347",
-        "ResourceId": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-7/providers/microsoft.storage/storageaccounts/resource-347"
-    },
-    {
-        "name": "resource-784",
-        "type": "microsoft.storage/storageaccounts",
-        "location": "japanwest",
-        "resourceGroup": "rg-3",
-        "subscriptionId": "3333333-3333-3333-3333-333333333333",
-        "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-3/providers/microsoft.storage/storageaccounts/resource-784",
-        "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-3/providers/microsoft.storage/storageaccounts/resource-784"
-    },
-    {
-        "name": "resource-615",
-        "type": "microsoft.storage/storageaccounts",
-        "location": "japaneast",
-        "resourceGroup": "rg-49",
-        "subscriptionId": "0000000-0000-0000-0000-000000000000",
-        "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-615",
-        "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-615"
-    },
-    {
-        "name": "resource-708",
-        "type": "microsoft.servicebus/namespaces",
-        "location": "westus2",
-        "resourceGroup": "rg-5",
-        "subscriptionId": "3333333-3333-3333-3333-333333333333",
-        "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-5/providers/microsoft.servicebus/namespaces/resource-708",
-        "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-5/providers/microsoft.servicebus/namespaces/resource-708"
-    },
-    {
-        "name": "resource-705",
-        "type": "microsoft.servicebus/namespaces",
-        "location": "brazilsouth",
-        "resourceGroup": "rg-35",
-        "subscriptionId": "3333333-3333-3333-3333-333333333333",
-        "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-35/providers/microsoft.servicebus/namespaces/resource-705",
-        "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-35/providers/microsoft.servicebus/namespaces/resource-705"
-    },
-    {
-        "name": "resource-601",
-        "type": "microsoft.dbforpostgresql/flexibleservers",
-        "location": "eastasia",
-        "resourceGroup": "rg-61",
-        "subscriptionId": "0000000-0000-0000-0000-000000000000",
-        "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-61/providers/microsoft.dbforpostgresql/flexibleservers/resource-601",
-        "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-61/providers/microsoft.dbforpostgresql/flexibleservers/resource-601"
-    },
-    {
-        "name": "resource-766",
-        "type": "microsoft.dbforpostgresql/flexibleservers",
-        "location": "japaneast",
-        "resourceGroup": "rg-39",
-        "subscriptionId": "5555555-5555-5555-5555-555555555555",
-        "id": "/subscriptions/5555555-5555-5555-5555-555555555555/resourcegroups/rg-39/providers/microsoft.dbforpostgresql/flexibleservers/resource-766",
-        "ResourceId": "/subscriptions/5555555-5555-5555-5555-555555555555/resourcegroups/rg-39/providers/microsoft.dbforpostgresql/flexibleservers/resource-766"
-    },
-    {
-        "name": "resource-270",
-        "type": "microsoft.sql/managedinstances",
-        "location": "japaneast",
-        "resourceGroup": "rg-39",
-        "subscriptionId": "7777777-7777-7777-7777-777777777777",
-        "id": "/subscriptions/7777777-7777-7777-7777-777777777777/resourcegroups/rg-39/providers/microsoft.sql/managedinstances/resource-270",
-        "ResourceId": "/subscriptions/7777777-7777-7777-7777-777777777777/resourcegroups/rg-39/providers/microsoft.sql/managedinstances/resource-270"
-    },
-    {
-        "name": "pip1",
-        "type": "microsoft.network/publicipaddresses",
-        "location": "brazilsouth",
-        "resourceGroup": "avd-main",
-        "subscriptionId": "11111111-1111-1111-1111-111111111111",
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/avd-main/providers/Microsoft.Network/publicIPAddresses/pip1",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/avd-main/providers/Microsoft.Network/publicIPAddresses/pip1"
-    },
-    {
-        "name": "AGManager",
-        "type": "microsoft.insights/actiongroups",
-        "location": "global",
-        "resourceGroup": "default-activitylogalerts",
-        "subscriptionId": "11111111-1111-1111-1111-111111111111",
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/Default-ActivityLogAlerts/providers/Microsoft.Insights/actiongroups/AGManager",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/Default-ActivityLogAlerts/providers/Microsoft.Insights/actiongroups/AGManager"
-    },
-    {
-        "name": "translator002601",
-        "type": "microsoft.cognitiveservices/accounts",
-        "location": "japaneast",
-        "resourceGroup": "doc-translation",
-        "subscriptionId": "11111111-1111-1111-1111-111111111111",
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/doc-translation/providers/Microsoft.CognitiveServices/accounts/translator002601",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/doc-translation/providers/Microsoft.CognitiveServices/accounts/translator002601"
-    },
-    {
-        "name": "doctranslation002601",
-        "type": "microsoft.storage/storageaccounts",
-        "location": "japanwest",
-        "resourceGroup": "doc-translation",
-        "subscriptionId": "11111111-1111-1111-1111-111111111111",
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/doc-translation/providers/Microsoft.Storage/storageAccounts/doctranslation002601",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/doc-translation/providers/Microsoft.Storage/storageAccounts/doctranslation002601"
-    },
-    {
-        "name": "NetworkWatcher_eastasia",
-        "type": "microsoft.network/networkwatchers",
-        "location": "eastasia",
-        "resourceGroup": "networkwatcherrg",
-        "subscriptionId": "11111111-1111-1111-1111-111111111111",
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_eastasia",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_eastasia"
-    },
-    {
-        "name": "nodejs-devenv-vm1",
-        "type": "microsoft.compute/virtualmachines",
-        "location": "japaneast",
-        "resourceGroup": "nodejs-devenv",
-        "subscriptionId": "11111111-1111-1111-1111-111111111111",
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/nodejs-devenv/providers/Microsoft.Compute/virtualMachines/nodejs-devenv-vm1",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/nodejs-devenv/providers/Microsoft.Compute/virtualMachines/nodejs-devenv-vm1"
-    },
-    {
-        "name": "nodejs-devenv-nsg",
-        "type": "microsoft.network/networksecuritygroups",
-        "location": "westus2",
-        "resourceGroup": "nodejs-devenv",
-        "subscriptionId": "11111111-1111-1111-1111-111111111111",
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/nodejs-devenv/providers/Microsoft.Network/networkSecurityGroups/nodejs-devenv-nsg",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/nodejs-devenv/providers/Microsoft.Network/networkSecurityGroups/nodejs-devenv-nsg"
-    },
-    {
-        "name": "azuresubscription-egst",
-        "type": "microsoft.eventgrid/systemtopics",
-        "location": "global",
-        "resourceGroup": "whatnot",
-        "subscriptionId": "11111111-1111-1111-1111-111111111111",
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/whatnot/providers/Microsoft.EventGrid/systemTopics/azuresubscription-egst",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/whatnot/providers/Microsoft.EventGrid/systemTopics/azuresubscription-egst"
-    },
-    {
-        "name": "restag0wi6-asp",
-        "type": "microsoft.web/serverfarms",
-        "location": "koreacentral",
-        "resourceGroup": "resource-tagging",
-        "subscriptionId": "11111111-1111-1111-1111-111111111111",
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/resource-tagging/providers/Microsoft.Web/serverFarms/restag0wi6-asp",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/resource-tagging/providers/Microsoft.Web/serverFarms/restag0wi6-asp"
-    },
-    {
-        "name": "restag0wi6-func",
-        "type": "microsoft.web/sites",
-        "location": "italynorth",
-        "resourceGroup": "resource-tagging",
-        "subscriptionId": "11111111-1111-1111-1111-111111111111",
-        "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/resource-tagging/providers/Microsoft.Web/sites/restag0wi6-func",
-        "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/resource-tagging/providers/Microsoft.Web/sites/restag0wi6-func"
-    }
+  {
+    "name": "resource-614",
+    "type": "microsoft.storage/storageaccounts",
+    "location": "westus2",
+    "resourceGroup": "rg-49",
+    "subscriptionId": "0000000-0000-0000-0000-000000000000",
+    "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614",
+    "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-614"
+  },
+  {
+    "name": "resource-620",
+    "type": "microsoft.storage/storageaccounts",
+    "location": "italynorth",
+    "resourceGroup": "rg-53",
+    "subscriptionId": "0000000-0000-0000-0000-000000000000",
+    "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-53/providers/microsoft.storage/storageaccounts/resource-620",
+    "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-53/providers/microsoft.storage/storageaccounts/resource-620"
+  },
+  {
+    "name": "resource-347",
+    "type": "microsoft.storage/storageaccounts",
+    "location": "koreacentral",
+    "resourceGroup": "rg-7",
+    "subscriptionId": "2222222-2222-2222-2222-222222222222",
+    "id": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-7/providers/microsoft.storage/storageaccounts/resource-347",
+    "ResourceId": "/subscriptions/2222222-2222-2222-2222-222222222222/resourcegroups/rg-7/providers/microsoft.storage/storageaccounts/resource-347"
+  },
+  {
+    "name": "resource-784",
+    "type": "microsoft.storage/storageaccounts",
+    "location": "japanwest",
+    "resourceGroup": "rg-3",
+    "subscriptionId": "3333333-3333-3333-3333-333333333333",
+    "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-3/providers/microsoft.storage/storageaccounts/resource-784",
+    "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-3/providers/microsoft.storage/storageaccounts/resource-784"
+  },
+  {
+    "name": "resource-615",
+    "type": "microsoft.storage/storageaccounts",
+    "location": "japaneast",
+    "resourceGroup": "rg-49",
+    "subscriptionId": "0000000-0000-0000-0000-000000000000",
+    "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-615",
+    "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-49/providers/microsoft.storage/storageaccounts/resource-615"
+  },
+  {
+    "name": "resource-708",
+    "type": "microsoft.servicebus/namespaces",
+    "location": "westus2",
+    "resourceGroup": "rg-5",
+    "subscriptionId": "3333333-3333-3333-3333-333333333333",
+    "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-5/providers/microsoft.servicebus/namespaces/resource-708",
+    "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-5/providers/microsoft.servicebus/namespaces/resource-708"
+  },
+  {
+    "name": "resource-705",
+    "type": "microsoft.servicebus/namespaces",
+    "location": "brazilsouth",
+    "resourceGroup": "rg-35",
+    "subscriptionId": "3333333-3333-3333-3333-333333333333",
+    "id": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-35/providers/microsoft.servicebus/namespaces/resource-705",
+    "ResourceId": "/subscriptions/3333333-3333-3333-3333-333333333333/resourcegroups/rg-35/providers/microsoft.servicebus/namespaces/resource-705"
+  },
+  {
+    "name": "resource-601",
+    "type": "microsoft.dbforpostgresql/flexibleservers",
+    "location": "eastasia",
+    "resourceGroup": "rg-61",
+    "subscriptionId": "0000000-0000-0000-0000-000000000000",
+    "id": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-61/providers/microsoft.dbforpostgresql/flexibleservers/resource-601",
+    "ResourceId": "/subscriptions/0000000-0000-0000-0000-000000000000/resourcegroups/rg-61/providers/microsoft.dbforpostgresql/flexibleservers/resource-601"
+  },
+  {
+    "name": "resource-766",
+    "type": "microsoft.dbforpostgresql/flexibleservers",
+    "location": "japaneast",
+    "resourceGroup": "rg-39",
+    "subscriptionId": "5555555-5555-5555-5555-555555555555",
+    "id": "/subscriptions/5555555-5555-5555-5555-555555555555/resourcegroups/rg-39/providers/microsoft.dbforpostgresql/flexibleservers/resource-766",
+    "ResourceId": "/subscriptions/5555555-5555-5555-5555-555555555555/resourcegroups/rg-39/providers/microsoft.dbforpostgresql/flexibleservers/resource-766"
+  },
+  {
+    "name": "resource-270",
+    "type": "microsoft.sql/managedinstances",
+    "location": "japaneast",
+    "resourceGroup": "rg-39",
+    "subscriptionId": "7777777-7777-7777-7777-777777777777",
+    "id": "/subscriptions/7777777-7777-7777-7777-777777777777/resourcegroups/rg-39/providers/microsoft.sql/managedinstances/resource-270",
+    "ResourceId": "/subscriptions/7777777-7777-7777-7777-777777777777/resourcegroups/rg-39/providers/microsoft.sql/managedinstances/resource-270"
+  },
+  {
+    "name": "pip1",
+    "type": "microsoft.network/publicipaddresses",
+    "location": "brazilsouth",
+    "resourceGroup": "avd-main",
+    "subscriptionId": "11111111-1111-1111-1111-111111111111",
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/avd-main/providers/Microsoft.Network/publicIPAddresses/pip1",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/avd-main/providers/Microsoft.Network/publicIPAddresses/pip1"
+  },
+  {
+    "name": "AGManager",
+    "type": "microsoft.insights/actiongroups",
+    "location": "global",
+    "resourceGroup": "default-activitylogalerts",
+    "subscriptionId": "11111111-1111-1111-1111-111111111111",
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/Default-ActivityLogAlerts/providers/Microsoft.Insights/actiongroups/AGManager",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/Default-ActivityLogAlerts/providers/Microsoft.Insights/actiongroups/AGManager"
+  },
+  {
+    "name": "translator002601",
+    "type": "microsoft.cognitiveservices/accounts",
+    "location": "japaneast",
+    "resourceGroup": "doc-translation",
+    "subscriptionId": "11111111-1111-1111-1111-111111111111",
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/doc-translation/providers/Microsoft.CognitiveServices/accounts/translator002601",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/doc-translation/providers/Microsoft.CognitiveServices/accounts/translator002601"
+  },
+  {
+    "name": "doctranslation002601",
+    "type": "microsoft.storage/storageaccounts",
+    "location": "japanwest",
+    "resourceGroup": "doc-translation",
+    "subscriptionId": "11111111-1111-1111-1111-111111111111",
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/doc-translation/providers/Microsoft.Storage/storageAccounts/doctranslation002601",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/doc-translation/providers/Microsoft.Storage/storageAccounts/doctranslation002601"
+  },
+  {
+    "name": "NetworkWatcher_eastasia",
+    "type": "microsoft.network/networkwatchers",
+    "location": "eastasia",
+    "resourceGroup": "networkwatcherrg",
+    "subscriptionId": "11111111-1111-1111-1111-111111111111",
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_eastasia",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_eastasia"
+  },
+  {
+    "name": "nodejs-devenv-vm1",
+    "type": "microsoft.compute/virtualmachines",
+    "location": "japaneast",
+    "resourceGroup": "nodejs-devenv",
+    "subscriptionId": "11111111-1111-1111-1111-111111111111",
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/nodejs-devenv/providers/Microsoft.Compute/virtualMachines/nodejs-devenv-vm1",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/nodejs-devenv/providers/Microsoft.Compute/virtualMachines/nodejs-devenv-vm1"
+  },
+  {
+    "name": "nodejs-devenv-nsg",
+    "type": "microsoft.network/networksecuritygroups",
+    "location": "westus2",
+    "resourceGroup": "nodejs-devenv",
+    "subscriptionId": "11111111-1111-1111-1111-111111111111",
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/nodejs-devenv/providers/Microsoft.Network/networkSecurityGroups/nodejs-devenv-nsg",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/nodejs-devenv/providers/Microsoft.Network/networkSecurityGroups/nodejs-devenv-nsg"
+  },
+  {
+    "name": "azuresubscription-egst",
+    "type": "microsoft.eventgrid/systemtopics",
+    "location": "global",
+    "resourceGroup": "whatnot",
+    "subscriptionId": "11111111-1111-1111-1111-111111111111",
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/whatnot/providers/Microsoft.EventGrid/systemTopics/azuresubscription-egst",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/whatnot/providers/Microsoft.EventGrid/systemTopics/azuresubscription-egst"
+  },
+  {
+    "name": "restag0wi6-asp",
+    "type": "microsoft.web/serverfarms",
+    "location": "koreacentral",
+    "resourceGroup": "resource-tagging",
+    "subscriptionId": "11111111-1111-1111-1111-111111111111",
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/resource-tagging/providers/Microsoft.Web/serverFarms/restag0wi6-asp",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/resource-tagging/providers/Microsoft.Web/serverFarms/restag0wi6-asp"
+  },
+  {
+    "name": "restag0wi6-func",
+    "type": "microsoft.web/sites",
+    "location": "italynorth",
+    "resourceGroup": "resource-tagging",
+    "subscriptionId": "11111111-1111-1111-1111-111111111111",
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/resource-tagging/providers/Microsoft.Web/sites/restag0wi6-func",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/resource-tagging/providers/Microsoft.Web/sites/restag0wi6-func"
+  }
 ]
