@@ -15,7 +15,7 @@ RootModule = './analyzer.psm1'
 ModuleVersion = '0.0.1'
 
 # Supported PSEditions
-# CompatiblePSEditions = @()
+CompatiblePSEditions = 'Core'
 
 # ID used to uniquely identify this module
 GUID = 'ab8651c1-9f18-407c-aed1-a1b8154ca1dc'
