@@ -15,7 +15,7 @@ RootModule = './reports.psm1'
 ModuleVersion = '0.0.1'
 
 # Supported PSEditions
-# CompatiblePSEditions = @()
+CompatiblePSEditions = 'Core'
 
 # ID used to uniquely identify this module
 GUID = '3b78eeaf-4c8d-4624-aeba-e0b0653d8147'
