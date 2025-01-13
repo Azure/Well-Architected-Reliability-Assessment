@@ -288,6 +288,12 @@ function Start-WARACollector {
     $Scope_AllResources = Get-WAFFilteredResourceList -UnfilteredResources $AllResources -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Count of filtered Resources: $($Scope_AllResources.count)"
 
+    #Create Resource Inventory object
+    Write-Debug 'Creating Resource Inventory object'
+    Write-Progress -Activity 'WARA Collector' -Status 'Creating Resource Inventory' -PercentComplete 34 -Id 1
+    $ResourceInventory = $Scope_AllResources
+    Write-Debug "Count of Resource Inventory: $($ResourceInventory.count)"
+
     #Filter all resources by InScope Resource Types - We do this because we need to be able to compare resource ids to generate the generic recommendations(Resource types that have no recommendations or are not in advisor but also need to be validated)
     Write-Debug 'Filtering all resources by WARA InScope Resource Types'
     Write-Progress -Activity 'WARA Collector' -Status 'Filtering All Resources by WARA InScope Resource Types' -PercentComplete 35 -Id 1
@@ -398,6 +404,12 @@ function Start-WARACollector {
         $Filter_TaggedResourceIds = Get-WAFTaggedResource -TagArray $Scope_Tags -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
         Write-Debug "Count of Tagged Resource Ids: $($Filter_TaggedResourceIds.count)"
 
+        #Filter ResourceInventory objects by tagged resource group and resource scope
+        Write-Debug 'Filtering ResourceInventory objects by tagged resource group and resource scope'
+        Write-Progress -Activity 'WARA Collector' -Status 'Filtering Resource Inventory' -PercentComplete 73 -Id 1
+        $ResourceInventory = Get-WAFFilteredResourceList -UnfilteredResources $ResourceInventory -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
+        Write-Debug "Count of tag filtered ResourceInventory objects: $($ResourceInventory.count)"
+
         #Filter impactedResourceObj objects by tagged resource group and resource scope
         Write-Debug 'Filtering impactedResourceObj objects by tagged resource group and resource scope'
         Write-Progress -Activity 'WARA Collector' -Status 'Filtering Impacted Resource Objects' -PercentComplete 73 -Id 1
@@ -496,6 +508,7 @@ function Start-WARACollector {
         retirements       = $retirementResourceObj
         supportTickets    = $supportTicketObjects
         serviceHealth     = $serviceHealthObjects
+        resourceInventory = $ResourceInventory
     }
 
     Write-Debug 'Output JSON'
