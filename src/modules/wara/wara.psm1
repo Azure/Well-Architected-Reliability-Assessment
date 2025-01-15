@@ -712,8 +712,8 @@ class resourceTypeFactory {
             $r.'Resource Type' = $type.Name
             $r.'Number Of Resources' = $type.Count
             $r.'Available in APRL/ADVISOR?' = $(($this.TypesNotInAPRLOrAdvisor -contains $type.Name) ? "No" : "Yes")
-            $r.'Assessment Owner' = "APRL"
-            $r.Status = "Active"
+            $r.'Assessment Owner' = ""
+            $r.Status = ""
             $r.notes = ""
 
             $r
