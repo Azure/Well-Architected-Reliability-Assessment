@@ -446,7 +446,7 @@ function Start-WARACollector {
     #Build Resource Type Object
     Write-Debug 'Building Resource Type Object with impactedResourceObj and advisorResourceObj'
     Write-Progress -Activity 'WARA Collector' -Status 'Building Resource Type Object' -PercentComplete 78 -Id 1
-    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj ($impactedResourceObj + $advisorResourceObj) -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
+    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj $ResourceInventory <# Adjusting this but keeping old code just in case. ($impactedResourceObj + $advisorResourceObj)#> -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
     Write-Debug "Count of Resource Type Object : $($resourceTypeObj.count)"
 
     #Get Azure Outages
@@ -477,10 +477,10 @@ function Start-WARACollector {
     $scriptDetails = [PSCustomObject]@{
         Version                        = "2.1.19"#$(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
         ElapsedTime                    = $stopWatch.Elapsed.toString('hh\:mm\:ss')
-        SAP                            = $SAP
-        AVD                            = $AVD
-        AVS                            = $AVS
-        HPC                            = $HPC
+        SAP                            = [bool]$SAP
+        AVD                            = [bool]$AVD
+        AVS                            = [bool]$AVS
+        HPC                            = [bool]$HPC
         TenantId                       = $Scope_TenantId
         SubscriptionIds                = $Scope_SubscriptionIds
         ResourceGroups                 = $Scope_ResourceGroups
@@ -678,7 +678,7 @@ class resourceTypeFactory {
     [PSObject]$TypesNotInAPRLOrAdvisor
 
     resourceTypeFactory([PSObject]$impactedResourceObj, [PSObject]$TypesNotInAPRLOrAdvisor) {
-        $this.impactedResourceObj = $impactedResourceObj | Group-Object -Property type | Select-Object Name, @{Name = 'Count'; Expression = { ($_.Group | Group-Object id ).count } }
+        $this.impactedResourceObj = $impactedResourceObj | Group-Object -Property type | Select-Object Name, Count
         $this.TypesNotInAPRLOrAdvisor = $TypesNotInAPRLOrAdvisor
     }
 
@@ -712,8 +712,8 @@ class resourceTypeFactory {
             $r.'Resource Type' = $type.Name
             $r.'Number Of Resources' = $type.Count
             $r.'Available in APRL/ADVISOR?' = $(($this.TypesNotInAPRLOrAdvisor -contains $type.Name) ? "No" : "Yes")
-            $r.'Assessment Owner' = "APRL"
-            $r.Status = "Active"
+            $r.'Assessment Owner' = ""
+            $r.Status = ""
             $r.notes = ""
 
             $r
