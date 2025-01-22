@@ -1048,7 +1048,7 @@ class validationResourceFactory {
         $return = switch -wildcard ($query) {
             "*development*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
-            "*Azure Resource Graph*" { 'IMPORTANT - This resource has a query but the automation is not available - Validate Resources manually' }
+            "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually'}
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
             default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }

@@ -994,16 +994,38 @@ $Script:Runtime = Measure-Command -Expression {
       }
       Add-PivotTable @PTParams
 
+        $ChartP0 = $Excel.Charts.Drawings.AddChart('ChartP0', 'BarClustered', $Excel.PivotTable.PivotTables['P0'])
+        #$ChartP0.Style = "Style1"
+        $ChartP0.Title.Text = 'Recommendations per Services/Well-Architected Area'
+        $ChartP0.Title.Font.Bold = $true
+        $ChartP0.Title.Font.SetFromFont("Segoe UI")
+        $ChartP0.Title.Font.Size = 11
+        $ChartP0.XAxis.Title.Font.SetFromFont('Segoe UI')
+        $ChartP0.XAxis.Title.Font.Size = 9
+        $ChartP0.SetSize(450, 696)
+        $ChartP0.SetPosition(40, 18)
+
+        $ChartP1 = $Excel.Charts.Drawings.AddChart('ChartP1', 'BarClustered', $Excel.PivotTable.PivotTables['P1'])
+        #$ChartP1.Style = "Style2"
+        $ChartP1.Title.Text = 'Recommendations per Resiliency Category'
+        $ChartP1.Title.Font.Bold = $true
+        $ChartP1.Title.Font.SetFromFont("Segoe UI")
+        $ChartP1.Title.Font.Size = 11
+        $ChartP1.XAxis.Title.Font.SetFromFont('Segoe UI')
+        $ChartP1.XAxis.Title.Font.Size = 9
+        $ChartP1.SetSize(462, 569)
+        $ChartP1.SetPosition(40, 555)
+
       Close-ExcelPackage $Excel
     }
 
     function Invoke-ExcelAPI {
       Write-Host 'Opening Excel...'
-      $Script:ExcelApplication = New-Object -ComObject Excel.Application
+      #$Script:ExcelApplication = New-Object -ComObject Excel.Application
       Start-Sleep 2
       Write-Host 'Customizing Excel Charts. '
       # Open the Excel using the API to move the charts from the PivotTable sheet to the Charts sheet and change chart style, font, etc..
-      if ($Script:ExcelApplication) {
+      <# if ($Script:ExcelApplication) {
         try {
           Write-Debug 'Opening Excel File'
           $Ex = $ExcelApplication.Workbooks.Open($ExcelFile)
@@ -1049,7 +1071,7 @@ $Script:Runtime = Measure-Command -Expression {
         } catch {
           Write-Host 'Error during the PivotTable + Charts customization' -BackgroundColor DarkRed
         }
-      }
+      } #>
 
     }
 
@@ -1061,7 +1083,7 @@ $Script:Runtime = Measure-Command -Expression {
     Add-ServiceHealth
     Add-Recommendation
     Build-PivotTable
-    Invoke-ExcelAPI
+    #Invoke-ExcelAPI
 
   }
 
