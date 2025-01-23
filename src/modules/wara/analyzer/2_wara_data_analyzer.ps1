@@ -1020,10 +1020,10 @@ $Script:Runtime = Measure-Command -Expression {
     }
 
     function Invoke-ExcelAPI {
-      Write-Host 'Opening Excel...'
+      #Write-Host 'Opening Excel...'
       #$Script:ExcelApplication = New-Object -ComObject Excel.Application
-      Start-Sleep 2
-      Write-Host 'Customizing Excel Charts. '
+      #Start-Sleep 2
+      #Write-Host 'Customizing Excel Charts. '
       # Open the Excel using the API to move the charts from the PivotTable sheet to the Charts sheet and change chart style, font, etc..
       <# if ($Script:ExcelApplication) {
         try {
