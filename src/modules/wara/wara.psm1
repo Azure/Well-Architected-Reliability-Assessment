@@ -970,7 +970,7 @@ class validationResourceFactory {
 
             $recommendationByType = $this.recommendationObject.where({ $_.automationAvailable -eq $false -and $impactedResource.type -eq $_.recommendationResourceType -and $_.recommendationMetadataState -eq "Active" -and [string]::IsNullOrEmpty($_.recommendationTypeId) })
 
-            if ($null -ne $recommendationByType) {
+            if ($recommendationByType) {
                 foreach ($rec in $recommendationByType) {
                     $r = [aprlResourceObj]::new()
                     $r.validationAction = [validationResourceFactory]::getValidationAction($rec.query)
