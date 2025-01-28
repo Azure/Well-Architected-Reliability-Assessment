@@ -17,6 +17,9 @@
 .PARAMETER HPC
     Switch to enable HPC workload processing.
 
+.PARAMETER PassThru
+    Switch to enable the PassThru parameter. PassThru returns the output object.
+
 .PARAMETER SubscriptionIds
     Array of subscription IDs to include in the process. Validated using Test-WAFSubscriptionId.
 
@@ -132,9 +135,21 @@ function Start-WARACollector {
         [string] $RunbookFile
     )
 
+    Write-host "Checking Version.." -ForegroundColor Cyan
+    $LocalVersion = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+    $GalleryVersion = (Find-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+
+    if($LocalVersion -lt $GalleryVersion){
+        Write-Host "A newer version of the module is available. Please update the module to the latest version and re-run the command." -ForegroundColor Cyan -
+        Write-host "You can update by running 'Update-Module -Name $($MyInvocation.MyCommand.ModuleName)'" -ForegroundColor Cyan
+        Write-Host "Local Install Version: $LocalVersion" -ForegroundColor Yellow
+        Write-Host "PowerShell Gallery Version: $GalleryVersion" -ForegroundColor Green
+        throw 'Module is out of date.'
+    }
+
     $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-    $scriptParams = foreach($param in $PSBoundParameters.GetEnumerator()) {
+    $scriptParams = foreach ($param in $PSBoundParameters.GetEnumerator()) {
         Write-Debug "Parameter: $($param.Key) Value: $($param.Value)"
         [PSCustomObject]@{
             $param.key = $param.value
@@ -189,21 +204,23 @@ function Start-WARACollector {
     Write-Debug "Resource Groups: $Scope_ResourceGroups"
     Write-Debug "Tags: $Scope_Tags"
 
+    $SpecializedWorkloads = @()
+
     if ($SAP) {
         Write-Debug 'SAP switch is enabled'
-        $SpecializedWorkloads += 'specialized.workload/sap'
+        $SpecializedWorkloads += 'SAP'
     }
     if ($AVD) {
         Write-Debug 'AVD switch is enabled'
-        $SpecializedWorkloads += 'specialized.workload/avd'
+        $SpecializedWorkloads += 'AVD'
     }
     if ($AVS) {
         Write-Debug 'AVS switch is enabled'
-        $SpecializedWorkloads += 'specialized.workload/avs'
+        $SpecializedWorkloads += 'AVS'
     }
     if ($HPC) {
         Write-Debug 'HPC switch is enabled'
-        $SpecializedWorkloads += 'specialized.workload/hpc'
+        $SpecializedWorkloads += 'HPC'
     }
 
     if ($SpecializedWorkloads) {
@@ -270,6 +287,12 @@ function Start-WARACollector {
     Write-Progress -Activity 'WARA Collector' -Status 'Filtering All Resources' -PercentComplete 32 -Id 1
     $Scope_AllResources = Get-WAFFilteredResourceList -UnfilteredResources $AllResources -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Count of filtered Resources: $($Scope_AllResources.count)"
+
+    #Create Resource Inventory object
+    Write-Debug 'Creating Resource Inventory object'
+    Write-Progress -Activity 'WARA Collector' -Status 'Creating Resource Inventory' -PercentComplete 34 -Id 1
+    $ResourceInventory = $Scope_AllResources
+    Write-Debug "Count of Resource Inventory: $($ResourceInventory.count)"
 
     #Filter all resources by InScope Resource Types - We do this because we need to be able to compare resource ids to generate the generic recommendations(Resource types that have no recommendations or are not in advisor but also need to be validated)
     Write-Debug 'Filtering all resources by WARA InScope Resource Types'
@@ -381,6 +404,12 @@ function Start-WARACollector {
         $Filter_TaggedResourceIds = Get-WAFTaggedResource -TagArray $Scope_Tags -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
         Write-Debug "Count of Tagged Resource Ids: $($Filter_TaggedResourceIds.count)"
 
+        #Filter ResourceInventory objects by tagged resource group and resource scope
+        Write-Debug 'Filtering ResourceInventory objects by tagged resource group and resource scope'
+        Write-Progress -Activity 'WARA Collector' -Status 'Filtering Resource Inventory' -PercentComplete 73 -Id 1
+        $ResourceInventory = Get-WAFFilteredResourceList -UnfilteredResources $ResourceInventory -ResourceGroupFilters $Filter_TaggedResourceGroupIds -ResourceFilters $Filter_TaggedResourceIds
+        Write-Debug "Count of tag filtered ResourceInventory objects: $($ResourceInventory.count)"
+
         #Filter impactedResourceObj objects by tagged resource group and resource scope
         Write-Debug 'Filtering impactedResourceObj objects by tagged resource group and resource scope'
         Write-Progress -Activity 'WARA Collector' -Status 'Filtering Impacted Resource Objects' -PercentComplete 73 -Id 1
@@ -417,7 +446,7 @@ function Start-WARACollector {
     #Build Resource Type Object
     Write-Debug 'Building Resource Type Object with impactedResourceObj and advisorResourceObj'
     Write-Progress -Activity 'WARA Collector' -Status 'Building Resource Type Object' -PercentComplete 78 -Id 1
-    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj ($impactedResourceObj + $advisorResourceObj) -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
+    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj $ResourceInventory <# Adjusting this but keeping old code just in case. ($impactedResourceObj + $advisorResourceObj)#> -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
     Write-Debug "Count of Resource Type Object : $($resourceTypeObj.count)"
 
     #Get Azure Outages
@@ -446,12 +475,12 @@ function Start-WARACollector {
     #Create Script Details Object
     Write-Debug 'Creating Script Details Object'
     $scriptDetails = [PSCustomObject]@{
-        Version                        = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+        Version                        = "2.1.19"#$(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
         ElapsedTime                    = $stopWatch.Elapsed.toString('hh\:mm\:ss')
-        SAP                            = $SAP
-        AVD                            = $AVD
-        AVS                            = $AVS
-        HPC                            = $HPC
+        SAP                            = [bool]$SAP
+        AVD                            = [bool]$AVD
+        AVS                            = [bool]$AVS
+        HPC                            = [bool]$HPC
         TenantId                       = $Scope_TenantId
         SubscriptionIds                = $Scope_SubscriptionIds
         ResourceGroups                 = $Scope_ResourceGroups
@@ -479,6 +508,7 @@ function Start-WARACollector {
         retirements       = $retirementResourceObj
         supportTickets    = $supportTicketObjects
         serviceHealth     = $serviceHealthObjects
+        resourceInventory = $ResourceInventory
     }
 
     Write-Debug 'Output JSON'
@@ -507,7 +537,7 @@ function Build-ImpactedResourceObj {
     $impactedResourceObj = [impactedResourceFactory]::new($ImpactedResources, $AllResources, $RecommendationObject)
     $r = $impactedResourceObj.createImpactedResourceObjects()
 
-    return $r
+    return ,$r
 }
 
 function Build-ValidationResourceObj {
@@ -526,7 +556,7 @@ function Build-ValidationResourceObj {
     $validatorObj = [validationResourceFactory]::new($RecommendationObject, $validationResources, $TypesNotInAPRLOrAdvisor)
     $r = $validatorObj.createValidationResourceObjects()
 
-    return $r
+    return ,$r
 }
 
 function Build-ResourceTypeObj {
@@ -541,7 +571,7 @@ function Build-ResourceTypeObj {
 
     $return = [resourceTypeFactory]::new($ResourceObj, $TypesNotInAPRLOrAdvisor).createResourceTypeObjects()
 
-    return $return
+    return ,$return
 }
 
 function Build-SpecializedResourceObj {
@@ -556,7 +586,7 @@ function Build-SpecializedResourceObj {
 
     $return = [specializedResourceFactory]::new($SpecializedResourceObj, $RecommendationObject).createSpecializedResourceObjects()
 
-    return $return
+    return ,$return
 }
 
 function Get-WARAOtherRecommendations {
@@ -574,9 +604,42 @@ function Get-WARAOtherRecommendations {
     #Returns recommendations that are in APRL but not in Advisor under 'HighAvailability'
     $return = $RecommendationObject.recommendationTypeId | Where-Object { $_ -in $metadata }
 
-    return $return
+    return ,$return
 }
 
+
+<#
+.CLASS
+    impactedResourceObj
+
+.SYNOPSIS
+    Represents a resource type object for APRL.
+
+.DESCRIPTION
+    The `aprlResourceTypeObj` class encapsulates the details of a resource type in APRL, including the number of resources, availability in APRL/ADVISOR, assessment owner, status, and notes.
+
+.PROPERTY Resource Type
+    The type of the resource.
+
+.PROPERTY Number Of Resources
+    The number of resources of this type.
+
+.PROPERTY Available in APRL/ADVISOR?
+    Indicates whether the resource type is available in APRL or ADVISOR.
+
+.PROPERTY Assessment Owner
+    The owner of the assessment.
+
+.PROPERTY Status
+    The status of the resource type.
+
+.PROPERTY Notes
+    Additional notes about the resource type.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class aprlResourceTypeObj {
     [string] ${Resource Type}
     [int] ${Number Of Resources}
@@ -586,23 +649,71 @@ class aprlResourceTypeObj {
     [string] $Notes
 }
 
+<#
+.CLASS
+    validationResourceFactory
+
+.PROPERTY  RecommendationObject
+    The recommendation object.
+
+.PROPERTY  validationResources
+    The validation resources.
+
+.SYNOPSIS
+    Factory class to create resource type objects.
+
+.DESCRIPTION
+    The `resourceTypeFactory` class is responsible for creating instances of `aprlResourceTypeObj` based on impacted resources and types not in APRL or ADVISOR.
+
+.CONSTRUCTORS
+    resourceTypeFactory([PSObject]$impactedResourceObj, [PSObject]$TypesNotInAPRLOrAdvisor)
+        Initializes a new instance of the `resourceTypeFactory` class.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class resourceTypeFactory {
     [PSObject]$impactedResourceObj
     [PSObject]$TypesNotInAPRLOrAdvisor
 
     resourceTypeFactory([PSObject]$impactedResourceObj, [PSObject]$TypesNotInAPRLOrAdvisor) {
-        $this.impactedResourceObj = $impactedResourceObj | Group-Object -Property type | Select-Object Name, @{Name='Count';Expression={($_.Group | Group-Object id ).count}}
+        $this.impactedResourceObj = $impactedResourceObj | Group-Object -Property type | Select-Object Name, Count
         $this.TypesNotInAPRLOrAdvisor = $TypesNotInAPRLOrAdvisor
     }
 
+    <#
+    .CLASS
+        aprlResourceTypeObj
+
+    .METHOD
+        createResourceTypeObjects
+
+    .SYNOPSIS
+        Creates resource type objects.
+
+    .DESCRIPTION
+        The `createResourceTypeObjects` method creates and returns an array of `aprlResourceTypeObj` instances based on the impacted resources and types not in APRL or ADVISOR.
+
+    .OUTPUTS
+        System.Object[]. Returns an array of `aprlResourceTypeObj` instances.
+
+    .EXAMPLE
+        $factory = [resourceTypeFactory]::new($impactedResourceObj, $TypesNotInAPRLOrAdvisor)
+        $resourceTypes = $factory.createResourceTypeObjects()
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     [object[]] createResourceTypeObjects() {
         $return = foreach ($type in $this.impactedResourceObj) {
             $r = [aprlResourceTypeObj]::new()
             $r.'Resource Type' = $type.Name
             $r.'Number Of Resources' = $type.Count
             $r.'Available in APRL/ADVISOR?' = $(($this.TypesNotInAPRLOrAdvisor -contains $type.Name) ? "No" : "Yes")
-            $r.'Assessment Owner' = "APRL"
-            $r.Status = "Active"
+            $r.'Assessment Owner' = ""
+            $r.Status = ""
             $r.notes = ""
 
             $r
@@ -611,6 +722,65 @@ class resourceTypeFactory {
     }
 }
 
+<#
+.CLASS
+    aprlResourceObj
+
+.SYNOPSIS
+    Represents an APRL resource object.
+
+.DESCRIPTION
+    The `aprlResourceObj` class encapsulates the details of an APRL resource, including validation action, recommendation ID, name, ID, type, location, subscription ID, resource group, parameters, check name, and selector.
+
+.PROPERTY  validationAction
+    The validation action for the resource.
+
+.PROPERTY recommendationId
+    The recommendation ID for the resource.
+
+.PROPERTY name
+    The name of the resource.
+
+.PROPERTY id
+    The ID of the resource.
+
+.PROPERTY type
+    The type of the resource.
+
+.PROPERTY location
+    The location of the resource.
+
+.PROPERTY subscriptionId
+    The subscription ID of the resource.
+
+.PROPERTY resourceGroup
+    The resource group of the resource.
+
+.PROPERTY param1
+    Additional parameter 1.
+
+.PROPERTY param2
+    Additional parameter 2.
+
+.PROPERTY param3
+    Additional parameter 3.
+
+.PROPERTY param4
+    Additional parameter 4.
+
+.PROPERTY param5
+    Additional parameter 5.
+
+.PROPERTY checkName
+    The check name for the resource.
+
+.PROPERTY selector
+    The selector for the resource.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class aprlResourceObj {
     [string] $validationAction
     [string] $recommendationId
@@ -629,6 +799,37 @@ class aprlResourceObj {
     [string] $selector
 }
 
+<#
+.CLASS
+    impactedResourceFactory
+
+.PROPERTY  impactedResources
+    The impacted resources.
+
+.PROPERTY allResources
+    All resources.
+
+.PROPERTY  RecommendationObject
+    The recommendation object.
+
+.SYNOPSIS
+    Factory class to create impacted resource objects.
+
+.DESCRIPTION
+    The `impactedResourceFactory` class is responsible for creating instances of `aprlResourceObj` based on impacted resources, all resources, and recommendation objects.
+
+.CONSTRUCTORS
+    impactedResourceFactory([PSObject]$impactedResources, [hashtable]$allResources, [hashtable]$RecommendationObject)
+        Initializes a new instance of the `impactedResourceFactory` class.
+
+.METHODS
+    [object[]] createImpactedResourceObjects()
+        Creates and returns an array of `aprlResourceObj` instances.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class impactedResourceFactory {
     [PSObject] $impactedResources
     [hashtable] $allResources
@@ -640,6 +841,30 @@ class impactedResourceFactory {
         $this.RecommendationObject = $RecommendationObject
     }
 
+    <#
+    .CLASS
+        impactedResourceFactory
+
+    .METHOD
+        createImpactedResourceObjects
+
+    .SYNOPSIS
+        Creates impacted resource objects.
+
+    .DESCRIPTION
+        The `createImpactedResourceObjects` method creates and returns an array of `aprlResourceObj` instances based on the impacted resources, all resources, and recommendation objects.
+
+    .OUTPUTS
+        System.Object[]. Returns an array of `aprlResourceObj` instances.
+
+    .EXAMPLE
+        $factory = [impactedResourceFactory]::new($impactedResources, $allResources, $RecommendationObject)
+        $impactedResources = $factory.createImpactedResourceObjects()
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     [object[]] createImpactedResourceObjects() {
         $return = foreach ($impactedResource in $this.impactedResources) {
             $r = [aprlResourceObj]::new()
@@ -664,6 +889,40 @@ class impactedResourceFactory {
     }
 }
 
+<#
+.CLASS
+    specializedResourceFactory
+
+.SYNOPSIS
+    Factory class to create validation resource objects.
+
+.DESCRIPTION
+    The `validationResourceFactory` class is responsible for creating instances of `aprlResourceObj` for validation purposes based on recommendation objects, validation resources, and types not in APRL or ADVISOR.
+
+.CONSTRUCTORS
+    validationResourceFactory([PSObject]$recommendationObject, [hashtable]$validationResources, [PSObject]$TypesNotInAPRLOrAdvisor)
+        Initializes a new instance of the `validationResourceFactory` class.
+
+.METHODS
+    [object[]] createValidationResourceObjects()
+        Creates and returns an array of `aprlResourceObj` instances for validation purposes.
+
+    static [string] getValidationAction($query)
+        Determines the validation action based on the query.
+
+.PROPERTY recommendationObject
+    The recommendation object.
+
+.PROPERTY validationResources
+    The validation resources.
+
+.PROPERTY TypesNotInAPRLOrAdvisor
+    Resource types that we want to create a recommendation for but do not have a recommendation for.
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class validationResourceFactory {
     # This class is used to create validationResourceObj objects
 
@@ -678,6 +937,30 @@ class validationResourceFactory {
         $this.TypesNotInAPRLOrAdvisor = $TypesNotInAPRLOrAdvisor
     }
 
+    <#
+    .CLASS
+        validationResourceFactory
+
+    .METHOD
+        createValidationResourceObjects
+
+    .SYNOPSIS
+        Creates validation resource objects.
+
+    .DESCRIPTION
+        The `createValidationResourceObjects` method creates and returns an array of `aprlResourceObj` instances for validation purposes based on the recommendation objects, validation resources, and types not in APRL or ADVISOR.
+
+    .OUTPUTS
+        System.Object[]. Returns an array of `aprlResourceObj` instances for validation purposes.
+
+    .EXAMPLE
+        $factory = [validationResourceFactory]::new($recommendationObject, $validationResources, $TypesNotInAPRLOrAdvisor)
+        $validationResources = $factory.createValidationResourceObjects()
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     [object[]] createValidationResourceObjects() {
         $return = @()
 
@@ -687,7 +970,7 @@ class validationResourceFactory {
 
             $recommendationByType = $this.recommendationObject.where({ $_.automationAvailable -eq $false -and $impactedResource.type -eq $_.recommendationResourceType -and $_.recommendationMetadataState -eq "Active" -and [string]::IsNullOrEmpty($_.recommendationTypeId) })
 
-            if ($null -ne $recommendationByType) {
+            if ($recommendationByType) {
                 foreach ($rec in $recommendationByType) {
                     $r = [aprlResourceObj]::new()
                     $r.validationAction = [validationResourceFactory]::getValidationAction($rec.query)
@@ -735,11 +1018,37 @@ class validationResourceFactory {
         return $return
     }
 
+    <#
+    .CLASS
+        validationResourceFactory
+
+    .METHOD
+        getValidationAction
+
+    .SYNOPSIS
+        Determines the validation action based on the query.
+
+    .DESCRIPTION
+        The `getValidationAction` method determines the validation action based on the provided query string.
+
+    .PARAMETER query
+        The query string to evaluate.
+
+    .OUTPUTS
+        System.String. Returns the validation action as a string.
+
+    .EXAMPLE
+        $action = [validationResourceFactory]::getValidationAction("No Recommendations")
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     static [string] getValidationAction($query) {
         $return = switch -wildcard ($query) {
             "*development*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
-            "*Azure Resource Graph*" { 'IMPORTANT - This resource has a query but the automation is not available - Validate Resources manually' }
+            "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually'}
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
             default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }
@@ -747,6 +1056,34 @@ class validationResourceFactory {
     }
 }
 
+<#
+.CLASS
+    specializedResourceFactory
+
+.PROPERTY recommendationObject
+    The recommendation object.
+
+.PROPERTY specializedResources
+    The specialized resources.
+
+.SYNOPSIS
+    Factory class to create specialized resource objects.
+
+.DESCRIPTION
+    The `specializedResourceFactory` class is responsible for creating instances of `aprlResourceObj` for specialized resources based on recommendation objects.
+
+.CONSTRUCTORS
+    specializedResourceFactory([PSObject]$specializedResources, [PSObject]$RecommendationObject)
+    Initializes a new instance of the `specializedResourceFactory` class.
+
+.EXAMPLE
+    $factory = [specializedResourceFactory]::new($specializedResources, $RecommendationObject)
+    $specializedResources = $factory.createSpecializedResourceObjects()
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2023-10-07
+#>
 class specializedResourceFactory {
     # This class is used to create specializedResourceObj objects
 
@@ -759,17 +1096,41 @@ class specializedResourceFactory {
         $this.RecommendationObject = $RecommendationObject
     }
 
+    <#
+    .CLASS
+        specializedResourceFactory
+
+    .METHOD
+        createSpecializedResourceObjects
+
+    .SYNOPSIS
+        Creates specialized resource objects.
+
+    .DESCRIPTION
+        The `createSpecializedResourceObjects` method creates and returns an array of `aprlResourceObj` instances for specialized resources based on the recommendation objects.
+
+    .OUTPUTS
+        System.Object[]. Returns an array of `aprlResourceObj` instances for specialized resources.
+
+    .EXAMPLE
+        $factory = [specializedResourceFactory]::new($specializedResources, $RecommendationObject)
+        $specializedResources = $factory.createSpecializedResourceObjects()
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     [object[]] createSpecializedResourceObjects() {
         $return = foreach ($s in $this.specializedResources) {
 
-            $thisType = $this.RecommendationObject.where({ $_.recommendationResourceType -eq $s})
-            foreach ($type in $thisType){
+            $thisType = $this.RecommendationObject.where({ $s -in $_.tags -and $_.recommendationMetadataState -eq "Active" })
+            foreach ($type in $thisType) {
                 $r = [aprlResourceObj]::new()
                 $r.validationAction = [specializedResourceFactory]::getValidationAction($type.query)
                 $r.recommendationId = $type.aprlGuid
                 $r.name = ''
                 $r.id = ''
-                $r.type = $s
+                $r.type = $type.recommendationResourceType
                 $r.location = ''
                 $r.subscriptionId = ''
                 $r.resourceGroup = ''
@@ -786,6 +1147,32 @@ class specializedResourceFactory {
         return $return
     }
 
+    <#
+    .CLASS
+        specializedResourceFactory
+
+    .METHOD
+        getValidationAction
+
+    .SYNOPSIS
+        Determines the validation action based on the query.
+
+    .DESCRIPTION
+        The `getValidationAction` method determines the validation action based on the provided query string.
+
+    .PARAMETER query
+        The query string to evaluate.
+
+    .OUTPUTS
+        System.String. Returns the validation action as a string.
+
+    .EXAMPLE
+        $action = [specializedResourceFactory]::getValidationAction("No Recommendations")
+
+    .NOTES
+        Author: Kyle Poineal
+        Date: 2023-10-07
+    #>
     static [string] getValidationAction($query) {
         $return = switch -wildcard ($query) {
             "*development*" { 'IMPORTANT - Query under development - Validate Resources manually' }
