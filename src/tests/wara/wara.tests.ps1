@@ -37,7 +37,7 @@ Describe 'Start-WARACollector' {
             $Advisor_TestData = get-content "$PSScriptRoot/../data/wara/test_advisordata.json" -raw | ConvertFrom-Json -depth 20
             $TaggedResourceGroup_TestData = @("/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1")
             $TaggedResource_TestData = @("/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.ApiManagement/service/apiService1")
-
+            $Outage_TestData = get-content "$PSScriptRoot/../data/outage/restApiMultipleResponseData.json" -raw | ConvertFrom-Json -depth 20
             Mock Connect-WAFAzure {write-host "Mocked Connect-WAFAzure"}
 
             Mock Invoke-WAFQuery {return $AllResources_TestData} -ParameterFilter {
@@ -57,6 +57,10 @@ Describe 'Start-WARACollector' {
             Mock Get-WAFTaggedResourceGroup {return $TaggedResourceGroup_TestData}
 
             Mock Get-WAFTaggedResource {return $TaggedResource_TestData}
+
+            Mock Get-WAFOldOutage {return $Outage_TestData}
+
+            
 
         }
         It 'Should run and return an object that can be measured' {
