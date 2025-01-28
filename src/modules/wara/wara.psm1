@@ -446,7 +446,7 @@ function Start-WARACollector {
     #Build Resource Type Object
     Write-Debug 'Building Resource Type Object with impactedResourceObj and advisorResourceObj'
     Write-Progress -Activity 'WARA Collector' -Status 'Building Resource Type Object' -PercentComplete 78 -Id 1
-    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj $ResourceInventory <# Adjusting this but keeping old code just in case. ($impactedResourceObj + $advisorResourceObj)#> -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
+    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj $Scope_AllResources <# Adjusting this but keeping old code just in case. ($impactedResourceObj + $advisorResourceObj)#> -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
     Write-Debug "Count of Resource Type Object : $($resourceTypeObj.count)"
 
     #Get Azure Outages

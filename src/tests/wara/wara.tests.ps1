@@ -37,8 +37,8 @@ Describe 'Start-WARACollector' {
             $Advisor_TestData = get-content "$PSScriptRoot/../data/wara/test_advisordata.json" -raw | ConvertFrom-Json -depth 20
             $TaggedResourceGroup_TestData = @("/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1")
             $TaggedResource_TestData = @("/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.ApiManagement/service/apiService1")
-            $Outage_TestData = get-content "$PSScriptRoot/../data/outage/restApiMultipleResponseData.json" -raw | ConvertFrom-Json -depth 20
-            $Retirement_TestData = get-content "$PSScriptRoot/../data/retirement/restApiMultipleResponseData.json" -raw | ConvertFrom-Json -depth 20
+            $Outage_TestData = get-content "$PSScriptRoot/../data/outage/restApiMultipleResponseData.json" -raw | ConvertFrom-Json -depth 20 | Select-Object Name, Properties
+            $Retirement_TestData = get-content "$PSScriptRoot/../data/wara/test_retirementdata.json" -raw | ConvertFrom-Json -depth 20
             $SupportTicket_TestData = get-content "$PSScriptRoot/../data/support/argQueryMultipleResultData.json" -raw | ConvertFrom-Json -depth 20
             $ServiceHealth_TestData = get-content "$PSScriptRoot/../data/serviceHealth/servicehealthdata.json" -raw | ConvertFrom-Json -depth 20
 
@@ -72,7 +72,7 @@ Describe 'Start-WARACollector' {
         It 'Should run and return an object that can be measured' {
             $tenantId = $(New-Guid).Guid
             $test_subscriptionIds = "11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"
-            $scriptBlock = Start-WARACollector -TenantID $tenantId -SubscriptionIds $test_subscriptionIds -Debug
+            $scriptBlock = Start-WARACollector -TenantID $tenantId -SubscriptionIds $test_subscriptionIds -Debug -PassThru
 
             # Validate the output of impacted resources
             $scriptblock.impactedresources.count | Should -BeExactly 51
@@ -87,6 +87,21 @@ Describe 'Start-WARACollector' {
             $scriptblock.impactedresources.where({$_.validationAction -eq "IMPORTANT - Query under development - Validate Resources manually"}).count | Should -BeExactly 4
             $scriptblock.impactedresources.where({$_.validationAction -eq "IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually"}).count | Should -BeExactly 36
             $scriptblock.impactedresources.where({$_.validationAction -eq "IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line"}).count | Should -BeExactly 4
+
+            # Validate the output of advisor recommendations by type
+            $scriptblock.advisory.count | Should -BeExactly 2
+            $scriptblock.advisory.where({$_.type -eq "microsoft.subscriptions/subscriptions"}).count | Should -BeExactly 1
+            $scriptblock.advisory.where({$_.type -eq "microsoft.apimanagement/service"}).count | Should -BeExactly 1
+
+            # Validate the output of resourcetype
+            $scriptblock.resourcetype.count | Should -BeExactly 3
+            $scriptblock.resourcetype.where({$_."Available in APRL/ADVISOR?" -eq "No"}).count | Should -BeExactly 1
+            $scriptblock.resourcetype.where({$_."Available in APRL/ADVISOR?" -eq "Yes"}).count | Should -BeExactly 2
+
+            # Validate the output of retirements
+            $scriptblock.retirements.count | Should -BeExactly 3
+            $scriptblock.retirements.subscription | Should -Contain "11111111-1111-1111-1111-111111111111"
+
         }
     }
 }
