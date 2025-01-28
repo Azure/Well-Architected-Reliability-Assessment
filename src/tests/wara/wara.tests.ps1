@@ -39,40 +39,44 @@ Describe 'Start-WARACollector' {
             $TaggedResource_TestData = @("/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.ApiManagement/service/apiService1")
             $Outage_TestData = get-content "$PSScriptRoot/../data/outage/restApiMultipleResponseData.json" -raw | ConvertFrom-Json -depth 20
             $Retirement_TestData = get-content "$PSScriptRoot/../data/retirement/restApiMultipleResponseData.json" -raw | ConvertFrom-Json -depth 20
-            $SupportTicket_TestData = get-content "$PSScriptRoot/../data/supportTicket/argQueryMultipleResultData.json" -raw | ConvertFrom-Json -depth 20
+            $SupportTicket_TestData = get-content "$PSScriptRoot/../data/support/argQueryMultipleResultData.json" -raw | ConvertFrom-Json -depth 20
+            $ServiceHealth_TestData = get-content "$PSScriptRoot/../data/serviceHealth/servicehealthdata.json" -raw | ConvertFrom-Json -depth 20
 
-            Mock Connect-WAFAzure {write-host "Mocked Connect-WAFAzure"}
+            Mock Connect-WAFAzure {write-host "Mocked Connect-WAFAzure"} -ModuleName 'wara'
 
-            Mock Invoke-WAFQuery {return $AllResources_TestData} -ParameterFilter {
-                $SubscriptionIds -eq "11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"
-            }
+            Mock Invoke-WAFQuery {return $AllResources_TestData} -ModuleName 'wara'
 
-            Mock Invoke-WAFQueryLoop {return $QueryLoop_TestData}
+            Mock Invoke-WAFQueryLoop {return $QueryLoop_TestData} -ModuleName 'wara'
 
-            Mock Get-WAFAdvisorMetadata {return $AdvisorMeta_TestData}
+            Mock Get-WAFAdvisorMetadata {return $AdvisorMeta_TestData} -ModuleName 'wara'
 
-            Mock Invoke-RestMethod {return $RecommendationObject_TestData} -ParameterFilter {$uri -eq 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json'}
+            Mock Invoke-RestMethod {return $RecommendationObject_TestData} -ParameterFilter {$uri -eq 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json'} -ModuleName 'wara'
 
-            Mock Get-WARAOtherRecommendations {return $null}
+            Mock Get-WARAOtherRecommendations {return $null} -ModuleName 'wara'
 
-            Mock Get-WAFAdvisorRecommendation {return $Advisor_TestData}
+            Mock Get-WAFAdvisorRecommendation {return $Advisor_TestData} -ModuleName 'wara'
 
-            Mock Get-WAFTaggedResourceGroup {return $TaggedResourceGroup_TestData}
+            Mock Get-WAFTaggedResourceGroup {return $TaggedResourceGroup_TestData} -ModuleName 'wara'
 
-            Mock Get-WAFTaggedResource {return $TaggedResource_TestData}
+            Mock Get-WAFTaggedResource {return $TaggedResource_TestData} -ModuleName 'wara'
 
-            Mock Get-WAFOldOutage {return $Outage_TestData}
+            Mock Get-WAFOldOutage {return $Outage_TestData} -ModuleName 'wara'
 
-            Mock Get-WAFResourceRetirement {return $Retirement_TestData}
+            Mock Get-WAFResourceRetirement {return $Retirement_TestData} -ModuleName 'wara'
 
-            Mock Get-WAFSupportTicket {return $SupportTicket_TestData}
+            Mock Get-WAFSupportTicket {return $SupportTicket_TestData} -ModuleName 'wara'
 
+            Mock Get-WAFServiceHealth {return $ServiceHealth_TestData} -ModuleName 'wara'
 
         }
         It 'Should run and return an object that can be measured' {
             $tenantId = $(New-Guid).Guid
             $test_subscriptionIds = "11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"
-            $scriptBlock = Start-WARACollector -TenantID $tenantId -SubscriptionIds $test_subscriptionIds -PassThru
+            $scriptBlock = Start-WARACollector -TenantID $tenantId -SubscriptionIds $test_subscriptionIds -Debug -PassThru
+            $scriptblock.impactedresources.count | Should -BeExactly 51
+            #$scriptblock.impactedresources | group type | select name, count | Should -Contain @{Name="Microsoft.ApiManagement/service"; Count=19}
+
+
         }
     }
 }
