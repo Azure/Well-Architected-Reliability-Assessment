@@ -72,11 +72,21 @@ Describe 'Start-WARACollector' {
         It 'Should run and return an object that can be measured' {
             $tenantId = $(New-Guid).Guid
             $test_subscriptionIds = "11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"
-            $scriptBlock = Start-WARACollector -TenantID $tenantId -SubscriptionIds $test_subscriptionIds -Debug -PassThru
+            $scriptBlock = Start-WARACollector -TenantID $tenantId -SubscriptionIds $test_subscriptionIds -Debug
+
+            # Validate the output of impacted resources
             $scriptblock.impactedresources.count | Should -BeExactly 51
-            #$scriptblock.impactedresources | group type | select name, count | Should -Contain @{Name="Microsoft.ApiManagement/service"; Count=19}
 
+            # Validate the output of impacted resources by type
+            $scriptblock.impactedresources.where({$_.type -eq "Microsoft.ApiManagement/service"}).count | Should -BeExactly 19
+            $scriptblock.impactedresources.where({$_.type -eq "Microsoft.ContainerService/managedClusters"}).count | Should -BeExactly 28
+            $scriptblock.impactedresources.where({$_.type -eq "Microsoft.Network/vpnSites"}).count | Should -BeExactly 4
 
+            # Validate the output of impacted resources by validationAction
+            $scriptblock.impactedresources.where({$_.validationAction -eq "APRL - Queries"}).count | Should -BeExactly 7
+            $scriptblock.impactedresources.where({$_.validationAction -eq "IMPORTANT - Query under development - Validate Resources manually"}).count | Should -BeExactly 4
+            $scriptblock.impactedresources.where({$_.validationAction -eq "IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually"}).count | Should -BeExactly 36
+            $scriptblock.impactedresources.where({$_.validationAction -eq "IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line"}).count | Should -BeExactly 4
         }
     }
 }
