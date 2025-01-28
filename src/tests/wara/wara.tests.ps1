@@ -34,6 +34,7 @@ Describe 'Start-WARACollector' {
             $QueryLoop_TestData = get-content "$PSScriptRoot/../data/wara/test_queryloopdata.json" -raw | ConvertFrom-Json -depth 20
             $AdvisorMeta_TestData = get-content "$PSScriptRoot/../data/wara/test_advisormetadata.json" -raw | ConvertFrom-Json -depth 20
             $RecommendationObject_TestData = get-content "$PSScriptRoot/../data/wara/test_recommendationobjectdata.json" -raw | ConvertFrom-Json -depth 20
+            $Advisor_TestData = get-content "$PSScriptRoot/../data/wara/test_advisordata.json" -raw | ConvertFrom-Json -depth 20
             $TaggedResourceGroup_TestData = @("/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1")
             $TaggedResource_TestData = @("/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.ApiManagement/service/apiService1")
 
