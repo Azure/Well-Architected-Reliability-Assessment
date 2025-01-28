@@ -1,0 +1,146 @@
+[
+  {
+    "Name": "eventGridFilter1",
+    "Type": "Microsoft.PolicyInsights/eventGridFilters",
+    "Location": "eastus",
+    "ResourceGroup": "rg-A1",
+    "SubscriptionId": "11111111-1111-1111-1111-111111111111",
+    "Id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.PolicyInsights/eventGridFilters/eventGridFilter1",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.PolicyInsights/eventGridFilters/eventGridFilter1"
+  },
+  {
+    "Name": "apiService1",
+    "Type": "Microsoft.ApiManagement/service",
+    "Location": "eastus",
+    "ResourceGroup": "rg-A1",
+    "SubscriptionId": "11111111-1111-1111-1111-111111111111",
+    "Id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.ApiManagement/service/apiService1",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.ApiManagement/service/apiService1"
+  },
+  {
+    "Name": "managedCluster1",
+    "Type": "Microsoft.ContainerService/managedClusters",
+    "Location": "eastus",
+    "ResourceGroup": "rg-A1",
+    "SubscriptionId": "11111111-1111-1111-1111-111111111111",
+    "Id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.ContainerService/managedClusters/managedCluster1",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.ContainerService/managedClusters/managedCluster1"
+  },
+  {
+    "Name": "vpnSite1",
+    "Type": "Microsoft.Network/vpnSites",
+    "Location": "eastus",
+    "ResourceGroup": "rg-A1",
+    "SubscriptionId": "11111111-1111-1111-1111-111111111111",
+    "Id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.Network/vpnSites/vpnSite1",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.Network/vpnSites/vpnSite1"
+  },
+  {
+    "Name": "eventGridFilter2",
+    "Type": "Microsoft.PolicyInsights/eventGridFilters",
+    "Location": "westus",
+    "ResourceGroup": "rg-A2",
+    "SubscriptionId": "11111111-1111-1111-1111-111111111111",
+    "Id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A2/providers/Microsoft.PolicyInsights/eventGridFilters/eventGridFilter2",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A2/providers/Microsoft.PolicyInsights/eventGridFilters/eventGridFilter2"
+  },
+  {
+    "Name": "apiService2",
+    "Type": "Microsoft.ApiManagement/service",
+    "Location": "westus",
+    "ResourceGroup": "rg-A2",
+    "SubscriptionId": "11111111-1111-1111-1111-111111111111",
+    "Id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A2/providers/Microsoft.ApiManagement/service/apiService2",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A2/providers/Microsoft.ApiManagement/service/apiService2"
+  },
+  {
+    "Name": "managedCluster2",
+    "Type": "Microsoft.ContainerService/managedClusters",
+    "Location": "westus",
+    "ResourceGroup": "rg-A2",
+    "SubscriptionId": "11111111-1111-1111-1111-111111111111",
+    "Id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A2/providers/Microsoft.ContainerService/managedClusters/managedCluster2",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A2/providers/Microsoft.ContainerService/managedClusters/managedCluster2"
+  },
+  {
+    "Name": "vpnSite2",
+    "Type": "Microsoft.Network/vpnSites",
+    "Location": "westus",
+    "ResourceGroup": "rg-A2",
+    "SubscriptionId": "11111111-1111-1111-1111-111111111111",
+    "Id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A2/providers/Microsoft.Network/vpnSites/vpnSite2",
+    "ResourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A2/providers/Microsoft.Network/vpnSites/vpnSite2"
+  },
+  {
+    "Name": "eventGridFilter3",
+    "Type": "Microsoft.PolicyInsights/eventGridFilters",
+    "Location": "eastus2",
+    "ResourceGroup": "rg-B1",
+    "SubscriptionId": "22222222-2222-2222-2222-222222222222",
+    "Id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.PolicyInsights/eventGridFilters/eventGridFilter3",
+    "ResourceId": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.PolicyInsights/eventGridFilters/eventGridFilter3"
+  },
+  {
+    "Name": "apiService3",
+    "Type": "Microsoft.ApiManagement/service",
+    "Location": "eastus2",
+    "ResourceGroup": "rg-B1",
+    "SubscriptionId": "22222222-2222-2222-2222-222222222222",
+    "Id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.ApiManagement/service/apiService3",
+    "ResourceId": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.ApiManagement/service/apiService3"
+  },
+  {
+    "Name": "managedCluster3",
+    "Type": "Microsoft.ContainerService/managedClusters",
+    "Location": "eastus2",
+    "ResourceGroup": "rg-B1",
+    "SubscriptionId": "22222222-2222-2222-2222-222222222222",
+    "Id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.ContainerService/managedClusters/managedCluster3",
+    "ResourceId": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.ContainerService/managedClusters/managedCluster3"
+  },
+  {
+    "Name": "vpnSite3",
+    "Type": "Microsoft.Network/vpnSites",
+    "Location": "eastus2",
+    "ResourceGroup": "rg-B1",
+    "SubscriptionId": "22222222-2222-2222-2222-222222222222",
+    "Id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.Network/vpnSites/vpnSite3",
+    "ResourceId": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.Network/vpnSites/vpnSite3"
+  },
+  {
+    "Name": "eventGridFilter4",
+    "Type": "Microsoft.PolicyInsights/eventGridFilters",
+    "Location": "westus2",
+    "ResourceGroup": "rg-B2",
+    "SubscriptionId": "22222222-2222-2222-2222-222222222222",
+    "Id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B2/providers/Microsoft.PolicyInsights/eventGridFilters/eventGridFilter4",
+    "ResourceId": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B2/providers/Microsoft.PolicyInsights/eventGridFilters/eventGridFilter4"
+  },
+  {
+    "Name": "apiService4",
+    "Type": "Microsoft.ApiManagement/service",
+    "Location": "westus2",
+    "ResourceGroup": "rg-B2",
+    "SubscriptionId": "22222222-2222-2222-2222-222222222222",
+    "Id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B2/providers/Microsoft.ApiManagement/service/apiService4",
+    "ResourceId": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B2/providers/Microsoft.ApiManagement/service/apiService4"
+  },
+  {
+    "Name": "managedCluster4",
+    "Type": "Microsoft.ContainerService/managedClusters",
+    "Location": "westus2",
+    "ResourceGroup": "rg-B2",
+    "SubscriptionId": "22222222-2222-2222-2222-222222222222",
+    "Id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B2/providers/Microsoft.ContainerService/managedClusters/managedCluster4",
+    "ResourceId": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B2/providers/Microsoft.ContainerService/managedClusters/managedCluster4"
+  },
+  {
+    "Name": "vpnSite4",
+    "Type": "Microsoft.Network/vpnSites",
+    "Location": "westus2",
+    "ResourceGroup": "rg-B2",
+    "SubscriptionId": "22222222-2222-2222-2222-222222222222",
+    "Id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B2/providers/Microsoft.Network/vpnSites/vpnSite4",
+    "ResourceId": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B2/providers/Microsoft.Network/vpnSites/vpnSite4"
+  }
+]
