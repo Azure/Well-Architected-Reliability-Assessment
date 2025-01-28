@@ -383,7 +383,7 @@ function Start-WARACollector {
     #Filter Advisor Recommendations by subscription, resource group, and resource scope
     Write-Debug 'Filtering Advisor Recommendations by subscription, resource group, and resource scope'
     Write-Progress -Activity 'WARA Collector' -Status 'Filtering Advisor Recommendations' -PercentComplete 71 -Id 1
-    $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
+    $advisorResourceObj = Get-WAFFilteredResourceList -UnfilteredResources $advisorResourceObj.where({$_.type -ne 'microsoft.subscriptions/subscriptions'}) -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Count of filtered Advisor Recommendations: $($advisorResourceObj.count)"
 
     #If we passed tags, filter impactedResourceObj and advisorResourceObj by tagged resource group and tagged resource scope

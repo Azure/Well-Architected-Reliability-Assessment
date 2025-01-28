@@ -107,7 +107,7 @@ Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -Subscripti
 
 #### Run the collector against a multiple specific subscriptions.
 ```PowerShell
-Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds @("/subscriptions/00000000-0000-0000-0000-000000000000","/subscriptions/)00000000-0000-0000-0000-000000000001")
+Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds @("/subscriptions/00000000-0000-0000-0000-000000000000","/subscriptions/00000000-0000-0000-0000-000000000001")
 ```
 
 #### Run the collector against a specific subscription and resource group.
