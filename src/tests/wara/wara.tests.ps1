@@ -51,7 +51,7 @@ Describe 'Start-WARACollector' {
 
             Mock Get-WARAOtherRecommendations {return $null}
 
-            Mock Get-WAFAdvisorRecommendation {return $Advisor_TestData}\
+            Mock Get-WAFAdvisorRecommendation {return $Advisor_TestData}
 
             Mock Get-WAFTaggedResourceGroup {return $TaggedResourceGroup_TestData}
 
