@@ -39,8 +39,8 @@ Describe 'Start-WARACollector' {
             $TaggedResource_TestData = @("/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.ApiManagement/service/apiService1")
             $Outage_TestData = get-content "$PSScriptRoot/../data/outage/restApiMultipleResponseData.json" -raw | ConvertFrom-Json -depth 20 | Select-Object Name, Properties
             $Retirement_TestData = get-content "$PSScriptRoot/../data/wara/test_retirementdata.json" -raw | ConvertFrom-Json -depth 20
-            $SupportTicket_TestData = get-content "$PSScriptRoot/../data/support/argQueryMultipleResultData.json" -raw | ConvertFrom-Json -depth 20
-            $ServiceHealth_TestData = get-content "$PSScriptRoot/../data/serviceHealth/servicehealthdata.json" -raw | ConvertFrom-Json -depth 20
+            $SupportTicket_TestData = get-content "$PSScriptRoot/../data/wara/test_supportticketdata.json" -raw | ConvertFrom-Json -depth 20
+            $ServiceHealth_TestData = get-content "$PSScriptRoot/../data/wara/test_servicehealthdata.json" -raw | ConvertFrom-Json -depth 20
 
             Mock Connect-WAFAzure {write-host "Mocked Connect-WAFAzure"} -ModuleName 'wara'
 
@@ -102,6 +102,11 @@ Describe 'Start-WARACollector' {
             $scriptblock.retirements.count | Should -BeExactly 3
             $scriptblock.retirements.subscription | Should -Contain "11111111-1111-1111-1111-111111111111"
 
+            #Validate the output of support tickets
+            $scriptblock.supporttickets.count | Should -BeExactly 3
+
+            #Validate the output of service health
+            $scriptblock.servicehealth.count | Should -BeExactly 9
         }
     }
 }
