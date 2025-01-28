@@ -1,0 +1,26 @@
+[
+{
+  "recommendationId": "242639fd-cd73-4be2-8f55-70478db8d1a5",
+  "type": "microsoft.subscriptions/subscriptions",
+  "name": "22222222-2222-2222-2222-222222222222",
+  "id": "/subscriptions/22222222-2222-2222-2222-222222222222",
+  "subscriptionId": "22222222-2222-2222-2222-222222222222",
+  "resourceGroup": "N/A",
+  "location": "global",
+  "category": "HighAvailability",
+  "impact": "High",
+  "description": "Create an Azure Service Health alert"
+},
+{
+  "recommendationId": "2e4d65a3-1e77-4759-bcaa-13009484a97e",
+  "type": "microsoft.apimanagement/service",
+  "name": "apiService3",
+  "id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.ApiManagement/service/apiService3",
+  "subscriptionId": "22222222-2222-2222-2222-222222222222",
+  "resourceGroup": "rg-B1",
+  "location": "eastus2",
+  "category": "HighAvailability",
+  "impact": "High",
+  "description": "Deploy an Azure API Management instance to multiple Azure regions for increased service availability"
+}
+]

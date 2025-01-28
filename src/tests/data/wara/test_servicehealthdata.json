@@ -1,0 +1,83 @@
+[
+  {
+    "Name": "ServiceHealthSecurityIncident",
+    "Subscription": "Contoso PreProd",
+    "Enabled": "True",
+    "EventType": "All",
+    "Services": "All",
+    "Regions": "All",
+    "ActionGroup": "ag-01"
+  },
+  {
+    "Name": "ServiceHealthAdvisoryEvent",
+    "Subscription": "Contoso PreProd",
+    "Enabled": "True",
+    "EventType": "Security Advisory",
+    "Services": "All",
+    "Regions": "All",
+    "ActionGroup": "ag-01"
+  },
+  {
+    "Name": "ServiceHealthIncident",
+    "Subscription": "Contoso PreProd",
+    "Enabled": "True",
+    "EventType": "Service Issues",
+    "Services": "All",
+    "Regions": "All",
+    "ActionGroup": "ag-01"
+  },
+  {
+    "Name": "ServiceHealthPlannedMaintenance",
+    "Subscription": "Contoso PreProd",
+    "Enabled": "True",
+    "EventType": "Planned Maintenance",
+    "Services": "All",
+    "Regions": "All",
+    "ActionGroup": "ag-01"
+  },
+  {
+    "Name": "ServiceHealthPlannedMaintenance",
+    "Subscription": "Contoso Prod",
+    "Enabled": "True",
+    "EventType": "Planned Maintenance",
+    "Services": "All",
+    "Regions": "All",
+    "ActionGroup": "ag-02"
+  },
+  {
+    "Name": "ServiceHealthAdvisoryEvent",
+    "Subscription": "Contoso Prod",
+    "Enabled": "True",
+    "EventType": "Security Advisory",
+    "Services": "All",
+    "Regions": "All",
+    "ActionGroup": "ag-02"
+  },
+  {
+    "Name": "ServiceHealthSecurityIncident",
+    "Subscription": "Contoso Prod",
+    "Enabled": "True",
+    "EventType": "All",
+    "Services": "All",
+    "Regions": "All",
+    "ActionGroup": "ag-02"
+  },
+  {
+    "Name": "ServiceHealthIncident",
+    "Subscription": "Contoso Prod",
+    "Enabled": "True",
+    "EventType": "Service Issues",
+    "Services": "All",
+    "Regions": "All",
+    "ActionGroup": "ag-02"
+  },
+  {
+    "Name": "srvc-pm-alert",
+    "Subscription": "Global Subscription 01",
+    "Enabled": "True",
+    "EventType": "All",
+    "Services": "Azure Container Registry, Azure Database for PostgreSQL, Azure Database for PostgreSQL flexible servers, Azure Kubernetes Service (AKS), Storage, Virtual Network",
+    "Regions": "Central US, East US 2, UK South, UK West",
+    "ActionGroup": "ag-04"
+  }
+]

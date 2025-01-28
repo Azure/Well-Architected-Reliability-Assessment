@@ -1,0 +1,32 @@
+[
+  {
+    "Ticket ID": "1234567890000010",
+    "Severity": "Moderate",
+    "Status": "Closed",
+    "Support Plan Type": "Unified Enterprise",
+    "Creation Date": "2024-11-21 16:02:24",
+    "Modified Date": "2024-11-21 20:35:51",
+    "Title": "Quota request for Other Requests",
+    "Related Resource": ""
+  },
+  {
+    "Ticket ID": "1234567890000020",
+    "Severity": "Moderate",
+    "Status": "Closed",
+    "Support Plan Type": "Unified Enterprise",
+    "Creation Date": "2024-10-29 10:09:01",
+    "Modified Date": "2024-10-30 18:02:29",
+    "Title": "Quota request for Cosmos DB",
+    "Related Resource": ""
+  },
+  {
+    "Ticket ID": "1234567890000030",
+    "Severity": "Moderate",
+    "Status": "Closed",
+    "Support Plan Type": "Unified Enterprise",
+    "Creation Date": "2024-09-23 23:04:03",
+    "Modified Date": "2024-09-25 17:33:55",
+    "Title": "need a storage account restored",
+    "Related Resource": ""
+  }
+]
