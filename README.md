@@ -86,7 +86,7 @@ These instructions are the same for any platform that supports PowerShell. The f
 You can review all of the parameters on the Start-WARACollector [here](docs/wara/Start-WARACollector.md).
 
 > [!NOTE]
->Whatever directory you run the `Start-WARACollector` cmdlet in, the Excel file will be created in that directory. For example: if you run the `Start-WARACollector` cmdlet in the `C:\Temp` directory, the Excel file will be created in the `C:\Temp` directory.
+Whatever directory you run the `Start-WARACollector` cmdlet in, the Excel file will be created in that directory. For example: if you run the `Start-WARACollector` cmdlet in the `C:\Temp` directory, the Excel file will be created in the `C:\Temp` directory.
 
 1. Install the WARA module from the PowerShell Gallery.
 ```powershell
