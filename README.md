@@ -1,6 +1,8 @@
 [![RunPesterTests](https://github.com/Azure/Well-Architected-Reliability-Assessment/actions/workflows/pestertests.yml/badge.svg)](https://github.com/Azure/Well-Architected-Reliability-Assessment/actions/workflows/pestertests.yml)
 [![PSScriptAnalyzer](https://github.com/Azure/Well-Architected-Reliability-Assessment/actions/workflows/powershell.yml/badge.svg)](https://github.com/Azure/Well-Architected-Reliability-Assessment/actions/workflows/powershell.yml)
 
+> [!NOTE]
+> This project is currently under development. The information in this README is subject to change.
 # Well-Architected-Reliability-Assessment
 The Well-Architected Reliability Assessment is aimed to assess an Azure workload implementation across the reliability pillar of the Microsoft Azure Well-Architected Framework. A workload is a resource or collection of resources that provide end-to-end functionality to one or multiple clients (humans or systems). An application can have multiple workloads, with multiple APIs and databases working together to deliver specific functionality.
 
@@ -44,7 +46,8 @@ Start-WARAReport -ExcelFile 'C:\WARA\WARA Action Plan 2024-03-07_16_06.xlsx
 
 ### Requirements
 
-These are the requirements for the collector. Requirements for the analyzer and report will be added in the future.
+> [!IMPORTANT]
+> These are the requirements for the collector. Requirements for the analyzer and report will be added in the future.
 
 - [PowerShell 7.4](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)
 - Azure PowerShell Module
@@ -82,17 +85,20 @@ These instructions are the same for any platform that supports PowerShell. The f
 
 You can review all of the parameters on the Start-WARACollector [here](docs/wara/Start-WARACollector.md).
 
+> [!NOTE]
+>Whatever directory you run the `Start-WARACollector` cmdlet in, the Excel file will be created in that directory. For example: if you run the `Start-WARACollector` cmdlet in the `C:\Temp` directory, the Excel file will be created in the `C:\Temp` directory.
+
 1. Install the WARA module from the PowerShell Gallery.
 ```powershell
 # Installs the WARA module from the PowerShell Gallery.
 Install-Module WARA
 ```
-2. Import the WARA module.
+1. Import the WARA module.
 ```powershell
 # Import the WARA module.
 Import-Module WARA
 ```
-3. Start the WARA collector. (Replace these values with your own)
+1. Start the WARA collector. (Replace these values with your own)
 ```powershell
 # Start the WARA collector.
 Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
@@ -138,7 +144,8 @@ Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
 ### Start-WARAAnalyzer
 The `Start-WARAAnalyzer` cmdlet is used to analyze the collected data and generate the core WARA Action Plan Excel file.
 
-Please note that whatever directory you run the `Start-WARAAnalyzer` cmdlet in, the Excel file will be created in that directory. For example: if you run the `Start-WARAAnalyzer` cmdlet in the `C:\Temp` directory, the Excel file will be created in the `C:\Temp` directory.
+> [!NOTE]
+Whatever directory you run the `Start-WARAAnalyzer` cmdlet in, the Excel file will be created in that directory. For example: if you run the `Start-WARAAnalyzer` cmdlet in the `C:\Temp` directory, the Excel file will be created in the `C:\Temp` directory.
 
 You can review all of the parameters of Start-WARAAnalyzer [here](docs/wara/Start-WARAAnalyzer.md).
 
@@ -152,7 +159,8 @@ Start-WARAAnalyzer -JSONFile 'C:\Temp\WARA_File_2024-04-01_10_01.json' -Debuggin
 ### Start-WARAReport
 The `Start-WARAReport` cmdlet is used to generate the WARA reports.
 
-Please note that whatever directory you run the `Start-WARAReport` cmdlet in, the Word and PowerPoint files will be created in that directory. For example: if you run the `Start-WARAReport` cmdlet in the `C:\Temp` directory, the Word and PowerPoint files will be created in the `C:\Temp` directory.
+> [!NOTE]
+Whatever directory you run the `Start-WARAReport` cmdlet in, the Word and PowerPoint files will be created in that directory. For example: if you run the `Start-WARAReport` cmdlet in the `C:\Temp` directory, the Word and PowerPoint files will be created in the `C:\Temp` directory.
 
 You can review all of the parameters of Start-WARAReport [here](docs/wara/Start-WARAReport.md).
 #### Examples
