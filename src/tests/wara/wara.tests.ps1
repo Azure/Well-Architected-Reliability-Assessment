@@ -39,8 +39,8 @@ Describe 'Start-WARACollector' {
             $TaggedResource_TestData = @("/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-A1/providers/Microsoft.ApiManagement/service/apiService1")
             $Outage_TestData = get-content "$PSScriptRoot/../data/outage/restApiMultipleResponseData.json" -raw | ConvertFrom-Json -depth 20
             $Retirement_TestData = get-content "$PSScriptRoot/../data/retirement/restApiMultipleResponseData.json" -raw | ConvertFrom-Json -depth 20
+            $SupportTicket_TestData = get-content "$PSScriptRoot/../data/supportTicket/argQueryMultipleResultData.json" -raw | ConvertFrom-Json -depth 20
 
-            
             Mock Connect-WAFAzure {write-host "Mocked Connect-WAFAzure"}
 
             Mock Invoke-WAFQuery {return $AllResources_TestData} -ParameterFilter {
@@ -65,6 +65,7 @@ Describe 'Start-WARACollector' {
 
             Mock Get-WAFResourceRetirement {return $Retirement_TestData}
 
+            Mock Get-WAFSupportTicket {return $SupportTicket_TestData}
 
 
         }
