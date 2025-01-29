@@ -40,9 +40,15 @@ $CurrentPath = Get-Location
 $CurrentPath = $CurrentPath.Path
 if (!$ExpertAnalysisFile)
 	{
+ <#
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + (' - Testing: ' + $CurrentPath + '\Expert-Analysis-v1.xlsx'))
 		if ((Test-Path -Path ($CurrentPath + '\Expert-Analysis-v1.xlsx') -PathType Leaf) -eq $true) {
 			$ExpertAnalysisFile = ($CurrentPath + '\Expert-Analysis-v1.xlsx')
+		}
+  #>
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + (' - Testing: ' + './Expert-Analysis-v1.xlsx'))
+		if ((Test-Path -Path ('./Expert-Analysis-v1.xlsx') -PathType Leaf) -eq $true) {
+			$ExpertAnalysisFile = ('./Expert-Analysis-v1.xlsx')
 		}
 	}
 else
