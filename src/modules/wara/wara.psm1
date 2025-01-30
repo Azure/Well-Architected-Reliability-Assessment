@@ -135,6 +135,7 @@ function Start-WARACollector {
         [string] $RunbookFile
     )
 
+    # Check for module updates and throw an error if the module is out of date.
     Write-host "Checking Version.." -ForegroundColor Cyan
     $LocalVersion = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
     $GalleryVersion = (Find-Module -Name $MyInvocation.MyCommand.ModuleName).Version
@@ -147,8 +148,10 @@ function Start-WARACollector {
         throw 'Module is out of date.'
     }
 
+    # Start the stopwatch to time the script
     $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
+    # Create a hashtable of the parameters passed to the script
     $scriptParams = foreach ($param in $PSBoundParameters.GetEnumerator()) {
         Write-Debug "Parameter: $($param.Key) Value: $($param.Value)"
         [PSCustomObject]@{
@@ -204,8 +207,10 @@ function Start-WARACollector {
     Write-Debug "Resource Groups: $Scope_ResourceGroups"
     Write-Debug "Tags: $Scope_Tags"
 
+    # Create Specialized Workloads array
     $SpecializedWorkloads = @()
 
+    # Check if any of the specialized workloads are enabled and add them to $SpecializedWorkloads
     if ($SAP) {
         Write-Debug 'SAP switch is enabled'
         $SpecializedWorkloads += 'SAP'
@@ -227,11 +232,24 @@ function Start-WARACollector {
         Write-Debug "Specialized Workloads: $SpecializedWorkloads"
     }
 
-    #Import Recommendation Object from APRL
+    #Import Recommendation Object from WARA-Build GitHub Pages Site
     Write-Progress -Activity 'WARA Collector' -Status 'Importing APRL Recommendation Object from GitHub' -PercentComplete 5 -Id 1
     Write-Debug 'Importing APRL Recommendation Object from GitHub'
     $RecommendationObject = Invoke-RestMethod $RecommendationDataUri
     Write-Debug "Count of APRL Recommendation Object: $($RecommendationObject.count)"
+
+    #Import Recommendation Object from Custom Runbook File
+    <#
+    if ($RunbookFile) {
+        Write-Debug 'Importing Recommendation Object from Custom Runbook File'
+        $Runbook = Read-Runbook -RunbookPath $RunbookFile
+        $RecommendationObject = $Runbook.Checks
+        Write-Debug "Count of Custom Runbook Recommendation Object: $($RecommendationObject.count)"
+    }
+
+    #Add Recommendation Object from Custom Runbook File to APRL Recommendation Object
+    $RecommendationObject += $CustomRecommendationObject
+    #>
 
     #Create Recommendation Object HashTable for faster lookup
     Write-Debug 'Creating Recommendation Object HashTable for faster lookup'
@@ -891,7 +909,7 @@ class impactedResourceFactory {
 
 <#
 .CLASS
-    specializedResourceFactory
+    validationResourceFactory
 
 .SYNOPSIS
     Factory class to create validation resource objects.
