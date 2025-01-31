@@ -28,18 +28,17 @@ https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 
 Param(
 [ValidatePattern('^https:\/\/.+$')]
-[string] $RepositoryUrl = 'https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2',
-[string] $CustomRecommendationsYAMLPath,
+[string] $RecommendationsUrl = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
 [Parameter(mandatory = $true)]
 [string] $JSONFile,
 [string] $ExpertAnalysisFile
 )
 
+# WARA In Scope Resource Types CSV File
+$RecommendationResourceTypesUri = 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv'
+
 # Check if the Expert-Analysis file exists
-$CurrentPath = $(Get-Location).Path
-
 $ExpertAnalysisPath = $PSScriptRoot + '\Expert-Analysis-v1.xlsx'
-
 
 if (!$ExpertAnalysisFile)
 	{
@@ -50,7 +49,7 @@ if (!$ExpertAnalysisFile)
 	}
 else
 {
-	Throw "The Expert-Analysis file does not exist. Please provide a valid path to the Expert-Analysis file."
+	Throw "Error locating the Expert-Analysis file. Please provide a valid path to the Expert-Analysis file or reinstall the WARA Module."
 	Exit
 }
 
@@ -76,7 +75,81 @@ else
 
 $TableStyle = 'Light19'
 
-$Runtime = Measure-Command -Expression {
+
+# Classes
+Class ImpactedResourceObj {
+    [string] $ValidationMSG
+    [string] $ValidationCategory
+    [string] $ResourceType
+    [string] $SubscriptionId
+    [string] $ResourceGroup
+    [string] $Location
+    [string] $Name
+    [string] $Id
+    [string] $Custom1
+    [string] $Custom2
+    [string] $Custom3
+    [string] $Custom4
+    [string] $Custom5
+    [string] $RecommendationTitle
+    [string] $Impact
+    [string] $RecommendationControl
+    [string] $PotentialBenefit
+    [string] $LearnMoreLink
+    [string] $LongDescription
+    [string] $Guid
+    [string] $Category
+    [string] $Source
+    [string] $WAFPillar
+    [string] $PlatformIssueTrackingId
+    [string] $RetirementTrackingId
+    [string] $SupportRequestNumber
+    [string] $Notes
+    [string] $CheckName
+}
+
+Class AnalysisPlanningObj {
+    [string] $Category
+    [string] $ResourceType = 'N/A'
+    [string] $NumberOfResources = 'n/a'
+    [string] $ImpactedResources = 'n/a'
+    [string] $HasRecommendationsInAPRLAdvisor = 'Yes'
+    [string] $AssessmentStatus = 'Pending'
+}
+
+Class OutagesObj {
+    [string] $OutageMSG
+    [string] $TrackingID
+    [string] $EventType
+    [string] $EventSource
+    [string] $Status
+    [string] $Title
+    [string] $Level
+    [string] $EventLevel
+    [string] $StartTime
+    [string] $MitigationTime
+    [string] $ImpactedService
+    [string] $WhatHappened
+    [string] $WhatWentWrongAndWhy
+    [string] $HowDidWeRespond
+    [string] $HowAreWeMakingIncidentsLessLikely
+    [string] $HowCanCustomersMakeIncidentsLessImpactful
+}
+
+Class WorkLoadInvObj {
+    [string] $subscriptionId
+    [string] $resourceGroup
+    [string] $type
+    [string] $location
+    [string] $name
+    [string] $id
+    [string] $tenantId
+    [string] $kind
+    [string] $managedBy
+    [string] $sku
+    [string] $plan
+    [string] $zones
+}
 
 # function validate if the required modules are installed
 function Test-Requirement {
@@ -128,35 +201,6 @@ function Read-JSONFile
 	return $JSONContent
 }
 
-# function to clone the github repository
-# TODO: Remove this and integrate the recommendation object.
-function Copy-RepositoryFiles
-{
-	Param
-	(
-		[Parameter(Mandatory = $true)]
-		[string]$RepoUrl
-	)
-	$RepoFolder = $RepoUrl.split('/')[-1]
-	# Settings location to create the repository folder
-	$workingFolderPath = Get-Location
-	$workingFolderPath = $workingFolderPath.Path
-	$clonePath = "$workingFolderPath\$RepoFolder"
-	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Checking Default Folder')
-	if ((Test-Path -Path $clonePath -PathType Container) -eq $true) {
-		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Repository Folder does exist. Reseting it...')
-		Get-Item -Path $clonePath | Remove-Item -Recurse -Force
-		Write-host 'Downloading repository: ' -NoNewline
-		Write-Host $RepoUrl -ForegroundColor Yellow
-		git clone $RepoUrl $clonePath --quiet
-	} else {
-		Write-host 'Downloading repository: ' -NoNewline
-		Write-Host $RepoUrl -ForegroundColor Yellow
-		git clone $RepoUrl $clonePath --quiet
-	}
-	return $clonePath
-}
-
 function Save-WARAExcelFile
 {
 	Param(
@@ -172,27 +216,19 @@ function Save-WARAExcelFile
 	return $NewExpertAnalysisFile
 }
 
-# function responsible to read the YAML files
-# TODO: Remove this and integrate the recommendation object.
+# function responsible to import recommendations from the JSON file
 function Get-WARARecommendationList
 {
-	Param
-	(
-		[Parameter(Mandatory = $true)]
-		[string]$Path
-	)
+    Param(
+        [Parameter(Mandatory = $true)]
+        [string]$RecommendationsUrl
+    )
+	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Processing Recommendations from JSON file.')
+	# Get Recommendation Objects
+    $RecommendationDataUri = $RecommendationsUrl
+    $RecommendationObject = Invoke-RestMethod $RecommendationDataUri
 
-	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Processing YAML files from: ' + $Path)
-	$YAMLFiles = Get-ChildItem -Path $Path -Filter 'recommendations.yaml' -Recurse
-
-	$YAMLContent = @()
-	foreach ($YAML in $YAMLFiles) {
-		if (![string]::IsNullOrEmpty($YAML)) {
-			$YAMLContent += Get-Content -Path $YAML | ConvertFrom-Yaml
-		}
-	}
-
-	return $YAMLContent
+	return $RecommendationObject
 
 }
 
@@ -311,51 +347,53 @@ function Initialize-WARAImpactedResources
 		[Parameter(mandatory = $true)]
 		$Retirements,
 		[Parameter(mandatory = $true)]
-		$ScriptDetails
+		$ScriptDetails,
+        [Parameter(mandatory = $true)]
+        $RecommendationsUrl
 	)
 
-	$ServicesYAMLContent = @()
-	if (![string]::IsNullOrEmpty($CustomRecommendationsYAMLPath)) {
-		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from Custom Path')
-		$ServicesYAMLContent = Get-WARARecommendationList -Path $CustomRecommendationsYAMLPath
-	}
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting All Recommendations')
+	$RecommendationObject = Get-WARARecommendationList -RecommendationsUrl $RecommendationsUrl
 
-	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from the standard azure-resources')
-	$ServicesYAMLContent += Get-WARARecommendationList -Path ($clonePath + '\azure-resources')
-	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from the standard azure-waf')
-	$WAFYAMLContent = Get-WARARecommendationList -Path ($clonePath + '\azure-waf')
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from the standard Resources')
+    $ResourceRecommendations = $RecommendationObject | Where-Object {[string]::IsNullOrEmpty($_.tags) -and $_.description -notlike 'RE:*'}
+
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from the standard Azure-WAF')
+    $WAFRecommendations = $RecommendationObject | Where-Object { $_.description -like 'RE:*'}
 
 	if ($ScriptDetails.SAP -eq 'True') {
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from SAP')
-		$ServicesYAMLContent += Get-WARARecommendationList -Path ($clonePath + '\azure-specialized-workloads\sap')
+		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'SAP'}
 	}
 	if ($ScriptDetails.AVD -eq 'True') {
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from AVD')
-		$ServicesYAMLContent += Get-WARARecommendationList -Path ($clonePath + '\azure-specialized-workloads\avd')
+		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'AVD'}
 	}
 	if ($ScriptDetails.AVS -eq 'True') {
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from AVS')
-		$ServicesYAMLContent += Get-WARARecommendationList -Path ($clonePath + '\azure-specialized-workloads\avs')
+		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'AVS'}
 	}
 	if ($ScriptDetails.HPC -eq 'True') {
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from HPC')
-		$ServicesYAMLContent += Get-WARARecommendationList -Path ($clonePath + '\azure-specialized-workloads\hpc')
+		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'HPC'}
+	}
+    if ($ScriptDetails.AI -eq 'True') {
+		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from AI')
+		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'AI'}
 	}
 
-	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Overall YAML Recommendations found: ' + [string]$ServicesYAMLContent.Count)
+	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Overall Recommendations found: ' + [string]$ResourceRecommendations.Count)
 
 	# Filtering the recommendations to get only the active ones and the ones that are not already in the advisories list
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Filtering Active Recommendations and Recommendations not in Advisories')
-	$RecommendationYAMLContent = $ServicesYAMLContent | Where-Object {($_.recommendationMetadataState -eq 'Active' -and $_.recommendationTypeId -notin $JSONContent.Advisory.recommendationId) }
+	$RecommendationContent = $ResourceRecommendations | Where-Object {($_.recommendationMetadataState -eq 'Active' -and $_.recommendationTypeId -notin $JSONContent.Advisory.recommendationId) }
 
-	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - YAML Recommendations After Filtering: ' + [string]$RecommendationYAMLContent.Count)
-
-	#$RecommendationYAMLContent | where {$_.aprlGuid -eq 'b60ae773-9917-4bca-8a42-7cb45365a917'}
+	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Recommendations After Filtering: ' + [string]$RecommendationContent.Count)
 
 	$tmp = @()
 
 	# First loop through the recommendations to get the impacted resources
-	foreach ($Recom in $RecommendationYAMLContent)
+	foreach ($Recom in $RecommendationContent)
 		{
 			# Getting the impacted resources for the recommendation and validating if the recommendation is a Custom Recommendation
 			$Resources = $ImpactedResources | Where-Object {($_.recommendationId -eq $Recom.aprlGuid) -and ($_.checkName -eq $Recom.checkName) }
@@ -384,37 +422,33 @@ function Initialize-WARAImpactedResources
 					}
 				}
 
-				$obj = @{
-					'REQUIRED ACTIONS / REVIEW STATUS' = $ValidationMSG;
-					'ValidationCategory' = 'Resource';
-					'Resource Type' = $Resource.type;
-					'subscriptionId' = $Resource.subscriptionId;
-					'resourceGroup' = $Resource.resourceGroup;
-					'location' = $Resource.location;
-					'name' = $Resource.name;
-					'id' = $Resource.id;
-					'custom1' = $Resource.param1;
-					'custom2' = $Resource.param2;
-					'custom3' = $Resource.param3;
-					'custom4' = $Resource.param4;
-					'custom5' = $Resource.param5;
-					'Recommendation Title' = $Recom.description;
-					'Impact' = $Recom.recommendationImpact;
-					'Recommendation Control' = ($Recom.recommendationControl -csplit '(?=[A-Z])' -ne '' -join ' ');
-					'Potential Benefit' = $Recom.potentialBenefits;
-					'Learn More Link' = ($Recom.learnMoreLink.url -join " `n");
-					'Long Description' = $Recom.longDescription;
-					'Guid' = $Recom.aprlGuid;
-					'Category' = 'Azure Service';
-					'Source' = $Resource.selector;
-					'WAF Pillar' = 'Reliability';
-					'Platform Issue TrackingId' = '';
-					'Retirement TrackingId' = '';
-					'Support Request Number' = '';
-					'Notes' = '';
-					'checkName' = $Resource.checkName
-				}
-				$tmp += $obj
+                $ResObj = [ImpactedResourceObj]::new()
+                $ResObj.ValidationMSG = $ValidationMSG
+                $ResObj.ValidationCategory = 'Resource'
+                $ResObj.ResourceType = $Resource.type
+                $ResObj.SubscriptionId = $Resource.subscriptionId
+                $ResObj.ResourceGroup = $Resource.resourceGroup
+                $ResObj.Location = $Resource.location
+                $ResObj.Name = $Resource.name
+                $ResObj.Id = $Resource.id
+                $ResObj.Custom1 = $Resource.param1
+                $ResObj.Custom2 = $Resource.param2
+                $ResObj.Custom3 = $Resource.param3
+                $ResObj.Custom4 = $Resource.param4
+                $ResObj.Custom5 = $Resource.param5
+                $ResObj.RecommendationTitle = $Recom.description
+                $ResObj.Impact = $Recom.recommendationImpact
+                $ResObj.RecommendationControl = ($Recom.recommendationControl -csplit '(?=[A-Z])' -ne '' -join ' ')
+                $ResObj.PotentialBenefit = $Recom.potentialBenefits
+                $ResObj.LearnMoreLink = ($Recom.learnMoreLink.url -join " `n")
+                $ResObj.LongDescription = $Recom.longDescription
+                $ResObj.Guid = $Recom.aprlGuid
+                $ResObj.Category = 'Azure Service'
+                $ResObj.Source = $Resource.selector
+                $ResObj.WAFPillar = 'Reliability'
+                $ResObj.CheckName = $Resource.checkName
+
+				$tmp += $ResObj
 			}
 		}
 
@@ -424,37 +458,23 @@ function Initialize-WARAImpactedResources
 		{
 			if (![string]::IsNullOrEmpty($adv))
 				{
-					$obj = @{
-						'REQUIRED ACTIONS / REVIEW STATUS' = $ADVMessage;
-						'ValidationCategory' = 'Resource';
-						'Resource Type' = $adv.type;
-						'subscriptionId' = $adv.subscriptionId;
-						'resourceGroup' = $adv.resourceGroup;
-						'location' = $adv.location;
-						'name' = $adv.name;
-						'id' = $adv.id;
-						'custom1' = '';
-						'custom2' = '';
-						'custom3' = '';
-						'custom4' = '';
-						'custom5' = '';
-						'Recommendation Title' = $adv.description;
-						'Impact' = $adv.impact;
-						'Recommendation Control' = ($adv.category -csplit '(?=[A-Z])' -ne '' -join ' ');
-						'Potential Benefit' = '';
-						'Learn More Link' = '';
-						'Long Description' = '';
-						'Guid' = $adv.recommendationId;
-						'Category' = '';
-						'Source' = 'ADVISOR';
-						'WAF Pillar' = 'Reliability';
-						'Platform Issue TrackingId' = '';
-						'Retirement TrackingId' = '';
-						'Support Request Number' = '';
-						'Notes' = '';
-						'checkName' = ''
-					}
-					$tmp += $obj
+                    $ADVobj = [impactedResourceObj]::new()
+                    $ADVobj.ValidationMSG = $ADVMessage
+                    $ADVobj.ValidationCategory = 'Resource'
+                    $ADVobj.ResourceType = $adv.type
+                    $ADVobj.SubscriptionId = $adv.subscriptionId
+                    $ADVobj.ResourceGroup = $adv.resourceGroup
+                    $ADVobj.Location = $adv.location
+                    $ADVobj.Name = $adv.name
+                    $ADVobj.Id = $adv.id
+                    $ADVobj.RecommendationTitle = $adv.description
+                    $ADVobj.Impact = $adv.impact
+                    $ADVobj.RecommendationControl = ($adv.category -csplit '(?=[A-Z])' -ne '' -join ' ')
+                    $ADVobj.Guid = $adv.recommendationId
+                    $ADVobj.Source = 'ADVISOR'
+                    $ADVobj.WAFPillar = 'Reliability'
+
+                    $tmp += $ADVobj
 				}
 		}
 
@@ -475,117 +495,97 @@ function Initialize-WARAImpactedResources
 					$SplitDescription = ' ', ' '
 				}
 
-				$obj = @{
-					'REQUIRED ACTIONS / REVIEW STATUS' = $ServiceRetirementMSG;
-					'ValidationCategory' = 'Retirements';
-					'Resource Type' = $RetirementType;
-					'subscriptionId' = $Retirement.Subscription;
-					'resourceGroup' = 'RG name not needed';
-					'location' = 'Location not needed';
-					'name' = 'Get ResourceName from Azure Portal';
-					'id' = 'Get ResourceID from Azure Portal';
-					'custom1' = 'No data needed';
-					'custom2' = 'No data needed';
-					'custom3' = 'No data needed';
-					'custom4' = 'No data needed';
-					'custom5' = 'No data needed';
-					'Recommendation Title' = $Retirement.Title;
-					'Impact' = 'Medium';
-					'Recommendation Control' = '';
-					'Potential Benefit' = '';
-					'Learn More Link' = '';
-					'Long Description' = [string]$SplitDescription[0];
-					'Guid' = 'GUID not needed';
-					'Category' = '';
-					'Source' = 'Azure Service Health - Service Retirements';
-					'WAF Pillar' = 'Reliability';
-					'Platform Issue TrackingId' = '';
-					'Retirement TrackingId' = $Retirement.TrackingId;
-					'Support Request Number' = '';
-					'Notes' = '';
-					'checkName' = ''
-				}
-				$tmp += $obj
+                $RetObj = [ImpactedResourceObj]::new()
+                $RetObj.ValidationMSG = $ServiceRetirementMSG
+                $RetObj.ValidationCategory = 'Retirements'
+                $RetObj.ResourceType = $RetirementType
+                $RetObj.SubscriptionId = $Retirement.Subscription
+                $RetObj.ResourceGroup = 'RG name not needed'
+                $RetObj.Location = 'Location not needed'
+                $RetObj.Name = 'Get ResourceName from Azure Portal'
+                $RetObj.Id = 'Get ResourceID from Azure Portal'
+                $RetObj.RecommendationTitle = $Retirement.Title
+                $RetObj.Impact = 'Medium'
+                $RetObj.LongDescription = [string]$SplitDescription[0]
+                $RetObj.Guid = 'GUID not needed'
+                $RetObj.Source = 'Azure Service Health - Service Retirements'
+                $RetObj.WAFPillar = 'Reliability'
+                $RetObj.RetirementTrackingId = $Retirement.TrackingId
+
+				$tmp += $RetObj
 			}
 		}
 
 	# Fourth loop through the WAF recommendations
 	$WAFMSG = Get-WARAMessage -Message 'ImpactedResources_WAF'
-	foreach ($waf in $WAFYAMLContent)
+	foreach ($waf in $WAFRecommendations)
 		{
 			if (![string]::IsNullOrEmpty($waf))
 				{
-					$obj = @{
-						#'REQUIRED ACTIONS / REVIEW STATUS_x000a_(If the recommendation is applicable then update the cell to "Reviewed")' = $WAFMSG;
-						'REQUIRED ACTIONS / REVIEW STATUS' = $WAFMSG;
-						'ValidationCategory' = 'WAF';
-						'Resource Type' = $waf.recommendationResourceType;
-						'subscriptionId' = '';
-						'resourceGroup' = '';
-						'location' = '';
-						'name' = 'Entire Workload';
-						'id' = '';
-						'custom1' = '';
-						'custom2' = '';
-						'custom3' = '';
-						'custom4' = '';
-						'custom5' = '';
-						'Recommendation Title' = $waf.description;
-						'Impact' = $waf.recommendationImpact;
-						'Recommendation Control' = ($waf.recommendationControl -csplit '(?=[A-Z])' -ne '' -join ' ');
-						'Potential Benefit' = $waf.potentialBenefits;
-						'Learn More Link' = ($Recom.learnMoreLink.url -join " `n");
-						'Long Description' = $waf.longDescription;
-						'Guid' = $waf.aprlGuid;
-						'Category' = 'Well Architected';
-						'Source' = '';
-						'WAF Pillar' = '';
-						'Platform Issue TrackingId' = '';
-						'Retirement TrackingId' = '';
-						'Support Request Number' = '';
-						'Notes' = '';
-						'checkName' = ''
-					}
-					$tmp += $obj
+                    $WAFObj = [ImpactedResourceObj]::new()
+                    $WAFObj.ValidationMSG = $WAFMSG
+                    $WAFObj.ValidationCategory = 'WAF'
+                    $WAFObj.ResourceType = $waf.recommendationResourceType
+                    $WAFObj.Name = 'Entire Workload'
+                    $WAFObj.RecommendationTitle = $waf.description
+                    $WAFObj.Impact = $waf.recommendationImpact
+                    $WAFObj.RecommendationControl = ($waf.recommendationControl -csplit '(?=[A-Z])' -ne '' -join ' ')
+                    $WAFObj.PotentialBenefit = $waf.potentialBenefits
+                    $WAFObj.LearnMoreLink = ($Recom.learnMoreLink.url -join " `n")
+                    $WAFObj.LongDescription = $waf.longDescription
+                    $WAFObj.Guid = $waf.aprlGuid
+                    $WAFObj.Category = 'Well Architected'
+
+					$tmp += $WAFObj
 				}
 		}
 
 	# Standard Architecture and Reliability Design Patterns Recommendations
 	$ArchtectureMSG = Get-WARAMessage -Message 'ImpactedResources_Architecture'
-	$obj = @{
-		'REQUIRED ACTIONS / REVIEW STATUS' = $ArchtectureMSG;
-		'ValidationCategory' = 'Architectural';
-		'Resource Type' = 'Microsoft.Subscription/Subscriptions';
-		'subscriptionId' = '';
-		'resourceGroup' = '';
-		'location' = '';
-		'name' = '';
-		'id' = '';
-		'custom1' = '';
-		'custom2' = '';
-		'custom3' = '';
-		'custom4' = '';
-		'custom5' = '';
-		'Recommendation Title' = '';
-		'Impact' = '';
-		'Recommendation Control' = '';
-		'Potential Benefit' = '';
-		'Learn More Link' = '';
-		'Long Description' = '';
-		'Guid' = '';
-		'Category' = '';
-		'Source' = '';
-		'WAF Pillar' = '';
-		'Platform Issue TrackingId' = '';
-		'Retirement TrackingId' = '';
-		'Support Request Number' = '';
-		'Notes' = '';
-		'checkName' = ''
-	}
-	$tmp += $obj
+
+    $ARCHObj = [ImpactedResourceObj]::new()
+    $ARCHObj.ValidationMSG = $ArchtectureMSG
+    $ARCHObj.ValidationCategory = 'Architectural'
+    $ARCHObj.ResourceType = 'Microsoft.Subscription/Subscriptions'
+
+    $tmp += $ARCHObj
+
+    $ImpactedResourcesFormatted = foreach ($line in $tmp)
+        {
+            [PSCustomObject]@{
+                'REQUIRED ACTIONS / REVIEW STATUS' = $line.ValidationMSG
+                'ValidationCategory' = $line.ValidationCategory
+                'Resource Type' = $line.ResourceType
+                'subscriptionId' = $line.SubscriptionId
+                'resourceGroup' = $line.ResourceGroup
+                'location' = $line.Location
+                'name' = $line.Name
+                'id' = $line.Id
+                'custom1' = $line.Custom1
+                'custom2' = $line.Custom2
+                'custom3' = $line.Custom3
+                'custom4' = $line.Custom4
+                'custom5' = $line.Custom5
+                'Recommendation Title' = $line.RecommendationTitle
+                'Impact' = $line.Impact
+                'Recommendation Control' = $line.RecommendationControl
+                'Potential Benefit' = $line.PotentialBenefit
+                'Learn More Link' = $line.LearnMoreLink
+                'Long Description' = $line.LongDescription
+                'Guid' = $line.Guid
+                'Category' = $line.Category
+                'Source' = $line.Source
+                'WAF Pillar' = $line.WAFPillar
+                'Platform Issue TrackingId' = $line.PlatformIssueTrackingId
+                'Retirement TrackingId' = $line.RetirementTrackingId
+                'Support Request Number' = $line.SupportRequestNumber
+                'Notes' = $line.Notes
+                'checkName' = $line.CheckName
+            }
+        }
 
 	# Returns the array with all the recommendations already formatted to be exported to Excel
-	return $tmp
+	return $ImpactedResourcesFormatted
 }
 
 function Export-WARAImpactedResources
@@ -668,39 +668,41 @@ $ReviewedFormula = @"
 			$RootType = ""
 			$RootType = $RootTypes | Where-Object {$_.ResourceType -eq $ResourceType.Name}
 			$APRLOrAdv = if($RootType.WARAinScope -eq 'yes' -and $RootType.InAprlAndOrAdvisor -eq 'yes') { 'Yes' } else { 'No' }
-			$obj = @{
-				'Category'		 	 											= 'Impacted Resources';
-				'Resource Type' 	 											= $ResourceType.Name;
-				'Number of Resources'											= $ResourceType.'Count';
-				'Impacted Resources' 											= $ImpactedResourcesFormula;
-				'Has Recommendations_x000a_in APRL/Advisor'				 		= $APRLOrAdv;
-				'Assessment Status'												= $ReviewedFormula;
-			}
+
+            $ResTypeObj = [AnalysisPlanningObj]::new()
+            $ResTypeObj.Category = 'Impacted Resources'
+            $ResTypeObj.ResourceType = $ResourceType.Name
+            $ResTypeObj.NumberOfResources = $ResourceType.'Count'
+            $ResTypeObj.ImpactedResources = $ImpactedResourcesFormula
+            $ResTypeObj.HasRecommendationsInAPRLAdvisor = $APRLOrAdv
+            $ResTypeObj.AssessmentStatus = $ReviewedFormula
+
 			$Counter ++
-			$tmp += $obj
+			$tmp += $ResTypeObj
 		}
 
-	$obj = @{
-		'Category'		 	 											= 'Support Requests';
-		'Resource Type' 	 											= 'N/A';
-		'Number of Resources'											= 'n/a';
-		'Impacted Resources' 											= 'n/a';
-		'Has Recommendations_x000a_in APRL/Advisor'						= 'Yes';
-		'Assessment Status'												= 'Pending';
-	}
-	$tmp += $obj
+    $SupObj = [AnalysisPlanningObj]::new()
+    $SupObj.Category = 'Support Requests'
+	$tmp += $SupObj
 
-	$obj = @{
-		'Category'		 	 											= 'Platform Issues';
-		'Resource Type'											 	 	= 'N/A';
-		'Number of Resources'											= 'n/a';
-		'Impacted Resources' 											= 'n/a';
-		'Has Recommendations_x000a_in APRL/Advisor'						= 'Yes';
-		'Assessment Status'												= 'Pending';
-	}
-	$tmp += $obj
+    $PlatObj = [AnalysisPlanningObj]::new()
+    $PlatObj.Category = 'Platform Issues'
+	$tmp += $PlatObj
 
-	return $tmp
+
+    $AnalysisPlanningFormatted = foreach ($line in $tmp)
+        {
+            [PSCustomObject]@{
+                'Category' = $line.Category
+                'Resource Type' = $line.ResourceType
+                'Number of Resources' = $line.NumberOfResources
+                'Impacted Resources' = $line.ImpactedResources
+                'Has Recommendations_x000a_in APRL/Advisor' = $line.HasRecommendationsInAPRLAdvisor
+                'Assessment Status' = $line.AssessmentStatus
+            }
+        }
+
+	return $AnalysisPlanningFormatted
 
 }
 
@@ -771,52 +773,59 @@ function Initialize-WARAPlatformIssues
 				$ImpactedSvc = [string]$ImpactedSvc
 				$ImpactedSvc = if ($ImpactedSvc -like '* ,*') { $ImpactedSvc -replace ".$" }else { $ImpactedSvc }
 
-				$obj = @{
-					'REQUIRED ACTIONS / REVIEW STATUS'	 									= $OutagesMSG;
-					'Tracking ID' 															= $Outage.name;
-					'Event Type' 															= $Outage.properties.eventType;
-					'Event Source' 															= $Outage.properties.eventSource;
-					'Status' 																= $Outage.properties.status;
-					'Title' 																= $Outage.properties.title
-					'Level' 																= $Outage.properties.level;
-					'Event Level' 															= $Outage.properties.eventLevel;
-					'Start Time' 															= $Outage.properties.impactStartTime;
-					'Mitigation Time'														= $Outage.properties.impactMitigationTime;
-					'Impacted Service'														= $ImpactedSvc;
-					'What happened' 														= $whathap;
-					'What went wrong and why' 												= $whatwent;
-					'How did we respond' 													= $howdid;
-					'How are we making incidents like this less likely or less impactful' 	= $howarewe;
-					'How can customers make incidents like this less impactful' 			= $howcan;
-				}
-				$tmp += $obj
+                $OutageObj = [OutagesObj]::new()
+                $OutageObj.OutageMSG = $OutagesMSG
+                $OutageObj.TrackingID = $Outage.name
+                $OutageObj.EventType = $Outage.properties.eventType
+                $OutageObj.EventSource = $Outage.properties.eventSource
+                $OutageObj.Status = $Outage.properties.status
+                $OutageObj.Title = $Outage.properties.title
+                $OutageObj.Level = $Outage.properties.level
+                $OutageObj.EventLevel = $Outage.properties.eventLevel
+                $OutageObj.StartTime = $Outage.properties.impactStartTime
+                $OutageObj.MitigationTime = $Outage.properties.impactMitigationTime
+                $OutageObj.ImpactedService = $ImpactedSvc
+                $OutageObj.WhatHappened = $whathap
+                $OutageObj.WhatWentWrongAndWhy = $whatwent
+                $OutageObj.HowDidWeRespond = $howdid
+                $OutageObj.HowAreWeMakingIncidentsLessLikely = $howarewe
+                $OutageObj.HowCanCustomersMakeIncidentsLessImpactful = $howcan
+
+                $tmp += $OutageObj
 			}
 		}
 
 	# If there are no outages, a row will be added with empty values
 	if ($TotalOutages -eq 0) {
-		$obj = @{
-			'REQUIRED ACTIONS / REVIEW STATUS' 										= $OutagesMSG;
-			'Tracking ID' 															= '';
-			'Event Type' 															= '';
-			'Event Source' 															= '';
-			'Status' 																= '';
-			'Title' 																= '';
-			'Level' 																= '';
-			'Event Level' 															= '';
-			'Start Time' 															= '';
-			'Mitigation Time'														= '';
-			'Impacted Service'														= '';
-			'What happened' 														= '';
-			'What went wrong and why' 												= '';
-			'How did we respond' 													= '';
-			'How are we making incidents like this less likely or less impactful' 	= '';
-			'How can customers make incidents like this less impactful' 			= '';
-		}
-		$tmp += $obj
+        $ZeroOutageObj = [OutagesObj]::new()
+		$ZeroOutageObj.OutageMSG = $OutagesMSG
+		$tmp += $ZeroOutageObj
 	}
 
-	return $tmp
+    $PlatformIssuesFormatted = foreach ($line in $tmp)
+        {
+            [PSCustomObject]@{
+                'REQUIRED ACTIONS / REVIEW STATUS'	 									= $line.OutageMSG
+                'Tracking ID' 															= $line.TrackingID
+                'Event Type' 															= $line.EventType
+                'Event Source' 															= $line.EventSource
+                'Status' 																= $line.Status
+                'Title' 																= $line.Title
+                'Level' 																= $line.Level
+                'Event Level' 															= $line.EventLevel
+                'Start Time' 															= $line.StartTime
+                'Mitigation Time'														= $line.MitigationTime
+                'Impacted Service'														= $line.ImpactedService
+                'What happened' 														= $line.WhatHappened
+                'What went wrong and why' 												= $line.WhatWentWrongAndWhy
+                'How did we respond' 													= $line.HowDidWeRespond
+                'How are we making incidents like this less likely or less impactful' 	= $line.HowAreWeMakingIncidentsLessLikely
+                'How can customers make incidents like this less impactful' 			= $line.HowCanCustomersMakeIncidentsLessImpactful
+            }
+            $obj
+        }
+
+	return $PlatformIssuesFormatted
 }
 
 function Export-WARAPlatformIssues
@@ -955,40 +964,27 @@ function Initialize-WARAWorkloadInventory
 	foreach ($resource in $InScopeResources)
 		{
 			if (![string]::IsNullOrEmpty($resource.id)) {
-				$obj = @{
-					'subscriptionId' 	= $resource.subscriptionId;
-					'resourceGroup' 	= $resource.resourceGroup;
-					'type' 				= $resource.type
-					'location' 			= $resource.location;
-					'name' 				= $resource.name;
-					'id' 				= $resource.id;
-					'tenantId' 			= $TenantID;
-					'kind'				= $resource.kind;
-					'managedBy'			= $resource.managedBy;
-					'sku'				= [string]$resource.sku;
-					'plan'				= $resource.plan;
-					'zones'				= [string]$resource.zones
-				}
-				$tmp += $obj
+                $ResourceObj = [WorkLoadInvObj]::new()
+                $ResourceObj.subscriptionId = $resource.subscriptionId
+                $ResourceObj.resourceGroup = $resource.resourceGroup
+                $ResourceObj.type = $resource.type
+                $ResourceObj.location = $resource.location
+                $ResourceObj.name = $resource.name
+                $ResourceObj.id = $resource.id
+                $ResourceObj.tenantId = $TenantID
+                $ResourceObj.kind = $resource.kind
+                $ResourceObj.managedBy = $resource.managedBy
+                $ResourceObj.sku = [string]$resource.sku
+                $ResourceObj.plan = $resource.plan
+                $ResourceObj.zones = [string]$resource.zones
+
+				$tmp += $ResourceObj
 			}
 		}
 
 	if ($TotalInScope -eq 0) {
-		$obj = @{
-			'subscriptionId' 	= '';
-			'resourceGroup' 	= '';
-			'type' 				= '';
-			'location' 			= '';
-			'name' 				= '';
-			'id' 				= '';
-			'tenantId' 			= '';
-			'kind'				= '';
-			'managedBy'			= '';
-			'sku'				= '';
-			'plan'				= '';
-			'zones'				= ''
-		}
-		$tmp += $obj
+		$ResourceObj = [WorkLoadInvObj]::new()
+		$tmp += $ResourceObj
 	}
 
 	return $tmp
@@ -1063,6 +1059,9 @@ function Set-ExpertAnalysisFile
 }
 
 
+# Start the stopwatch
+$Runtime = [System.Diagnostics.Stopwatch]::StartNew()
+
 # Excel Sheet Reference
 
 $ImpactedResourcesSheetRef = '4.ImpactedResourcesAnalysis'
@@ -1086,23 +1085,9 @@ Test-Requirement
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Read-JSONFile')
 $JSONContent = Read-JSONFile -JSONFile $JSONFile
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Copy-RepositoryFiles')
-# Setting the ClonePath to the path where the repository files were cloned
-$clonePath = Copy-RepositoryFiles -RepoUrl $RepositoryUrl
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ClonePath: ' + $clonePath)
-
-# Checking if the JSON file was created by the current version of the Collector Script
-if ($JSONContent.ScriptDetails.Version -eq (Get-Content -Path "$ClonePath\tools\Version.json" -ErrorAction SilentlyContinue | ConvertFrom-Json).Collector) {
-	Write-Host 'The JSON file was created by the current version of the Collector Script. ' -BackgroundColor DarkGreen -NoNewline
-	Write-Host ''
-} else {
-	Write-Host "The JSON file was created by an outdated version ($($JSONContent.ScriptDetails.Version)) of the Collector Script. The latest version is $((Get-Content -Path "$ClonePath\tools\Version.json" -ErrorAction SilentlyContinue | ConvertFrom-Json).Collector)" -BackgroundColor DarkRed -NoNewline
-	Write-Host ''
-}
-
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Importing Supported Types')
 # Importing the CSV files to get the supported types and the friendly names for the resource types in the Retirements
-$RootTypes = Get-Content -Path "$clonePath/tools/WARAinScopeResTypes.csv" | ConvertFrom-Csv
+$RootTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv 
 $RootTypes = $RootTypes | Where-Object {$_.InAprlAndOrAdvisor -eq 'yes'}
 
 Write-Host 'Analysing Excel File Template'
@@ -1111,7 +1096,7 @@ $NewExpertAnalysisFile = Save-WARAExcelFile -ExpertAnalysisFile $ExpertAnalysisF
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAImpactedResources')
 # Creating the Array with the Impacted Resources to be added to the Excel file
-$ImpactedResources 	= Initialize-WARAImpactedResources -ImpactedResources $JSONContent.ImpactedResources -Advisory $JSONContent.Advisory -Retirements $JSONContent.Retirements -ScriptDetails $JSONContent.ScriptDetails
+$ImpactedResources 	= Initialize-WARAImpactedResources -ImpactedResources $JSONContent.ImpactedResources -Advisory $JSONContent.Advisory -Retirements $JSONContent.Retirements -ScriptDetails $JSONContent.ScriptDetails -RecommendationsUrl $RecommendationsUrl
 
 Write-Host $ImpactedResourcesSheetRef -NoNewline -ForegroundColor Green
 Write-Host ': ' -NoNewline
@@ -1187,8 +1172,8 @@ Write-Host 'Extra Excel Customization' -ForegroundColor Cyan
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Set-ExpertAnalysisFile')
 Set-ExpertAnalysisFile -NewExpertAnalysisFile $NewExpertAnalysisFile
 
-}
-$TotalTime = $Runtime.Totalminutes.ToString('#######.##')
+$Runtime.Stop()
+$TotalTime = $Runtime.Elapsed.toString('hh\:mm\:ss')
 
 Write-Host '---------------------------------------------------------------------'
 Write-Host ('Execution Complete. Total Runtime was: ') -NoNewline
