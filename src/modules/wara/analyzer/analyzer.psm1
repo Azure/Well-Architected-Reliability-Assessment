@@ -25,8 +25,7 @@ function Start-WARAAnalyzer {
     param
     (
         [ValidatePattern('^https:\/\/.+$')]
-        [string] $RepositoryUrl = 'https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2',
-        [string] $CustomRecommendationsYAMLPath,
+        [string] $RecommendationsUrl = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
         [Parameter(mandatory = $true)]
         [string] $JSONFile,
         [string] $ExpertAnalysisFile
