@@ -13,3 +13,5 @@ This is the main cmdlet that starts the WARA analyzer. It processes the json fil
 ### [Start-WARAReport](Start-WARAReport.md)
 This is the main cmdlet that starts the WARA report. It processes the json file created by the `Start-WARACollector` function and creates the report documentation.
 
+### [aprlResourceObj](aprlResourceObj.md)
+The `aprlResourceObj` class encapsulates the details of an APRL resource, including validation action, recommendation ID, name, ID, type, location, subscription ID, resource group, parameters, check name, and selector.
