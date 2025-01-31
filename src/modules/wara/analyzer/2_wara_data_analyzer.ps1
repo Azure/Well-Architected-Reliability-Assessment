@@ -38,12 +38,14 @@ Param(
 # Check if the Expert-Analysis file exists
 $CurrentPath = $(Get-Location).Path
 
+$ExpertAnalysisPath = $PSScriptRoot + '\Expert-Analysis-v1.xlsx'
+
 
 if (!$ExpertAnalysisFile)
 	{
         Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + (' - Testing: ' + './Expert-Analysis-v1.xlsx'))
-		if ((Test-Path -Path ('./Expert-Analysis-v1.xlsx') -PathType Leaf) -eq $true) {
-			$ExpertAnalysisFile = ('./Expert-Analysis-v1.xlsx')
+		if ((Test-Path -Path ($ExpertAnalysisPath) -PathType Leaf) -eq $true) {
+			$ExpertAnalysisFile = $ExpertAnalysisPath
 		}
 	}
 else
