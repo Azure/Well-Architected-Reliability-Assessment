@@ -50,10 +50,6 @@ if (!$ExpertAnalysisFile)
 	}
 else
 {
-	<# Write-Host ""
-	Write-Host "This script requires specific Microsoft Excel templates, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
-	Write-Host "https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main/tools" -ForegroundColor Yellow
-	Write-Host "" #>
 	Throw "The Expert-Analysis file does not exist. Please provide a valid path to the Expert-Analysis file."
 	Exit
 }
@@ -63,10 +59,6 @@ if ((Test-Path -Path $ExpertAnalysisFile -PathType Leaf) -eq $true) {
 }
 else
 {
-<# 	Write-Host ""
-	Write-Host "This script requires specific Microsoft Excel templates, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
-	Write-Host "https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main/tools" -ForegroundColor Yellow
-	Write-Host "" #>
 	Throw "The Expert-Analysis file does not exist. Please provide a valid path to the Expert-Analysis file."
 	Exit
 }
@@ -652,7 +644,6 @@ function Export-WARAImpactedResources
 function Initialize-WARAAnalysisPlanning
 {
 	Param(
-		[Parameter(mandatory = $true)]
 		$InScopeResources
 	)
 
@@ -744,7 +735,6 @@ function Export-WARAAnalysisPlanning
 function Initialize-WARAPlatformIssues
 {
 	Param(
-		[Parameter(mandatory = $true)]
 		$PlatformIssues
 	)
 
@@ -870,7 +860,6 @@ function Export-WARAPlatformIssues
 function Initialize-WARASupportTicket
 {
 	Param(
-		[Parameter(mandatory = $true)]
 		$SupportTickets
 	)
 
@@ -953,7 +942,6 @@ function Export-WARASupportTicket
 function Initialize-WARAWorkloadInventory
 {
 	Param(
-		[Parameter(mandatory = $true)]
 		$InScopeResources,
 		$TenantID
 	)
@@ -1117,8 +1105,7 @@ Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Importing Supported 
 $RootTypes = Get-Content -Path "$clonePath/tools/WARAinScopeResTypes.csv" | ConvertFrom-Csv
 $RootTypes = $RootTypes | Where-Object {$_.InAprlAndOrAdvisor -eq 'yes'}
 
-Write-Host 'Analysing Excel File Template: ' -NoNewline
-Write-Host $ExpertAnalysisFile -ForegroundColor Blue
+Write-Host 'Analysing Excel File Template'
 
 $NewExpertAnalysisFile = Save-WARAExcelFile -ExpertAnalysisFile $ExpertAnalysisFile
 
