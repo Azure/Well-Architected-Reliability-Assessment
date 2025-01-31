@@ -36,16 +36,11 @@ Param(
 )
 
 # Check if the Expert-Analysis file exists
-$CurrentPath = Get-Location
-$CurrentPath = $CurrentPath.Path
+$CurrentPath = $(Get-Location).Path
+
+
 if (!$ExpertAnalysisFile)
 	{
- <#
-		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + (' - Testing: ' + $CurrentPath + '\Expert-Analysis-v1.xlsx'))
-		if ((Test-Path -Path ($CurrentPath + '\Expert-Analysis-v1.xlsx') -PathType Leaf) -eq $true) {
-			$ExpertAnalysisFile = ($CurrentPath + '\Expert-Analysis-v1.xlsx')
-		}
-  #>
         Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + (' - Testing: ' + './Expert-Analysis-v1.xlsx'))
 		if ((Test-Path -Path ('./Expert-Analysis-v1.xlsx') -PathType Leaf) -eq $true) {
 			$ExpertAnalysisFile = ('./Expert-Analysis-v1.xlsx')
@@ -53,10 +48,10 @@ if (!$ExpertAnalysisFile)
 	}
 else
 {
-	Write-Host ""
+	<# Write-Host ""
 	Write-Host "This script requires specific Microsoft Excel templates, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
 	Write-Host "https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main/tools" -ForegroundColor Yellow
-	Write-Host ""
+	Write-Host "" #>
 	Throw "The Expert-Analysis file does not exist. Please provide a valid path to the Expert-Analysis file."
 	Exit
 }
@@ -66,16 +61,16 @@ if ((Test-Path -Path $ExpertAnalysisFile -PathType Leaf) -eq $true) {
 }
 else
 {
-	Write-Host ""
+<# 	Write-Host ""
 	Write-Host "This script requires specific Microsoft Excel templates, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
 	Write-Host "https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main/tools" -ForegroundColor Yellow
-	Write-Host ""
+	Write-Host "" #>
 	Throw "The Expert-Analysis file does not exist. Please provide a valid path to the Expert-Analysis file."
 	Exit
 }
 
 
-# Check if the JSON file exists 
+# Check if the JSON file exists
 if ((Test-Path -Path $JSONFile -PathType Leaf) -eq $true) {
 	$JSONFile = (Resolve-Path -Path $JSONFile).Path
 }
@@ -140,6 +135,7 @@ function Read-JSONFile
 }
 
 # function to clone the github repository
+# TODO: Remove this and integrate the recommendation object.
 function Copy-RepositoryFiles
 {
 	Param
@@ -183,6 +179,7 @@ function Save-WARAExcelFile
 }
 
 # function responsible to read the YAML files
+# TODO: Remove this and integrate the recommendation object.
 function Get-WARARecommendationList
 {
 	Param
@@ -201,12 +198,12 @@ function Get-WARARecommendationList
 		}
 	}
 
-	return $YAMLContent	
+	return $YAMLContent
 
 }
 
 # function to process the standard WARA message in the column A
-function Get-WARAMessage 
+function Get-WARAMessage
 {
 	Param($Message)
 
@@ -377,11 +374,11 @@ function Initialize-WARAImpactedResources
 
 			foreach ($Resource in $Resources)
 			{
-				
-				$ValidationMSG = if($Resource.validationAction -eq 'IMPORTANT - Query under development - Validate Resources manually') 
+
+				$ValidationMSG = if($Resource.validationAction -eq 'IMPORTANT - Query under development - Validate Resources manually')
 					{
 						Get-WARAMessage -Message 'ImpactedResources_Unavailable'
-					} 
+					}
 				else {
 					if ($Resource.validationAction -eq 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if Applicable, if not Delete this line')
 					{
@@ -667,9 +664,9 @@ $ImpactedResourcesFormula = @"
 
 $ReviewedFormula = @"
 =IF(OR(AND(TableTypes8[[#This Row],[Category]]="Support Requests", COUNTIFS($SupportRequestsSheetRef!A:A, "<>Reviewed")=0),AND(TableTypes8[[#This Row],[Category]]="Platform Issues", COUNTIFS($PlatformIssuesSheetRef!A:A,
-"<>Reviewed")=0),AND(TableTypes8[[#This Row],[Category]]="Impacted Resources", COUNTIFS($ImpactedResourcesSheetRef!A:A, "<>Reviewed", $ImpactedResourcesSheetRef!C:C, TableTypes8[[#This Row],[Resource Type]], $ImpactedResourcesSheetRef!O:O,        
+"<>Reviewed")=0),AND(TableTypes8[[#This Row],[Category]]="Impacted Resources", COUNTIFS($ImpactedResourcesSheetRef!A:A, "<>Reviewed", $ImpactedResourcesSheetRef!C:C, TableTypes8[[#This Row],[Resource Type]], $ImpactedResourcesSheetRef!O:O,
 "<>Low")=0)), "Reviewed", "Pending")
-"@ 
+"@
 
 	$tmp = @()
 	$Counter = 11
@@ -742,7 +739,7 @@ function Export-WARAAnalysisPlanning
 
 <############################## Platform Issues #########################################>
 
-function Initialize-WARAPlatformIssues 
+function Initialize-WARAPlatformIssues
 {
 	Param(
 		[Parameter(mandatory = $true)]
