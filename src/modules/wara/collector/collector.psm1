@@ -195,7 +195,9 @@ function Invoke-WAFQueryLoop {
             (Invoke-WAFQuery -Query $_.query -SubscriptionIds $subscriptionIds -ErrorAction Stop)
         }
         catch {
-            Write-Host "Error running query for - $($_.recommendationResourceType) - $($_.aprlGuid)"
+            $errorInfo = "Error running query for - $($_.recommendationResourceType) - $($_.aprlGuid)"
+            Write-Error $errorInfo
+            return $errorInfo
         }
     }
     Write-Progress -Activity 'Running Queries' -Status 'Completed' -Completed -Id $ProgressId
