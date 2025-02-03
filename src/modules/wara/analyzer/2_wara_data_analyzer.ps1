@@ -170,14 +170,14 @@ function Test-Requirement {
 		Write-Host 'Installing Az Modules' -ForegroundColor Yellow
 		Install-Module -Name powershell-yaml -SkipPublisherCheck -InformationAction SilentlyContinue
 	}
-	Write-Host 'Validating ' -NoNewline
+<# 	Write-Host 'Validating ' -NoNewline
 	Write-Host 'Git' -ForegroundColor Cyan -NoNewline
 	Write-Host ' Installation..'
 	$GitVersion = git --version
 	if ($null -eq $GitVersion) {
 		Write-Host 'Missing Git' -ForegroundColor Red
 		Exit
-	}
+	} #>
 }
 
 # function to read the JSON file
@@ -1087,7 +1087,7 @@ $JSONContent = Read-JSONFile -JSONFile $JSONFile
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Importing Supported Types')
 # Importing the CSV files to get the supported types and the friendly names for the resource types in the Retirements
-$RootTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv 
+$RootTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv
 $RootTypes = $RootTypes | Where-Object {$_.InAprlAndOrAdvisor -eq 'yes'}
 
 Write-Host 'Analysing Excel File Template'
