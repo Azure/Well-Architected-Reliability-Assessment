@@ -53,7 +53,7 @@ if (-not $IsWindows) {
 <# $CurrentPath = Get-Location
 $CurrentPath = $CurrentPath.Path #>
 if (!$PPTTemplateFile) {
-  write-host ('./Mandatory - Executive Summary presentation - Template.pptx')
+  write-host ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
   if ((Test-Path -Path ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx") -PathType Leaf) -eq $true) {
     $PPTTemplateFile = ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
   }
@@ -1281,7 +1281,7 @@ $Runtime = Measure-Command -Expression {
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "10% Complete." -PercentComplete 10
   Test-Requirement
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "15% Complete." -PercentComplete 15
-  Set-LocalFile
+  #Set-LocalFile
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "20% Complete." -PercentComplete 20
 
   $ExcelImpactedResources = Get-ExcelImpactedResources -ExcelFile $CoreFile
@@ -1308,7 +1308,7 @@ $Runtime = Measure-Command -Expression {
   $PPTFinalFile = New-PPTFile -PPTTemplateFile $PPTTemplateFile
   Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
   Write-Host " and " -NoNewline
-  Write-Host "Excel" -ForegroundColor DarkBlue -NoNewline
+  Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
   Write-Host " "
   Write-Host "Editing " -NoNewline
   $NewAssessmentFindingsFile = New-AssessmentFindingsFile -AssessmentFindingsFile $AssessmentFindingsFile
