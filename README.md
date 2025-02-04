@@ -38,10 +38,10 @@ Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -Subscri
 # Assume output from collector is 'C:\WARA\WARA_File_2024-04-01_10_01.json'
 Start-WARAAnalyzer -JSONFile 'C:\WARA\WARA_File_2024-04-01_10_01.json'
 
-# Assume output from analyzer is 'C:\WARA\WARA Action Plan 2024-03-07_16_06.xlsx'
+# Assume output from analyzer is 'C:\WARA\Expert-Analysis-v1-2025-02-04-11-14.xlsx'
 Start-WARAReport -ExcelAnalysisFile 'C:\WARA\Expert-Analysis-v1-2025-02-04-11-14.xlsx'
 
-#You will now have your PowerPoint and Word reports generated under the C:\WARA directory.
+#You will now have your PowerPoint and Excel reports generated under the C:\WARA directory.
 ```
 
 ### Requirements
