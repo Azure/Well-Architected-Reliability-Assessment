@@ -39,7 +39,7 @@ Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -Subscri
 Start-WARAAnalyzer -JSONFile 'C:\WARA\WARA_File_2024-04-01_10_01.json'
 
 # Assume output from analyzer is 'C:\WARA\WARA Action Plan 2024-03-07_16_06.xlsx'
-Start-WARAReport -ExcelFile 'C:\WARA\WARA Action Plan 2024-03-07_16_06.xlsx'
+Start-WARAReport -ExcelAnalysisFile 'C:\WARA\Expert-Analysis-v1-2025-02-04-11-14.xlsx'
 
 #You will now have your PowerPoint and Word reports generated under the C:\WARA directory.
 ```
@@ -153,7 +153,7 @@ You can review all of the parameters of Start-WARAAnalyzer [here](docs/wara/Star
 
 #### Run the analyzer against a specific JSON file.
 ```PowerShell
-Start-WARAAnalyzer -JSONFile 'C:\Temp\WARA_File_2024-04-01_10_01.json' -Debugging
+Start-WARAAnalyzer -JSONFile 'C:\WARA\WARA_File_2024-04-01_10_01.json'
 ```
 
 ### Start-WARAReport
@@ -167,7 +167,7 @@ You can review all of the parameters of Start-WARAReport [here](docs/wara/Start-
 
 #### Create the Word and PowerPoint reports from the Action Plan Excel output.
 ```PowerShell
-Start-WARAReport -ExcelFile 'C:\WARA_Script\WARA Action Plan 2024-03-07_16_06.xlsx'
+Start-WARAReport -ExcelAnalysisFile 'C:\WARA\Expert-Analysis-v1-2025-02-04-11-14.xlsx'
 ```
 
 ## Project Structure
