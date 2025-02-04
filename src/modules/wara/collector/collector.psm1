@@ -192,12 +192,11 @@ function Invoke-WAFQueryLoop {
     $return = $QueryObject.Where({ $_.automationAvailable -eq $true -and $_.recommendationMetadataState -eq "Active" -and [string]::IsNullOrEmpty($_.recommendationTypeId) }) | ForEach-Object {
         Write-Progress -Activity 'Running Queries' -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100) -Id $ProgressId
         try {
-            (Invoke-WAFQuery -Query $_.query -SubscriptionIds $subscriptionIds -ErrorAction Stop)
+            $recommendation = $_
+            (Invoke-WAFQuery -Query $recommendation.query -SubscriptionIds $subscriptionIds -ErrorAction Stop)
         }
         catch {
-            $errorInfo = "Error running query for - $($_.recommendationResourceType) - $($_.aprlGuid)"
-            Write-Error $errorInfo
-            return $errorInfo
+            Write-Error "Error running query for - $($recommendation.recommendationResourceType) - $($recommendation.aprlGuid)"
         }
     }
     Write-Progress -Activity 'Running Queries' -Status 'Completed' -Completed -Id $ProgressId
