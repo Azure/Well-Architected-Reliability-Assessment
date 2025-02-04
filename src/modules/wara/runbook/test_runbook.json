@@ -1,0 +1,5 @@
+{
+  "query_paths": [
+    "src/modules/wara/runbook/test_runbook.sql"
+  ]
+}
