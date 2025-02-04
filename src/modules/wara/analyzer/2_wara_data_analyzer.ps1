@@ -359,7 +359,7 @@ function Initialize-WARAImpactedResources
     $ResourceRecommendations = $RecommendationObject | Where-Object {[string]::IsNullOrEmpty($_.tags) -and $_.description -notlike 'RE:*'}
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from the standard Azure-WAF')
-    $WAFRecommendations = $RecommendationObject | Where-Object { $_.description -like 'RE:*'}
+    $WAFRecommendations = $RecommendationObject | Where-Object { $_.tags -like 'WAF'}
 
 	if ($ScriptDetails.SAP -eq 'True') {
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from SAP')
