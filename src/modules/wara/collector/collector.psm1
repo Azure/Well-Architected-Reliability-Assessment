@@ -130,7 +130,7 @@ function Get-WAFTaggedResourceGroup {
 | order by ['id']"
 
         $result = Invoke-WAFQuery -Query $tagquery -SubscriptionIds $SubscriptionIds
-    
+
         $return += $result
     }
 
@@ -181,9 +181,13 @@ function Invoke-WAFQueryLoop {
 
     $Types = Get-WAFResourceType -SubscriptionIds $SubscriptionIds
 
-    $Types += $AddedTypes
-
     $QueryObject = Get-WAFQueryByResourceType -ObjectList $RecommendationObject -FilterList $Types.type -KeyColumn 'recommendationResourceType'
+
+    # Add additional types to query based on specialized workloads (This works even if it's empty.)
+    $QueryObject += $AddedTypes.Foreach({
+        $type = $_
+        $RecommendationObject.where({$_.tags -contains $type})
+    }) | Sort-Object -Property "APRLGuid" | Get-Unique -AsString
 
     $return = $QueryObject.Where({ $_.automationAvailable -eq $true -and $_.recommendationMetadataState -eq "Active" -and [string]::IsNullOrEmpty($_.recommendationTypeId) }) | ForEach-Object {
         Write-Progress -Activity 'Running Queries' -Status "Running Query for $($_.recommendationResourceType) - $($_.aprlGuid)" -PercentComplete (($QueryObject.IndexOf($_) / $QueryObject.Count) * 100) -Id $ProgressId
@@ -191,7 +195,9 @@ function Invoke-WAFQueryLoop {
             (Invoke-WAFQuery -Query $_.query -SubscriptionIds $subscriptionIds -ErrorAction Stop)
         }
         catch {
-            Write-Host "Error running query for - $($_.recommendationResourceType) - $($_.aprlGuid)"
+            $errorInfo = "Error running query for - $($_.recommendationResourceType) - $($_.aprlGuid)"
+            Write-Error $errorInfo
+            return $errorInfo
         }
     }
     Write-Progress -Activity 'Running Queries' -Status 'Completed' -Completed -Id $ProgressId
