@@ -162,14 +162,14 @@ function Test-Requirement {
 		Write-Host 'Installing ImportExcel Module' -ForegroundColor Yellow
 		Install-Module -Name ImportExcel -Force -SkipPublisherCheck
 	}
-	Write-Host 'Validating ' -NoNewline
+<# 	Write-Host 'Validating ' -NoNewline
 	Write-Host 'Powershell-YAML' -ForegroundColor Cyan -NoNewline
 	Write-Host ' Module..'
 	$AzModules = Get-Module -Name powershell-yaml -ListAvailable -ErrorAction silentlycontinue
 	if ($null -eq $AzModules) {
 		Write-Host 'Installing Az Modules' -ForegroundColor Yellow
 		Install-Module -Name powershell-yaml -SkipPublisherCheck -InformationAction SilentlyContinue
-	}
+	} #>
 <# 	Write-Host 'Validating ' -NoNewline
 	Write-Host 'Git' -ForegroundColor Cyan -NoNewline
 	Write-Host ' Installation..'
