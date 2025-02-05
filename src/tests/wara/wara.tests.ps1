@@ -50,7 +50,7 @@ Describe 'Start-WARACollector' {
 
             Mock Get-WAFAdvisorMetadata {return $AdvisorMeta_TestData} -ModuleName 'wara'
 
-            Mock Invoke-RestMethod {return $RecommendationObject_TestData} -ParameterFilter {$uri -eq 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json'} -ModuleName 'wara'
+            Mock Invoke-RestMethod {return $RecommendationObject_TestData} -ParameterFilter {$uri -eq 'https://azure.github.io/WARA-Build/objects/recommendations.json'} -ModuleName 'wara'
 
             Mock Get-WARAOtherRecommendations {return $null} -ModuleName 'wara'
 
