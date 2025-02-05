@@ -7,9 +7,7 @@ Well-Architected Reliability Assessment Report Generator Function
 ## SYNTAX
 
 ```
-Start-WARAReport [-Help] [-Debugging] [[-CustomerName] <String>] [[-WorkloadName] <String>]
- [-ExcelFile] <String> [-Heavy] [[-PPTTemplateFile] <String>] [[-WordTemplateFile] <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Start-WARAReport [-Help] [-Debugging] [[-CustomerName] <String>] [[-WorkloadName] <String>] [-ExpertAnalysisFile] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -19,7 +17,7 @@ The function \`Start-WARAReport\` processes the Excel file created by the \`Star
 
 ### EXAMPLE 1
 ```
-Start-WARAReport -ExcelFile 'C:\WARA_Script\WARA Action Plan 2024-03-07_16_06.xlsx' -CustomerName 'ABC Customer' -WorkloadName 'SAP On Azure' -Heavy -PPTTemplateFile 'C:\Templates\Template.pptx' -WordTemplateFile 'C:\Templates\Template.docx'
+Start-WARAReport -ExpertAnalysisFile 'C:\WARA_Script\WARA Action Plan 2024-03-07_16_06.xlsx' -CustomerName 'ABC Customer' -WorkloadName 'SAP On Azure'
 ```
 
 ## PARAMETERS
@@ -84,7 +82,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ExcelFile
+### -ExpertAnalysisFile
 Path to the Excel file created by the "2_wara_data_analyzer" script.
 
 ```yaml
@@ -94,68 +92,6 @@ Aliases:
 
 Required: True
 Position: 3
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Heavy
-Switch to enable heavy processing mode.
-When enabled, this mode introduces additional delays using Start-Sleep at various points in the script to handle heavy environments more gracefully.
-This can help in scenarios where the system resources are limited or the operations being performed are resource-intensive, ensuring the script doesn't overwhelm the system.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -PPTTemplateFile
-Path to the PowerPoint template file.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 4
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WordTemplateFile
-Path to the Word template file.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 5
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ProgressAction
-{{ Fill ProgressAction Description }}
-
-```yaml
-Type: ActionPreference
-Parameter Sets: (All)
-Aliases: proga
-
-Required: False
-Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
