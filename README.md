@@ -24,9 +24,10 @@ This repository holds scripts and automation built for the Well-Architected Reli
 ## Getting Started
 
 ### Patch Notes
+
 - **Version 0.0.15**
   - Fixed a bug that caused the Start-WARAAnalyzer cmdlet to fail when Azure retirements was empty in the JSON file.
-  
+
 - **Version 0.0.14**
   - Initial release of the Well-Architected Reliability Assessment module.
   - Added the Start-WARACollector cmdlet.
