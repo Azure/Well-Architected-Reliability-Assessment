@@ -341,14 +341,19 @@ function Initialize-WARAImpactedResources
 {
 	Param(
 		[Parameter(mandatory = $true)]
+        [AllowEmptyCollection()]
 		$ImpactedResources,
-		[Parameter(mandatory = $true)]
+		[Parameter(mandatory = $false)]
+        [AllowEmptyCollection()]
 		$Advisory,
-		[Parameter(mandatory = $true)]
+		[Parameter(mandatory = $false)]
+        [AllowEmptyCollection()]
 		$Retirements,
 		[Parameter(mandatory = $true)]
+        [AllowEmptyCollection()]
 		$ScriptDetails,
         [Parameter(mandatory = $true)]
+        [AllowEmptyCollection()]
         $RecommendationsUrl
 	)
 
