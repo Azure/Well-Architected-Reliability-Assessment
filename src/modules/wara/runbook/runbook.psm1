@@ -1,10 +1,10 @@
 using module ../utils/utils.psd1
 
 class runbookCheck {
-    [string]    $GroupingName
-    [string]    $SelectorName
+    [string] $GroupingName
+    [string] $SelectorName
     [hashtable] $Parameters = @{}
-    [string[]]  $Tags = @()
+    [string[]] $Tags = @()
 }
 
 class runbookCheckSet {
@@ -12,7 +12,7 @@ class runbookCheckSet {
 }
 
 class runbook {
-    [string[]]  $QueryPaths = @()
+    [string[]] $QueryPaths = @()
     [hashtable] $Parameters = @{}
     [hashtable] $Variables = @{}
     [hashtable] $Selectors = @{}
@@ -20,144 +20,61 @@ class runbook {
     [hashtable] $CheckSets = @{}
 }
 
-function Test-RunbookParameters {
-    param(
-        [Parameter(Mandatory = $true)]
-        [hashtable] $RunbookContent
-    )
-
-    $errors = @()
-
-    if ($RunbookContent.parameters) {
-        if (-not ($RunbookContent.parameters -is [hashtable])) {
-            $runbookErrors += (
-                "- [parameters]: If provided, [parameters] must be a map of parameter names to values. `n" +
-                "  Example: `"parameters`": { `"param1`": `"some text`", `"param2`": 2, `"param3`": true, ... }"
-            )
-        }
-    }
-
-    return $errors
+class selectorReview {
+    [hashtable] $Selectors = @{}
 }
 
-function Test-RunbookVariables {
-    param(
-        [Parameter(Mandatory = $true)]
-        [hashtable] $RunbookContent
-    )
-
-    if ($RunbookContent.variables) {
-        if (-not ($RunbookContent.variables -is [hashtable])) {
-            $errors += (
-                "- [variables]: If provided, [variables] must be a map of variable names to values. `n" +
-                "  Example: `"variables`": { `"var1`": `"some text`", `"var2`": 2, `"var3`": true, ... }"
-            )
-        }
-    }
-
-    return $errors
+class selectedResourceSet {
+    [string] $Selector
+    [string] $SelectorResourceGraphQuery
+    [selectedResource[]] $Resources = @{}
 }
 
-function Test-RunbookSelectors {
-    param(
-        [Parameter(Mandatory = $true)]
-        [hashtable] $RunbookContent
-    )
-
-    $errors = @()
-
-    if (-not $RunbookContent.selectors) {
-        $errors += "- [selectors]: Runbook must include a [selectors] section."
-    }
-    elseif (-not ($RunbookContent.selectors -is [hashtable])) {
-        $errors += (
-            "- [selectors]: [selectors] must be a map of selector names to selectors. `n" +
-            "  Example: `"selectors`": { `"selector1`": `"[selector 1]`", `"selector2`": `"[selector 2]`", ... }"
-        )
-    }
-    elseif ($RunbookContent.selectors.Count -eq 0) {
-        $errors += "- [selectors]: There must be at least one (1) selector defined."
-    }
-    else {
-        foreach ($selectorKey in $RunbookContent.selectors.Keys) {
-            $selector = $RunbookContent.selectors[$selectorKey]
-            if (-not ($selectorKey -is [string]) -or -not ($selector -is [string])) {
-                $errors += (
-                    "- [selectors]: All selector names and values must be strings. `n" +
-                    "  Example: `"selectors`": { `"selector1`": `"[selector 1]`", `"selector2`": `"[selector 2]`", ... }"
-                )
-                break
-            }
-        }
-    }
-
-    return $errors
+class selectedResource {
+    [string] $ResourceId
+    [string] $ResourceType
+    [string] $ResourceName
+    [string] $ResourceGroupName
 }
 
-function Test-RunbookQueryPaths {
-    param(
-        [Parameter(Mandatory = $true)]
-        [hashtable] $RunbookContent
-    )
+class runbookFactory {
+    [runbook] parseRunbookContent([string] $runbookContent) {
+        $runbook = [runbook]::new()
+        $runbookTable = ($runbookContent | ConvertFrom-Json -AsHashtable)
+        $runbook.QueryPaths = ($runbookTable.query_paths ?? $runbookTable.query_overrides ?? @())
+        $runbook.Parameters = ($runbookTable.parameters ?? @{})
+        $runbook.Variables = ($runbookTable.variables ?? @{})
+        $runbook.Selectors = ($runbookTable.selectors ?? @{})
+        $runbook.Groupings = ($runbookTable.groupings ?? @{})
 
-    $errors = @()
+        foreach ($checkSetKey in $runbookTable.checks.Keys) {
+            $checkSet = [runbookCheckSet]::new()
+            $checkSetTable = $runbookTable.checks[$checkSetKey]
 
-    if ($RunbookContent.query_paths -and $RunbookContent.query_overrides) {
-        $errors += "- [query_paths]: Runbook cannot include both [query_paths] and [query_overrides] sections."
-        $errors += "- [query_overrides]: Runbook cannot include both [query_paths] and [query_overrides] sections."
+            foreach ($checkKey in $checkSetTable.Keys) {
+                $check = [runbookCheck]::new()
+                $checkValue = $checkSetTable[$checkKey]
+
+                switch ($checkValue.GetType().Name.ToLower()) {
+                    "string" {
+                        $check.SelectorName = $checkValue
+                    }
+                    "orderedhashtable" {
+                        $check.GroupingName = $checkValue.grouping
+                        $check.SelectorName = $checkValue.selector
+                        $check.Parameters = ($checkValue.parameters ?? @{})
+                        $check.Tags = ($checkValue.tags ?? @())
+                    }
+                }
+
+                $checkSet.Checks[$checkKey] = $check
+            }
+
+            $runbook.CheckSets[$checkSetKey] = $checkSet
+        }
+
+        return $runbook
     }
-    elseif ($RunbookContent.query_paths) {
-        if (-not ($RunbookContent.query_paths -is [array])) {
-            $errors += (
-                "- [query_paths]: If provided, [query_paths] must be an array of strings (folder paths.) `n" +
-                "  Example: `"query_paths`": [ `"\path\to\query\folder`", `"\path\to\another\query\folder`", ... ]"
-            )
-        }
-        else {
-            foreach ($queryPath in $RunbookContent.query_paths) {
-                if (-not ($queryPath -is [string])) {
-                    $errors += (
-                        "- [query_paths]: If provided, [query_paths] must be an array of strings (folder paths.) `n" +
-                        "  Example: `"query_paths`": [ `"\path\to\query\folder`", `"\path\to\another\query\folder`", ... ]"
-                    )
-                    break
-                }
-            }
-
-            foreach ($queryPath in $RunbookContent.query_paths) {
-                if (($queryPath -is [string]) -and -not (Test-Path -Path $queryPath -PathType Container)) {
-                    $errors += "- [query_paths]: Folder [$queryPath] not found."
-                }
-            }
-        }
-    }
-    elseif ($RunbookContent.query_overrides) {
-        if (-not ($RunbookContent.query_overrides -is [array])) {
-            $errors += (
-                "- [query_overrides]: If provided, [query_overrides] must be an array of strings (folder paths.) `n" +
-                "  Example: `"query_overrides`": [ `"\path\to\query\folder`", `"\path\to\another\query\folder`", ... ]"
-            )
-        }
-        else {
-            foreach ($queryOverride in $RunbookContent.query_overrides) {
-                if (-not ($queryOverride -is [string])) {
-                    $errors += (
-                        "- [query_overrides]: If provided, [query_overrides] must be an array of strings (folder paths.) `n" +
-                        "  Example: `"query_overrides`": [ `"\path\to\query\folder`", `"\path\to\another\query\folder`", ... ]"
-                    )
-                    break
-                }
-            }
-
-            foreach ($queryOverride in $RunbookContent.query_overrides) {
-                if (($queryOverride -is [string]) -and -not (Test-Path -Path $queryOverride -PathType Container)) {
-                    $errors += "- [query_overrides]: Folder [$queryOverride] not found."
-                }
-            }
-        }
-    }
-
-    return $errors
 }
 
 function Test-RunbookFile {
@@ -167,20 +84,100 @@ function Test-RunbookFile {
         [ValidateScript({ Test-FileExists $_ })]
         [string] $Path
     )
+
+    # Hard-coded schema to be replaced with public runbook schema.
+    $runbookSchema = @"
+{
+  "title": "Runbook",
+  "description": "A Well-Architected Reliability Assessment (WARA) runbook",
+  "type": "object",
+  "properties": {
+    "parameters": {
+      "type": "object"
+    },
+    "variables": {
+      "type": "object"
+    },
+    "groupings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "selectors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "selector": {
+                  "type": "string"
+                },
+                "grouping": {
+                  "type": "string"
+                },
+                "parameters": {
+                  "type": "object"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "selector"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "selectors",
+    "checks"
+  ]
+}
+"@
+
     $errors = @()
+    $fileContent = Get-Content -Path $Path -Raw
 
-    $runbookContent = (Get-Content -Path $Path -Raw | ConvertFrom-Json -AsHashtable)
+    if (-not ($fileContent | Test-Json)) {
+        $errors = "- Runbook file [$Path] is not a valid JSON file."
+    }
+    elseif (-not ($fileContent | Test-Json -Schema $runbookSchema)) {
+        $errors = "- Runbook file [$Path] does not match the runbook JSON schema."
+    }
+    else {
 
-    $errors += (Test-RunbookQueryPaths -RunbookContent $runbookContent)
-    $errors += (Test-RunbookParameters -RunbookContent $runbookContent)
-    $errors += (Test-RunbookVariables  -RunbookContent $runbookContent)
-    $errors += (Test-RunbookSelectors  -RunbookContent $runbookContent)
-
-    if ($errors.Count -gt 0) {
-        throw "Runbook file [$Path] is invalid:`n$($errors -join "`n")"
     }
 
     return $true
+}
+
+function Invoke-RunbookSelectorReview {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [runbook] $Runbook
+    )
+
+
 }
 
 function Read-RunbookFile {
