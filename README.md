@@ -10,6 +10,7 @@ The main goal of the Well-Architected Reliability Assessment is to provide an in
 
 This repository holds scripts and automation built for the Well-Architected Reliability Assessment and is currently under development.
 ## Table of Contents
+- [Patch Notes](#patch-notes)
 - [Getting Started](#getting-started)
   - [Quick Workflow Example](#quick-workflow-example)
 - [Requirements](#requirements)
@@ -21,6 +22,27 @@ This repository holds scripts and automation built for the Well-Architected Reli
 - [Modules](#modules)
 
 ## Getting Started
+
+### Patch Notes
+- **Version 0.0.15**
+  - Fixed a bug that caused the Start-WARAAnalyzer cmdlet to fail when Azure retirements was empty in the JSON file.
+  
+- **Version 0.0.14**
+  - Initial release of the Well-Architected Reliability Assessment module.
+  - Added the Start-WARACollector cmdlet.
+  - Added the Start-WARAAnalyzer cmdlet.
+    - Added the new Excel Analysis template.
+  - Added the Start-WARAReport cmdlet.
+    - Added the new Excel Report template.
+  - Added the WARA module.
+  - Added the Advisor module.
+  - Added the Collector module.
+  - Added the Outage module.
+  - Added the Retirement module.
+  - Added the Scope module.
+  - Added the ServiceHealth module.
+  - Added the Support module.
+  - Added the Utils module.
 
 ### Quick Workflow Example
 ```PowerShell
