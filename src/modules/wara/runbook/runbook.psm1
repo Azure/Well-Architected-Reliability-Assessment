@@ -1,95 +1,37 @@
 using module ../utils/utils.psd1
 
-class runbookCheck {
+$waraRepoUrl = "https://github.com/azure/well-architected-reliability-assessment"
+
+class CompiledRunbookCheck {
+    [string] $CheckSetName
+    [string] $CheckName
+    [string] $ResourceGraphQuery
+    [string[]] $Tags = @()
+}
+
+class RunbookCheck {
     [string] $GroupingName
     [string] $SelectorName
     [hashtable] $Parameters = @{}
     [string[]] $Tags = @()
 }
 
-class runbookCheckSet {
+class RunbookCheckSet {
     [hashtable] $Checks = @{}
 }
 
-class runbook {
+class Runbook {
     [string[]] $QueryPaths = @()
     [hashtable] $Parameters = @{}
     [hashtable] $Variables = @{}
     [hashtable] $Selectors = @{}
     [hashtable] $Groupings = @{}
     [hashtable] $CheckSets = @{}
-}
 
-class selectorReview {
-    [hashtable] $Selectors = @{}
-}
-
-class selectedResourceSet {
-    [string] $Selector
-    [string] $SelectorResourceGraphQuery
-    [selectedResource[]] $Resources = @{}
-}
-
-class selectedResource {
-    [string] $ResourceId
-    [string] $ResourceType
-    [string] $ResourceName
-    [string] $ResourceGroupName
-}
-
-class runbookFactory {
-    [runbook] parseRunbookContent([string] $runbookContent) {
-        $runbook = [runbook]::new()
-        $runbookTable = ($runbookContent | ConvertFrom-Json -AsHashtable)
-        $runbook.QueryPaths = ($runbookTable.query_paths ?? $runbookTable.query_overrides ?? @())
-        $runbook.Parameters = ($runbookTable.parameters ?? @{})
-        $runbook.Variables = ($runbookTable.variables ?? @{})
-        $runbook.Selectors = ($runbookTable.selectors ?? @{})
-        $runbook.Groupings = ($runbookTable.groupings ?? @{})
-
-        foreach ($checkSetKey in $runbookTable.checks.Keys) {
-            $checkSet = [runbookCheckSet]::new()
-            $checkSetTable = $runbookTable.checks[$checkSetKey]
-
-            foreach ($checkKey in $checkSetTable.Keys) {
-                $check = [runbookCheck]::new()
-                $checkValue = $checkSetTable[$checkKey]
-
-                switch ($checkValue.GetType().Name.ToLower()) {
-                    "string" {
-                        $check.SelectorName = $checkValue
-                    }
-                    "orderedhashtable" {
-                        $check.GroupingName = $checkValue.grouping
-                        $check.SelectorName = $checkValue.selector
-                        $check.Parameters = ($checkValue.parameters ?? @{})
-                        $check.Tags = ($checkValue.tags ?? @())
-                    }
-                }
-
-                $checkSet.Checks[$checkKey] = $check
-            }
-
-            $runbook.CheckSets[$checkSetKey] = $checkSet
-        }
-
-        return $runbook
-    }
-}
-
-function Test-RunbookFile {
-    [CmdletBinding()]
-    param (
-        [Parmeter(Mandatory = $true)]
-        [ValidateScript({ Test-FileExists $_ })]
-        [string] $Path
-    )
-
-    # Hard-coded schema to be replaced with public runbook schema.
-    $runbookSchema = @"
+    static [string] $Schema = @"
 {
   "title": "Runbook",
-  "description": "A Well-Architected Reliability Assessment (WARA) runbook",
+  "description": "A well-architected reliability assessment (WARA) runbook (see $waraRepoUrl)",
   "type": "object",
   "properties": {
     "parameters": {
@@ -153,31 +95,72 @@ function Test-RunbookFile {
   ]
 }
 "@
-
-    $errors = @()
-    $fileContent = Get-Content -Path $Path -Raw
-
-    if (-not ($fileContent | Test-Json)) {
-        $errors = "- Runbook file [$Path] is not a valid JSON file."
-    }
-    elseif (-not ($fileContent | Test-Json -Schema $runbookSchema)) {
-        $errors = "- Runbook file [$Path] does not match the runbook JSON schema."
-    }
-    else {
-
-    }
-
-    return $true
 }
 
-function Invoke-RunbookSelectorReview {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory = $true)]
-        [runbook] $Runbook
-    )
+class SelectorReview {
+    [hashtable] $Selectors = @{}
+}
 
+class SelectedResourceSet {
+    [string] $Selector
+    [string] $ResourceGraphQuery
+    [SelectedResource[]] $Resources = @{}
+}
 
+class SelectedResource {
+    [string] $ResourceId
+    [string] $ResourceType
+    [string] $ResourceName
+    [string] $ResourceLocation
+    [string] $ResourceGroupName
+    [hashtable] $ResourceTags = @{}
+}
+
+class RunbookFactory {
+    [Runbook] ParseRunbookFile([string] $path) {
+        $fileContent = Get-Content -Path $path -Raw
+        return $this.ParseRunbookContent($fileContent)
+    }
+
+    [Runbook] ParseRunbookContent([string] $runbookContent) {
+        $runbookTable = ($runbookContent | ConvertFrom-Json -AsHashtable)
+
+        $runbook = [Runbook]@{
+            QueryPaths = ($runbookTable.query_paths ?? $runbookTable.query_overrides ?? @())
+            Parameters = ($runbookTable.parameters ?? @{})
+            Variables  = ($runbookTable.variables ?? @{})
+            Selectors  = ($runbookTable.selectors ?? @{})
+            Groupings  = ($runbookTable.groupings ?? @{})
+        }
+
+        foreach ($checkSetKey in $runbookTable.checks.Keys) {
+            $checkSet = [RunbookCheckSet]::new()
+            $checkSetTable = $runbookTable.checks[$checkSetKey]
+
+            foreach ($checkKey in $checkSetTable.Keys) {
+                $check = [RunbookCheck]::new()
+                $checkValue = $checkSetTable[$checkKey]
+
+                switch ($checkValue.GetType().Name.ToLower()) {
+                    "string" {
+                        $check.SelectorName = $checkValue
+                    }
+                    "orderedhashtable" {
+                        $check.GroupingName = $checkValue.grouping
+                        $check.SelectorName = $checkValue.selector
+                        $check.Parameters = ($checkValue.parameters ?? @{})
+                        $check.Tags = ($checkValue.tags ?? @())
+                    }
+                }
+
+                $checkSet.Checks[$checkKey] = $check
+            }
+
+            $runbook.CheckSets[$checkSetKey] = $checkSet
+        }
+
+        return $runbook
+    }
 }
 
 function Read-RunbookFile {
@@ -190,41 +173,9 @@ function Read-RunbookFile {
 
     Test-RunbookFile -Path $Path
 
-    $runbook = [runbook]::new()
-    $runbookContent = (Get-Content -Path $Path -Raw | ConvertFrom-Json -AsHashtable)
-    $runbook.QueryPaths = ($runbookContent.query_paths ?? $runbookContent.query_overrides ?? @())
-    $runbook.Parameters = ($runbookContent.parameters ?? @{})
-    $runbook.Variables = ($runbookContent.variables ?? @{})
-    $runbook.Selectors = ($runbookContent.selectors ?? @{})
-    $runbook.Groupings = ($runbookContent.groupings ?? @{})
+    $runbookFactory = [RunbookFactory]::new()
 
-    foreach ($checkSetKey in $runbookContent.checks.Keys) {
-        $checkSet = [runbookCheckSet]::new()
-        $checkSetContent = $runbookContent.checks[$checkSetKey]
-
-        foreach ($checkKey in $checkSetContent.Keys) {
-            $check = [runbookCheck]::new()
-            $checkContent = $checkSetContent[$checkKey]
-
-            switch ($checkContent.GetType().Name.ToLower()) {
-                "string" {
-                    $check.SelectorName = $checkContent
-                }
-                "orderedhashtable" {
-                    $check.GroupingName = $checkContent.grouping
-                    $check.SelectorName = $checkContent.selector
-                    $check.Parameters = ($checkContent.parameters ?? @{})
-                    $check.Tags = ($checkContent.tags ?? @())
-                }
-            }
-
-            $checkSet.Checks[$checkKey] = $check
-        }
-
-        $runbook.CheckSets[$checkSetKey] = $checkSet
-    }
-
-    return $runbook
+    return $runbookFactory.ParseRunbookFile($Path)
 }
 
 function Test-RunbookFile {
@@ -236,8 +187,120 @@ function Test-RunbookFile {
     )
 
     $errors = @()
-    $runbookJson = Get-Content -Path $Path -Raw | ConvertFrom-Json -AsHashtable
+    $fileContent = Get-Content -Path $Path -Raw
 
+    if (-not ($fileContent | Test-Json)) {
+        $errors = "- [$Path] is not a valid JSON file."
+    }
+    elseif (-not ($fileContent | Test-Json -Schema [Runbook]::Schema)) {
+        $errors = "- [$Path] does not adhere to the runbook schema."
+    }
+    else {
+        $runbookFactory = [RunbookFactory]::new()
+        $runbook = $runbookFactory.ParseRunbookContent($fileContent)
 
+        if ($runbook.Selectors.Count -eq 0) {
+            $errors = "- No [selectors] defined. At least one (1) selector is required."
+        }
+
+        if ($runbook.CheckSets.Count -eq 0) {
+            $errors = "- No [checks] defined. At least one (1) check set is required."
+        }
+
+        foreach ($queryPath in $runbook.QueryPaths) {
+            if (-not (Test-Path -PathType Container -Path $queryPath)) {
+                $errors += "- Query path [$queryPath] directory not found."
+            }
+        }
+
+        foreach ($checkSetKey in $runbook.CheckSets.Keys) {
+            $checkSet = $runbook.CheckSets[$checkSetKey]
+
+            foreach ($checkKey in $checkSet.Checks.Keys) {
+                $check = $checkSet.Checks[$checkKey]
+
+                if (-not $runbook.Selectors.ContainsKey($check.SelectorName)) {
+                    $errors += "- Check [$checkSetKey]:[$checkKey] references a selector that does not exist: [$($check.SelectorName)]."
+                }
+
+                if ($check.GroupingName -and -not $runbook.Groupings.ContainsKey($check.GroupingName)) {
+                    $errors += "- Check [$checkSetKey]:[$checkKey] references a grouping that does not exist: [$($check.GroupingName)]."
+                }
+            }
+        }
+    }
+
+    if ($errors.Count -gt 0) {
+        throw "Runbook file [$Path] is invalid:`n$($errors -join "`n")"
+    }
+
+    return $true
+}
+
+function Build-RunbookSelectorReview {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [Runbook] $Runbook,
+
+        [Parameter(Mandatory = $false)]
+        [AllowEmptyCollection]
+        [string[]] $SubscriptionIds
+    )
+
+    $selectorReview = [SelectorReview]::new()
+
+    for ($i = 0; $i -lt $Runbook.Selectors.Keys.Count; $i++) {
+        $selectorKey = $Runbook.Selectors.Keys[$i]
+        $selector = $Runbook.Selectors[$selectorKey]
+        $pctComplete = [int]((($i + 1) / $Runbook.Selectors.Keys.Count) * 100)
+
+        Write-Progress `
+            -Activity "Building selector review" `
+            -Status "$pctComplete% - Processing selector [$selectorKey]" `
+            -PercentComplete $pctComplete
+
+        $selectedResourceSet = [SelectedResourceSet]@{
+            Selector           = $selector
+            ResourceGraphQuery = Build-SelectorResourceGraphQuery -Selector $selector
+        }
+
+        $selectedResources = Invoke-WAFQuery `
+            -Query $selectedResourceSet.SelectorResourceGraphQuery `
+            -SubscriptionIds $SubscriptionIds
+
+        foreach ($selectedResource in $selectedResources) {
+            $selectedResourceSet.Resources += [SelectedResource]@{
+                ResourceId        = $selectedResource.id
+                ResourceType      = $selectedResource.type
+                ResourceName      = $selectedResource.name
+                ResourceLocation  = $selectedResource.location
+                ResourceGroupName = $selectedResource.resourceGroup
+                ResourceTags      = $selectedResource.tags
+            }
+        }
+
+        $selectorReview.Selectors[$selectorKey] = $selectedResourceSet
+    }
+
+    Write-Progress `
+        -Activity "Selector review complete." `
+        -Completed
+
+    return $selectorReview
+}
+
+function Build-SelectorResourceGraphQuery {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $Selector
+    )
+
+    return @"
+resources
+| where $Selector
+| project id, type, location, name, resourceGroup, tags
+"@
 }
 
