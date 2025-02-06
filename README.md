@@ -25,6 +25,11 @@ This repository holds scripts and automation built for the Well-Architected Reli
 
 ### Patch Notes
 
+- **Version 0.0.16**
+  - Fixes issue with Start-WARAReport not running due to empty rows in an excel file.
+  - Applies data validation rules to 4.ImpactedResourcesAnalysis worksheet for 'REQUIRED ACTIONS / REVIEW STATUS' column.
+    - Data validation rule is set to error if cell contents are not equal to Reviewed or Pending. This ensures that there are no entry issues with the excel column.
+
 - **Version 0.0.15**
   - Fixed a bug that caused the Start-WARAAnalyzer cmdlet to fail when Azure retirements was empty in the JSON file.
     - [#88](https://github.com/Azure/Well-Architected-Reliability-Assessment/issues/88)
