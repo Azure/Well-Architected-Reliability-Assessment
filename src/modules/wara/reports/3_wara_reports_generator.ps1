@@ -102,7 +102,7 @@ $Runtime = Measure-Command -Expression {
 
     $ExcelContent = Import-Excel -Path $ExcelFile -WorksheetName '4.ImpactedResourcesAnalysis' -StartRow 12
 
-    if ( ($ExcelContent | Where-Object { $_.Impact -ne 'Low' -and $_.'REQUIRED ACTIONS / REVIEW STATUS' -ne 'Reviewed'}).count -ge 1)
+    if ( ($ExcelContent | Where-Object { $_.Impact -ne 'Low' -and $_.'REQUIRED ACTIONS / REVIEW STATUS' -ne 'Reviewed' -and ![String]::IsNullOrEmpty($_.'REQUIRED ACTIONS / REVIEW STATUS')}).count -ge 1)
       {
         Write-Host ""
         Write-Host "There are still some recommendations that need to be reviewed." -ForegroundColor Yellow

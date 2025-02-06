@@ -638,10 +638,16 @@ function Export-WARAImpactedResources
 	$ImpactedResourcesSheet.Add('Notes')
 	$ImpactedResourcesSheet.Add('checkName')
 
-	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Impacted Resources to Excel')
-	$ImpactedResourcesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $ImpactedResourcesSheet |
-		Export-Excel -Path $NewExpertAnalysisFile -WorksheetName $ImpactedResourcesSheetRef -TableName 'impactedresources' -TableStyle $TableStyle -Style $Style -StartRow 12
 
+
+	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Impacted Resources to Excel')
+
+    $excelPackage = $ImpactedResourcesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $ImpactedResourcesSheet |
+    Export-Excel -Path $NewExpertAnalysisFile -WorksheetName $ImpactedResourcesSheetRef -TableName 'impactedresources' -TableStyle $TableStyle -Style $Style -StartRow 12 -PassThru
+
+    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A$($ImpactedResourcesFormatted.count)" -ValidationType List -ValueSet '"Pending,Reviewed"' -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)'
+    
+    Close-ExcelPackage $excelPackage
 }
 
 <############################## Analysis Planning #########################################>
