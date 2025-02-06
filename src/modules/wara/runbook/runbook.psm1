@@ -2,17 +2,38 @@ using module ../utils/utils.psd1
 
 $waraRepoUrl = "https://github.com/azure/well-architected-reliability-assessment"
 
-class CompiledRunbookCheck {
+class Recommendation {
+    [string] $AprlGuid
+    [string] $RecommendationTypeId
+    [string] $RecommendationMetadataState
+    [string] $RecommendationControl
+    [string] $LongDescription
+    [string] $Description
+    [string] $PotentialBenefits
+    [string] $RecommendationResourceType
+    [string] $RecommendationImpact
+    [string] $Query
+
+    [string[]] $Tags
+
+    [bool] $PgVerified
+    [bool] $AutomationAvailable
+}
+
+class RunbookCheckQuery {
     [string] $CheckSetName
     [string] $CheckName
-    [string] $ResourceGraphQuery
-    [string[]] $Tags = @()
+    [string] $Query
+
+    [Recommendation] $Recommendation
 }
 
 class RunbookCheck {
     [string] $GroupingName
     [string] $SelectorName
+
     [hashtable] $Parameters = @{}
+
     [string[]] $Tags = @()
 }
 
@@ -22,6 +43,7 @@ class RunbookCheckSet {
 
 class Runbook {
     [string[]] $QueryPaths = @()
+
     [hashtable] $Parameters = @{}
     [hashtable] $Variables = @{}
     [hashtable] $Selectors = @{}
@@ -104,6 +126,7 @@ class SelectorReview {
 class SelectedResourceSet {
     [string] $Selector
     [string] $ResourceGraphQuery
+
     [SelectedResource[]] $Resources = @{}
 }
 
@@ -113,6 +136,7 @@ class SelectedResource {
     [string] $ResourceName
     [string] $ResourceLocation
     [string] $ResourceGroupName
+
     [hashtable] $ResourceTags = @{}
 }
 
@@ -161,6 +185,93 @@ class RunbookFactory {
 
         return $runbook
     }
+}
+
+function Build-RunbookQueries {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [Runbook] $Runbook,
+
+        [Parameter(Mandatory = $true)]
+        [Recommendation[]] $Recommendations
+    )
+
+    $queries = @()
+    $globalParameters = @{}
+
+    if ($Runbook.Parameters) {
+        foreach ($globalParameterKey in $Runbook.Parameters.Keys) {
+            $globalParameters[$globalParameterKey] = $Runbook.Parameters[$globalParameterKey].ToString()
+        }
+    }
+
+    if ($Runbook.Variables) {
+        foreach ($variableKey in $Runbook.Variables.Keys) {
+            $variableValue = $Runbook.Variables[$variableKey].ToString()
+            $globalParameters[$variableKey] = Merge-ParametersIntoString -Parameters $globalParameters -IntoString $variableValue
+        }
+    }
+
+    $recommendationsHash = @{}
+    $Recommendations.ForEach({ $recommendationsHash[$_.AprlGuid] = $_ })
+
+    foreach ($checkSetKey in $Runbook.CheckSets.Keys) {
+        if ($recommendationsHash.ContainsKey($checkSetKey)) {
+            $checkSet = $Runbook.CheckSets[$checkSetKey]
+            $recommendation = $recommendationsHash[$checkSetKey]
+
+            foreach ($checkKey in $checkSet.Checks.Keys) {
+                $check = $checkSet.Checks[$checkKey]
+
+                $checkParameters = @{}
+                $checkParameters += $globalParameters
+
+                foreach ($checkParameterKey in $check.Parameters.Keys) {
+                    $checkParameterValue = $check.Parameters[$checkParameterKey].ToString()
+                    $checkParameters[$checkParameterKey] = Merge-ParametersIntoString -Parameters $checkParameters -Into $checkParameterValue
+                }
+
+                if ($Runbook.Selectors.ContainsKey($check.Selector)) {
+                    $selector = Merge-ParametersIntoString -Parameters $checkParameters -Into $Runbook.Selectors[$check.Selector]
+                    $query = Merge-ParametersIntoString -Parameters $checkParameters -Into $recommendation.Query
+                    $query = $query -replace "//\s*selector", "| where $selector"
+
+                    $queries += [RunbookCheckQuery]@{
+                        CheckSetName   = $checkSetKey
+                        CheckName      = $checkKey
+                        Query          = $query
+                        Recommendation = $recommendation
+                    }
+                }
+                else {
+                    throw "Runbook check [$checkSetKey]:[$checkKey] references a selector that does not exist: [$($check.Selector)]."
+                }
+            }
+        }
+        else {
+            throw "Runbook check set [$checkSetKey] recommendation not found."
+        }
+    }
+
+    return $queries
+}
+
+function Merge-ParametersIntoString {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable] $Parameters,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Into
+    )
+
+    foreach ($parameterKey in $Parameters.Keys) {
+        $Into = $Into.Replace("{{$parameterKey}}", $Parameters[$parameterKey])
+    }
+
+    return $Into
 }
 
 function Read-RunbookFile {
@@ -256,7 +367,7 @@ function Build-RunbookSelectorReview {
         $pctComplete = [int]((($i + 1) / $Runbook.Selectors.Keys.Count) * 100)
 
         Write-Progress `
-            -Activity "Building selector review" `
+            -Activity "Building selector review..." `
             -Status "$pctComplete% - Processing selector [$selectorKey]" `
             -PercentComplete $pctComplete
 
@@ -283,9 +394,7 @@ function Build-RunbookSelectorReview {
         $selectorReview.Selectors[$selectorKey] = $selectedResourceSet
     }
 
-    Write-Progress `
-        -Activity "Selector review complete." `
-        -Completed
+    Write-Progress -Activity "Selector review built." -Completed
 
     return $selectorReview
 }

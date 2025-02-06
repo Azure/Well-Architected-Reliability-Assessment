@@ -74,7 +74,8 @@
     FunctionsToExport    = @(
         "Read-RunbookFile",
         "Test-RunbookFile",
-        "Invoke-RunbookSelectorReview"
+        "Build-RunbookQueries",
+        "Build-RunbookSelectorReview"
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
