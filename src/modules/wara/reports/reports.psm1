@@ -38,6 +38,7 @@ function Start-WARAReport {
     [string] $CustomerName,
     [string] $WorkloadName,
     [Parameter(mandatory = $true)]
+    [Alias('ExcelFile')]
     [string] $ExpertAnalysisFile,
     [string] $AssessmentFindingsFile,
     [string] $PPTTemplateFile
