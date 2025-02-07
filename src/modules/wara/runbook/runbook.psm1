@@ -52,10 +52,10 @@ class Runbook {
     [hashtable] $Groupings = @{}
     [hashtable] $CheckSets = @{}
 
-    static [string] $Schema = @"
+    static [string] $Schema = @'
 {
   "title": "Runbook",
-  "description": "A well-architected reliability assessment (WARA) runbook (see $waraRepoUrl)",
+  "description": "A well-architected reliability assessment (WARA) runbook",
   "type": "object",
   "properties": {
     "parameters": {
@@ -118,46 +118,46 @@ class Runbook {
     "checks"
   ]
 }
-"@
+'@
 
     [void] Validate() {
         $errors = @()
 
         if ($this.Selectors.Count -eq 0) {
-            $errors = "- [selectors]: At least one (1) selector is required."
+            $errors += "- [selectors]: At least one (1) selector is required."
         }
-    
+
         if ($this.CheckSets.Count -eq 0) {
-            $errors = "- [checks]: At least one (1) check set is required."
+            $errors += "- [checks]: At least one (1) check set is required."
         }
-    
+
         foreach ($queryPath in $this.QueryPaths) {
             if (-not (Test-Path -PathType Container -Path $queryPath)) {
                 $errors += "- [query_paths (query_overrides)]: [$queryPath] does not exist or is not a directory."
             }
         }
-    
+
         foreach ($checkSetKey in $this.CheckSets.Keys) {
             $checkSet = $this.CheckSets[$checkSetKey]
-    
+
             foreach ($checkKey in $checkSet.Checks.Keys) {
                 $check = $checkSet.Checks[$checkKey]
                 $checkTitle = "[$checkSetKey]:[$checkKey]"
-    
+
                 if (-not $this.Selectors.ContainsKey($check.SelectorName)) {
                     $errors += "- [checks]: $checkTitle references a selector that does not exist: [$($check.SelectorName)]."
                 }
-    
+
                 if ($check.GroupingName -and -not $this.Groupings.ContainsKey($check.GroupingName)) {
                     $errors += "- [checks]: $checkTitle references a grouping that does not exist: [$($check.GroupingName)]."
                 }
             }
         }
-    
+
         if ($errors.Count -gt 0) {
             throw "Runbook is invalid:`n$($errors -join "`n")"
         }
-    } 
+    }
 }
 
 class SelectorReview {
@@ -250,7 +250,7 @@ function Invoke-RunbookQueryLoop {
 
     $return = $queries | ForEach-Object {
         $checkTitle = "[$($_.CheckSetName)]:[$($_.CheckName)]"
-        
+
         Write-Progress `
             -Activity "Running runbook queries" `
             -Status "Running runbook check $checkTitle" `
@@ -264,7 +264,7 @@ function Invoke-RunbookQueryLoop {
             Write-Error "Error running query for runbook check [$($_.CheckSetName):$($_.CheckName)]"
         }
     }
-  
+
     Write-Progress -Activity 'Running runbook queries' -Status 'Completed!' -Completed -Id $ProgressId
 
     return $return
@@ -312,10 +312,7 @@ function Build-RunbookQueries {
 
                 foreach ($checkParameterKey in $check.Parameters.Keys) {
                     $checkParameterValue = $check.Parameters[$checkParameterKey].ToString()
-
-                    $checkParameters[$checkParameterKey] = Merge-ParametersIntoString `
-                        -Parameters $checkParameters `
-                        -Into $checkParameterValue
+                    $checkParameters[$checkParameterKey] = Merge-ParametersIntoString -Parameters $checkParameters -Into $checkParameterValue
                 }
 
                 if ($Runbook.Selectors.ContainsKey($check.Selector)) {
@@ -386,11 +383,11 @@ function Test-RunbookFile {
 
     $fileContent = Get-Content -Path $Path -Raw
 
-    if (-not ($fileContent | Test-Json)) {
+    if (-not ($fileContent | Test-Json -ErrorAction SilentlyContinue)) {
         throw "[$Path] is not a valid JSON file."
     }
 
-    if (-not ($fileContent | Test-Json -Schema [Runbook]::Schema)) {
+    if (-not ($fileContent | Test-Json -ErrorAction SilentlyContinue -Schema $([Runbook]::Schema))) {
         throw "[$Path] does not adhere to the runbook JSON schema."
     }
 
