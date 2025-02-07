@@ -411,21 +411,27 @@ function Initialize-WARAImpactedResources
 
 			foreach ($Resource in $Resources)
 			{
+                $ValidationMSG = switch ($Resource.validationAction) {
+                    'IMPORTANT - Query under development - Validate Resources manually' {
+                        Get-WARAMessage -Message 'ImpactedResources_Unavailable'
 
-				$ValidationMSG = if($Resource.validationAction -eq 'IMPORTANT - Query under development - Validate Resources manually')
-					{
-						Get-WARAMessage -Message 'ImpactedResources_Unavailable'
-					}
-				else {
-					if ($Resource.validationAction -eq 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if Applicable, if not Delete this line')
-					{
-						Get-WARAMessage -Message 'ImpactedResources_Type'
-					}
-					else
-					{
-						'Pending'
-					}
-				}
+                    }
+                    'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' {
+                        Get-WARAMessage -Message 'ImpactedResources_Unavailable'
+
+                    }
+                    'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if Applicable, if not Delete this line' {
+                        Get-WARAMessage -Message 'ImpactedResources_Type'
+
+                    }
+                    'APRL - Queries' {
+                        'Reviewed'
+
+                    }
+                    default {
+                        'Error'
+                    }
+                }
 
                 $ResObj = [ImpactedResourceObj]::new()
                 $ResObj.ValidationMSG = $ValidationMSG
@@ -458,7 +464,7 @@ function Initialize-WARAImpactedResources
 		}
 
 	# Second loop through the advisories to get the impacted resources
-	$ADVMessage = Get-WARAMessage -Message 'ImpactedResources_Unavailable'
+	$ADVMessage = "Reviewed"
 	foreach ($adv in $Advisory)
 		{
 			if (![string]::IsNullOrEmpty($adv))
@@ -646,7 +652,7 @@ function Export-WARAImpactedResources
     Export-Excel -Path $NewExpertAnalysisFile -WorksheetName $ImpactedResourcesSheetRef -TableName 'impactedresources' -TableStyle $TableStyle -Style $Style -StartRow 12 -PassThru
 
     Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A$($ImpactedResourcesFormatted.count)" -ValidationType List -ValueSet '"Pending,Reviewed"' -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)'
-    
+
     Close-ExcelPackage $excelPackage
 }
 
