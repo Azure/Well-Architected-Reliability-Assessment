@@ -60,7 +60,7 @@ function Invoke-WAFQuery {
     $allResources += $result
 
     # Output all resources
-    return ,$allResources
+    return , $allResources
 }
 
 <#
@@ -659,7 +659,7 @@ function Test-FileExists {
         [string] $Path
     )
 
-    if (-not (Test-Path -Path $Path -PathType Leaf)) {
+    if (-not (Test-Path -Path $Path -PathType Leaf -ErrorAction SilentlyContinue)) {
         throw "File [$Path] not found."
     }
 

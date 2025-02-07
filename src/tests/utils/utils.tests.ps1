@@ -109,7 +109,7 @@ Describe 'Invoke-AzureRestApi' {
             $result.Content | Should -BeExactly $expected
         }
     }
-    
+
     Context 'When to invoke an Azure REST API with a path WITHOUT resource group' {
         BeforeEach {
             $commonCmdletParams = @{
@@ -184,7 +184,7 @@ Describe Import-WAFConfigFileData {
     Context 'Import a WAF config file with valid and invalid data' {
         It 'Should return the correct content of the WAF config file' {
             # Call the function with the test configuration file
-            
+
             # Validate the results
             $result.tenantid | Should -BeExactly $expectedTenantId
             $result.bad1 | Should -BeNullOrEmpty
@@ -192,7 +192,7 @@ Describe Import-WAFConfigFileData {
             $result.resourcegroups | Should -Be $expectedResourceGroups
             $result.tags | Should -BeExactly $expectedTags
         }
-    }  
+    }
 }
 
 Describe 'Connect-WAFAzure' {
@@ -232,7 +232,24 @@ Describe 'Connect-WAFAzure' {
             Connect-WAFAzure -TenantID $tenantId
 
             # Verify that Connect-AzAccount was not called
-            Should -Not -InvokeVerifiable 
+            Should -Not -InvokeVerifiable
+        }
+    }
+}
+
+Describe 'Test-FileExists' {
+    Context 'When given an existing file' {
+        It 'Should return true' {
+            $filePath = "$PSScriptRoot/../data/utils/testconfig1.txt"
+            $result = Test-FileExists $filePath
+            $result | Should -Be $true
+        }
+    }
+    Context 'When given a file that doesn''t exist' {
+        It 'Should throw an error indicating so' {
+            $filePath = "$PSScriptRoot/../data/utils/doesntexist.txt"
+            $expError = "*not found*"
+            { Test-FileExists $filePath } | Should -Throw -ExpectedMessage $expError
         }
     }
 }
@@ -249,7 +266,7 @@ Describe 'Test-WAFTagPattern' {
     Context 'When given an invalid tag pattern' {
         It 'Should throw the exception' {
             $tagPattern = "env||environment~preprod"
-            { Test-WAFTagPattern $tagPattern } | Should -Throw 
+            { Test-WAFTagPattern $tagPattern } | Should -Throw
         }
     }
 }
@@ -272,22 +289,22 @@ Describe 'Test-WAFResourceGroupId' {
     Context 'When given an invalid resource group id' {
         It 'Should throw the exception with a bad GUID' {
             $resourceGroupId = "/subscriptions/$((new-guid).guid[1..-1])/resourceGroups/RG-01/"
-            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw 
+            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw
         }
 
         It 'Should throw the exception with a bad resourceGroups typo - missing s' {
             $resourceGroupId = "/subscriptions/$((new-guid).guid)/resourceGroup/RG-01/"
-            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw 
+            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw
         }
 
         It 'Should throw the exception with a bad subscription typo - missing s' {
             $resourceGroupId = "/subscription/$((new-guid).guid)/resourceGroups/RG-01/"
-            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw 
+            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw
         }
 
         It 'Should throw the exception when missing the leading slash' {
             $resourceGroupId = "subscriptions/$((new-guid).guid)/resourceGroups/RG-01"
-            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw 
+            { Test-WAFResourceGroupId $resourceGroupId } | Should -Throw
         }
     }
 }
@@ -310,17 +327,17 @@ Describe 'Test-WAFSubscriptionId' {
     Context 'When given an invalid subscription id' {
         It 'Should throw the exception with a bad GUID' {
             $subscriptionId = "/subscriptions/$((new-guid).guid[1..-1])/"
-            { Test-WAFSubscriptionId $subscriptionId } | Should -Throw 
+            { Test-WAFSubscriptionId $subscriptionId } | Should -Throw
         }
 
         It 'Should throw the exception with a bad subscription typo - missing s' {
             $subscriptionId = "/subscription/$((new-guid).guid)/"
-            { Test-WAFSubscriptionId $subscriptionId } | Should -Throw 
+            { Test-WAFSubscriptionId $subscriptionId } | Should -Throw
         }
 
         It 'Should throw the exception when missing the leading slash' {
             $subscriptionId = "subscriptions/$((new-guid).guid)"
-            { Test-WAFSubscriptionId $subscriptionId } | Should -Throw 
+            { Test-WAFSubscriptionId $subscriptionId } | Should -Throw
         }
     }
 }
@@ -337,7 +354,7 @@ Describe 'Test-WAFIsGuid' {
     Context 'When given an invalid GUID' {
         It 'Should throw the exception with a bad GUID' {
             $guid = [Guid]::NewGuid().guid[1..-1]
-            { Test-WAFIsGuid $guid } | Should -Throw 
+            { Test-WAFIsGuid $guid } | Should -Throw
         }
     }
 }
