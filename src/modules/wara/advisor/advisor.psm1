@@ -90,7 +90,7 @@ function Get-WAFAdvisorRecommendation {
 | extend location = iff(properties.impactedField =~ 'microsoft.subscriptions/subscriptions', 'global', coalesce(location,location1))
 | extend type = iff(properties.impactedField =~ 'microsoft.subscriptions/subscriptions', 'microsoft.subscription/subscriptions', tolower(properties.impactedField))
 | project recommendationId = properties.recommendationTypeId, type, name = properties.impactedValue, id, subscriptionId, resourceGroup, location, category = properties.category, impact = properties.impact, description = properties.shortDescription.solution
-| summarize count() by type"
+| order by ['id']"
 
     <#  $advquery = `
 "advisorresources
