@@ -20,10 +20,12 @@ class Recommendation {
     [bool] $AutomationAvailable
 }
 
-class RunbookCheckQuery {
+class RunbookQuery {
     [string] $CheckSetName
     [string] $CheckName
     [string] $Query
+
+    [string[]] $Tags
 
     [Recommendation] $Recommendation
 }
@@ -117,6 +119,45 @@ class Runbook {
   ]
 }
 "@
+
+    [void] Validate() {
+        $errors = @()
+
+        if ($this.Selectors.Count -eq 0) {
+            $errors = "- [selectors]: At least one (1) selector is required."
+        }
+    
+        if ($this.CheckSets.Count -eq 0) {
+            $errors = "- [checks]: At least one (1) check set is required."
+        }
+    
+        foreach ($queryPath in $this.QueryPaths) {
+            if (-not (Test-Path -PathType Container -Path $queryPath)) {
+                $errors += "- [query_paths (query_overrides)]: [$queryPath] does not exist or is not a directory."
+            }
+        }
+    
+        foreach ($checkSetKey in $this.CheckSets.Keys) {
+            $checkSet = $this.CheckSets[$checkSetKey]
+    
+            foreach ($checkKey in $checkSet.Checks.Keys) {
+                $check = $checkSet.Checks[$checkKey]
+                $checkTitle = "[$checkSetKey]:[$checkKey]"
+    
+                if (-not $this.Selectors.ContainsKey($check.SelectorName)) {
+                    $errors += "- [checks]: $checkTitle references a selector that does not exist: [$($check.SelectorName)]."
+                }
+    
+                if ($check.GroupingName -and -not $this.Groupings.ContainsKey($check.GroupingName)) {
+                    $errors += "- [checks]: $checkTitle references a grouping that does not exist: [$($check.GroupingName)]."
+                }
+            }
+        }
+    
+        if ($errors.Count -gt 0) {
+            throw "Runbook is invalid:`n$($errors -join "`n")"
+        }
+    } 
 }
 
 class SelectorReview {
@@ -147,23 +188,23 @@ class RunbookFactory {
     }
 
     [Runbook] ParseRunbookContent([string] $runbookContent) {
-        $runbookTable = ($runbookContent | ConvertFrom-Json -AsHashtable)
+        $runbookHash = ($runbookContent | ConvertFrom-Json -AsHashtable)
 
         $runbook = [Runbook]@{
-            QueryPaths = ($runbookTable.query_paths ?? $runbookTable.query_overrides ?? @())
-            Parameters = ($runbookTable.parameters ?? @{})
-            Variables  = ($runbookTable.variables ?? @{})
-            Selectors  = ($runbookTable.selectors ?? @{})
-            Groupings  = ($runbookTable.groupings ?? @{})
+            QueryPaths = ($runbookHash.query_paths ?? $runbookHash.query_overrides ?? @())
+            Parameters = ($runbookHash.parameters ?? @{})
+            Variables  = ($runbookHash.variables ?? @{})
+            Selectors  = ($runbookHash.selectors ?? @{})
+            Groupings  = ($runbookHash.groupings ?? @{})
         }
 
-        foreach ($checkSetKey in $runbookTable.checks.Keys) {
+        foreach ($checkSetKey in $runbookHash.checks.Keys) {
             $checkSet = [RunbookCheckSet]::new()
-            $checkSetTable = $runbookTable.checks[$checkSetKey]
+            $checkSetHash = $runbookHash.checks[$checkSetKey]
 
-            foreach ($checkKey in $checkSetTable.Keys) {
+            foreach ($checkKey in $checkSetHash.Keys) {
                 $check = [RunbookCheck]::new()
-                $checkValue = $checkSetTable[$checkKey]
+                $checkValue = $checkSetHash[$checkKey]
 
                 switch ($checkValue.GetType().Name.ToLower()) {
                     "string" {
@@ -185,6 +226,48 @@ class RunbookFactory {
 
         return $runbook
     }
+}
+
+function Invoke-RunbookQueryLoop {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [Runbook] $Runbook,
+
+        [Parameter(Mandatory = $true)]
+        [Recommendation[]] $Recommendations,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $SubscriptionIds,
+
+        [Parameter(Mandatory = $false)]
+        [int] $ProgressId = 1
+    )
+
+    $autoRecs = $Recommendations | Where-Object { $_.AutomationAvailable -eq $true -and $_.Query }
+    $queries = Build-RunbookQueries -Runbook $Runbook -Recommendations $autoRecs
+
+    $return = $queries | ForEach-Object {
+        $checkTitle = "[$($_.CheckSetName)]:[$($_.CheckName)]"
+        
+        Write-Progress `
+            -Activity "Running runbook queries" `
+            -Status "Running runbook check $checkTitle" `
+            -PercentComplete [int](($queries.IndexOf($_) / $queries.Count) * 100) `
+            -Id $ProgressId
+
+        try {
+            Invoke-WAFQuery -Query $_.Query -SubscriptionIds $SubscriptionIds -ErrorAction Stop
+        }
+        catch {
+            Write-Error "Error running query for runbook check [$($_.CheckSetName):$($_.CheckName)]"
+        }
+    }
+  
+    Write-Progress -Activity 'Running runbook queries' -Status 'Completed!' -Completed -Id $ProgressId
+
+    return $return
 }
 
 function Build-RunbookQueries {
@@ -229,7 +312,10 @@ function Build-RunbookQueries {
 
                 foreach ($checkParameterKey in $check.Parameters.Keys) {
                     $checkParameterValue = $check.Parameters[$checkParameterKey].ToString()
-                    $checkParameters[$checkParameterKey] = Merge-ParametersIntoString -Parameters $checkParameters -Into $checkParameterValue
+
+                    $checkParameters[$checkParameterKey] = Merge-ParametersIntoString `
+                        -Parameters $checkParameters `
+                        -Into $checkParameterValue
                 }
 
                 if ($Runbook.Selectors.ContainsKey($check.Selector)) {
@@ -237,10 +323,11 @@ function Build-RunbookQueries {
                     $query = Merge-ParametersIntoString -Parameters $checkParameters -Into $recommendation.Query
                     $query = $query -replace "//\s*selector", "| where $selector"
 
-                    $queries += [RunbookCheckQuery]@{
+                    $queries += [RunbookQuery]@{
                         CheckSetName   = $checkSetKey
                         CheckName      = $checkKey
                         Query          = $query
+                        Tags           = $check.Tags
                         Recommendation = $recommendation
                     }
                 }
@@ -297,53 +384,17 @@ function Test-RunbookFile {
         [string] $Path
     )
 
-    $errors = @()
     $fileContent = Get-Content -Path $Path -Raw
 
     if (-not ($fileContent | Test-Json)) {
-        $errors = "- [$Path] is not a valid JSON file."
-    }
-    elseif (-not ($fileContent | Test-Json -Schema [Runbook]::Schema)) {
-        $errors = "- [$Path] does not adhere to the runbook schema."
-    }
-    else {
-        $runbookFactory = [RunbookFactory]::new()
-        $runbook = $runbookFactory.ParseRunbookContent($fileContent)
-
-        if ($runbook.Selectors.Count -eq 0) {
-            $errors = "- No [selectors] defined. At least one (1) selector is required."
-        }
-
-        if ($runbook.CheckSets.Count -eq 0) {
-            $errors = "- No [checks] defined. At least one (1) check set is required."
-        }
-
-        foreach ($queryPath in $runbook.QueryPaths) {
-            if (-not (Test-Path -PathType Container -Path $queryPath)) {
-                $errors += "- Query path [$queryPath] directory not found."
-            }
-        }
-
-        foreach ($checkSetKey in $runbook.CheckSets.Keys) {
-            $checkSet = $runbook.CheckSets[$checkSetKey]
-
-            foreach ($checkKey in $checkSet.Checks.Keys) {
-                $check = $checkSet.Checks[$checkKey]
-
-                if (-not $runbook.Selectors.ContainsKey($check.SelectorName)) {
-                    $errors += "- Check [$checkSetKey]:[$checkKey] references a selector that does not exist: [$($check.SelectorName)]."
-                }
-
-                if ($check.GroupingName -and -not $runbook.Groupings.ContainsKey($check.GroupingName)) {
-                    $errors += "- Check [$checkSetKey]:[$checkKey] references a grouping that does not exist: [$($check.GroupingName)]."
-                }
-            }
-        }
+        throw "[$Path] is not a valid JSON file."
     }
 
-    if ($errors.Count -gt 0) {
-        throw "Runbook file [$Path] is invalid:`n$($errors -join "`n")"
+    if (-not ($fileContent | Test-Json -Schema [Runbook]::Schema)) {
+        throw "[$Path] does not adhere to the runbook JSON schema."
     }
+
+    [RunbookFactory]::new().ParseRunbookContent($fileContent).Validate()
 
     return $true
 }
