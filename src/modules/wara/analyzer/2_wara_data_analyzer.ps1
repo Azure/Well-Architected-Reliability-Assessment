@@ -1155,7 +1155,7 @@ Export-WARASupportTicket -SupportTicketsFormatted $SupportTickets
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAAnalysisPlanning')
 # Creating the Array with the Analysis Planning to be added to the Excel file
-$AnalysisPlanning 	= Initialize-WARAAnalysisPlanning -InScopeResources $JSONContent.resourceInventory
+$AnalysisPlanning 	= Initialize-WARAAnalysisPlanning -InScopeResources $JSONContent.impactedResources
 
 Write-Host $AnalysisPlanningSheetRef -NoNewline -ForegroundColor Green
 Write-Host ': ' -NoNewline

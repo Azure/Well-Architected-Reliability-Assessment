@@ -306,19 +306,20 @@ function Start-WARACollector {
     $Scope_AllResources = Get-WAFFilteredResourceList -UnfilteredResources $AllResources -SubscriptionFilters $Scope_SubscriptionIds -ResourceGroupFilters $Scope_ResourceGroups
     Write-Debug "Count of filtered Resources: $($Scope_AllResources.count)"
 
+    #Create Resource Inventory object
+    Write-Debug 'Creating Resource Inventory object'
+    Write-Progress -Activity 'WARA Collector' -Status 'Creating Resource Inventory' -PercentComplete 33 -Id 1
+    $ResourceInventory = $Scope_AllResources
+    Write-Debug "Count of Resource Inventory: $($ResourceInventory.count)"
 
 
     #Filter all resources by InScope Resource Types - We do this because we need to be able to compare resource ids to generate the generic recommendations(Resource types that have no recommendations or are not in advisor but also need to be validated)
     Write-Debug 'Filtering all resources by WARA InScope Resource Types'
-    Write-Progress -Activity 'WARA Collector' -Status 'Filtering All Resources by WARA InScope Resource Types' -PercentComplete 34 -Id 1
+    Write-Progress -Activity 'WARA Collector' -Status 'Filtering All Resources by WARA InScope Resource Types' -PercentComplete 35 -Id 1
     $Scope_AllResources = Get-WAFResourcesByList -ObjectList $Scope_AllResources -FilterList $RecommendationResourceTypes.ResourceType -KeyColumn 'type'
     Write-Debug "Count of filtered by type Resources: $($Scope_AllResources.count)"
 
-    #Create Resource Inventory object
-    Write-Debug 'Creating Resource Inventory object'
-    Write-Progress -Activity 'WARA Collector' -Status 'Creating Resource Inventory' -PercentComplete 35 -Id 1
-    $ResourceInventory = $Scope_AllResources
-    Write-Debug "Count of Resource Inventory: $($ResourceInventory.count)"
+
 
     #Get all APRL recommendations from the Implicit Subscription ID scope
     Write-Debug 'Getting all APRL recommendations from the Implicit Subscription ID scope'
@@ -1197,7 +1198,7 @@ class specializedResourceFactory {
         $return = switch -wildcard ($query) {
             "*development*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
-            "*Azure Resource Graph*" { 'IMPORTANT - This resource has a query but the automation is not available - Validate Resources manually' }
+            "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
             default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }
