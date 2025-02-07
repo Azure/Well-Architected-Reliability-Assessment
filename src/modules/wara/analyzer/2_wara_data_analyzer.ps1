@@ -361,7 +361,7 @@ function Initialize-WARAImpactedResources
 	$RecommendationObject = Get-WARARecommendationList -RecommendationsUrl $RecommendationsUrl
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from the standard Resources')
-    $ResourceRecommendations = $RecommendationObject | Where-Object {[string]::IsNullOrEmpty($_.tags) -and $_.description -notlike 'RE:*'}
+    $ResourceRecommendations = $RecommendationObject | Where-Object {[string]::IsNullOrEmpty($_.tags)}
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from the standard Azure-WAF')
     $WAFRecommendations = $RecommendationObject | Where-Object { $_.tags -like 'WAF'}
