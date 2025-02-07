@@ -80,7 +80,7 @@ function Get-WAFAdvisorRecommendation {
     $advquery = `
         "advisorresources
 | where type == 'microsoft.advisor/recommendations'
-| where tostring(properties.category) in ('$categoriesString') or properties.recommendationTypeId in ('$AdditionalRecommendationIdsString')
+| where tostring(properties.category) in ('$categoriesString') or properties.recommendationTypeId in ('$additionalRecommendationIdsString')
 | where properties.tracked !~ 'true'
 | extend resId = tolower(tostring(properties.resourceMetadata.resourceId))
 | join kind=leftouter (resources | project ['resId']=tolower(id), subscriptionId, resourceGroup, location, type) on resId
@@ -88,18 +88,19 @@ function Get-WAFAdvisorRecommendation {
 | extend subscriptionId = coalesce(subscriptionId,subscriptionId1)
 | extend resourceGroup = iff(properties.impactedField =~ 'microsoft.subscriptions/subscriptions', 'N/A', resourceGroup)
 | extend location = iff(properties.impactedField =~ 'microsoft.subscriptions/subscriptions', 'global', coalesce(location,location1))
-| project recommendationId = properties.recommendationTypeId, type = tolower(properties.impactedField), name = properties.impactedValue, id, subscriptionId, resourceGroup, location, category = properties.category, impact = properties.impact, description = properties.shortDescription.solution
-| order by ['id']"
+| extend type = iff(properties.impactedField =~ 'microsoft.subscriptions/subscriptions', 'microsoft.subscription/subscriptions', tolower(properties.impactedField))
+| project recommendationId = properties.recommendationTypeId, type, name = properties.impactedValue, id, subscriptionId, resourceGroup, location, category = properties.category, impact = properties.impact, description = properties.shortDescription.solution
+| summarize count() by type"
 
     <#  $advquery = `
-"advisorresources 
-| where type == 'microsoft.advisor/recommendations' and tostring(properties.category) in ('$categoriesString') 
-| extend resId = tolower(tostring(properties.resourceMetadata.resourceId)) 
-| join kind=leftouter (resources 
+"advisorresources
+| where type == 'microsoft.advisor/recommendations' and tostring(properties.category) in ('$categoriesString')
+| extend resId = tolower(tostring(properties.resourceMetadata.resourceId))
+| join kind=leftouter (resources
 | project ['resId']=tolower(id), subscriptionId, resourceGroup ,location) on resId
 | project recommendationId = properties.recommendationTypeId, type = tolower(properties.impactedField), name = properties.impactedValue, id = resId1, subscriptionId = subscriptionId1,resourceGroup = resourceGroup, location = location1, category = properties.category, impact = properties.impact, description = properties.shortDescription.solution
 | order by ['id']" #>
-   
+
     $queryResults = Invoke-WAFQuery -Query $advquery -SubscriptionId $SubscriptionIds
 
     $return = Build-WAFAdvisorObject -AdvQueryResult $queryResults
@@ -176,9 +177,9 @@ function Build-WAFAdvisorObject {
 
 .PARAMETER Recommendation
     A recommendation object returned from Azure Advisor.
-    
+
     The attributes of the object are used to populate the properties of the `advisorResourceObj` instance.
-    
+
     [string] $recommendationId
     [string] $type
     [string] $name
@@ -230,7 +231,7 @@ class advisorResourceObj {
         $this.Location = $psObject.location
         $this.Category = $psObject.category
         $this.Impact = $psObject.impact
-        $this.Description = $psObject.description 
+        $this.Description = $psObject.description
     }
 }
 
@@ -260,7 +261,7 @@ Function Get-WAFAdvisorMetadata {
 
     # Get an access token for the Azure REST API
     $securetoken = Get-AzAccessToken -AsSecureString -ResourceUrl "https://management.azure.com/" -WarningAction SilentlyContinue
-    
+
     # Convert the secure token to a plain text token
     $token = ConvertFrom-SecureString -SecureString $securetoken.token -AsPlainText
 
