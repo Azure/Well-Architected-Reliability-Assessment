@@ -242,6 +242,7 @@ Describe 'Test-FileExists' {
         It 'Should return true' {
             $filePath = "$PSScriptRoot/../data/utils/testconfig1.txt"
             $result = Test-FileExists $filePath
+
             $result | Should -Be $true
         }
     }
@@ -249,6 +250,7 @@ Describe 'Test-FileExists' {
         It 'Should throw an error indicating so' {
             $filePath = "$PSScriptRoot/../data/utils/doesntexist.txt"
             $expError = "*not found*"
+
             { Test-FileExists $filePath } | Should -Throw -ExpectedMessage $expError
         }
     }
