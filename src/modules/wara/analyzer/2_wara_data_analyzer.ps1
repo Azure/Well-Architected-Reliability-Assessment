@@ -482,6 +482,7 @@ function Initialize-WARAImpactedResources
                     $ADVobj.Impact = $adv.impact
                     $ADVobj.RecommendationControl = ($adv.category -csplit '(?=[A-Z])' -ne '' -join ' ')
                     $ADVobj.Guid = $adv.recommendationId
+                    $ADVobj.Category = "Azure Service"
                     $ADVobj.Source = 'ADVISOR'
                     $ADVobj.WAFPillar = 'Reliability'
 
