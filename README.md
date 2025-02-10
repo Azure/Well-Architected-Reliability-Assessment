@@ -24,6 +24,11 @@ This repository holds scripts and automation built for the Well-Architected Reli
 ## Getting Started
 
 ### Patch Notes
+- **Version 0.0.18**
+  - Fixes issue with Start-WARAAnalyzer creating an excel file that cannot be loaded into Start-WARAReport.
+
+- **Version 0.0.17**
+  - Fixes issue with worksheets 3. and 4. not populating from the correct data source in the Collector output.
 
 - **Version 0.0.16**
   - Fixes issue with Start-WARAReport not running due to empty rows in an excel file.
