@@ -204,14 +204,13 @@ function Read-JSONFile
 function Save-WARAExcelFile
 {
 	Param(
-		[string]$ExpertAnalysisFile
+		$ExcelPackage
 		)
 
 	$workingFolderPath = Get-Location
 	$workingFolderPath = $workingFolderPath.Path
-	$ExcelPkg = Open-ExcelPackage -Path $ExpertAnalysisFile
 	$NewExpertAnalysisFile = ($workingFolderPath + '\Expert-Analysis-v1-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.xlsx')
-	Close-ExcelPackage -ExcelPackage $ExcelPkg -SaveAs $NewExpertAnalysisFile
+	Close-ExcelPackage -ExcelPackage $ExcelPackage -SaveAs $NewExpertAnalysisFile
 
 	return $NewExpertAnalysisFile
 }
@@ -602,7 +601,7 @@ function Initialize-WARAImpactedResources
 
 function Export-WARAImpactedResources
 {
-	Param($ImpactedResourcesFormatted)
+	Param($ImpactedResourcesFormatted,$ExcelPackage)
 
 	$Style = @()
 	$Style += New-ExcelStyle -HorizontalAlignment Left -WrapText -Range A:A
@@ -649,12 +648,18 @@ function Export-WARAImpactedResources
 
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Impacted Resources to Excel')
 
-    $excelPackage = $ImpactedResourcesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $ImpactedResourcesSheet |
-    Export-Excel -Path $NewExpertAnalysisFile -WorksheetName $ImpactedResourcesSheetRef -TableName 'impactedresources' -TableStyle $TableStyle -Style $Style -StartRow 12 -PassThru
 
-    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A$($ImpactedResourcesFormatted.count)" -ValidationType List -ValueSet '"Pending,Reviewed"' -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)'
 
-    Close-ExcelPackage $excelPackage
+
+    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A$($ImpactedResourcesFormatted.count)" -ValidationType List -ValueSet @('Pending','Reviewed') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)'
+
+    $null = $ImpactedResourcesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $ImpactedResourcesSheet |
+    Export-Excel -ExcelPackage $excelPackage -WorksheetName $ImpactedResourcesSheetRef -TableName 'impactedresources' -TableStyle $TableStyle -Style $Style -StartRow 12 -PassThru
+
+
+
+
+    #Close-ExcelPackage $excelPackage
 }
 
 <############################## Analysis Planning #########################################>
@@ -726,7 +731,7 @@ $ReviewedFormula = @"
 
 function Export-WARAAnalysisPlanning
 {
-	Param($AnalysisPlanningFormatted)
+	Param($AnalysisPlanningFormatted, $ExcelPackage)
 
 	$Style = @()
 	$Style += New-ExcelStyle -HorizontalAlignment Center -Range A:H
@@ -746,8 +751,8 @@ function Export-WARAAnalysisPlanning
 
 
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Analysis Planning to Excel')
-	$AnalysisPlanningFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $AnalysesPlanning |
-		Export-Excel -Path $NewExpertAnalysisFile -WorksheetName $AnalysisPlanningSheetRef -TableName 'TableTypes8' -TableStyle $TableStyle -Style $Style -StartRow 10
+	$null = $AnalysisPlanningFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $AnalysesPlanning |
+		Export-Excel -ExcelPackage $ExcelPackage -WorksheetName $AnalysisPlanningSheetRef -TableName 'TableTypes8' -TableStyle $TableStyle -Style $Style -StartRow 10 -PassThru
 }
 
 <############################## Platform Issues #########################################>
@@ -848,7 +853,7 @@ function Initialize-WARAPlatformIssues
 
 function Export-WARAPlatformIssues
 {
-	Param($PlatformIssuesFormatted)
+	Param($PlatformIssuesFormatted, $excelPackage)
 
 	$Style = @()
 	$Style += New-ExcelStyle -HorizontalAlignment Left -WrapText -Range A:A
@@ -877,8 +882,8 @@ function Export-WARAPlatformIssues
 	$PlatformIssuesSheet.Add('How can customers make incidents like this less impactful')
 
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Platform Issues to Excel')
-	$PlatformIssuesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $PlatformIssuesSheet |
-		Export-Excel -Path $NewExpertAnalysisFile -WorksheetName $PlatformIssuesSheetRef -TableName 'platformIssues' -TableStyle $TableStyle -Style $Style -StartRow 12
+	$null = $PlatformIssuesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $PlatformIssuesSheet |
+    Export-Excel -ExcelPackage $excelPackage -WorksheetName $PlatformIssuesSheetRef -TableName 'platformIssues' -TableStyle $TableStyle -Style $Style -StartRow 12 -PassThru
 
 }
 
@@ -937,7 +942,7 @@ function Initialize-WARASupportTicket
 
 function Export-WARASupportTicket
 {
-	Param($SupportTicketsFormatted)
+	Param($SupportTicketsFormatted,$ExcelPackage)
 
 	$Style = @()
 	$Style += New-ExcelStyle -HorizontalAlignment Left -WrapText -Range A:A
@@ -960,8 +965,8 @@ function Export-WARASupportTicket
 
 
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Support Tickets to Excel')
-	$SupportTicketsFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $SupportTicketsSheet |
-		Export-Excel -Path $NewExpertAnalysisFile -WorksheetName $SupportRequestsSheetRef -TableName 'supportRequests' -TableStyle $TableStyle -Style $Style -StartRow 12 -NoNumberConversion "Ticket ID"
+	$null = $SupportTicketsFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $SupportTicketsSheet |
+		Export-Excel -ExcelPackage $ExcelPackage -WorksheetName $SupportRequestsSheetRef -TableName 'supportRequests' -TableStyle $TableStyle -Style $Style -StartRow 12 -NoNumberConversion "Ticket ID" -PassThru
 }
 
 <############################## Workload Inventory #########################################>
@@ -1010,7 +1015,7 @@ function Initialize-WARAWorkloadInventory
 
 function Export-WARAWorkloadInventory
 {
-	Param($WorkloadInventoryFormatted)
+	Param($WorkloadInventoryFormatted, $excelPackage)
 
 	$Style = @()
 	$Style += New-ExcelStyle -HorizontalAlignment Center
@@ -1031,8 +1036,8 @@ function Export-WARAWorkloadInventory
 	$InScopeSheet.Add('zones')
 
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Workload Inventory to Excel')
-	$WorkloadInventoryFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $InScopeSheet |
-		Export-Excel -Path $NewExpertAnalysisFile -WorksheetName $WorkloadInventorySheetRef -TableName 'InScopeResources' -TableStyle $TableStyle -Style $Style -StartRow 12
+	$null = $WorkloadInventoryFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $InScopeSheet |
+		Export-Excel -ExcelPackage $excelPackage -WorksheetName $WorkloadInventorySheetRef -TableName 'InScopeResources' -TableStyle $TableStyle -Style $Style -StartRow 12 -PassThru
 }
 
 <############################## Extra Configurations #########################################>
@@ -1043,11 +1048,11 @@ function Set-ExpertAnalysisFile
 	param
 	(
 		[Parameter(Mandatory = $true)]
-		[string]$NewExpertAnalysisFile
+		$ExcelPackage
 	)
 
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Openning Excel File for Last Customization')
-	$Excel = Open-ExcelPackage -path $NewExpertAnalysisFile
+	$Excel = $ExcelPackage #Open-ExcelPackage -path $NewExpertAnalysisFile
 
 	$sheet = $Excel.Workbook.Worksheets[$ImpactedResourcesSheetRef]
 
@@ -1073,7 +1078,7 @@ function Set-ExpertAnalysisFile
 	Add-ConditionalFormatting -WorkSheet $sheet -RuleType ContainsText -ConditionValue "REQUIRED ACTIONS: Review Customer Support Requests and create recommendations" -Address A:A -BackgroundColor ([System.Drawing.Color]::fromArgb(0xFA7A06))
 
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing Excel File')
-	Close-ExcelPackage -ExcelPackage $Excel -Calculate
+	#Close-ExcelPackage -ExcelPackage $Excel -SaveAs #-Calculate
 }
 
 
@@ -1110,7 +1115,9 @@ $RootTypes = $RootTypes | Where-Object {$_.InAprlAndOrAdvisor -eq 'yes'}
 
 Write-Host 'Analysing Excel File Template'
 
-$NewExpertAnalysisFile = Save-WARAExcelFile -ExpertAnalysisFile $ExpertAnalysisFile
+#$NewExpertAnalysisFile = Save-WARAExcelFile -ExpertAnalysisFile $ExpertAnalysisFile
+
+$ExpertAnalysisTemplate = Open-ExcelPackage -Path $ExpertAnalysisFile
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAImpactedResources')
 # Creating the Array with the Impacted Resources to be added to the Excel file
@@ -1124,7 +1131,7 @@ Write-Host ' (Lines to be added to the new Excel file)'
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WARAImpactedResources')
 # Adding the Impacted Resources to the Excel file
-Export-WARAImpactedResources -ImpactedResourcesFormatted $ImpactedResources
+Export-WARAImpactedResources -ImpactedResourcesFormatted $ImpactedResources -ExcelPackage $ExpertAnalysisTemplate
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAPlatformIssues')
 # Creating the Array with the Platform Issues to be added to the Excel file
@@ -1138,7 +1145,7 @@ Write-Host ' (Lines to be added to the new Excel file)'
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraPlatformIssues')
 # Adding the Platform Issues to the Excel file
-Export-WARAPlatformIssues -PlatformIssuesFormatted $PlatformIssues
+Export-WARAPlatformIssues -PlatformIssuesFormatted $PlatformIssues -excelPackage $ExpertAnalysisTemplate
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARASupportTicket')
 # Creating the Array with the Support Tickets to be added to the Excel file
@@ -1152,7 +1159,7 @@ Write-Host ' (Lines to be added to the new Excel file)'
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraSupportTicket')
 # Adding the Support Tickets to the Excel file
-Export-WARASupportTicket -SupportTicketsFormatted $SupportTickets
+Export-WARASupportTicket -SupportTicketsFormatted $SupportTickets -ExcelPackage $ExpertAnalysisTemplate
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAAnalysisPlanning')
 # Creating the Array with the Analysis Planning to be added to the Excel file
@@ -1166,7 +1173,7 @@ Write-Host ' (Lines to be added to the new Excel file)'
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraAnalysisPlanning')
 # Adding the Analysis Planning to the Excel file
-Export-WARAAnalysisPlanning -AnalysisPlanningFormatted $AnalysisPlanning
+Export-WARAAnalysisPlanning -AnalysisPlanningFormatted $AnalysisPlanning -ExcelPackage $ExpertAnalysisTemplate
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAWorkloadInventory')
 # Creating the Array with the Workload Inventory to be added to the Excel file
@@ -1180,7 +1187,7 @@ Write-Host ' (Lines to be added to the new Excel file)'
 
 # Adding the Workload Inventory to the Excel file
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraWorkloadInventory')
-Export-WARAWorkloadInventory -WorkloadInventoryFormatted $WorkloadInventory
+Export-WARAWorkloadInventory -WorkloadInventoryFormatted $WorkloadInventory -excelPackage $ExpertAnalysisTemplate
 
 Write-Host 'Overall Excel File' -NoNewline -ForegroundColor Green
 Write-Host ': ' -NoNewline
@@ -1188,7 +1195,9 @@ Write-Host 'Extra Excel Customization' -ForegroundColor Cyan
 
 # Setting the Excel file with the extra configurations like the conditional formatting
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Set-ExpertAnalysisFile')
-Set-ExpertAnalysisFile -NewExpertAnalysisFile $NewExpertAnalysisFile
+#Set-ExpertAnalysisFile -ExcelPackage $ExpertAnalysisTemplate
+
+$NewExpertAnalysisFile = Save-WARAExcelFile -ExcelPackage $ExpertAnalysisTemplate
 
 $Runtime.Stop()
 $TotalTime = $Runtime.Elapsed.toString('hh\:mm\:ss')
