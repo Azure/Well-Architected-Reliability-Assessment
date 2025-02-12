@@ -29,7 +29,7 @@ function Invoke-RunbookQueryLoop {
     )
 
     $autoRecs = $Recommendations | Where-Object { $_.AutomationAvailable -eq $true -and $_.Query }
-    $queries = Build-RunbookQueries -Runbook $Runbook -Recommendations $autoRecs
+    $queries = @(Build-RunbookQueries -Runbook $Runbook -Recommendations $autoRecs)
 
     $return = $queries | ForEach-Object {
         $checkTitle = "[$($_.CheckSetName)]:[$($_.CheckName)]"
@@ -37,7 +37,7 @@ function Invoke-RunbookQueryLoop {
         Write-Progress `
             -Activity "Running runbook queries" `
             -Status "Running runbook check $checkTitle" `
-            -PercentComplete [int](($queries.IndexOf($_) / $queries.Count) * 100) `
+            -PercentComplete (($queries.IndexOf($_) / $queries.Count) * 100) `
             -Id $ProgressId
 
         try {
@@ -50,7 +50,7 @@ function Invoke-RunbookQueryLoop {
 
     Write-Progress -Activity 'Running runbook queries' -Status 'Completed!' -Completed -Id $ProgressId
 
-    return $return
+    return @($return)
 }
 
 function Build-RunbookQueries {
@@ -75,7 +75,7 @@ function Build-RunbookQueries {
     if ($Runbook.Variables) {
         foreach ($variableKey in $Runbook.Variables.Keys) {
             $variableValue = $Runbook.Variables[$variableKey].ToString()
-            $globalParameters[$variableKey] = Merge-ParametersIntoString -Parameters $globalParameters -IntoString $variableValue
+            $globalParameters[$variableKey] = Merge-ParametersIntoString -Parameters $globalParameters -Into $variableValue
         }
     }
 
@@ -98,10 +98,10 @@ function Build-RunbookQueries {
                     $checkParameters[$checkParameterKey] = Merge-ParametersIntoString -Parameters $checkParameters -Into $checkParameterValue
                 }
 
-                if ($Runbook.Selectors.ContainsKey($check.Selector)) {
-                    $selector = Merge-ParametersIntoString -Parameters $checkParameters -Into $Runbook.Selectors[$check.Selector]
+                if ($Runbook.Selectors.ContainsKey($check.SelectorName)) {
+                    $selector = Merge-ParametersIntoString -Parameters $checkParameters -Into $Runbook.Selectors[$check.SelectorName]
                     $query = Merge-ParametersIntoString -Parameters $checkParameters -Into $recommendation.Query
-                    $query = $query -replace "//\s*selector", "| where $selector"
+                    $query = $($query -replace "\\\\\s*selector", "| where $selector")
 
                     $queries += [RunbookQuery]@{
                         CheckSetName   = $checkSetKey
@@ -112,7 +112,7 @@ function Build-RunbookQueries {
                     }
                 }
                 else {
-                    throw "Runbook check [$checkSetKey]:[$checkKey] references a selector that does not exist: [$($check.Selector)]."
+                    throw "Runbook check [$checkSetKey]:[$checkKey] references a selector that does not exist: [$($check.SelectorName)]."
                 }
             }
         }
@@ -149,11 +149,10 @@ function Read-RunbookFile {
         [string] $Path
     )
 
-    Test-RunbookFile -Path $Path
-
-    $runbookFactory = New-RunbookFactory
-
-    return $runbookFactory.ParseRunbookFile($Path)
+    if (Test-RunbookFile -Path $Path) {
+        $runbookFactory = New-RunbookFactory
+        return $runbookFactory.ParseRunbookFile($Path)
+    }
 }
 
 function Test-RunbookFile {
@@ -196,7 +195,7 @@ function Build-RunbookSelectorReview {
     for ($i = 0; $i -lt $Runbook.Selectors.Keys.Count; $i++) {
         $selectorKey = $Runbook.Selectors.Keys[$i]
         $selector = $Runbook.Selectors[$selectorKey]
-        $pctComplete = [int]((($i + 1) / $Runbook.Selectors.Keys.Count) * 100)
+        $pctComplete = ((($i + 1) / $Runbook.Selectors.Keys.Count) * 100)
 
         Write-Progress `
             -Activity "Building selector review..." `

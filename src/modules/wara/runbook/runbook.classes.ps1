@@ -218,9 +218,12 @@ class RecommendationFactory {
 
 class RunbookFactory {
     [Runbook] ParseRunbookFile([string] $path) {
-        Test-FileExists -Path $path
-        $fileContent = Get-Content -Path $path -Raw
-        return $this.ParseRunbookContent($fileContent)
+        if (Test-FileExists -Path $path) {
+            $fileContent = Get-Content -Path $path -Raw
+            return $this.ParseRunbookContent($fileContent)
+        }
+
+        return $null
     }
 
     [Runbook] ParseRunbookContent([string] $content) {

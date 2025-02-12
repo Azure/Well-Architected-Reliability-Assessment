@@ -1,8 +1,8 @@
 [
   {
     "recommendationId": "11111111-1111-1111-1111-111111111111",
-    "name": "resource_name",
-    "id": "resource_id",
+    "name": "resource_1",
+    "id": "resource_1",
     "param1": "param_1",
     "param2": "param_2",
     "param3": "param_3",
