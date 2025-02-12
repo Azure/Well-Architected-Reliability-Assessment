@@ -50,6 +50,16 @@ if (-not $IsWindows) {
   Write-Host 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
   Exit
   }
+
+  # Check if Clipboard History is enabled
+$clipboardHistory = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Clipboard" -Name "EnableClipboardHistory" -ErrorAction SilentlyContinue
+
+if ($clipboardHistory.EnableClipboardHistory -eq 1) {
+    Throw "Clipboard History is enabled. Please disable Clipboard History before running this script."
+} else {
+    Write-Debug "Clipboard History is disabled."
+}
+
 # TODO: Remove if not needed
 <# $CurrentPath = Get-Location
 $CurrentPath = $CurrentPath.Path #>
