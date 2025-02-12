@@ -1,0 +1,29 @@
+[
+  {
+    "CheckSetName": "11111111-1111-1111-1111-111111111111",
+    "CheckName": "some_check",
+    "Query": "Resource name: [some_resource]\nResource group name: [some_resource_group]\nSelector: | where ((name =~ 'some_resource') and (resourceGroup =~ 'some_resource_group'))",
+    "Tags": [
+      "some_tag",
+      "another_tag"
+    ],
+    "Recommendation": {
+      "AprlGuid": "11111111-1111-1111-1111-111111111111",
+      "RecommendationTypeId": null,
+      "RecommendationMetadataState": "Active",
+      "RecommendationControl": "Testing",
+      "LongDescription": "This test recommendation is used by unit tests defined in /tests/runbook/runbook.tests.ps1.",
+      "Description": "This is a test recommendation.",
+      "PotentialBenefits": "Helps ensure runbook module quality",
+      "RecommendationResourceType": "Microsoft.Compute/virtualMachines",
+      "RecommendationImpact": "High",
+      "Query": "Resource name: [{{resource_name}}]\nResource group name: [{{resource_group_name}}]\nSelector: \\\\ selector",
+      "Links": {
+        "Learn more": "https://github.com/azure/well-architected-reliability-assessment"
+      },
+      "Tags": [],
+      "PgVerified": false,
+      "AutomationAvailable": true
+    }
+  }
+]
