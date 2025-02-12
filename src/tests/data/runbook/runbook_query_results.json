@@ -1,0 +1,14 @@
+[
+  {
+    "recommendationId": "11111111-1111-1111-1111-111111111111",
+    "name": "resource_name",
+    "id": "resource_id",
+    "param1": "param_1",
+    "param2": "param_2",
+    "param3": "param_3",
+    "param4": "param_4",
+    "param5": "param_5",
+    "checkName": "some_check",
+    "selector": "resource_selector"
+  }
+]
