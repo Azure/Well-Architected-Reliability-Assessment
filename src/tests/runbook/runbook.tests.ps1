@@ -1,15 +1,14 @@
 using module ../../modules/wara/utils/utils.psd1
 
 BeforeAll {
-    $rootPath = "$PSScriptRoot/.."
-    $subscriptionIds = @("00000000-0000-0000-0000-000000000000")
+    $root = "$PSScriptRoot/.."
 
     $moduleUnderTest = @{
         Name  = "runbook"
         Paths = @{
-            Classes = "$rootPath/../modules/wara/runbook/runbook.classes.ps1"
-            Module  = "$rootPath/../modules/wara/runbook/runbook.psd1"
-            Data    = "$rootPath/data/runbook"
+            Classes = "$root/../modules/wara/runbook/runbook.classes.ps1"
+            Module  = "$root/../modules/wara/runbook/runbook.psd1"
+            Data    = "$root/data/runbook"
         }
     }
 
@@ -19,6 +18,8 @@ BeforeAll {
 
     $recommendationFactory = New-RecommendationFactory
     $runbookFactory = New-RunbookFactory
+
+    $subscriptionIds = @("00000000-0000-0000-0000-000000000000")
 }
 
 Describe "Test-RunbookFile" {
@@ -81,7 +82,7 @@ Describe "Test-RunbookFile" {
 }
 
 Describe "Invoke-RunbookQueryLoop" {
-    Context "When provided with a valid runbook" {
+    Context "When provided with a valid runbook and corresponding recommendations" {
         It "Should run all checks defined in the runbook and return the results" {
             $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
             $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
@@ -90,13 +91,115 @@ Describe "Invoke-RunbookQueryLoop" {
 
             $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
             $recommendations = $recommendationFactory.ParseRecommendationsFile($recommendationsPath)
-            $queries = (Get-Content -Path $queriesPath -Raw | ConvertFrom-Json -Depth 5 -AsHashtable)
-            $queryResults = (Get-Content -Path $queryResultsPath -Raw | ConvertFrom-Json -Depth 5)
+            $queries = @(Get-Content -Path $queriesPath -Raw | ConvertFrom-Json)
+            $queryResults = @(Get-Content -Path $queryResultsPath -Raw | ConvertFrom-Json)
 
             Mock Build-RunbookQueries { $queries } -ModuleName $moduleUnderTest.Name
             Mock Invoke-WAFQuery { $queryResults } -ModuleName $moduleUnderTest.Name
 
-            $results = Invoke-RunbookQueryLoop -Runbook $runbook -Recommendations $recommendations -SubscriptionIds $subscriptionIds
+            $results = Invoke-RunbookQueryLoop `
+                -Runbook $runbook `
+                -Recommendations $recommendations `
+                -SubscriptionIds $subscriptionIds
+
+            $resultsHash = @{}
+            $results | ForEach-Object { $resultsHash[$_.recommendationId] = $_ }
+
+            $queryResultsHash = @{}
+            $queryResults | ForEach-Object { $queryResultsHash[$_.recommendationId] = $_ }
+
+            $results.Count | Should -Be $queryResults.Count
+
+            foreach ($resultKey in $resultsHash.Keys) {
+                $result = $resultsHash[$resultKey]
+                $queryResult = $queryResultsHash[$resultKey]
+
+                $result | Should -Be $queryResult
+            }
+        }
+    }
+}
+
+Describe "Build-RunbookQueries" {
+    Context "When provided with a valid runbook and corresponding recommendations" {
+        It "Should build a query for each check defined in the runbook" {
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
+            $queriesPath = "$($moduleUnderTest.Paths.Data)/runbook_queries.json"
+
+            $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
+            $recommendations = $recommendationFactory.ParseRecommendationsFile($recommendationsPath)
+            $queries = @(Get-Content -Path $queriesPath -Raw | ConvertFrom-Json)
+            $results = Build-RunbookQueries -Runbook $runbook -Recommendations $recommendations
+
+            $results.Count | Should -Be $queries.Count
+
+            for ($i = 0; $i -lt $results.Count; $i++) {
+                $query = $queries[$i]
+                $result = $results[$i]
+
+                $result.CheckSetName | Should -Be $query.CheckSetName
+                $result.CheckName | Should -Be $query.CheckName
+                $result.Query | Should -Be $query.Query
+                $result.Tags | Should -Be $query.Tags
+            }
+        }
+    }
+}
+
+Describe "Read-RunbookFile" {
+    Context "When provided with a valid runbook file" {
+        It "Should return a corresponding Runbook object" {
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookHash = (Get-Content -Path $runbookPath -Raw | ConvertFrom-Json -AsHashtable)
+
+            $runbook = $(Read-RunbookFile -Path $runbookPath)
+
+            foreach ($hashParameterKey in $runbookHash.parameters.Keys) {
+                $hashParameter = $runbookHash.parameters[$hashParameterKey]
+                $runbook.Parameters.Keys | Should -Contain $hashParameterKey
+
+                if ($runbook.Parameters.ContainsKey($hashParameterKey)) {
+                    $runbook.Parameters[$hashParameterKey] | Should -Be $hashParameter
+                }
+            }
+
+            foreach ($hashVariableKey in $runbookHash.variables.Keys) {
+                $hashVariable = $runbookHash.variables[$hashVariableKey]
+                $runbook.Variables.Keys | Should -Contain $hashVariableKey
+
+                if ($runbook.Variables.ContainsKey($hashVariableKey)) {
+                    $runbook.Variables[$hashVariableKey] | Should -Be $hashVariable
+                }
+            }
+
+            foreach ($hashSelectorKey in $runbookHash.selectors.Keys) {
+                $hashSelector = $runbookHash.selectors[$hashSelectorKey]
+                $runbook.Selectors.Keys | Should -Contain $hashSelectorKey
+
+                if ($runbook.Selectors.ContainsKey($hashSelectorKey)) {
+                    $runbook.Selectors[$hashSelectorKey] | Should -Be $hashSelector
+                }
+            }
+
+            foreach ($hashCheckSetKey in $runbookHash.checks.Keys) {
+                $hashCheckSet = $runbookHash.checks[$hashCheckSetKey]
+                $runbook.CheckSets.Keys | Should -Contain $hashCheckSetKey
+
+                if ($runbook.CheckSets.ContainsKey($hashCheckSetKey)) {
+                    foreach ($hashCheckKey in $hashCheckSet.Keys) {
+                        $hashCheck = $hashCheckSet[$hashCheckKey]
+                        $runbook.CheckSets[$hashCheckSetKey].Checks.Keys | Should -Contain $hashCheckKey
+
+                        if ($runbook.CheckSets[$hashCheckSetKey].Checks.ContainsKey($hashCheckKey)) {
+                            $runbookCheck = $runbook.CheckSets[$hashCheckSetKey].Checks[$hashCheckKey]
+
+                            $runbookCheck.SelectorName | Should -Be $hashCheck.selector
+                            $runbookCheck.Tags | Should -Be $hashCheck.tags
+                        }
+                    }
+                }
+            }
         }
     }
 }
