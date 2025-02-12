@@ -145,6 +145,32 @@ Describe "Build-RunbookQueries" {
             }
         }
     }
+    Context "When provided with an invalid runbook due to an undeclared selector" {
+        It "Should throw an error indicating so" {
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/undeclared_selector.json"
+            $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
+            $expError = "*references a selector that does not exist*"
+
+            $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
+            $recommendations = $recommendationFactory.ParseRecommendationsFile($recommendationsPath)
+
+            { Build-RunbookQueries -Runbook $runbook -Recommendations $recommendations } |
+            Should -Throw -ExpectedMessage $expError
+        }
+    }
+    Context "When provided with an invalid runbook due to an unknown recommendation" {
+        It "Should throw an error indicating so" {
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/unknown_recommendation.json"
+            $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
+            $expError = "*recommendation not found*"
+
+            $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
+            $recommendations = $recommendationFactory.ParseRecommendationsFile($recommendationsPath)
+
+            { Build-RunbookQueries -Runbook $runbook -Recommendations $recommendations } |
+            Should -Throw -ExpectedMessage $expError
+        }
+    }
 }
 
 Describe "Read-RunbookFile" {
