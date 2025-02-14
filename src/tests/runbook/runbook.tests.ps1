@@ -1,14 +1,14 @@
 using module ../../modules/wara/utils/utils.psd1
 
 BeforeAll {
-    $root = "$PSScriptRoot/.."
+    $rootPath = "$PSScriptRoot/.."
 
     $moduleUnderTest = @{
         Name  = "runbook"
         Paths = @{
-            Classes = "$root/../modules/wara/runbook/runbook.classes.ps1"
-            Module  = "$root/../modules/wara/runbook/runbook.psd1"
-            Data    = "$root/data/runbook"
+            Classes = "$rootPath/../modules/wara/runbook/runbook.classes.ps1"
+            Module  = "$rootPath/../modules/wara/runbook/runbook.psd1"
+            Data    = "$rootPath/data/runbook"
         }
     }
 
@@ -151,7 +151,7 @@ Describe "New-RunbookCheck" {
 Describe "New-Runbook" {
     Context "When provided with runbook JSON contents" {
         It "Should return a corresponding Runbook object" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
             $runbookFileContents = Get-Content -Path $runbookPath -Raw
             $runbookHash = $runbookFileContents | ConvertFrom-Json -AsHashtable
             $parsedRunbook = New-Runbook -FromJson $runbookFileContents
@@ -161,7 +161,7 @@ Describe "New-Runbook" {
     }
     Context "When provided with runbook JSON file path" {
         It "Should return a corresponding Runbook object" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
             $runbookHash = Get-Content -Path $runbookPath -Raw | ConvertFrom-Json -AsHashtable
             $parsedRunbook = New-Runbook -FromJsonFile $runbookPath
 
@@ -170,7 +170,7 @@ Describe "New-Runbook" {
     }
     Context "When provided with both runbook JSON contents and file path" {
         It "Should throw an error indicating that both parameters can not be used at the same time" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
             $runbookFileContents = Get-Content -Path $runbookPath -Raw
             $expError = "*Cannot specify both -FromJson and -FromJsonFile*"
 
@@ -198,7 +198,7 @@ Describe "New-Runbook" {
 Describe "Test-RunbookFile" {
     Context "When the file doesn't contain valid JSON" {
         It "Should throw an error indicating so" {
-            $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/not_a_json_file.txt"
+            $filePath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/not_a_json_file.txt"
             $expError = "*is not a valid JSON file*"
 
             { Test-RunbookFile -Path $filePath } |
@@ -207,7 +207,7 @@ Describe "Test-RunbookFile" {
     }
     Context "When the file doesn't adhere to the runbook JSON schema" {
         It "Should throw an error indicating so" {
-            $filepath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/invalid_schema.json"
+            $filepath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/invalid_schema.json"
             $expError = "*does not adhere to the runbook JSON schema*"
 
             { Test-RunbookFile -Path $filepath } |
@@ -216,7 +216,7 @@ Describe "Test-RunbookFile" {
     }
     Context "When there are no [selectors] defined" {
         It "Should throw an error indicating so" {
-            $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/no_checks_or_selectors.json"
+            $filePath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/no_checks_or_selectors.json"
             $expError = "*At least one (1) selector is required*"
 
             { Test-RunbookFile -Path $filePath } |
@@ -225,7 +225,7 @@ Describe "Test-RunbookFile" {
     }
     Context "When there are no [checks] defined" {
         It "Should throw an error indicating so" {
-            $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/no_checks_or_selectors.json"
+            $filePath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/no_checks_or_selectors.json"
             $expError = "*At least one (1) check set is required*"
 
             { Test-RunbookFile -Path $filePath } |
@@ -234,7 +234,7 @@ Describe "Test-RunbookFile" {
     }
     Context "When a check references an undeclared selector" {
         It "Should throw an error indicating so" {
-            $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/undeclared_selector.json"
+            $filePath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/undeclared_selector.json"
             $expError = "*references a selector that does not exist*"
 
             { Test-RunbookFile -Path $filePath } |
@@ -243,7 +243,7 @@ Describe "Test-RunbookFile" {
     }
     Context "When there's an invalid query path" {
         It "Should throw an error indicating so" {
-            $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/invalid_query_path.json"
+            $filePath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/invalid_query_path.json"
             $expError = "*does not exist or is not a directory*"
 
             { Test-RunbookFile -Path $filePath } |
@@ -255,7 +255,7 @@ Describe "Test-RunbookFile" {
 Describe "Invoke-RunbookQueryLoop" {
     Context "When provided with a valid runbook and corresponding recommendations" {
         It "Should run all checks defined in the runbook and return the results" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
             $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
             $queriesPath = "$($moduleUnderTest.Paths.Data)/runbook_queries.json"
             $queryResultsPath = "$($moduleUnderTest.Paths.Data)/runbook_query_results.json"
@@ -294,7 +294,7 @@ Describe "Invoke-RunbookQueryLoop" {
 Describe "Build-RunbookQueries" {
     Context "When provided with a valid runbook and corresponding recommendations" {
         It "Should build a query for each check defined in the runbook" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
             $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
             $queriesPath = "$($moduleUnderTest.Paths.Data)/runbook_queries.json"
 
@@ -318,7 +318,7 @@ Describe "Build-RunbookQueries" {
     }
     Context "When provided with an invalid runbook due to an undeclared selector" {
         It "Should throw an error indicating so" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/undeclared_selector.json"
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/undeclared_selector.json"
             $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
             $expError = "*references a selector that does not exist*"
 
@@ -331,7 +331,7 @@ Describe "Build-RunbookQueries" {
     }
     Context "When provided with an invalid runbook due to an unknown recommendation" {
         It "Should throw an error indicating so" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/unknown_recommendation.json"
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/unknown_recommendation.json"
             $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
             $expError = "*recommendation not found*"
 
@@ -347,7 +347,7 @@ Describe "Build-RunbookQueries" {
 Describe "Read-RunbookFile" {
     Context "When provided with a valid runbook file" {
         It "Should return a corresponding Runbook object" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
             $runbookHash = Get-Content -Path $runbookPath -Raw | ConvertFrom-Json -AsHashtable
             $parsedRunbook = Read-RunbookFile -Path $runbookPath
 
@@ -359,7 +359,7 @@ Describe "Read-RunbookFile" {
 Describe "Build-RunbookSelectorReview" {
     Context "When provided with a valid runbook" {
         It "Should list all selectors and corresponding selected resources" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
             $resourcesPath = "$($moduleUnderTest.Paths.Data)/selected_resources.json"
 
             $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
@@ -369,7 +369,17 @@ Describe "Build-RunbookSelectorReview" {
 
             $review = Build-RunbookSelectorReview -Runbook $runbook -SubscriptionIds $subscriptionIds
 
-            Write-Host ($review | ConvertTo-Json -Depth 15) -ForegroundColor Cyan
+            $review.Count | Should -Be $runbook.Selectors.Keys.Count
+
+            foreach ($selectorKey in $runbook.Selectors.Keys) {
+                $selectorResources = $resources | Where-Object { $_.selector -eq $selectorKey }
+
+                $selectorResources.Count | Should -Be $review[$selectorKey].Count
+
+                foreach ($resource in $selectorResources) {
+                    $review[$selectorKey] | Should -Contain $resource
+                }
+            }
         }
     }
 }

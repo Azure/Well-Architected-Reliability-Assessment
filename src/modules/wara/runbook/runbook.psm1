@@ -3,6 +3,7 @@ using module ../utils/utils.psd1
 # Load classes
 . "$PSScriptRoot/runbook.classes.ps1"
 
+
 function New-RecommendationFactory {
     return [RecommendationFactory]::new()
 }
