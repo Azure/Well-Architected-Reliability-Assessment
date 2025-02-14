@@ -11,6 +11,44 @@ function New-RunbookFactory {
     return [RunbookFactory]::new()
 }
 
+function New-Runbook {
+    param(
+        [Parameter(Mandatory = $false)]
+        [string] $FromJson,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateScript({ Test-FileExists -Path $_ })]
+        [string] $FromJsonFile
+    )
+
+    if ($FromJson -or $FromJsonFile) {
+        if ($FromJson -and $FromJsonFile) {
+            throw "Cannot specify both -FromJson and -FromJsonFile."
+        }
+        else {
+            $runbookFactory = New-RunbookFactory
+
+            if ($FromJson) {
+                return $runbookFactory.ParseRunbookContent($FromJson)
+            }
+            else {
+                return $runbookFactory.ParseRunbookFile($FromJsonFile)
+            }
+        }
+    }
+    else {
+        return [Runbook]::new()
+    }
+}
+
+function New-RunbookCheckSet {
+    return [RunbookCheckSet]::new()
+}
+
+function New-RunbookCheck {
+    return [RunbookCheck]::new()
+}
+
 function Invoke-RunbookQueryLoop {
     [CmdletBinding()]
     param (
@@ -186,15 +224,30 @@ function Build-RunbookSelectorReview {
         [Runbook] $Runbook,
 
         [Parameter(Mandatory = $false)]
-        [AllowEmptyCollection]
+        [AllowEmptyCollection()]
         [string[]] $SubscriptionIds
     )
 
     $selectorReview = [SelectorReview]::new()
 
+    $globalParameters = @{}
+
+    if ($Runbook.Parameters) {
+        foreach ($globalParameterKey in $Runbook.Parameters.Keys) {
+            $globalParameters[$globalParameterKey] = $Runbook.Parameters[$globalParameterKey].ToString()
+        }
+    }
+
+    if ($Runbook.Variables) {
+        foreach ($variableKey in $Runbook.Variables.Keys) {
+            $variableValue = $Runbook.Variables[$variableKey].ToString()
+            $globalParameters[$variableKey] = Merge-ParametersIntoString -Parameters $globalParameters -Into $variableValue
+        }
+    }
+
     for ($i = 0; $i -lt $Runbook.Selectors.Keys.Count; $i++) {
         $selectorKey = $Runbook.Selectors.Keys[$i]
-        $selector = $Runbook.Selectors[$selectorKey]
+        $selector = Merge-ParametersIntoString -Parameters $globalParameters -Into $Runbook.Selectors[$selectorKey]
         $pctComplete = ((($i + 1) / $Runbook.Selectors.Keys.Count) * 100)
 
         Write-Progress `
@@ -218,7 +271,7 @@ function Build-RunbookSelectorReview {
                 ResourceName      = $selectedResource.name
                 ResourceLocation  = $selectedResource.location
                 ResourceGroupName = $selectedResource.resourceGroup
-                ResourceTags      = $selectedResource.tags
+                # ResourceTags      = $selectedResource.tags
             }
         }
 

@@ -29,7 +29,6 @@ class RunbookQuery {
 }
 
 class RunbookCheck {
-    [string] $GroupingName
     [string] $SelectorName
 
     [hashtable] $Parameters = @{}
@@ -47,7 +46,6 @@ class Runbook {
     [hashtable] $Parameters = @{}
     [hashtable] $Variables = @{}
     [hashtable] $Selectors = @{}
-    [hashtable] $Groupings = @{}
     [hashtable] $CheckSets = @{}
 
     static [string] $Schema = @'
@@ -61,12 +59,6 @@ class Runbook {
     },
     "variables": {
       "type": "object"
-    },
-    "groupings": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      }
     },
     "selectors": {
       "type": "object",
@@ -87,9 +79,6 @@ class Runbook {
               "type": "object",
               "properties": {
                 "selector": {
-                  "type": "string"
-                },
-                "grouping": {
                   "type": "string"
                 },
                 "parameters": {
@@ -145,10 +134,6 @@ class Runbook {
                 if (-not $this.Selectors.ContainsKey($check.SelectorName)) {
                     $errors += "- [checks]: $checkTitle references a selector that does not exist: [$($check.SelectorName)]."
                 }
-
-                if ($check.GroupingName -and -not $this.Groupings.ContainsKey($check.GroupingName)) {
-                    $errors += "- [checks]: $checkTitle references a grouping that does not exist: [$($check.GroupingName)]."
-                }
             }
         }
 
@@ -166,7 +151,7 @@ class SelectedResourceSet {
     [string] $Selector
     [string] $ResourceGraphQuery
 
-    [SelectedResource[]] $Resources = @{}
+    [SelectedResource[]] $Resources = @()
 }
 
 class SelectedResource {
@@ -234,7 +219,6 @@ class RunbookFactory {
             Parameters = ($runbookHash.parameters ?? @{})
             Variables  = ($runbookHash.variables ?? @{})
             Selectors  = ($runbookHash.selectors ?? @{})
-            Groupings  = ($runbookHash.groupings ?? @{})
         }
 
         foreach ($checkSetKey in $runbookHash.checks.Keys) {
@@ -250,7 +234,6 @@ class RunbookFactory {
                         $check.SelectorName = $checkValue
                     }
                     "orderedhashtable" {
-                        $check.GroupingName = $checkValue.grouping
                         $check.SelectorName = $checkValue.selector
                         $check.Parameters = ($checkValue.parameters ?? @{})
                         $check.Tags = ($checkValue.tags ?? @())

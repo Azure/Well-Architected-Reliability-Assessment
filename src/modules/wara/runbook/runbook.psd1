@@ -74,6 +74,9 @@
     FunctionsToExport    = @(
         "New-RecommendationFactory",
         "New-RunbookFactory",
+        "New-Runbook",
+        "New-RunbookCheckSet",
+        "New-RunbookCheck",
         "Read-RunbookFile",
         "Test-RunbookFile",
         "Build-RunbookQueries",
