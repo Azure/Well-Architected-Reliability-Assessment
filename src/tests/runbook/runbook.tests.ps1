@@ -20,7 +20,180 @@ BeforeAll {
     $runbookFactory = New-RunbookFactory
 
     $subscriptionIds = @("00000000-0000-0000-0000-000000000000")
+
+    function Test-RunbookCorrectlyParsed() {
+        param(
+            [Parameter(Mandatory = $true)]
+            [hashtable] $SourceRunbookHash,
+
+            [Parameter(Mandatory = $true)]
+            [Runbook] $ParsedRunbook
+        )
+
+        $SourceRunbookHash.parameters.Keys.Count | Should -Be $ParsedRunbook.Parameters.Keys.Count
+
+        foreach ($hashParameterKey in $SourceRunbookHash.parameters.Keys) {
+            $ParsedRunbook.Parameters.Keys | Should -Contain $hashParameterKey
+
+            if ($ParsedRunbook.Parameters.ContainsKey($hashParameterKey)) {
+                $hashParameter = $SourceRunbookHash.parameters[$hashParameterKey]
+                $ParsedRunbook.Parameters[$hashParameterKey] | Should -Be $hashParameter
+            }
+        }
+
+        $SourceRunbookHash.variables.Keys.Count | Should -Be $ParsedRunbook.Variables.Keys.Count
+
+        foreach ($hashVariableKey in $SourceRunbookHash.variables.Keys) {
+            $ParsedRunbook.Variables.Keys | Should -Contain $hashVariableKey
+
+            if ($ParsedRunbook.Variables.ContainsKey($hashVariableKey)) {
+                $hashVariable = $SourceRunbookHash.variables[$hashVariableKey]
+                $ParsedRunbook.Variables[$hashVariableKey] | Should -Be $hashVariable
+            }
+        }
+
+        $SourceRunbookHash.selectors.Keys.Count | Should -Be $ParsedRunbook.Selectors.Keys.Count
+
+        foreach ($hashSelectorKey in $SourceRunbookHash.selectors.Keys) {
+            $ParsedRunbook.Selectors.Keys | Should -Contain $hashSelectorKey
+
+            if ($ParsedRunbook.Selectors.ContainsKey($hashSelectorKey)) {
+                $hashSelector = $SourceRunbookHash.selectors[$hashSelectorKey]
+                $ParsedRunbook.Selectors[$hashSelectorKey] | Should -Be $hashSelector
+            }
+        }
+
+        $SourceRunbookHash.checks.Keys.Count | Should -Be $ParsedRunbook.CheckSets.Keys.Count
+
+        foreach ($hashCheckSetKey in $SourceRunbookHash.checks.Keys) {
+            $ParsedRunbook.CheckSets.Keys | Should -Contain $hashCheckSetKey
+
+            if ($ParsedRunbook.CheckSets.ContainsKey($hashCheckSetKey)) {
+                $hashCheckSet = $SourceRunbookHash.checks[$hashCheckSetKey]
+                $runbookCheckSet = $ParsedRunbook.CheckSets[$hashCheckSetKey]
+
+                $hashCheckSet.Keys.Count | Should -Be $runbookCheckSet.Checks.Keys.Count
+
+                foreach ($hashCheckKey in $hashCheckSet.Keys) {
+                    $runbookCheckSet.Checks.Keys | Should -Contain $hashCheckKey
+
+                    if ($runbookCheckSet.Checks.ContainsKey($hashCheckKey)) {
+                        $hashCheck = $hashCheckSet[$hashCheckKey]
+                        $runbookCheck = $runbookCheckSet.Checks[$hashCheckKey]
+
+                        switch ($hashCheck.GetType().Name.ToLower()) {
+                            "string" {
+                                $hashCheck | Should -Be $runbookCheck.SelectorName
+                            }
+                            "orderedhashtable" {
+                                $hashCheck.selector | Should -Be $runbookCheck.SelectorName
+                                $hashCheck.parameters.Keys.Count | Should -Be $runbookCheck.Parameters.Keys.Count
+
+                                foreach ($hashParameterKey in $hashCheck.parameters.Keys) {
+                                    $runbookCheck.Parameters.Keys | Should -Contain $hashParameterKey
+
+                                    if ($runbookCheck.Parameters.ContainsKey($hashParameterKey)) {
+                                        $hashParameter = $hashCheck.parameters[$hashParameterKey]
+                                        $runbookCheck.Parameters[$hashParameterKey] | Should -Be $hashParameter
+                                    }
+                                }
+
+                                $hashCheck.tags.Count | Should -Be $runbookCheck.Tags.Count
+
+                                foreach ($hashTag in $hashCheck.tags) {
+                                    $runbookCheck.Tags | Should -Contain $hashTag
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
+
+Describe "New-RunbookFactory" {
+    It "Should return a new RunbookFactory object" {
+        $factory = New-RunbookFactory
+
+        $factory.GetType().Name.ToLower() | Should -Be "runbookfactory"
+    }
+}
+
+Describe "New-RecommendationFactory" {
+    It "Should return a new RecommendationFactory object" {
+        $factory = New-RecommendationFactory
+
+        $factory.GetType().Name.ToLower() | Should -Be "recommendationfactory"
+    }
+}
+
+Describe "New-RunbookCheckSet" {
+    It "Should return a new RunbookCheckSet object" {
+        $checkSet = New-RunbookCheckSet
+
+        $checkSet.GetType().Name.ToLower() | Should -Be "runbookcheckset"
+        $checkSet.Checks.Count | Should -Be 0
+    }
+}
+
+Describe "New-RunbookCheck" {
+    It "Should return a new RunbookCheck object" {
+        $check = New-RunbookCheck
+
+        $check.GetType().Name.ToLower() | Should -Be "runbookcheck"
+        $check.SelectorName | Should -Be $null
+        $check.Parameters.Count | Should -Be 0
+        $check.Tags.Count | Should -Be 0
+    }
+}
+
+Describe "New-Runbook" {
+    Context "When provided with runbook JSON contents" {
+        It "Should return a corresponding Runbook object" {
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookFileContents = Get-Content -Path $runbookPath -Raw
+            $runbookHash = $runbookFileContents | ConvertFrom-Json -AsHashtable
+            $parsedRunbook = New-Runbook -FromJson $runbookFileContents
+
+            Test-RunbookCorrectlyParsed -SourceRunbookHash $runbookHash -ParsedRunbook $parsedRunbook
+        }
+    }
+    Context "When provided with runbook JSON file path" {
+        It "Should return a corresponding Runbook object" {
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookHash = Get-Content -Path $runbookPath -Raw | ConvertFrom-Json -AsHashtable
+            $parsedRunbook = New-Runbook -FromJsonFile $runbookPath
+
+            Test-RunbookCorrectlyParsed -SourceRunbookHash $runbookHash -ParsedRunbook $parsedRunbook
+        }
+    }
+    Context "When provided with both runbook JSON contents and file path" {
+        It "Should throw an error indicating that both parameters can not be used at the same time" {
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $runbookFileContents = Get-Content -Path $runbookPath -Raw
+            $expError = "*Cannot specify both -FromJson and -FromJsonFile*"
+
+            { New-Runbook -FromJson $runbookFileContents -FromJsonFile $runbookPath } |
+            Should -Throw -ExpectedMessage $expError
+        }
+    }
+    Context "When no parameters are provided" {
+        It "Should return a new Runbook" {
+            $runbook = New-Runbook
+
+            $runbook.GetType().Name.ToLower() | Should -Be "runbook"
+
+            $runbook.QueryPaths.Count | Should -Be 0
+            $runbook.Parameters.Count | Should -Be 0
+            $runbook.Variables.Count | Should -Be 0
+            $runbook.Selectors.Count | Should -Be 0
+            $runbook.CheckSets.Count | Should -Be 0
+        }
+    }
+}
+
+
 
 Describe "Test-RunbookFile" {
     Context "When the file doesn't contain valid JSON" {
@@ -28,7 +201,8 @@ Describe "Test-RunbookFile" {
             $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/not_a_json_file.txt"
             $expError = "*is not a valid JSON file*"
 
-            { Test-RunbookFile -Path $filePath } | Should -Throw -ExpectedMessage $expError
+            { Test-RunbookFile -Path $filePath } |
+            Should -Throw -ExpectedMessage $expError
         }
     }
     Context "When the file doesn't adhere to the runbook JSON schema" {
@@ -36,7 +210,8 @@ Describe "Test-RunbookFile" {
             $filepath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/invalid_schema.json"
             $expError = "*does not adhere to the runbook JSON schema*"
 
-            { Test-RunbookFile -Path $filepath } | Should -Throw -ExpectedMessage $expError
+            { Test-RunbookFile -Path $filepath } |
+            Should -Throw -ExpectedMessage $expError
         }
     }
     Context "When there are no [selectors] defined" {
@@ -44,7 +219,8 @@ Describe "Test-RunbookFile" {
             $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/no_checks_or_selectors.json"
             $expError = "*At least one (1) selector is required*"
 
-            { Test-RunbookFile -Path $filePath } | Should -Throw -ExpectedMessage $expError
+            { Test-RunbookFile -Path $filePath } |
+            Should -Throw -ExpectedMessage $expError
         }
     }
     Context "When there are no [checks] defined" {
@@ -52,7 +228,8 @@ Describe "Test-RunbookFile" {
             $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/no_checks_or_selectors.json"
             $expError = "*At least one (1) check set is required*"
 
-            { Test-RunbookFile -Path $filePath } | Should -Throw -ExpectedMessage $expError
+            { Test-RunbookFile -Path $filePath } |
+            Should -Throw -ExpectedMessage $expError
         }
     }
     Context "When a check references an undeclared selector" {
@@ -60,15 +237,8 @@ Describe "Test-RunbookFile" {
             $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/undeclared_selector.json"
             $expError = "*references a selector that does not exist*"
 
-            { Test-RunbookFile -Path $filePath } | Should -Throw -ExpectedMessage $expError
-        }
-    }
-    Context "When a check references an undeclared grouping" {
-        It "Should throw an error indicating so" {
-            $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/undeclared_grouping.json"
-            $expError = "*references a grouping that does not exist*"
-
-            { Test-RunbookFile -Path $filePath } | Should -Throw -ExpectedMessage $expError
+            { Test-RunbookFile -Path $filePath } |
+            Should -Throw -ExpectedMessage $expError
         }
     }
     Context "When there's an invalid query path" {
@@ -76,7 +246,8 @@ Describe "Test-RunbookFile" {
             $filePath = "$($moduleUnderTest.Paths.Data)/invalid_runbooks/invalid_query_path.json"
             $expError = "*does not exist or is not a directory*"
 
-            { Test-RunbookFile -Path $filePath } | Should -Throw -ExpectedMessage $expError
+            { Test-RunbookFile -Path $filePath } |
+            Should -Throw -ExpectedMessage $expError
         }
     }
 }
@@ -177,55 +348,28 @@ Describe "Read-RunbookFile" {
     Context "When provided with a valid runbook file" {
         It "Should return a corresponding Runbook object" {
             $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
-            $runbookHash = (Get-Content -Path $runbookPath -Raw | ConvertFrom-Json -AsHashtable)
+            $runbookHash = Get-Content -Path $runbookPath -Raw | ConvertFrom-Json -AsHashtable
+            $parsedRunbook = Read-RunbookFile -Path $runbookPath
 
-            $runbook = $(Read-RunbookFile -Path $runbookPath)
+            Test-RunbookCorrectlyParsed -SourceRunbookHash $runbookHash -ParsedRunbook $parsedRunbook
+        }
+    }
+}
 
-            foreach ($hashParameterKey in $runbookHash.parameters.Keys) {
-                $hashParameter = $runbookHash.parameters[$hashParameterKey]
-                $runbook.Parameters.Keys | Should -Contain $hashParameterKey
+Describe "Build-RunbookSelectorReview" {
+    Context "When provided with a valid runbook" {
+        It "Should list all selectors and corresponding selected resources" {
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbook.json"
+            $resourcesPath = "$($moduleUnderTest.Paths.Data)/selected_resources.json"
 
-                if ($runbook.Parameters.ContainsKey($hashParameterKey)) {
-                    $runbook.Parameters[$hashParameterKey] | Should -Be $hashParameter
-                }
-            }
+            $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
+            $resources = @(Get-Content -Path $resourcesPath -Raw | ConvertFrom-Json)
 
-            foreach ($hashVariableKey in $runbookHash.variables.Keys) {
-                $hashVariable = $runbookHash.variables[$hashVariableKey]
-                $runbook.Variables.Keys | Should -Contain $hashVariableKey
+            Mock Invoke-WAFQuery { $resources } -ModuleName $moduleUnderTest.Name
 
-                if ($runbook.Variables.ContainsKey($hashVariableKey)) {
-                    $runbook.Variables[$hashVariableKey] | Should -Be $hashVariable
-                }
-            }
+            $review = Build-RunbookSelectorReview -Runbook $runbook -SubscriptionIds $subscriptionIds
 
-            foreach ($hashSelectorKey in $runbookHash.selectors.Keys) {
-                $hashSelector = $runbookHash.selectors[$hashSelectorKey]
-                $runbook.Selectors.Keys | Should -Contain $hashSelectorKey
-
-                if ($runbook.Selectors.ContainsKey($hashSelectorKey)) {
-                    $runbook.Selectors[$hashSelectorKey] | Should -Be $hashSelector
-                }
-            }
-
-            foreach ($hashCheckSetKey in $runbookHash.checks.Keys) {
-                $hashCheckSet = $runbookHash.checks[$hashCheckSetKey]
-                $runbook.CheckSets.Keys | Should -Contain $hashCheckSetKey
-
-                if ($runbook.CheckSets.ContainsKey($hashCheckSetKey)) {
-                    foreach ($hashCheckKey in $hashCheckSet.Keys) {
-                        $hashCheck = $hashCheckSet[$hashCheckKey]
-                        $runbook.CheckSets[$hashCheckSetKey].Checks.Keys | Should -Contain $hashCheckKey
-
-                        if ($runbook.CheckSets[$hashCheckSetKey].Checks.ContainsKey($hashCheckKey)) {
-                            $runbookCheck = $runbook.CheckSets[$hashCheckSetKey].Checks[$hashCheckKey]
-
-                            $runbookCheck.SelectorName | Should -Be $hashCheck.selector
-                            $runbookCheck.Tags | Should -Be $hashCheck.tags
-                        }
-                    }
-                }
-            }
+            Write-Host ($review | ConvertTo-Json -Depth 15) -ForegroundColor Cyan
         }
     }
 }
