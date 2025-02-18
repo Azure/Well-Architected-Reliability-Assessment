@@ -1,3 +1,9 @@
+---
+external help file: wara-help.xml
+Module Name: wara
+online version: https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
+schema: 2.0.0
+---
 
 # Start-WARAAnalyzer
 
@@ -7,54 +13,29 @@ Well-Architected Reliability Assessment Script
 ## SYNTAX
 
 ```
-Start-WARAAnalyzer [-Debugging] [-Help] [[-CustomRecommendationsYAMLPath] <String>] [[-RepoUrl] <String>]
- [-JSONFile] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Start-WARAAnalyzer [[-RecommendationsUrl] <String>] [-JSONFile] <String> [[-ExpertAnalysisFile] <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The function \`Start-WARAAnalyzer\` will process the JSON file created by the \`Start-WARACollector\` function and will create the core WARA Action Plan Excel file.
+The function `Start-WARAAnalyzer` will process the JSON file created by the \`Start-WARACollector\` function and will create the core WARA Action Plan Excel file.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
+```Powershell
+Start-WARAAnalyzer -JSONFile 'C:\Temp\WARA_File_2024-04-01_10_01.json'
 ```
-Start-WARAAnalyzer -JSONFile 'C:\Temp\WARA_File_2024-04-01_10_01.json' -Debugging
+
+### EXAMPLE 2
+```Powershell
+Start-WARAAnalyzer -JSONFile 'C:\Temp\WARA_File_2024-04-01_10_01.json' -Debug
 ```
 
 ## PARAMETERS
 
-### -Debugging
-Switch to enable debugging mode.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Help
-Switch to display help information.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -CustomRecommendationsYAMLPath
-{{ Fill CustomRecommendationsYAMLPath Description }}
+### -RecommendationsUrl
+This is the URL to the JSON file that contains the recommendations. The default value is the URL to the recommendations object stored at https://azure.github.io/WARA-Build/objects/recommendations.json
 
 ```yaml
 Type: String
@@ -63,22 +44,7 @@ Aliases:
 
 Required: False
 Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -RepoUrl
-Specifies the git repository URL that contains APRL contents if you want to use custom APRL repository.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 2
-Default value: Https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
+Default value: Https://azure.github.io/WARA-Build/objects/recommendations.json
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -92,22 +58,22 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 3
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ProgressAction
-{{ Fill ProgressAction Description }}
+### -ExpertAnalysisFile
+This is the path to the ExpertAnalysisTemplate file. It is packaged with the module and generally you should not need to adjust this.
 
 ```yaml
-Type: ActionPreference
+Type: String
 Parameter Sets: (All)
-Aliases: proga
+Aliases:
 
 Required: False
-Position: Named
+Position: 3
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

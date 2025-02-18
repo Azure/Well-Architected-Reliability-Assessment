@@ -1,3 +1,9 @@
+---
+external help file: wara-help.xml
+Module Name: wara
+online version: https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
+schema: 2.0.0
+---
 
 # Start-WARAReport
 
@@ -7,7 +13,9 @@ Well-Architected Reliability Assessment Report Generator Function
 ## SYNTAX
 
 ```
-Start-WARAReport [-Help] [-Debugging] [[-CustomerName] <String>] [[-WorkloadName] <String>] [-ExpertAnalysisFile] <String> [<CommonParameters>]
+Start-WARAReport [-Help] [-includeLow] [[-CustomerName] <String>] [[-WorkloadName] <String>]
+ [-ExpertAnalysisFile] <String> [[-AssessmentFindingsFile] <String>] [[-PPTTemplateFile] <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -16,7 +24,7 @@ The function \`Start-WARAReport\` processes the Excel file created by the \`Star
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+```Powershell
 Start-WARAReport -ExpertAnalysisFile 'C:\WARA_Script\WARA Action Plan 2024-03-07_16_06.xlsx' -CustomerName 'ABC Customer' -WorkloadName 'SAP On Azure'
 ```
 
@@ -37,8 +45,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Debugging
-Switch to enable debugging mode.
+### -includeLow
+Option to also consider Low Impact recommendations.
 
 ```yaml
 Type: SwitchParameter
@@ -88,10 +96,40 @@ Path to the Excel file created by the "2_wara_data_analyzer" script.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: ExcelFile
 
 Required: True
 Position: 3
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AssessmentFindingsFile
+Path to the Assessment Findings file.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 4
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PPTTemplateFile
+Path to the PowerPoint template file.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 5
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
