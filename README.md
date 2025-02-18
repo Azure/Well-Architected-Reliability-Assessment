@@ -25,6 +25,10 @@ This repository holds scripts and automation built for the Well-Architected Reli
 
 ### Patch Notes
 
+- **Version 0.0.19**
+  - Added clipboard history check to temporarily resolve issue with Start-WARAReport failing due to legacy code that uses copy() paste() to duplicate tables in the PowerPoint report.
+    - If clipboard history is enabled on the machine, the Start-WARAReport cmdlet will throw an error and exit. This is a temporary workaround until the legacy code is updated to use the built-in duplicate() method for the slide in powerpoint.
+
 - **Version 0.0.18**
   - Fixes issue with Start-WARAAnalyzer creating an excel file that cannot be loaded into Start-WARAReport.
 
