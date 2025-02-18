@@ -595,7 +595,7 @@ function Build-RunbookSelectorReview {
                 ResourceName      = $selectedResource.name
                 ResourceLocation  = $selectedResource.location
                 ResourceGroupName = $selectedResource.resourceGroup
-                # ResourceTags      = $selectedResource.tags
+                ResourceTags      = $(ConvertTo-Json $selectedResource.tags | ConvertFrom-Json -AsHashtable)
             }
         }
 
