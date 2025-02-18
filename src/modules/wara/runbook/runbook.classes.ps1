@@ -97,65 +97,6 @@ class Runbook {
     [hashtable] $Selectors = @{}
     [hashtable] $CheckSets = @{}
 
-    static [string] $Schema = @'
-{
-  "title": "Runbook",
-  "description": "A well-architected reliability assessment (WARA) runbook",
-  "type": "object",
-  "properties": {
-    "parameters": {
-      "type": "object"
-    },
-    "variables": {
-      "type": "object"
-    },
-    "selectors": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      }
-    },
-    "checks": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "object",
-        "additionalProperties": {
-          "oneOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "object",
-              "properties": {
-                "selector": {
-                  "type": "string"
-                },
-                "parameters": {
-                  "type": "object"
-                },
-                "tags": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              },
-              "required": [
-                "selector"
-              ]
-            }
-          ]
-        }
-      }
-    }
-  },
-  "required": [
-    "selectors",
-    "checks"
-  ]
-}
-'@
-
     [void] Validate() {
         $errors = @()
 

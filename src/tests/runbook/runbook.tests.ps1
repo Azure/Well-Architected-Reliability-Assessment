@@ -112,6 +112,17 @@ BeforeAll {
     }
 }
 
+Describe "Get-RunbookSchema" {
+    It "Should return the runbook JSON schema" {
+        $schema = Get-RunbookSchema
+        $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
+        $runbookFileContents = Get-Content -Path $runbookPath -Raw
+
+        $schema | Should -Not -BeNullOrEmpty
+        $($runbookFileContents | Test-Json -Schema $schema) | Should -Be $true
+    }
+}
+
 Describe "New-RunbookFactory" {
     It "Should return a new RunbookFactory object" {
         $factory = New-RunbookFactory
@@ -165,7 +176,16 @@ Describe "New-Runbook" {
             $runbookHash = Get-Content -Path $runbookPath -Raw | ConvertFrom-Json -AsHashtable
             $parsedRunbook = New-Runbook -FromJsonFile $runbookPath
 
+            Mock Test-RunbookFile { $true } -ModuleName $moduleUnderTest.Name
+
             Test-RunbookCorrectlyParsed -SourceRunbookHash $runbookHash -ParsedRunbook $parsedRunbook
+        }
+    }
+    Context "When provided with invalid runobok JSON file path" {
+        It "Should throw an error indicating that the file is invalid" {
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/not_a_json_file.txt"
+
+            { New-Runbook -FromJsonFile $runbookPath } | Should -Throw
         }
     }
     Context "When provided with both runbook JSON contents and file path" {
