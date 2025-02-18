@@ -5,6 +5,83 @@ using module ../utils/utils.psd1
 
 <#
 .SYNOPSIS
+    Returns the JSON schema for a runbook.
+
+.DESCRIPTION
+    Provides the JSON schema that defines the structure of a Well-Architected Reliability
+    Assessment (WARA) runbook, including parameters, variables, selectors, and checks.
+
+.OUTPUTS
+    The JSON schema as a string.
+
+.EXAMPLE
+    $schema = Get-RunbookSchema
+
+    Retrieves the JSON schema for a runbook.
+#>
+function Get-RunbookSchema {
+    @"
+{
+  "title": "Runbook",
+  "description": "A well-architected reliability assessment (WARA) runbook",
+  "type": "object",
+  "properties": {
+    "parameters": {
+      "type": "object"
+    },
+    "variables": {
+      "type": "object"
+    },
+    "selectors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "selector": {
+                  "type": "string"
+                },
+                "parameters": {
+                  "type": "object"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "selector"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "selectors",
+    "checks"
+  ]
+}
+"@
+}
+
+<#
+.SYNOPSIS
     Creates a RecommendationFactory instance.
 
 .DESCRIPTION
@@ -94,7 +171,7 @@ function New-Runbook {
             if ($FromJson) {
                 return $runbookFactory.ParseRunbookContent($FromJson)
             }
-            else {
+            elseif ($(Test-RunbookFile -Path $FromJsonFile)) {
                 return $runbookFactory.ParseRunbookFile($FromJsonFile)
             }
         }
@@ -420,7 +497,7 @@ function Test-RunbookFile {
         throw "[$Path] is not a valid JSON file."
     }
 
-    if (-not ($fileContent | Test-Json -ErrorAction SilentlyContinue -Schema $([Runbook]::Schema))) {
+    if (-not ($fileContent | Test-Json -ErrorAction SilentlyContinue -Schema $(Get-RunbookSchema))) {
         throw "[$Path] does not adhere to the runbook JSON schema."
     }
 
