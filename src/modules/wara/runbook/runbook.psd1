@@ -79,6 +79,7 @@
         "New-RunbookCheckSet",
         "New-RunbookCheck",
         "Read-RunbookFile",
+        "Write-RunbookFile",
         "Test-RunbookFile",
         "Build-RunbookQueries",
         "Build-RunbookSelectorReview",

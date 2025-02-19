@@ -445,6 +445,28 @@ function Merge-ParametersIntoString {
     return $Into
 }
 
+<#
+.SYNOPSIS
+    Reads and parses a runbook file.
+
+.DESCRIPTION
+    Validates the existence of the specified runbook file and, if valid, parses it.
+
+.PARAMETER Path
+    The file path to the runbook JSON file.
+
+.OUTPUTS
+    Returns a parsed Runbook object if the file is valid.
+
+.EXAMPLE
+    $runbook = Read-RunbookFile -Path "C:\path\to\runbook.json"
+
+    Reads and parses the specified runbook file.
+
+.NOTES
+    - Uses Test-RunbookFile to validate the file before parsing.
+    - If the file is invalid, the function throws an error.
+#>
 function Read-RunbookFile {
     [CmdletBinding()]
     param (
@@ -457,6 +479,71 @@ function Read-RunbookFile {
         $runbookFactory = New-RunbookFactory
         return $runbookFactory.ParseRunbookFile($Path)
     }
+}
+
+<#
+.SYNOPSIS
+    Saves a Runbook object to a JSON file.
+
+.DESCRIPTION
+    Validates the given Runbook object and serializes it to a JSON file
+    at the specified path.
+
+.PARAMETER Runbook
+    The Runbook object to be saved.
+
+.PARAMETER Path
+    The file path where the Runbook JSON should be written.
+
+.EXAMPLE
+    Write-RunbookFile -Runbook $myRunbook -Path "C:\runbook.json"
+
+    Saves the provided Runbook object to "C:\runbook.json".
+
+.NOTES
+    - Ensures the Runbook is valid before saving.
+#>
+function Write-RunbookFile {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [Runbook] $Runbook,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Path
+    )
+
+    $Runbook.Validate()
+
+    $runbookFileContents = @{
+        query_paths = $Runbook.QueryPaths
+        parameters  = $Runbook.Parameters
+        variables   = $Runbook.Variables
+        selectors   = $Runbook.Selectors
+        checks      = @{}
+    }
+
+    foreach ($checkSetKey in $Runbook.CheckSets.Keys) {
+        $checkSet = $Runbook.CheckSets[$checkSetKey]
+        $checkSetContents = @{}
+
+        foreach ($checkKey in $checkSet.Checks.Keys) {
+            $check = $checkSet.Checks[$checkKey]
+
+            $checkContents = @{
+                parameters = ($check.Parameters ?? @{})
+                selector   = $check.SelectorName
+                tags       = ($check.Tags ?? @())
+            }
+
+            $checkSetContents[$checkKey] = $checkContents
+        }
+
+        $runbookFileContents.checks[$checkSetKey] = $checkSetContents
+    }
+
+    $runbookFileJson = $runbookFileContents | ConvertTo-Json -Depth 15
+    $runbookFileJson | Out-File -FilePath $Path -Force
 }
 
 <#
@@ -498,7 +585,7 @@ function Test-RunbookFile {
     }
 
     if (-not ($fileContent | Test-Json -ErrorAction SilentlyContinue -Schema $(Get-RunbookSchema))) {
-        throw "[$Path] does not adhere to the runbook JSON schema."
+        throw "[$Path] does not adhere to the runbook JSON schema. Run [Get-RunbookSchema] to get the schema."
     }
 
     $runbookFactory = New-RunbookFactory
