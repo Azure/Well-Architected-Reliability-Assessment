@@ -387,14 +387,15 @@ function Build-RunbookQueries {
                 }
 
                 if ($Runbook.Selectors.ContainsKey($check.SelectorName)) {
-                    $selector = Merge-ParametersIntoString -Parameters $checkParameters -Into $Runbook.Selectors[$check.SelectorName]
                     $query = Merge-ParametersIntoString -Parameters $checkParameters -Into $recommendation.Query
-                    $query = $($query -replace "\\\\\s*selector", "| where $selector")
 
                     foreach ($selectorKey in $Runbook.Selectors.Keys) {
                         $namedSelector = Merge-ParametersIntoString -Parameters $checkParameters -Into $Runbook.Selectors[$selectorKey]
                         $query = $($query -replace "\\\\\s*selector:$selectorKey", "| where $namedSelector")
                     }
+
+                    $selector = Merge-ParametersIntoString -Parameters $checkParameters -Into $Runbook.Selectors[$check.SelectorName]
+                    $query = $($query -replace "\\\\\s*selector", "| where $selector")
 
                     $queries += [RunbookQuery]@{
                         CheckSetName   = $checkSetKey
