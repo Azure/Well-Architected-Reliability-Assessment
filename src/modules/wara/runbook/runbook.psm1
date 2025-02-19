@@ -391,6 +391,11 @@ function Build-RunbookQueries {
                     $query = Merge-ParametersIntoString -Parameters $checkParameters -Into $recommendation.Query
                     $query = $($query -replace "\\\\\s*selector", "| where $selector")
 
+                    foreach ($selectorKey in $Runbook.Selectors.Keys) {
+                        $namedSelector = Merge-ParametersIntoString -Parameters $checkParameters -Into $Runbook.Selectors[$selectorKey]
+                        $query = $($query -replace "\\\\\s*selector:$selectorKey", "| where $namedSelector")
+                    }
+
                     $queries += [RunbookQuery]@{
                         CheckSetName   = $checkSetKey
                         CheckName      = $checkKey
