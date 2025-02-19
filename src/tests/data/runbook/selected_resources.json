@@ -1,0 +1,57 @@
+[
+  {
+    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/RG-Prod-01/providers/Microsoft.Compute/virtualMachines/VM-Web-01",
+    "type": "Microsoft.Compute/virtualMachines",
+    "location": "eastus",
+    "name": "VM-Web-01",
+    "resourceGroup": "RG-Prod-01",
+    "tags": {
+      "Environment": "Production",
+      "Owner": "IT-Operations"
+    }
+  },
+  {
+    "id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/RG-Dev-02/providers/Microsoft.Storage/storageAccounts/storagedev01",
+    "type": "Microsoft.Storage/storageAccounts",
+    "location": "westus",
+    "name": "storagedev01",
+    "resourceGroup": "RG-Dev-02",
+    "tags": {
+      "Environment": "Development",
+      "Department": "R&D"
+    }
+  },
+  {
+    "id": "/subscriptions/33333333-3333-3333-3333-333333333333/resourceGroups/RG-Test-03/providers/Microsoft.Network/virtualNetworks/vnet-test-01",
+    "type": "Microsoft.Network/virtualNetworks",
+    "location": "southeastasia",
+    "name": "vnet-test-01",
+    "resourceGroup": "RG-Test-03",
+    "tags": {
+      "Environment": "Testing",
+      "Project": "CloudMigration"
+    }
+  },
+  {
+    "id": "/subscriptions/44444444-4444-4444-4444-444444444444/resourceGroups/RG-Staging-04/providers/Microsoft.Web/sites/webapp-staging-01",
+    "type": "Microsoft.Web/sites",
+    "location": "westeurope",
+    "name": "webapp-staging-01",
+    "resourceGroup": "RG-Staging-04",
+    "tags": {
+      "Environment": "Staging",
+      "Owner": "WebTeam"
+    }
+  },
+  {
+    "id": "/subscriptions/55555555-5555-5555-5555-555555555555/resourceGroups/RG-Analytics-05/providers/Microsoft.Synapse/workspaces/synapse-analytics-01",
+    "type": "Microsoft.Synapse/workspaces",
+    "location": "centralus",
+    "name": "synapse-analytics-01",
+    "resourceGroup": "RG-Analytics-05",
+    "tags": {
+      "Department": "DataScience",
+      "Compliance": "HIPAA"
+    }
+  }
+]
