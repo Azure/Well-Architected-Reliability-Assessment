@@ -26,6 +26,18 @@ function Get-RunbookSchema {
   "description": "A well-architected reliability assessment (WARA) runbook",
   "type": "object",
   "properties": {
+    "query_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "query_overrides": {
+     "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "parameters": {
       "type": "object"
     },
