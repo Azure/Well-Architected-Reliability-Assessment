@@ -376,6 +376,39 @@ Describe "Read-RunbookFile" {
     }
 }
 
+Describe "Write-RunbookFile" {
+    BeforeEach {
+        $outputRunbookId = [guid]::NewGuid().ToString()
+        $outputPath = "$($moduleUnderTest.Paths.Data)/runbooks/test_$($outputRunbookId).json"
+    }
+
+    Context "When provided with a valid Runbook object" {
+        It "Should write the Runbook to a file" {
+            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
+            $runbook = Read-RunbookFile -Path $runbookPath
+
+            Write-RunbookFile -Runbook $runbook -Path $outputPath
+
+            $outputRunbook = Get-Content -Path $outputPath -Raw | ConvertFrom-Json -AsHashtable
+
+            Test-RunbookCorrectlyParsed -SourceRunbookHash $outputRunbook -ParsedRunbook $runbook
+        }
+    }
+    Context "When provided withan invalid Runbook object" {
+        It "Should throw an error indicating so" {
+            $runbook = New-Runbook # An empty runbook object is invalid
+
+            { Write-RunbookFile -Runbook $runbook -Path $outputPath } | Should -Throw
+        }
+    }
+
+    AfterEach {
+        if (Test-Path -PathType Leaf -Path $outputPath) {
+            Remove-Item -Path $outputPath -Force
+        }
+    }
+}
+
 Describe "Build-RunbookSelectorReview" {
     Context "When provided with a valid runbook" {
         It "Should list all selectors and corresponding selected resources" {
