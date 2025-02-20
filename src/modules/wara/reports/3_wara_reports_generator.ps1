@@ -51,9 +51,9 @@ if (-not $IsWindows) {
   }
 
 if (!$PPTTemplateFile) {
-  write-host ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
-  if ((Test-Path -Path ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx") -PathType Leaf) -eq $true) {
-    $PPTTemplateFile = ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
+  write-host ('./Mandatory - Executive Summary presentation - Template.pptx')
+  if ((Test-Path -Path ('./Mandatory - Executive Summary presentation - Template.pptx') -PathType Leaf) -eq $true) {
+    $PPTTemplateFile = ('./Mandatory - Executive Summary presentation - Template.pptx')
   }
   else {
     Write-Host "This script requires specific Microsoft PowerPoint template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
@@ -63,9 +63,9 @@ if (!$PPTTemplateFile) {
 }
 
 if (!$AssessmentFindingsFile) {
-  write-host ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
-  if ((Test-Path -Path ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx") -PathType Leaf) -eq $true) {
-    $AssessmentFindingsFile = ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
+  write-host ('./Assessment-Findings-Report-v1.xlsx')
+  if ((Test-Path -Path ('./Assessment-Findings-Report-v1.xlsx') -PathType Leaf) -eq $true) {
+    $AssessmentFindingsFile = ('./Assessment-Findings-Report-v1.xlsx')
   }
   else {
     Write-Host "This script requires specific Microsoft Excel template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
@@ -1174,8 +1174,8 @@ $TableStyle = 'Light19'
   foreach ($IExcel in $ImportExcel) {
     $IExcelPath = $IExcel.Path
     $IExcelVer = [string]$IExcel.Version
-    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Path: ' + $IExcelPath) 
-    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Version: ' + $IExcelVer) 
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Path: ' + $IExcelPath)
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Version: ' + $IExcelVer)
   }
 
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "10% Complete." -PercentComplete 10
@@ -1266,7 +1266,7 @@ $TableStyle = 'Light19'
       $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
     }
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.') 
+  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
   Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
 
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
