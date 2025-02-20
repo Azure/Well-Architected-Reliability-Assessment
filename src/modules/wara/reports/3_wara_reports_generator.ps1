@@ -39,7 +39,6 @@ Param(
   [string] $CustomerName,
   [string] $WorkloadName,
   [Parameter(mandatory = $true)]
-  [Alias('ExcelFile')]
   [string] $ExpertAnalysisFile,
   [string] $AssessmentFindingsFile,
   [string] $PPTTemplateFile
@@ -51,22 +50,12 @@ if (-not $IsWindows) {
   Exit
   }
 
-  # Check if Clipboard History is enabled
-$clipboardHistory = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Clipboard" -Name "EnableClipboardHistory" -ErrorAction SilentlyContinue
-
-if ($clipboardHistory.EnableClipboardHistory -eq 1) {
-    Throw "Clipboard History is enabled. Please disable Clipboard History before running this script."
-} else {
-    Write-Debug "Clipboard History is disabled."
-}
-
-# TODO: Remove if not needed
-<# $CurrentPath = Get-Location
-$CurrentPath = $CurrentPath.Path #>
+$CurrentPath = Get-Location
+$CurrentPath = $CurrentPath.Path
 if (!$PPTTemplateFile) {
-  write-host ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
-  if ((Test-Path -Path ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx") -PathType Leaf) -eq $true) {
-    $PPTTemplateFile = ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
+  write-host ('./Mandatory - Executive Summary presentation - Template.pptx')
+  if ((Test-Path -Path ('./Mandatory - Executive Summary presentation - Template.pptx') -PathType Leaf) -eq $true) {
+    $PPTTemplateFile = ('./Mandatory - Executive Summary presentation - Template.pptx')
   }
   else {
     Write-Host "This script requires specific Microsoft PowerPoint template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
@@ -76,9 +65,9 @@ if (!$PPTTemplateFile) {
 }
 
 if (!$AssessmentFindingsFile) {
-  write-host ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
-  if ((Test-Path -Path ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx") -PathType Leaf) -eq $true) {
-    $AssessmentFindingsFile = ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
+  write-host ('./Assessment-Findings-Report-v1.xlsx')
+  if ((Test-Path -Path ('./Assessment-Findings-Report-v1.xlsx') -PathType Leaf) -eq $true) {
+    $AssessmentFindingsFile = ('./Assessment-Findings-Report-v1.xlsx')
   }
   else {
     Write-Host "This script requires specific Microsoft Excel template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
@@ -113,7 +102,7 @@ $Runtime = Measure-Command -Expression {
 
     $ExcelContent = Import-Excel -Path $ExcelFile -WorksheetName '4.ImpactedResourcesAnalysis' -StartRow 12
 
-    if ( ($ExcelContent | Where-Object { $_.Impact -ne 'Low' -and $_.'REQUIRED ACTIONS / REVIEW STATUS' -ne 'Reviewed' -and ![String]::IsNullOrEmpty($_.'REQUIRED ACTIONS / REVIEW STATUS')}).count -ge 1)
+    if ( ($ExcelContent | Where-Object { $_.Impact -ne 'Low' -and $_.'REQUIRED ACTIONS / REVIEW STATUS' -ne 'Reviewed'}).count -ge 1)
       {
         Write-Host ""
         Write-Host "There are still some recommendations that need to be reviewed." -ForegroundColor Yellow
@@ -390,7 +379,6 @@ $Runtime = Measure-Command -Expression {
     $FirstSlide = 23
     $TableID = 6
     $CurrentSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
-    $CoreSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
 
     $TargetShape = ($CurrentSlide.Shapes | Where-Object { $_.Id -eq 41 })
     $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
@@ -428,24 +416,12 @@ $Runtime = Measure-Command -Expression {
       else {
         Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 23 - Adding new Slide..')
         $Counter = 1
-        $CustomLayout = $CurrentSlide.CustomLayout
+
+        $Presentation.slides[$FirstSlide].Duplicate() | Out-Null
+
         $FirstSlide ++
-        $Presentation.Slides.addSlide($FirstSlide, $customLayout) | Out-Null
 
         $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Copy()
-        Start-Sleep -Milliseconds 100
-        ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        $TableID = 3
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 41 }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
 
         Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 23 - Cleaning table of new slide..')
         $rowTemp = 2
@@ -487,7 +463,6 @@ $Runtime = Measure-Command -Expression {
     $FirstSlide = 24
     $TableID = 6
     $CurrentSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
-    $CoreSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
 
     $TargetShape = ($CurrentSlide.Shapes | Where-Object { $_.Id -eq 41 })
     $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
@@ -525,24 +500,12 @@ $Runtime = Measure-Command -Expression {
       else {
         Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 24 - Creating new slide..')
         $Counter = 1
-        $CustomLayout = $CurrentSlide.CustomLayout
+
+        $Presentation.slides[$FirstSlide].Duplicate() | Out-Null
+
         $FirstSlide ++
-        $Presentation.Slides.addSlide($FirstSlide, $customLayout) | Out-Null
 
         $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Copy()
-        Start-Sleep -Milliseconds 100
-        ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        $TableID = 3
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 41 }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
 
         Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 24 - Cleaning Table of new slide..')
         $rowTemp = 2
@@ -584,7 +547,6 @@ $Runtime = Measure-Command -Expression {
     $FirstSlide = 25
     $TableID = 6
     $CurrentSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
-    $CoreSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
 
     $TargetShape = ($CurrentSlide.Shapes | Where-Object { $_.Id -eq 41 })
     $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
@@ -622,24 +584,12 @@ $Runtime = Measure-Command -Expression {
       else {
         Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 25 - Creating new Slide..')
         $Counter = 1
-        $CustomLayout = $CurrentSlide.CustomLayout
+
+        $Presentation.slides[$FirstSlide].Duplicate() | Out-Null
+
         $FirstSlide ++
-        $Presentation.Slides.addSlide($FirstSlide, $customLayout) | Out-Null
 
         $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Copy()
-        Start-Sleep -Milliseconds 100
-        ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        $TableID = 3
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 41 }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
 
         Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 25 - Cleaning Table of new slide..')
         $rowTemp = 2
@@ -696,25 +646,13 @@ $Runtime = Measure-Command -Expression {
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $OutageName
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Text = "What happened:"
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = $Outage.'What happened'
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Copy()
-          Start-Sleep -Milliseconds 100
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(4).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(4).Text = "Impacted Service:"
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Copy()
-          Start-Sleep -Milliseconds 100
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Text = $OutageService
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(4).Copy()
-          Start-Sleep -Milliseconds 100
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(6).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(6).Text = "How can customers make incidents like this less impactful:"
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Copy()
-          Start-Sleep -Milliseconds 100
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(7).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(7).Text = $Outage.'How can customers make incidents like this less impactful'
 
           while (($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
@@ -729,63 +667,30 @@ $Runtime = Measure-Command -Expression {
           Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Adding Outage: ' + $OutageName)
 
           $OutageService = $Outage.'Impacted Service'
-          $CustomLayout = $SlidePlatformIssues.CustomLayout
-          $Presentation.Slides.addSlide($CurrentSlide, $customLayout) | Out-Null
+
+          $Presentation.slides[$CurrentSlide].Duplicate() | Out-Null
+
+          $CurrentSlide ++
 
           $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $CurrentSlide }
 
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 6 }).TextFrame.TextRange.Copy()
-          Start-Sleep -Milliseconds 100
+          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $OutageName
+          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Text = "What happened:"
+          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = $Outage.'What happened'
 
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(4).Text = "Impacted Service:"
 
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 4 }).Copy()
-          Start-Sleep -Milliseconds 100
+          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Text = $OutageService
 
-          $NextSlide.Shapes.Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(6).Text = "How can customers make incidents like this less impactful:"
 
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).Copy()
-          Start-Sleep -Milliseconds 100
+          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(7).Text = $Outage.'How can customers make incidents like this less impactful'
 
-          $NextSlide.Shapes.Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
-
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(1).Text = $OutageName
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(2).Text = "What happened:"
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(3).Text = $Outage.'What happened'
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(2).Copy()
-          Start-Sleep -Milliseconds 100
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(4).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(4).Text = "Impacted Service:"
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(3).Copy()
-          Start-Sleep -Milliseconds 100
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(5).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(5).Text = $OutageService
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(4).Copy()
-          Start-Sleep -Milliseconds 100
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(6).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(6).Text = "How can customers make incidents like this less impactful:"
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(5).Copy()
-          Start-Sleep -Milliseconds 100
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(7).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(7).Text = $Outage.'How can customers make incidents like this less impactful'
-
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 31 }).Copy()
-
-          $NextSlide.Shapes.Paste() | Out-Null
-
-          while (($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
-            ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(8).Delete()
+          while (($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
+            ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(8).Delete()
           }
         }
         $Loop ++
-        $CurrentSlide ++
       }
     }
   }
@@ -870,34 +775,14 @@ $Runtime = Measure-Command -Expression {
         else {
           if ($Loop -eq 1) {
             Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Adding new Slide..')
-            $CustomLayout = $SlideSupportRequests.CustomLayout
-            $Presentation.Slides.addSlide($CurrentSlide, $customLayout) | Out-Null
+            #$CustomLayout = $SlideSupportRequests.CustomLayout
+            #$Presentation.Slides.addSlide($CurrentSlide, $customLayout) | Out-Null
+
+            $Presentation.slides[$CurrentSlide].Duplicate() | Out-Null
+
+            $CurrentSlide ++
 
             $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $CurrentSlide }
-
-            ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 6 }).TextFrame.TextRange.Copy()
-            Start-Sleep -Milliseconds 200
-
-            ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
-
-            ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 4 }).Copy()
-            Start-Sleep -Milliseconds 200
-
-            $NextSlide.Shapes.Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
-
-            ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 2 }).Copy()
-            Start-Sleep -Milliseconds 200
-
-            $NextSlide.Shapes.Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
-
-            ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).Copy()
-            Start-Sleep -Milliseconds 200
-
-            $NextSlide.Shapes.Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
 
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(1).Text = $TicketName
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
@@ -943,7 +828,6 @@ $Runtime = Measure-Command -Expression {
             if ($Loop -eq 4) {
               $Loop = 1
               $Slide ++
-              $CurrentSlide ++
             }
             else {
               $Loop ++
@@ -1285,14 +1169,14 @@ $Runtime = Measure-Command -Expression {
   foreach ($IExcel in $ImportExcel) {
     $IExcelPath = $IExcel.Path
     $IExcelVer = [string]$IExcel.Version
-    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Path: ' + $IExcelPath)
-    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Version: ' + $IExcelVer)
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Path: ' + $IExcelPath) 
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Version: ' + $IExcelVer) 
   }
 
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "10% Complete." -PercentComplete 10
   Test-Requirement
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "15% Complete." -PercentComplete 15
-  #Set-LocalFile
+  Set-LocalFile
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "20% Complete." -PercentComplete 20
 
   $ExcelImpactedResources = Get-ExcelImpactedResources -ExcelFile $CoreFile
@@ -1319,7 +1203,7 @@ $Runtime = Measure-Command -Expression {
   $PPTFinalFile = New-PPTFile -PPTTemplateFile $PPTTemplateFile
   Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
   Write-Host " and " -NoNewline
-  Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
+  Write-Host "Excel" -ForegroundColor DarkBlue -NoNewline
   Write-Host " "
   Write-Host "Editing " -NoNewline
   $NewAssessmentFindingsFile = New-AssessmentFindingsFile -AssessmentFindingsFile $AssessmentFindingsFile
@@ -1377,7 +1261,7 @@ $Runtime = Measure-Command -Expression {
       $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
     }
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
+  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.') 
   Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
 
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
