@@ -1103,7 +1103,9 @@ $Runtime = Measure-Command -Expression {
 
     $RecommendationsFormatted = @()
 
-    $GroupedResources = $ImpactedResources | Group-Object -Property 'Guid' | Sort-Object -Property 'Count' -Descending
+    $GroupedResources = $ImpactedResources.where({![String]::IsNullOrEmpty($_.Guid)}) | Group-Object -Property 'Guid' | Sort-Object -Property 'Count' -Descending
+
+    $CustomRecommendations = $ImpactedResources.where({[String]::IsNullOrEmpty($_.Guid)})
 
     ForEach ($Resource in $GroupedResources) {
 
@@ -1124,6 +1126,26 @@ $Runtime = Measure-Command -Expression {
       }
       $RecommendationsFormatted += $obj
     }
+
+    $CustomRecommendations.Foreach(
+        {
+            $obj = @{
+                'Impact' = $_.Impact;
+                'Description' = $_.'Recommendation Title'
+                'Potential Benefit' = $_.'Potential Benefit';
+                'Impacted Resources' = 0;
+                'Resource Type' = $_.'Resource Type';
+                'Recommendation Control' = $_.'Recommendation Control';
+                'Long Description' = $_.'Long Description';
+                'Category' = $_.Category;
+                'Learn More Link' = $_.'Learn More Link';
+                'Guid' = $_.Guid;
+                'Notes' = $_.Notes;
+            }
+            $RecommendationsFormatted += $obj
+        }
+    )
+
 
     # Returns the array with all the recommendations already formatted to be exported to Excel
     return $RecommendationsFormatted
