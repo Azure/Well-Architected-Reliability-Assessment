@@ -44,7 +44,7 @@ Aliases:
 
 Required: False
 Position: 1
-Default value: Https://azure.github.io/WARA-Build/objects/recommendations.json
+Default value: https://azure.github.io/WARA-Build/objects/recommendations.json
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

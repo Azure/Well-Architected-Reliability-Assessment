@@ -237,7 +237,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: Https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv
+Default value: https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
