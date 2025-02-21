@@ -212,7 +212,7 @@ Accept wildcard characters: False
 
 ### -RecommendationDataUri
 URI for the recommendation data.
-Default is 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json'.
+Default is 'https://azure.github.io/WARA-Build/objects/recommendations.json'.
 
 ```yaml
 Type: String
@@ -221,7 +221,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: Https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json
+Default value: https://azure.github.io/WARA-Build/objects/recommendations.json
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
