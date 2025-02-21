@@ -197,6 +197,7 @@ Accept wildcard characters: False
 ### -ConfigFile
 Path to the configuration file.
 This parameter is mandatory for the ConfigFileSet parameter set and validated using Test-Path.
+See config file example [here](configfile.example).
 
 ```yaml
 Type: String
