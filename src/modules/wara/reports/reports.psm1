@@ -31,32 +31,35 @@ https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 #>
 function Start-WARAReport {
     [CmdletBinding()]
-    Param(
-    [switch] $Help,
-    #[switch] $csvExport,
-    [switch] $includeLow,
-    [string] $CustomerName,
-    [string] $WorkloadName,
-    [Parameter(mandatory = $true)]
-    [Alias('ExcelFile')]
-    [string] $ExpertAnalysisFile,
-    [string] $AssessmentFindingsFile,
-    [string] $PPTTemplateFile
+    param (
+        [switch] $Help,
+        #[switch] $csvExport,
+        [switch] $includeLow,
+        [string] $CustomerName,
+        [string] $WorkloadName,
+        [Parameter(mandatory = $true)]
+        [Alias('ExcelFile')]
+        [string] $ExpertAnalysisFile,
+        [string] $AssessmentFindingsFile,
+        [string] $PPTTemplateFile
     )
 
-    Write-host "Checking Version.." -ForegroundColor Cyan
-    $LocalVersion = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+    Write-Host 'Checking Version..' -ForegroundColor Cyan
+    $LocalVersion = (Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
     $GalleryVersion = (Find-Module -Name $MyInvocation.MyCommand.ModuleName).Version
 
-    if($LocalVersion -lt $GalleryVersion){
-        Write-Host "A newer version of the module is available. Please update the module to the latest version and re-run the command." -ForegroundColor Cyan -
-        Write-host "You can update by running 'Update-Module -Name $($MyInvocation.MyCommand.ModuleName)'" -ForegroundColor Cyan
-        Write-Host "Local Install Version: $LocalVersion" -ForegroundColor Yellow
-        Write-Host "PowerShell Gallery Version: $GalleryVersion" -ForegroundColor Green
+    if ($LocalVersion -lt $GalleryVersion) {
+        Write-Host "A newer version of the module is available. Please update the module to the latest version and re-run the command." -ForegroundColor Cyan
+        Write-Host "  1. Run 'Update-Module -Name $($MyInvocation.MyCommand.ModuleName)' to update the module to the latest version." -ForegroundColor Cyan
+        Write-Host "  2. Start a new PowerShell session. (Open a new PowerShell window/tab)" -ForegroundColor Cyan
+        Write-Host "  3. Re-run the command:" -ForegroundColor Cyan
+        Write-Host "     $($MyInvocation.Statement)" -ForegroundColor Cyan
+        Write-Host "Local Install Version            : $LocalVersion" -ForegroundColor Yellow
+        Write-Host "PowerShell Gallery Latest Version: $GalleryVersion" -ForegroundColor Green
         throw 'Module is out of date.'
     }
 
-    Write-host Wrapping Report Generator -ForegroundColor Cyan
+    Write-Host 'Wrapping Report Generator' -ForegroundColor Cyan
     & "$PSScriptRoot/3_wara_reports_generator.ps1" @PSBoundParameters
     Write-Host Report Generator Complete -ForegroundColor Cyan
-    }
+}
