@@ -136,8 +136,8 @@ function Start-WARACollector {
     )
 
     # Check for module updates and throw an error if the module is out of date.
-    Write-host "Checking Version.." -ForegroundColor Cyan
-    $LocalVersion = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+    Write-Host 'Checking Version..' -ForegroundColor Cyan
+    $LocalVersion = (Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
     $GalleryVersion = (Find-Module -Name $MyInvocation.MyCommand.ModuleName).Version
 
     if ($LocalVersion -lt $GalleryVersion) {

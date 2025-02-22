@@ -22,8 +22,7 @@ https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 #>
 function Start-WARAAnalyzer {
     [CmdletBinding()]
-    param
-    (
+    param (
         [ValidatePattern('^https:\/\/.+$')]
         [string] $RecommendationsUrl = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
         [Parameter(mandatory = $true)]
@@ -31,12 +30,11 @@ function Start-WARAAnalyzer {
         [string] $ExpertAnalysisFile
     )
 
-
-    Write-host "Checking Version.." -ForegroundColor Cyan
-    $LocalVersion = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+    Write-Host 'Checking Version..' -ForegroundColor Cyan
+    $LocalVersion = (Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
     $GalleryVersion = (Find-Module -Name $MyInvocation.MyCommand.ModuleName).Version
 
-    if($LocalVersion -lt $GalleryVersion){
+    if ($LocalVersion -lt $GalleryVersion) {
         Write-Host "A newer version of the module is available. Please update the module to the latest version and re-run the command." -ForegroundColor Cyan
         Write-Host "  1. Run 'Update-Module -Name $($MyInvocation.MyCommand.ModuleName)' to update the module to the latest version." -ForegroundColor Cyan
         Write-Host "  2. Start a new PowerShell session. (Open a new PowerShell window/tab)" -ForegroundColor Cyan
@@ -47,8 +45,7 @@ function Start-WARAAnalyzer {
         throw 'Module is out of date.'
     }
 
-    Write-host Wrapping Analyzer -ForegroundColor Cyan
+    Write-Host 'Wrapping Analyzer' -ForegroundColor Cyan
     & "$PSScriptRoot/2_wara_data_analyzer.ps1" @PSBoundParameters
     Write-Host Analyzer Complete -ForegroundColor Cyan
-    }
-
+}
