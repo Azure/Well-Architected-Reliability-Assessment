@@ -24,7 +24,7 @@ function Start-WARAAnalyzer {
     [CmdletBinding()]
     param (
         [ValidatePattern('^https:\/\/.+$')]
-        [string] $RecommendationsUrl = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
+        [string] $RecommendationDataUri = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
         [Parameter(mandatory = $true)]
         [string] $JSONFile,
         [string] $ExpertAnalysisFile
