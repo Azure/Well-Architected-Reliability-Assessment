@@ -81,6 +81,7 @@
         'Test-WAFResourceGroupId',
         'Test-WAFSubscriptionId',
         'Test-WAFIsGuid',
+        'Test-FileExists',
         'Repair-WAFSubscriptionId'
     )
 

@@ -1,0 +1,12 @@
+{
+  "selectors": {
+    "declared_selector": "(true)"
+  },
+  "checks": {
+    "11111111-1111-1111-1111-111111111111": {
+      "some_check": {
+        "selector": "undeclared_selector"
+      }
+    }
+  }
+}
