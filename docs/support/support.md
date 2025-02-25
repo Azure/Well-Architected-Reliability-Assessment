@@ -7,13 +7,17 @@ Locale: en-US
 ---
 
 # support Module
+
 ## Description
+
 Contains functions related to the capturing and collecting of data pertaining to Azure support tickets.
 
 ## support Cmdlets
 
 ### [Get-WAFSupportTicket](Get-WAFSupportTicket.md)
-Gets support ticket data from Azure.
+
+Retrieves recent service tickets for a given Azure subscription.
 
 ### [New-WAFSupportTicketObject](New-WAFSupportTicketObject.md)
-Creates a support ticket object.
+
+Creates a service ticket object.

@@ -8,32 +8,34 @@ schema: 2.0.0
 # New-WAFSupportTicketObject
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+
+Creates a service ticket object.
 
 ## SYNTAX
 
-```
+```powershell
 New-WAFSupportTicketObject [-SupportTicketId] <String> [-Severity] <String> [-Status] <String>
  [-SupportPlanType] <String> [-CreatedDate] <DateTime> [-ModifiedDate] <DateTime> [-Title] <String>
  [-TechnicalTicketDetailsResourceId] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+
+The New-WAFSupportTicketObject function creates a service ticket based on the specified parameters.
 
 ## EXAMPLES
 
 ### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
-```
 
-{{ Add example description here }}
+```powershell
+PS> $serviceTiketObject = New-WAFSupportTicketObject -SupportTicketId '0123456789012345' -Severity 'Moderate' -Status 'Open' -SupportPlanType 'Unified Enterprise' -CreatedDate $createdDate -ModifiedDate $modifiedDate -Title $title -TechnicalTicketDetailsResourceId $resourceId
+```
 
 ## PARAMETERS
 
 ### -SupportTicketId
-{{ Fill SupportTicketId Description }}
+
+The ID of the support ticket. It's usually sixteen digits of number.
 
 ```yaml
 Type: String
@@ -48,7 +50,8 @@ Accept wildcard characters: False
 ```
 
 ### -Severity
-{{ Fill Severity Description }}
+
+The severity of the support ticket such as Minimal, Moderate, etc.
 
 ```yaml
 Type: String
@@ -63,7 +66,8 @@ Accept wildcard characters: False
 ```
 
 ### -Status
-{{ Fill Status Description }}
+
+The status of the support ticket. It's usually Open or Closed.
 
 ```yaml
 Type: String
@@ -78,7 +82,8 @@ Accept wildcard characters: False
 ```
 
 ### -SupportPlanType
-{{ Fill SupportPlanType Description }}
+
+The support plan type of the support ticket such as Unified Enterprise, etc.
 
 ```yaml
 Type: String
@@ -93,7 +98,8 @@ Accept wildcard characters: False
 ```
 
 ### -CreatedDate
-{{ Fill CreatedDate Description }}
+
+The created date of the support ticket.
 
 ```yaml
 Type: DateTime
@@ -108,7 +114,8 @@ Accept wildcard characters: False
 ```
 
 ### -ModifiedDate
-{{ Fill ModifiedDate Description }}
+
+The modified date of the support ticket.
 
 ```yaml
 Type: DateTime
@@ -123,7 +130,8 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-{{ Fill Title Description }}
+
+The title of the support ticket.
 
 ```yaml
 Type: String
@@ -138,7 +146,8 @@ Accept wildcard characters: False
 ```
 
 ### -TechnicalTicketDetailsResourceId
-{{ Fill TechnicalTicketDetailsResourceId Description }}
+
+The resource ID of the related Azure resource to the support ticket if it's available.
 
 ```yaml
 Type: String
@@ -152,30 +161,19 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ProgressAction
-{{ Fill ProgressAction Description }}
-
-```yaml
-Type: ActionPreference
-Parameter Sets: (All)
-Aliases: proga
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-### None
 ## OUTPUTS
 
-### System.Management.Automation.PSObject
+Returns a SupportTicketObject as a PSCustomObject.
+
 ## NOTES
+
+Author: Takeshi Katano
+Date: 2024-11-08
 
 ## RELATED LINKS

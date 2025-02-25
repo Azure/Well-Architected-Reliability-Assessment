@@ -7,13 +7,17 @@ Locale: en-US
 ---
 
 # retirement Module
+
 ## Description
+
 Contains functions related to the capturing and collecting of data pertaining to resource retirements.
 
 ## retirement Cmdlets
 
 ### [Get-WAFResourceRetirement](Get-WAFResourceRetirement.md)
+
 Retrieves active retirement health advisory events based on the specified subscription ID.
 
 ### [New-WAFResourceRetirementObject](New-WAFResourceRetirementObject.md)
+
 Creates a retirement object.

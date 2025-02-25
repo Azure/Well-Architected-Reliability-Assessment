@@ -8,30 +8,34 @@ schema: 2.0.0
 # Get-WAFSupportTicket
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+
+Retrieves recent service tickets for a given Azure subscription.
 
 ## SYNTAX
 
-```
+```powershell
 Get-WAFSupportTicket [-SubscriptionIds] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+
+The Get-WAFSupportTicket function queries the Azure Resource Graph to retrieve recent service tickets for a specified Azure subscription. It filters the service tickets to include only those that have created in the last three months.
 
 ## EXAMPLES
 
 ### Example 1
+
 ```powershell
-PS C:\> {{ Add example code here }}
+PS> $serviceTiketObjects = Get-WAFSupportTicket -SubscriptionIds '11111111-1111-1111-1111-111111111111'
 ```
 
-{{ Add example description here }}
+This example retrieves the recent service tickets for the specified Azure subscription.
 
 ## PARAMETERS
 
 ### -SubscriptionIds
-{{ Fill SubscriptionIds Description }}
+
+The subscription ID for the Azure subscription to retrieve service tickets.
 
 ```yaml
 Type: String[]
@@ -45,22 +49,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ProgressAction
-{{ Fill ProgressAction Description }}
-
-```yaml
-Type: ActionPreference
-Parameter Sets: (All)
-Aliases: proga
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -69,7 +59,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### System.Object
+Returns a list of service tickets, including the name and properties of each tickets.
+
 ## NOTES
+
+Author: Takeshi Katano
+Date: 2024-11-08
 
 ## RELATED LINKS
