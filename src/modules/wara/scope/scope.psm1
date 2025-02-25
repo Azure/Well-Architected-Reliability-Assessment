@@ -3,7 +3,7 @@
     Retrieves filtered lists of Azure resources based on provided subscription, resource group, and resource filters.
 
 .DESCRIPTION
-    This module contains functions to filter Azure resources by subscription, resource group, and resource IDs. 
+    This module contains functions to filter Azure resources by subscription, resource group, and resource IDs.
     It includes the following functions:
     - Get-WAFResourceGroupsByList
     - Get-WAFSubscriptionsByList
@@ -307,9 +307,9 @@ function Get-WAFFilteredResourceList {
     $ResourceFilteredResources = @()
     $ResourceFilters ? $($ResourceFilteredResources = Get-WAFResourcesByList -ObjectList $UnfilteredResources -FilterList $ResourceFilters -KeyColumn $KeyColumn) : $(Write-Debug 'Resource Filters not provided.')
 
-    # Originally used to remove duplicates but there was some weird interaction with the return object that caused it to duplicate the entire array. 
     $FilteredResources = @()
-    $FilteredResources += $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources | Select-Object -Property * -Unique
+
+    $FilteredResources += $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources | Sort-Object | Get-Unique -CaseInsensitive -AsString
 
     return ,$FilteredResources
 }
