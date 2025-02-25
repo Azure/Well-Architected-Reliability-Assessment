@@ -92,9 +92,6 @@ if (!$WorkloadName) {
 
 $TableStyle = 'Light19'
 
-$Runtime = Measure-Command -Expression {
-
-
   ######################## REGULAR Functions ##########################
 
   function Test-ReviewedRecommendations {
@@ -1135,6 +1132,9 @@ $Runtime = Measure-Command -Expression {
 
   }
 
+  # Start the stopwatch to time the script
+  $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
   #Call the functions
   $Version = "2.1.5"
   Write-Host "Version: " -NoNewline
@@ -1250,17 +1250,16 @@ $Runtime = Measure-Command -Expression {
   Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
 
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
-}
 
 Write-Progress -Id 1 -activity "Processing Office Apps" -Status "100% Complete." -Completed
-$TotalTime = $Runtime.Totalminutes.ToString('#######.##')
+
+$stopwatch.Stop()
 
 ################ Finishing
 
 Write-Host "---------------------------------------------------------------------"
 Write-Host ('Execution Complete. Total Runtime was: ') -NoNewline
-Write-Host $TotalTime -NoNewline -ForegroundColor Cyan
-Write-Host (' Minutes')
+Write-Host $stopwatch.Elapsed.toString('hh\:mm\:ss') -ForegroundColor Cyan
 Write-Host 'PowerPoint File Saved as: ' -NoNewline
 Write-Host $PPTFinalFile -ForegroundColor Cyan
 Write-Host 'Assessment Findings File Saved as: ' -NoNewline

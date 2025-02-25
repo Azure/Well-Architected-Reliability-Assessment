@@ -28,7 +28,7 @@ https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 
 Param(
 [ValidatePattern('^https:\/\/.+$')]
-[string] $RecommendationsUrl = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
+[string] $RecommendationDataUri = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
 [Parameter(mandatory = $true)]
 [string] $JSONFile,
 [string] $ExpertAnalysisFile
@@ -220,11 +220,10 @@ function Get-WARARecommendationList
 {
     Param(
         [Parameter(Mandatory = $true)]
-        [string]$RecommendationsUrl
+        [string]$RecommendationDataUri
     )
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Processing Recommendations from JSON file.')
 	# Get Recommendation Objects
-    $RecommendationDataUri = $RecommendationsUrl
     $RecommendationObject = Invoke-RestMethod $RecommendationDataUri
 
 	return $RecommendationObject
@@ -353,11 +352,11 @@ function Initialize-WARAImpactedResources
 		$ScriptDetails,
         [Parameter(mandatory = $true)]
         [AllowEmptyCollection()]
-        $RecommendationsUrl
+        $RecommendationDataUri
 	)
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting All Recommendations')
-	$RecommendationObject = Get-WARARecommendationList -RecommendationsUrl $RecommendationsUrl
+	$RecommendationObject = Get-WARARecommendationList -RecommendationDataUri $RecommendationDataUri
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from the standard Resources')
     $ResourceRecommendations = $RecommendationObject | Where-Object {[string]::IsNullOrEmpty($_.tags)}
@@ -1121,7 +1120,7 @@ $ExpertAnalysisTemplate = Open-ExcelPackage -Path $ExpertAnalysisFile
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAImpactedResources')
 # Creating the Array with the Impacted Resources to be added to the Excel file
-$ImpactedResources 	= Initialize-WARAImpactedResources -ImpactedResources $JSONContent.ImpactedResources -Advisory $JSONContent.Advisory -Retirements $JSONContent.Retirements -ScriptDetails $JSONContent.ScriptDetails -RecommendationsUrl $RecommendationsUrl
+$ImpactedResources 	= Initialize-WARAImpactedResources -ImpactedResources $JSONContent.ImpactedResources -Advisory $JSONContent.Advisory -Retirements $JSONContent.Retirements -ScriptDetails $JSONContent.ScriptDetails -RecommendationDataUri $RecommendationDataUri
 
 Write-Host $ImpactedResourcesSheetRef -NoNewline -ForegroundColor Green
 Write-Host ': ' -NoNewline
