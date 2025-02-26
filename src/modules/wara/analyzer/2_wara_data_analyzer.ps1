@@ -380,7 +380,7 @@ function Initialize-WARAImpactedResources
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from HPC')
 		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'HPC'}
 	}
-    if ($ScriptDetails.AI -eq 'True') {
+    if ($ScriptDetails.AI_GPT_RAG -eq 'True') {
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from AI-GPT-RAG')
 		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'AI-GPT-RAG'}
 	}
