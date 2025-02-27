@@ -92,6 +92,11 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
+        [switch] $AI_GPT_RAG,
+
+        [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
+        [Parameter(ParameterSetName = 'ConfigFileSet')]
         [switch] $PassThru,
 
         [Parameter(ParameterSetName = 'Default')]
@@ -229,6 +234,10 @@ function Start-WARACollector {
     if ($HPC) {
         Write-Debug 'HPC switch is enabled'
         $SpecializedWorkloads += 'HPC'
+    }
+    if ($AI_GPT_RAG) {
+        Write-Debug 'AI_GPT_RAG switch is enabled'
+        $SpecializedWorkloads += 'AI-GPT-RAG'
     }
 
     if ($SpecializedWorkloads) {
@@ -505,6 +514,7 @@ function Start-WARACollector {
         AVD                            = [bool]$AVD
         AVS                            = [bool]$AVS
         HPC                            = [bool]$HPC
+        AI_GPT_RAG                     = [bool]$AI_GPT_RAG
         TenantId                       = $Scope_TenantId
         SubscriptionIds                = $Scope_SubscriptionIds
         ResourceGroups                 = $Scope_ResourceGroups
@@ -1074,7 +1084,8 @@ class validationResourceFactory {
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
-            default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
+            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
+            #default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }
         return $return
     }
@@ -1203,7 +1214,8 @@ class specializedResourceFactory {
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
-            default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
+            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually'}
+            #default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }
         return $return
     }

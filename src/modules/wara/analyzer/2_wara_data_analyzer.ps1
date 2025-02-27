@@ -380,7 +380,7 @@ function Initialize-WARAImpactedResources
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from HPC')
 		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'HPC'}
 	}
-    if ($ScriptDetails.AI -eq 'True') {
+    if ($ScriptDetails.AI_GPT_RAG -eq 'True') {
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from AI-GPT-RAG')
 		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'AI-GPT-RAG'}
 	}
@@ -393,6 +393,10 @@ function Initialize-WARAImpactedResources
 
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Recommendations After Filtering: ' + [string]$RecommendationContent.Count)
 
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Custom Recommendations')
+
+    $CustomImpactedResources = $ImpactedResources | Where-Object {[string]::IsNullOrEmpty($_.recommendationId)}
+
 	$tmp = @()
 
 	# First loop through the recommendations to get the impacted resources
@@ -404,7 +408,7 @@ function Initialize-WARAImpactedResources
 			# If the recommendation is not a Custom Recommendation, we need to validate if the resources are not already in the tmp array (from a previous loop of a Custom Recommendation)
 			if ([string]::IsNullOrEmpty($Resources) -and $Recom.aprlGuid -notin $tmp.Guid)
 			{
-				$Resources = $ImpactedResources| Where-Object {($_.recommendationId -eq $Recom.aprlGuid) }
+				$Resources = $ImpactedResources | Where-Object {($_.recommendationId -eq $Recom.aprlGuid) }
 			}
 
 			foreach ($Resource in $Resources)
@@ -461,7 +465,61 @@ function Initialize-WARAImpactedResources
 			}
 		}
 
-	# Second loop through the advisories to get the impacted resources
+    # 2nd loop through the custom impacted resources
+    foreach ($CustomImpacted in $CustomImpactedResources)
+        {
+            $ValidationMSG = switch ($Resource.validationAction) {
+                'IMPORTANT - Query under development - Validate Resources manually' {
+                    Get-WARAMessage -Message 'ImpactedResources_Unavailable'
+
+                }
+                'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' {
+                    Get-WARAMessage -Message 'ImpactedResources_Unavailable'
+
+                }
+                'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if Applicable, if not Delete this line' {
+                    Get-WARAMessage -Message 'ImpactedResources_Type'
+
+                }
+                'APRL - Queries' {
+                    'Reviewed'
+
+                }
+                default {
+                    'Error'
+                }
+            }
+
+            $ResObj = [ImpactedResourceObj]::new()
+                $ResObj.ValidationMSG = $ValidationMSG
+                $ResObj.ValidationCategory = 'Resource'
+                $ResObj.ResourceType = $CustomImpacted.type
+                $ResObj.SubscriptionId = $CustomImpacted.subscriptionId
+                $ResObj.ResourceGroup = $CustomImpacted.resourceGroup
+                $ResObj.Location = $CustomImpacted.location
+                $ResObj.Name = $CustomImpacted.name
+                $ResObj.Id = $CustomImpacted.id
+                $ResObj.Custom1 = $CustomImpacted.param1
+                $ResObj.Custom2 = $CustomImpacted.param2
+                $ResObj.Custom3 = $CustomImpacted.param3
+                $ResObj.Custom4 = $CustomImpacted.param4
+                $ResObj.Custom5 = $CustomImpacted.param5
+                $ResObj.RecommendationTitle = ''
+                $ResObj.Impact = ''
+                $ResObj.RecommendationControl = ''
+                $ResObj.PotentialBenefit = ''
+                $ResObj.LearnMoreLink = ''
+                $ResObj.LongDescription = ''
+                $ResObj.Guid = ''
+                $ResObj.Category = 'Azure Service'
+                $ResObj.Source = $CustomImpacted.selector
+                $ResObj.WAFPillar = 'Reliability'
+                $ResObj.CheckName = $CustomImpacted.checkName
+
+				$tmp += $ResObj
+        }
+
+	# 3rd loop through the advisories to get the impacted resources
 	$ADVMessage = "Reviewed"
 	foreach ($adv in $Advisory)
 		{
@@ -488,7 +546,7 @@ function Initialize-WARAImpactedResources
 				}
 		}
 
-	# Third loop through the retirements
+	# 4th loop through the retirements
 	$ServiceRetirementMSG = Get-WARAMessage -Message 'ImpactedResources_ServiceRetirement'
 	foreach ($Retirement in $Retirements)
 		{
@@ -526,7 +584,7 @@ function Initialize-WARAImpactedResources
 			}
 		}
 
-	# Fourth loop through the WAF recommendations
+	# 5th loop through the WAF recommendations
 	$WAFMSG = Get-WARAMessage -Message 'ImpactedResources_WAF'
 	foreach ($waf in $WAFRecommendations)
 		{
@@ -650,7 +708,10 @@ function Export-WARAImpactedResources
 
 
 
-    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A$($ImpactedResourcesFormatted.count)" -ValidationType List -ValueSet @('Pending','Reviewed') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)'
+    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A1048576" -ValidationType List -ValueSet @('Pending','Reviewed') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)' -NoBlank $true
+    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "O13:O1048576" -ValidationType List -ValueSet @('High','Medium','Low') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (High, Medium, or Low)' -NoBlank $true
+    Add-ExcelDataValidationRule -Worksheet $ExcelPackage.$ImpactedResourcesSheetRef -Range "G13:G1048576" -ValidationType TextLength -Operator greaterThan -Value 1 -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (more than 1 character)' -NoBlank $true
+
 
     $null = $ImpactedResourcesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $ImpactedResourcesSheet |
     Export-Excel -ExcelPackage $excelPackage -WorksheetName $ImpactedResourcesSheetRef -TableName 'impactedresources' -TableStyle $TableStyle -Style $Style -StartRow 12 -PassThru
