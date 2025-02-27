@@ -182,7 +182,7 @@ $TableStyle = 'Light19'
     $ExcelContent = Import-Excel -Path $ExcelFile -WorksheetName '4.ImpactedResourcesAnalysis' -StartRow 12
     #$ImpactedResources = $ExcelContent
 
-    return $ExcelContent
+    return $ExcelContent.where({![String]::IsNullOrEmpty($_."Resource Type")})
   }
 
   function Get-ExcelWorkloadInventory {
