@@ -380,7 +380,7 @@ function Initialize-WARAImpactedResources
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from HPC')
 		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'HPC'}
 	}
-    if ($ScriptDetails.AI -eq 'True') {
+    if ($ScriptDetails.AI_GPT_RAG -eq 'True') {
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from AI-GPT-RAG')
 		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'AI-GPT-RAG'}
 	}
@@ -650,7 +650,10 @@ function Export-WARAImpactedResources
 
 
 
-    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A$($ImpactedResourcesFormatted.count)" -ValidationType List -ValueSet @('Pending','Reviewed') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)'
+    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A1048576" -ValidationType List -ValueSet @('Pending','Reviewed') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)' -NoBlank $true
+    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "O13:O1048576" -ValidationType List -ValueSet @('High','Medium','Low') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (High, Medium, or Low)' -NoBlank $true
+    Add-ExcelDataValidationRule -Worksheet $ExcelPackage.$ImpactedResourcesSheetRef -Range "G13:G1048576" -ValidationType TextLength -Operator greaterThan -Value 1 -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (more than 1 character)' -NoBlank $true
+
 
     $null = $ImpactedResourcesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $ImpactedResourcesSheet |
     Export-Excel -ExcelPackage $excelPackage -WorksheetName $ImpactedResourcesSheetRef -TableName 'impactedresources' -TableStyle $TableStyle -Style $Style -StartRow 12 -PassThru
