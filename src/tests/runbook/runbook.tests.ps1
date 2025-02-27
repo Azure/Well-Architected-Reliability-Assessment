@@ -6,18 +6,12 @@ BeforeAll {
     $moduleUnderTest = @{
         Name  = "runbook"
         Paths = @{
-            Classes = "$rootPath/../modules/wara/runbook/runbook.classes.ps1"
-            Module  = "$rootPath/../modules/wara/runbook/runbook.psd1"
-            Data    = "$rootPath/data/runbook"
+            Module = "$rootPath/../modules/wara/runbook/runbook.psd1"
+            Data   = "$rootPath/data/runbook"
         }
     }
 
     Import-Module $moduleUnderTest.Paths.Module -Force
-
-    . $moduleUnderTest.Paths.Classes
-
-    $recommendationFactory = New-RecommendationFactory
-    $runbookFactory = New-RunbookFactory
 
     $subscriptionIds = @("00000000-0000-0000-0000-000000000000")
 
@@ -110,6 +104,55 @@ BeforeAll {
             }
         }
     }
+
+    function Read-RunbookRecommendationsFile {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string] $Path
+        )
+
+        $recommendations = @()
+        $sourceContents = Get-Content -Path $Path -Raw | ConvertFrom-Json
+
+        $sourceContents | ForEach-Object {
+            $recommendations += [RunbookRecommendation]@{
+                CheckSetName   = $_.CheckSetName
+                CheckName      = $_.CheckName
+                Recommendation = ConvertTo-Recommendation -SourceRecommendation $_.Recommendation
+            }
+        }
+
+        return $recommendations
+    }
+
+    function ConvertTo-Recommendation {
+        param(
+            [Parameter(Mandatory = $true)]
+            [pscustomobject] $SourceRecommendation
+        )
+
+        $recommendation = [Recommendation]@{
+            AprlGuid                    = $SourceRecommendation.aprlGuid
+            RecommendationTypeId        = $SourceRecommendation.recommendationTypeId
+            RecommendationMetadataState = $SourceRecommendation.recommendationMetadataState
+            RecommendationControl       = $SourceRecommendation.recommendationControl
+            LongDescription             = $SourceRecommendation.longDescription
+            PgVerified                  = $SourceRecommendation.pgVerified
+            Description                 = $SourceRecommendation.description
+            PotentialBenefits           = $SourceRecommendation.potentialBenefits
+            Tags                        = ($SourceRecommendation.tags ?? @())
+            RecommendationResourceType  = $SourceRecommendation.recommendationResourceType
+            RecommendationImpact        = $SourceRecommendation.recommendationImpact
+            AutomationAvailable         = $SourceRecommendation.automationAvailable
+            Query                       = $SourceRecommendation.query
+        }
+
+        foreach ($learnMoreLink in ($SourceRecommendation.learnMoreLinks ?? @())) {
+            $recommendation.Links[$learnMoreLink.name] = $learnMoreLink.url
+        }
+
+        return $recommendation
+    }
 }
 
 Describe "Get-RunbookSchema" {
@@ -120,22 +163,6 @@ Describe "Get-RunbookSchema" {
 
         $schema | Should -Not -BeNullOrEmpty
         $($runbookFileContents | Test-Json -Schema $schema) | Should -Be $true
-    }
-}
-
-Describe "New-RunbookFactory" {
-    It "Should return a new RunbookFactory object" {
-        $factory = New-RunbookFactory
-
-        $factory.GetType().Name.ToLower() | Should -Be "runbookfactory"
-    }
-}
-
-Describe "New-RecommendationFactory" {
-    It "Should return a new RecommendationFactory object" {
-        $factory = New-RecommendationFactory
-
-        $factory.GetType().Name.ToLower() | Should -Be "recommendationfactory"
     }
 }
 
@@ -156,6 +183,17 @@ Describe "New-RunbookCheck" {
         $check.SelectorName | Should -Be $null
         $check.Parameters.Count | Should -Be 0
         $check.Tags.Count | Should -Be 0
+    }
+}
+
+Describe "New-RunbookRecommendation" {
+    It "Should return a new RunbookRecommendation object" {
+        $recommendation = New-RunbookRecommendation
+
+        $recommendation.GetType().Name.ToLower() | Should -Be "runbookrecommendation"
+        $recommendation.CheckSetName | Should -Be $null
+        $recommendation.CheckName | Should -Be $null
+        $recommendation.Recommendation | Should -Be $null
     }
 }
 
@@ -261,65 +299,17 @@ Describe "Test-RunbookFile" {
             Should -Throw -ExpectedMessage $expError
         }
     }
-    Context "When there's an invalid query path" {
-        It "Should throw an error indicating so" {
-            $filePath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/invalid_query_path.json"
-            $expError = "*does not exist or is not a directory*"
-
-            { Test-RunbookFile -Path $filePath } |
-            Should -Throw -ExpectedMessage $expError
-        }
-    }
-}
-
-Describe "Invoke-RunbookQueryLoop" {
-    Context "When provided with a valid runbook and corresponding recommendations" {
-        It "Should run all checks defined in the runbook and return the results" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
-            $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
-            $queriesPath = "$($moduleUnderTest.Paths.Data)/runbook_queries.json"
-            $queryResultsPath = "$($moduleUnderTest.Paths.Data)/runbook_query_results.json"
-
-            $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
-            $recommendations = $recommendationFactory.ParseRecommendationsFile($recommendationsPath)
-            $queries = @(Get-Content -Path $queriesPath -Raw | ConvertFrom-Json)
-            $queryResults = @(Get-Content -Path $queryResultsPath -Raw | ConvertFrom-Json)
-
-            Mock Build-RunbookQueries { $queries } -ModuleName $moduleUnderTest.Name
-            Mock Invoke-WAFQuery { $queryResults } -ModuleName $moduleUnderTest.Name
-
-            $results = Invoke-RunbookQueryLoop `
-                -Runbook $runbook `
-                -Recommendations $recommendations `
-                -SubscriptionIds $subscriptionIds
-
-            $resultsHash = @{}
-            $results | ForEach-Object { $resultsHash[$_.recommendationId] = $_ }
-
-            $queryResultsHash = @{}
-            $queryResults | ForEach-Object { $queryResultsHash[$_.recommendationId] = $_ }
-
-            $results.Count | Should -Be $queryResults.Count
-
-            foreach ($resultKey in $resultsHash.Keys) {
-                $result = $resultsHash[$resultKey]
-                $queryResult = $queryResultsHash[$resultKey]
-
-                $result | Should -Be $queryResult
-            }
-        }
-    }
 }
 
 Describe "Build-RunbookQueries" {
     Context "When provided with a valid runbook and corresponding recommendations" {
         It "Should build a query for each check defined in the runbook" {
             $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
-            $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
+            $recommendationsPath = "$($moduleUnderTest.Paths.Data)/runbook_recommendations.json"
             $queriesPath = "$($moduleUnderTest.Paths.Data)/runbook_queries.json"
 
-            $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
-            $recommendations = $recommendationFactory.ParseRecommendationsFile($recommendationsPath)
+            $runbook = New-Runbook -FromJsonFile $runbookPath
+            $recommendations = Read-RunbookRecommendationsFile -Path $recommendationsPath
             $queries = @(Get-Content -Path $queriesPath -Raw | ConvertFrom-Json)
             $results = Build-RunbookQueries -Runbook $runbook -Recommendations $recommendations
 
@@ -336,27 +326,14 @@ Describe "Build-RunbookQueries" {
             }
         }
     }
-    Context "When provided with an invalid runbook due to an undeclared selector" {
-        It "Should throw an error indicating so" {
-            $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/undeclared_selector.json"
-            $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
-            $expError = "*references a selector that does not exist*"
-
-            $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
-            $recommendations = $recommendationFactory.ParseRecommendationsFile($recommendationsPath)
-
-            { Build-RunbookQueries -Runbook $runbook -Recommendations $recommendations } |
-            Should -Throw -ExpectedMessage $expError
-        }
-    }
     Context "When provided with an invalid runbook due to an unknown recommendation" {
         It "Should throw an error indicating so" {
             $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/invalid/unknown_recommendation.json"
-            $recommendationsPath = "$($moduleUnderTest.Paths.Data)/recommendations.json"
-            $expError = "*recommendation not found*"
+            $recommendationsPath = "$($moduleUnderTest.Paths.Data)/runbook_recommendations.json"
+            $expError = "*No recommendations found*"
 
-            $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
-            $recommendations = $recommendationFactory.ParseRecommendationsFile($recommendationsPath)
+            $runbook = New-Runbook -FromJsonFile $runbookPath
+            $recommendations = Read-RunbookRecommendationsFile -Path $recommendationsPath
 
             { Build-RunbookQueries -Runbook $runbook -Recommendations $recommendations } |
             Should -Throw -ExpectedMessage $expError
@@ -415,7 +392,7 @@ Describe "Build-RunbookSelectorReview" {
             $runbookPath = "$($moduleUnderTest.Paths.Data)/runbooks/valid/runbook.json"
             $resourcesPath = "$($moduleUnderTest.Paths.Data)/selected_resources.json"
 
-            $runbook = $runbookFactory.ParseRunbookFile($runbookPath)
+            $runbook = New-Runbook -FromJsonFile $runbookPath
             $resources = @(Get-Content -Path $resourcesPath -Raw | ConvertFrom-Json)
 
             Mock Invoke-WAFQuery { $resources } -ModuleName $moduleUnderTest.Name

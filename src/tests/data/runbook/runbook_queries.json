@@ -17,7 +17,7 @@
       "PotentialBenefits": "Helps ensure runbook module quality",
       "RecommendationResourceType": "Microsoft.Compute/virtualMachines",
       "RecommendationImpact": "High",
-      "Query": "Resource name: [{{resource_name}}]\nResource group name: [{{resource_group_name}}]\nSelector: \\\\selector",
+      "Query": "Resource name: [{{resource_name}}]\nResource group name: [{{resource_group_name}}]\nSelector: // selector",
       "Links": {
         "Learn more": "https://github.com/azure/well-architected-reliability-assessment"
       },

@@ -1,23 +1,29 @@
 using module ../utils/utils.psd1
 
-# Load classes
-. "$PSScriptRoot/runbook.classes.ps1"
-
 <#
+.FUNCTION
+    Get-RunbookSchema
+
 .SYNOPSIS
-    Returns the JSON schema for a runbook.
+    Retrieves the JSON schema for a runbook.
 
 .DESCRIPTION
-    Provides the JSON schema that defines the structure of a Well-Architected Reliability
-    Assessment (WARA) runbook, including parameters, variables, selectors, and checks.
+    The `Get-RunbookSchema` function returns the JSON schema that defines the structure
+    of a Well-Architected Reliability Assessment (WARA) runbook. This schema ensures consistency
+    in the configuration and validation of runbook content.
 
 .OUTPUTS
+    [string]
     The JSON schema as a string.
 
 .EXAMPLE
     $schema = Get-RunbookSchema
 
-    Retrieves the JSON schema for a runbook.
+    Retrieves the JSON schema for a runbook, ensuring it adheres to the expected structure.
+
+.NOTES
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function Get-RunbookSchema {
     @"
@@ -26,18 +32,6 @@ function Get-RunbookSchema {
   "description": "A well-architected reliability assessment (WARA) runbook",
   "type": "object",
   "properties": {
-    "query_paths": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "query_overrides": {
-     "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
     "parameters": {
       "type": "object"
     },
@@ -93,46 +87,45 @@ function Get-RunbookSchema {
 }
 
 <#
+.FUNCTION
+    New-RunbookFactory
+
 .SYNOPSIS
-    Creates a RecommendationFactory instance.
+    Instantiates a new RunbookFactory object.
 
 .DESCRIPTION
-    Returns a new instance of the RecommendationFactory class.
-
-.OUTPUTS
-    [RecommendationFactory]
-
-.EXAMPLE
-    $factory = New-RecommendationFactory
-#>
-function New-RecommendationFactory {
-    return [RecommendationFactory]::new()
-}
-
-<#
-.SYNOPSIS
-    Creates a RunbookFactory instance.
-
-.DESCRIPTION
-    Returns a new instance of the RunbookFactory class.
+    The `New-RunbookFactory` function creates an instance of the `RunbookFactory` class,
+    which is responsible for parsing runbook files and generating `Runbook` instances.
 
 .OUTPUTS
     [RunbookFactory]
+    A new instance of the RunbookFactory class.
 
 .EXAMPLE
     $factory = New-RunbookFactory
+
+    Creates a new instance of the RunbookFactory class, which can then be used
+    to parse runbook content.
+
+.NOTES
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function New-RunbookFactory {
     return [RunbookFactory]::new()
 }
 
 <#
+.FUNCTION
+    New-Runbook
+
 .SYNOPSIS
-    Creates a Runbook instance.
+    Creates a new Runbook instance.
 
 .DESCRIPTION
-    Returns a new Runbook instance. Optionally, it can be initialized from a JSON string (-FromJson)
-    or a JSON file (-FromJsonFile), but not both.
+    The `New-Runbook` function returns a new instance of the `Runbook` class.
+    It can optionally be initialized from a JSON string (-FromJson) or a JSON file (-FromJsonFile),
+    but not both.
 
 .PARAMETER FromJson
     JSON content to initialize the runbook. Cannot be used with -FromJsonFile.
@@ -142,26 +135,30 @@ function New-RunbookFactory {
 
 .OUTPUTS
     [Runbook]
+    A new `Runbook` instance.
 
 .EXAMPLE
     $runbook = New-Runbook
 
-    Creates an empty Runbook instance.
+    Creates an empty `Runbook` instance.
 
 .EXAMPLE
     $runbook = New-Runbook -FromJson $jsonContent
 
-    Creates a Runbook instance from JSON content.
+    Initializes a `Runbook` instance from JSON content.
 
 .EXAMPLE
     $runbook = New-Runbook -FromJsonFile "C:\runbook.json"
 
-    Creates a Runbook instance from a JSON file.
+    Initializes a `Runbook` instance from a JSON file.
 
 .NOTES
-    - If neither -FromJson nor -FromJsonFile is specified, an empty Runbook instance is returned.
-    - If both -FromJson and -FromJsonFile are specified, the function throws an error.
-    - The provided JSON must be valid and match the expected Runbook schema.
+    - If neither `-FromJson` nor `-FromJsonFile` is specified, an empty `Runbook` instance is returned.
+    - If both `-FromJson` and `-FromJsonFile` are specified, the function throws an error.
+    - The provided JSON must be valid and match the expected `Runbook` schema.
+
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function New-Runbook {
     param(
@@ -194,152 +191,156 @@ function New-Runbook {
 }
 
 <#
+.FUNCTION
+    New-Recommendation
+
 .SYNOPSIS
-    Creates a RunbookCheckSet instance.
+    Creates a new `Recommendation` instance.
 
 .DESCRIPTION
-    Returns a new instance of the RunbookCheckSet class, which represents a set of checks
-    within a runbook.
+    The `New-Recommendation` function initializes and returns a new instance of the `Recommendation` class.
+    This object contains metadata and evaluation logic for a specific runbook check.
+
+.OUTPUTS
+    [Recommendation]
+    A new `Recommendation` object.
+
+.EXAMPLE
+    $recommendation = New-Recommendation
+
+    Creates a new `Recommendation` instance.
+
+.NOTES
+    Author: Casey Watson
+    Date: 2025-02-27
+#>
+function New-Recommendation {
+    return [Recommendation]::new()
+}
+
+<#
+.FUNCTION
+    New-RunbookRecommendation
+
+.SYNOPSIS
+    Creates a new `RunbookRecommendation` instance.
+
+.DESCRIPTION
+    The `New-RunbookRecommendation` function initializes and returns a new instance of
+    the `RunbookRecommendation` class, which encapsulates metadata for a specific runbook
+    check, including its associated recommendation.
+
+.OUTPUTS
+    [RunbookRecommendation]
+    A new `RunbookRecommendation` object.
+
+.EXAMPLE
+    $runbookRecommendation = New-RunbookRecommendation
+
+    Creates a new `RunbookRecommendation` instance.
+
+.NOTES
+    Author: Casey Watson
+    Date: 2025-02-27
+#>
+function New-RunbookRecommendation {
+    return [RunbookRecommendation]::new()
+}
+
+<#
+.FUNCTION
+    New-RunbookCheckSet
+
+.SYNOPSIS
+    Creates a new `RunbookCheckSet` instance.
+
+.DESCRIPTION
+    The `New-RunbookCheckSet` function returns a new instance of the `RunbookCheckSet` class,
+    which represents a logical grouping of related runbook checks.
 
 .OUTPUTS
     [RunbookCheckSet]
+    A new `RunbookCheckSet` instance.
 
 .EXAMPLE
     $checkSet = New-RunbookCheckSet
 
-    Creates a new RunbookCheckSet instance.
+    Creates a new `RunbookCheckSet` instance.
 
 .NOTES
-    A RunbookCheckSet groups related checks within a runbook for evaluation.
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function New-RunbookCheckSet {
     return [RunbookCheckSet]::new()
 }
 
 <#
+.FUNCTION
+    New-RunbookCheck
+
 .SYNOPSIS
-    Creates a RunbookCheck instance.
+    Creates a new `RunbookCheck` instance.
 
 .DESCRIPTION
-    Returns a new instance of the RunbookCheck class, representing an individual check within a runbook.
+    The `New-RunbookCheck` function returns a new instance of the `RunbookCheck` class,
+    representing an individual check within a runbook. Each check is associated with a selector
+    and contains parameterized logic for evaluating resource compliance.
 
 .OUTPUTS
     [RunbookCheck]
+    A new `RunbookCheck` instance.
 
 .EXAMPLE
     $check = New-RunbookCheck
 
-    Creates a new RunbookCheck instance.
+    Creates a new `RunbookCheck` instance.
 
 .NOTES
-    A RunbookCheck represents a single validation or compliance check within a runbook.
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function New-RunbookCheck {
     return [RunbookCheck]::new()
 }
 
 <#
+.FUNCTION
+    Build-RunbookQueries
+
 .SYNOPSIS
-    Executes queries for runbook checks.
+    Constructs queries for runbook checks.
 
 .DESCRIPTION
-    Runs queries for each applicable recommendation in the runbook and retrieves resources
-    from the specified subscriptions. Tracks progress and logs errors if queries fail.
+    The `Build-RunbookQueries` function generates a list of queries based on the check sets
+    and associated recommendations within a runbook. It dynamically merges parameters, variables,
+    and selectors to construct accurate queries for evaluation.
 
 .PARAMETER Runbook
-    The runbook containing check sets and associated parameters.
+    The `Runbook` object containing check sets, parameters, and selectors.
 
 .PARAMETER Recommendations
-    An array of recommendations, each corresponding to a check set in the runbook.
-
-.PARAMETER SubscriptionIds
-    An array of subscription IDs to scope the queries.
+    An array of `RunbookRecommendation` objects defining the checks to be executed.
 
 .PARAMETER ProgressId
-    (Optional) The ID used for tracking progress with Write-Progress. Default is 1.
-
-.OUTPUTS
-    An array of resources retrieved from the executed queries.
-
-.EXAMPLE
-    $resources = Invoke-RunbookQueryLoop -Runbook $runbook -Recommendations $recommendations -SubscriptionIds @("sub1", "sub2")
-
-    Runs queries for the specified recommendations within the runbook and retrieves resources.
-
-.NOTES
-    - Only recommendations with automation enabled and a defined query will be processed.
-    - Uses Write-Progress to display execution progress.
-    - Queries are executed using Invoke-WAFQuery, and failures are logged as errors.
-#>
-function Invoke-RunbookQueryLoop {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory = $true)]
-        [Runbook] $Runbook,
-
-        [Parameter(Mandatory = $true)]
-        [Recommendation[]] $Recommendations,
-
-        [Parameter(Mandatory = $true)]
-        [AllowEmptyCollection()]
-        [string[]] $SubscriptionIds,
-
-        [Parameter(Mandatory = $false)]
-        [int] $ProgressId = 1
-    )
-
-    $autoRecs = $Recommendations | Where-Object { $_.AutomationAvailable -eq $true -and $_.Query }
-    $queries = @(Build-RunbookQueries -Runbook $Runbook -Recommendations $autoRecs)
-
-    $return = $queries | ForEach-Object {
-        $checkTitle = "[$($_.CheckSetName)]:[$($_.CheckName)]"
-
-        Write-Progress `
-            -Activity "Running runbook queries" `
-            -Status "Running runbook check $checkTitle" `
-            -PercentComplete (($queries.IndexOf($_) / $queries.Count) * 100) `
-            -Id $ProgressId
-
-        try {
-            Invoke-WAFQuery -Query $_.Query -SubscriptionIds $SubscriptionIds -ErrorAction Stop
-        }
-        catch {
-            Write-Error "Error running query for runbook check [$($_.CheckSetName):$($_.CheckName)]"
-        }
-    }
-
-    Write-Progress -Activity 'Running runbook queries' -Status 'Completed!' -Completed -Id $ProgressId
-
-    return @($return)
-}
-
-<#
-.SYNOPSIS
-    Builds queries for runbook checks.
-
-.DESCRIPTION
-    Generates a list of queries based on the runbook's check sets and corresponding recommendations.
-    This function resolves parameters, variables, and selectors to construct queries dynamically.
-
-.PARAMETER Runbook
-    The runbook containing check sets, parameters, and selectors.
-
-.PARAMETER Recommendations
-    An array of recommendations that define the checks to be executed.
+    (Optional) A progress indicator ID for `Write-Progress`.
 
 .OUTPUTS
     [RunbookQuery[]]
-    Returns an array of RunbookQuery objects, each containing a check name, query, tags, and recommendation.
+    An array of `RunbookQuery` objects, each containing a check name, query, tags, and recommendation.
 
 .EXAMPLE
     $queries = Build-RunbookQueries -Runbook $runbook -Recommendations $recommendations
 
-    Builds queries for the specified runbook and recommendations.
+    Constructs queries for the given runbook and recommendations.
 
 .NOTES
-    - Queries are generated by merging parameters, variables, and selectors into the recommendation queries.
+    - Queries are created by combining parameters, variables, and selectors with recommendation queries.
     - Throws an error if a check references a missing selector.
     - Ensures that only recommendations matching the runbook's check sets are processed.
+
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function Build-RunbookQueries {
     [CmdletBinding()]
@@ -348,8 +349,19 @@ function Build-RunbookQueries {
         [Runbook] $Runbook,
 
         [Parameter(Mandatory = $true)]
-        [Recommendation[]] $Recommendations
+        [RunbookRecommendation[]] $Recommendations,
+
+        [Parameter(Mandatory = $false)]
+        [int] $ProgressId = 30
     )
+
+    $checkCount = 0
+    $checkIndex = 0
+
+    foreach ($checkSetKey in $Runbook.CheckSets.Keys) {
+        $checkSet = $Runbook.CheckSets[$checkSetKey]
+        $checkCount += $checkSet.Checks.Count
+    }
 
     $queries = @()
     $globalParameters = @{}
@@ -367,84 +379,111 @@ function Build-RunbookQueries {
         }
     }
 
-    $recommendationsHash = @{}
-    $Recommendations.ForEach({ $recommendationsHash[$_.AprlGuid] = $_ })
+    $recommendationsMap = @{}
+
+    foreach ($recommendation in $Recommendations) {
+        if (-not ($recommendationsMap.ContainsKey($recommendation.CheckSetName))) {
+            $recommendationsMap[$recommendation.CheckSetName] = @{}
+        }
+
+        $recommendationsMap[$recommendation.CheckSetName][$recommendation.CheckName] = $recommendation.Recommendation
+    }
 
     foreach ($checkSetKey in $Runbook.CheckSets.Keys) {
-        if ($recommendationsHash.ContainsKey($checkSetKey)) {
-            $checkSet = $Runbook.CheckSets[$checkSetKey]
-            $recommendation = $recommendationsHash[$checkSetKey]
+        if (-not ($recommendationsMap.ContainsKey($checkSetKey))) {
+            throw "No recommendations found for check set [$checkSetKey]."
+        }
 
-            foreach ($checkKey in $checkSet.Checks.Keys) {
-                $check = $checkSet.Checks[$checkKey]
+        $checkSet = $Runbook.CheckSets[$checkSetKey]
 
-                $checkParameters = @{}
-                $checkParameters += $globalParameters
+        foreach ($checkKey in $checkSet.Checks.Keys) {
+            $checkIndex++
+            $pctComplete = (($checkIndex / $checkCount) * 100)
 
-                foreach ($checkParameterKey in $check.Parameters.Keys) {
-                    $checkParameterValue = $check.Parameters[$checkParameterKey].ToString()
-                    $checkParameters[$checkParameterKey] = Merge-ParametersIntoString -Parameters $checkParameters -Into $checkParameterValue
+            Write-Progress `
+                -Activity "Building runbook queries" `
+                -Status "$checkKey" `
+                -PercentComplete $pctComplete `
+                -Id $ProgressId
+
+            if (-not ($recommendationsMap[$checkSetKey].ContainsKey($checkKey))) {
+                throw "No recommendation found for check [$checkSetKey]:[$checkKey]."
+            }
+
+            $check = $checkSet.Checks[$checkKey]
+            $recommendation = $recommendationsMap[$checkSetKey][$checkKey]
+
+            $checkParameters = @{}
+            $checkParameters += $globalParameters
+
+            foreach ($checkParameterKey in $check.Parameters.Keys) {
+                $checkParameterValue = $check.Parameters[$checkParameterKey].ToString()
+                $checkParameters[$checkParameterKey] = Merge-ParametersIntoString -Parameters $globalParameters -Into $checkParameterValue
+            }
+
+            if ($Runbook.Selectors.ContainsKey($check.SelectorName)) {
+                $query = Merge-ParametersIntoString -Parameters $checkParameters -Into $recommendation.Query
+
+                foreach ($selectorKey in $Runbook.Selectors.Keys) {
+                    $selector = $Runbook.Selectors[$selectorKey]
+                    $selector = Merge-ParametersIntoString -Parameters $checkParameters -Into $selector
+                    $query = $($query -replace "//\s*selector:$($selectorKey)", "| where $selector")
                 }
 
-                if ($Runbook.Selectors.ContainsKey($check.SelectorName)) {
-                    $query = Merge-ParametersIntoString -Parameters $checkParameters -Into $recommendation.Query
+                $selector = Merge-ParametersIntoString -Parameters $checkParameters -Into $Runbook.Selectors[$check.SelectorName]
+                $query = $($query -replace "//\s*selector", "| where $selector")
 
-                    foreach ($selectorKey in $Runbook.Selectors.Keys) {
-                        $namedSelector = Merge-ParametersIntoString -Parameters $checkParameters -Into $Runbook.Selectors[$selectorKey]
-                        $query = $($query -replace "\\\\\s*selector:$selectorKey", "| where $namedSelector")
-                    }
-
-                    $selector = Merge-ParametersIntoString -Parameters $checkParameters -Into $Runbook.Selectors[$check.SelectorName]
-                    $query = $($query -replace "\\\\\s*selector", "| where $selector")
-
-                    $queries += [RunbookQuery]@{
-                        CheckSetName   = $checkSetKey
-                        CheckName      = $checkKey
-                        Query          = $query
-                        Tags           = $check.Tags
-                        Recommendation = $recommendation
-                    }
-                }
-                else {
-                    throw "Runbook check [$checkSetKey]:[$checkKey] references a selector that does not exist: [$($check.SelectorName)]."
+                $queries += [RunbookQuery]@{
+                    CheckSetName   = $checkSetKey
+                    CheckName      = $checkKey
+                    SelectorName   = $check.SelectorName
+                    Query          = $query
+                    Tags           = $check.Tags
+                    Recommendation = $recommendation
                 }
             }
         }
-        else {
-            throw "Runbook check set [$checkSetKey] recommendation not found."
-        }
     }
+
+    Write-Progress -Id $ProgressId -Completed
 
     return $queries
 }
 
 <#
+.FUNCTION
+    Merge-ParametersIntoString
+
 .SYNOPSIS
     Replaces placeholders in a string with parameter values.
 
 .DESCRIPTION
-    Iterates through a hashtable of parameters and replaces placeholders in the input string
-    with corresponding values. Placeholders are expected in the format `{{Key}}`.
+    The `Merge-ParametersIntoString` function iterates through a hashtable of parameters
+    and replaces placeholders in the input string with corresponding values.
+    Placeholders must follow the `{{Key}}` format.
 
 .PARAMETER Parameters
-    A hashtable containing key-value pairs to replace in the string.
+    A hashtable containing key-value pairs for replacement.
 
 .PARAMETER Into
     The string containing placeholders to be replaced.
 
 .OUTPUTS
     [string]
-    Returns the updated string with placeholders replaced.
+    A string with placeholders replaced by their corresponding values.
 
 .EXAMPLE
     $params = @{ "Region" = "eastus"; "Env" = "Production" }
     $result = Merge-ParametersIntoString -Parameters $params -Into "Deploying to {{Region}} in {{Env}}."
 
-    Output: "Deploying to eastus in Production."
+    Returns: "Deploying to eastus in Production."
 
 .NOTES
-    - Placeholders must be wrapped in double curly braces (e.g., `{{Key}}`).
     - Only placeholders matching keys in the hashtable are replaced.
+    - Uses simple string replacement logic.
+
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function Merge-ParametersIntoString {
     [CmdletBinding()]
@@ -464,26 +503,35 @@ function Merge-ParametersIntoString {
 }
 
 <#
+.FUNCTION
+    Read-RunbookFile
+
 .SYNOPSIS
     Reads and parses a runbook file.
 
 .DESCRIPTION
-    Validates the existence of the specified runbook file and, if valid, parses it.
+    The `Read-RunbookFile` function validates and loads a runbook from a JSON file.
+    If the file is valid, it returns a parsed `Runbook` instance.
 
 .PARAMETER Path
     The file path to the runbook JSON file.
 
 .OUTPUTS
-    Returns a parsed Runbook object if the file is valid.
+    [Runbook]
+    A parsed `Runbook` object.
 
 .EXAMPLE
-    $runbook = Read-RunbookFile -Path "C:\path\to\runbook.json"
+    $runbook = Read-RunbookFile -Path "C:\runbook.json"
 
     Reads and parses the specified runbook file.
 
 .NOTES
-    - Uses Test-RunbookFile to validate the file before parsing.
-    - If the file is invalid, the function throws an error.
+    - Uses `Test-RunbookFile` to validate the file before parsing.
+    - If validation fails, an error is thrown.
+    - The runbook is parsed using `RunbookFactory`.
+
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function Read-RunbookFile {
     [CmdletBinding()]
@@ -500,26 +548,36 @@ function Read-RunbookFile {
 }
 
 <#
+.FUNCTION
+    Write-RunbookFile
+
 .SYNOPSIS
-    Saves a Runbook object to a JSON file.
+    Saves a `Runbook` object to a JSON file.
 
 .DESCRIPTION
-    Validates the given Runbook object and serializes it to a JSON file
-    at the specified path.
+    The `Write-RunbookFile` function validates the provided `Runbook` object
+    and serializes it into a JSON file at the specified path.
 
 .PARAMETER Runbook
-    The Runbook object to be saved.
+    The `Runbook` object to be saved.
 
 .PARAMETER Path
-    The file path where the Runbook JSON should be written.
+    The file path where the `Runbook` JSON should be written.
+
+.OUTPUTS
+    None
 
 .EXAMPLE
     Write-RunbookFile -Runbook $myRunbook -Path "C:\runbook.json"
 
-    Saves the provided Runbook object to "C:\runbook.json".
+    Saves the provided `Runbook` object to "C:\runbook.json".
 
 .NOTES
-    - Ensures the Runbook is valid before saving.
+    - Ensures the `Runbook` is valid before saving.
+    - The output file is formatted in JSON.
+
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function Write-RunbookFile {
     [CmdletBinding()]
@@ -565,28 +623,35 @@ function Write-RunbookFile {
 }
 
 <#
+.FUNCTION
+    Test-RunbookFile
+
 .SYNOPSIS
-    Reads and parses a runbook JSON file.
+    Validates a runbook file.
 
 .DESCRIPTION
-    Validates and loads a runbook from a JSON file, returning a Runbook instance if the file is valid.
+    The `Test-RunbookFile` function checks whether a specified runbook JSON file is
+    valid according to the runbook schema. It ensures the JSON structure is correct
+    and adheres to expected schema requirements.
 
 .PARAMETER Path
-    The full path to the runbook JSON file.
+    The full file path to the runbook JSON file.
 
 .OUTPUTS
-    [Runbook]
-    Returns a parsed Runbook instance if the file is valid.
+    [bool]
+    Returns `$true` if the file is valid; otherwise, an error is thrown.
 
 .EXAMPLE
-    $runbook = Read-RunbookFile -Path "C:\runbook.json"
+    $isValid = Test-RunbookFile -Path "C:\runbook.json"
 
-    Reads and parses the specified runbook file.
+    Returns `$true` if the runbook is valid.
 
 .NOTES
-    - The function first validates the file using Test-RunbookFile.
+    - Uses `Test-Json` to validate JSON structure.
     - If validation fails, an error is thrown.
-    - The returned Runbook instance is parsed using RunbookFactory.
+
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function Test-RunbookFile {
     [CmdletBinding()]
@@ -613,38 +678,39 @@ function Test-RunbookFile {
 }
 
 <#
+.FUNCTION
+    Build-RunbookSelectorReview
+
 .SYNOPSIS
     Builds a selector review for a runbook.
 
 .DESCRIPTION
-    Evaluates each selector in the runbook, resolves parameters, and executes queries
-    to identify matching resources across specified subscriptions.
-
-    Selector reviews help users verify that their selectors are correctly configured
-    and ensure the correct resources are in scope.
+    The `Build-RunbookSelectorReview` function evaluates each selector in a runbook,
+    resolves parameters, and executes queries to identify matching resources across
+    specified subscriptions.
 
 .PARAMETER Runbook
-    The runbook containing selectors, parameters, and variables.
+    The `Runbook` object containing selectors, parameters, and variables.
 
 .PARAMETER SubscriptionIds
-    (Optional) An array of subscription IDs to scope the queries. Defaults to an empty collection.
+    (Optional) An array of subscription IDs to scope the queries.
 
 .OUTPUTS
     [SelectorReview]
-    Returns a SelectorReview object mapping each selector to its resolved query and matching resources.
+    A `SelectorReview` object mapping each selector to its resolved query and matched resources.
 
 .EXAMPLE
     $review = Build-RunbookSelectorReview -Runbook $runbook -SubscriptionIds @("sub1", "sub2")
 
-    Generates a selector review to verify correct resource scoping within the specified subscriptions.
+    Generates a selector review to verify correct resource scoping.
 
 .NOTES
-    - Selectors define which resources are included in a runbook, making them critical to accuracy.
-    - Misconfigured selectors can lead to missing or incorrect results.
-    - This function helps validate selector logic by merging parameters and variables, running queries,
-      and displaying a progress status.
-    - Uses Write-Progress to track execution.
-    - Queries are executed using Invoke-WAFQuery to fetch matching resources.
+    - Selectors define which resources are included in a runbook.
+    - Misconfigured selectors may cause missing or incorrect results.
+    - Uses `Invoke-WAFQuery` to fetch matching resources.
+
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function Build-RunbookSelectorReview {
     [CmdletBinding()]
@@ -713,19 +779,22 @@ function Build-RunbookSelectorReview {
 }
 
 <#
+.FUNCTION
+    Build-SelectorResourceGraphQuery
+
 .SYNOPSIS
-    Generates a Resource Graph query based on a selector.
+    Constructs an Azure Resource Graph query from a selector.
 
 .DESCRIPTION
-    Constructs an Azure Resource Graph query that filters resources based on the provided selector.
-    The query selects key attributes such as resource ID, type, location, name, resource group, and tags.
+    The `Build-SelectorResourceGraphQuery` function creates a Resource Graph query
+    that filters resources based on the provided selector expression.
 
 .PARAMETER Selector
-    The filter expression used to scope resources in the Azure Resource Graph query.
+    The filter expression used to scope resources in the query.
 
 .OUTPUTS
     [string]
-    Returns the formatted Azure Resource Graph query.
+    The formatted Azure Resource Graph query.
 
 .EXAMPLE
     $query = Build-SelectorResourceGraphQuery -Selector "type == 'Microsoft.Compute/virtualMachines'"
@@ -733,8 +802,11 @@ function Build-RunbookSelectorReview {
     Generates a query to filter virtual machines.
 
 .NOTES
-    - The selector should be a valid KQL (Kusto Query Language) filter.
-    - The returned query can be executed using Azure Resource Graph API or related tools.
+    - The selector should be a valid KQL (Kusto Query Language) expression.
+    - The output query can be executed using Azure Resource Graph API.
+
+    Author: Casey Watson
+    Date: 2025-02-27
 #>
 function Build-SelectorResourceGraphQuery {
     [CmdletBinding()]
