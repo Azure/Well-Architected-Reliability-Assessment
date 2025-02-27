@@ -29,6 +29,7 @@ https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 Param(
 [ValidatePattern('^https:\/\/.+$')]
 [string] $RecommendationDataUri = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
+[string] $CustomRecommendationObject,
 [Parameter(mandatory = $true)]
 [string] $JSONFile,
 [string] $ExpertAnalysisFile
@@ -357,6 +358,16 @@ function Initialize-WARAImpactedResources
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting All Recommendations')
 	$RecommendationObject = Get-WARARecommendationList -RecommendationDataUri $RecommendationDataUri
+    Write-Debug "Count of Recommendations: $($RecommendationObject.Count)"
+
+
+    if($CustomRecommendationObject) {
+        Write-Debug "Adding Custom Recommendations"
+        $CustomRecommendationObject = Get-Content $CustomRecommendationObject -raw | ConvertFrom-Json -depth 20
+        Write-Debug "Count of Custom Recommendations: $($CustomRecommendationObject.Count)"
+        $RecommendationObject += $CustomRecommendationObject
+        Write-Debug "Count of Recommendations after adding Custom Recommendations: $($RecommendationObject.Count)"
+    }
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from the standard Resources')
     $ResourceRecommendations = $RecommendationObject | Where-Object {[string]::IsNullOrEmpty($_.tags)}
