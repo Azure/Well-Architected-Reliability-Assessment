@@ -13,7 +13,7 @@ Well-Architected Reliability Assessment Script
 ## SYNTAX
 
 ```
-Start-WARAAnalyzer [[-RecommendationsUrl] <String>] [-JSONFile] <String> [[-ExpertAnalysisFile] <String>]
+Start-WARAAnalyzer [[-RecommendationDataUri] <String>] [-JSONFile] <String> [[-ExpertAnalysisFile] <String>]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -34,7 +34,7 @@ Start-WARAAnalyzer -JSONFile 'C:\Temp\WARA_File_2024-04-01_10_01.json' -Debug
 
 ## PARAMETERS
 
-### -RecommendationsUrl
+### -RecommendationDataUri
 This is the URL to the JSON file that contains the recommendations. The default value is the URL to the recommendations object stored at https://azure.github.io/WARA-Build/objects/recommendations.json
 
 ```yaml
@@ -44,7 +44,7 @@ Aliases:
 
 Required: False
 Position: 1
-Default value: Https://azure.github.io/WARA-Build/objects/recommendations.json
+Default value: https://azure.github.io/WARA-Build/objects/recommendations.json
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

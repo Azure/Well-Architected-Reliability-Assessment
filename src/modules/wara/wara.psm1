@@ -92,6 +92,11 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
+        [switch] $AI_GPT_RAG,
+
+        [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
+        [Parameter(ParameterSetName = 'ConfigFileSet')]
         [switch] $PassThru,
 
         [Parameter(ParameterSetName = 'Default')]
@@ -136,15 +141,18 @@ function Start-WARACollector {
     )
 
     # Check for module updates and throw an error if the module is out of date.
-    Write-host "Checking Version.." -ForegroundColor Cyan
-    $LocalVersion = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+    Write-Host 'Checking Version..' -ForegroundColor Cyan
+    $LocalVersion = (Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
     $GalleryVersion = (Find-Module -Name $MyInvocation.MyCommand.ModuleName).Version
 
     if ($LocalVersion -lt $GalleryVersion) {
-        Write-Host "A newer version of the module is available. Please update the module to the latest version and re-run the command." -ForegroundColor Cyan -
-        Write-host "You can update by running 'Update-Module -Name $($MyInvocation.MyCommand.ModuleName)'" -ForegroundColor Cyan
-        Write-Host "Local Install Version: $LocalVersion" -ForegroundColor Yellow
-        Write-Host "PowerShell Gallery Version: $GalleryVersion" -ForegroundColor Green
+        Write-Host "A newer version of the module is available. Please update the module to the latest version and re-run the command." -ForegroundColor Cyan
+        Write-Host "  1. Run 'Update-Module -Name $($MyInvocation.MyCommand.ModuleName)' to update the module to the latest version." -ForegroundColor Cyan
+        Write-Host "  2. Start a new PowerShell session. (Open a new PowerShell window/tab)" -ForegroundColor Cyan
+        Write-Host "  3. Re-run the command:" -ForegroundColor Cyan
+        Write-Host "     $($MyInvocation.Statement)" -ForegroundColor Cyan
+        Write-Host "Local Install Version            : $LocalVersion" -ForegroundColor Yellow
+        Write-Host "PowerShell Gallery Latest Version: $GalleryVersion" -ForegroundColor Green
         throw 'Module is out of date.'
     }
 
@@ -226,6 +234,10 @@ function Start-WARACollector {
     if ($HPC) {
         Write-Debug 'HPC switch is enabled'
         $SpecializedWorkloads += 'HPC'
+    }
+    if ($AI_GPT_RAG) {
+        Write-Debug 'AI_GPT_RAG switch is enabled'
+        $SpecializedWorkloads += 'AI-GPT-RAG'
     }
 
     if ($SpecializedWorkloads) {
@@ -502,6 +514,7 @@ function Start-WARACollector {
         AVD                            = [bool]$AVD
         AVS                            = [bool]$AVS
         HPC                            = [bool]$HPC
+        AI_GPT_RAG                     = [bool]$AI_GPT_RAG
         TenantId                       = $Scope_TenantId
         SubscriptionIds                = $Scope_SubscriptionIds
         ResourceGroups                 = $Scope_ResourceGroups
@@ -1071,7 +1084,8 @@ class validationResourceFactory {
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
-            default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
+            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
+            #default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }
         return $return
     }
@@ -1200,7 +1214,8 @@ class specializedResourceFactory {
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
-            default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
+            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually'}
+            #default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }
         return $return
     }
