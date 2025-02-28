@@ -19,7 +19,7 @@ if($moduleName)
 }
 else{
     # Grab directories
-    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory | Where-Object {$_.Name -notin @("runbook","analyzer","reports")}
+    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory | Where-Object {$_.Name -notin @("analyzer","reports")}
 }
 
 $coveragePercent = @()
@@ -28,10 +28,12 @@ $passedCount = @()
 $failedCount = @()
 
 foreach ($moduleDir in $moduleDirectories) {
+    $manifestPath = "$($moduleDir.FullName)/$($moduleDir.Name).psd1"
     $modulePath = "$($moduleDir.FullName)/$($moduleDir.Name).psm1"
     $testsPath = "$basePath/tests/$($moduleDir.Name)"
 
     if (Test-Path $modulePath) {
+        Import-Module -Name $manifestPath -Force
         $config = New-PesterConfiguration
         $config.Run.Path = $testsPath
         $config.CodeCoverage.Path = $modulePath
@@ -50,6 +52,7 @@ foreach ($moduleDir in $moduleDirectories) {
         $passedCount += $($result.PassedCount -eq $result.TotalCount -and $result.PassedCount -gt 0) ? "Passed" : "Failed"
         $failedCount += $($result.FailedCount -gt 0) ? "Failed" : "Passed"
         Write-host "`n-------------Finished tests for module $($moduleDir.Name)-------------`n`n" -ForegroundColor Cyan
+        remove-module -name $($moduleDir.Name) -force
     }
 }
 
