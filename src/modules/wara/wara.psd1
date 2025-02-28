@@ -83,7 +83,24 @@
     )
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = @('Start-WARACollector','Start-WARAAnalyzer','Start-WARAReport')
+    FunctionsToExport = @(
+        'Start-WARACollector',
+        'Start-WARAAnalyzer',
+        'Start-WARAReport',
+        "Get-RunbookSchema",
+        "New-RunbookRecommendation",
+        "New-Recommendation",
+        "New-Runbook",
+        "New-RunbookCheckSet",
+        "New-RunbookCheck",
+        "Invoke-WAFQuery",
+        "Read-RunbookFile",
+        "Write-RunbookFile",
+        "Test-RunbookFile",
+        "Connect-WAFAzure",
+        "Build-RunbookQueries",
+        "Build-RunbookSelectorReview"
+    )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport   = @()
