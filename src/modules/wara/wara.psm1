@@ -100,44 +100,47 @@ function Start-WARACollector {
         [switch] $PassThru,
 
         [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
         [ValidateScript({ Test-WAFSubscriptionId $_ })]
         [string[]] $SubscriptionIds,
 
         [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
         [ValidateScript({ Test-WAFResourceGroupId $_ })]
         [string[]] $ResourceGroups,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
         [ValidateScript({ Test-WAFIsGuid $_ })]
         [GUID] $TenantID,
 
         [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
         [ValidateScript({ Test-WAFTagPattern $_ })]
         [string[]] $Tags,
 
         [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
+        [Parameter(ParameterSetName = 'ConfigFileSet')]
         [ValidateSet('AzureCloud', 'AzureUSGovernment', 'AzureGermanCloud', 'AzureChinaCloud')]
         [string] $AzureEnvironment = 'AzureCloud',
 
+        [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet', Mandatory = $true)]
         [ValidateScript({ Test-Path $_ -PathType Leaf })]
         [string] $ConfigFile,
 
         [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
+        [Parameter(ParameterSetName = 'ConfigFileSet')]
         [ValidatePattern('^https:\/\/.+$')]
         [string] $RecommendationDataUri = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
 
         [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
+        [Parameter(ParameterSetName = 'ConfigFileSet')]
         [ValidatePattern('^https:\/\/.+$')]
-        [string] $RecommendationResourceTypesUri = 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv',
-
-        # Runbook parameters...
-        [Parameter(ParameterSetName = 'Default')]
-        [switch] $UseImplicitRunbookSelectors,
-
-        [Parameter(ParameterSetName = 'Default')]
-        [ValidateScript({ Test-Path $_ -PathType Leaf })]
-        [string] $RunbookFile
+        [string] $RecommendationResourceTypesUri = 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv'
     )
 
     # Check for module updates and throw an error if the module is out of date.
