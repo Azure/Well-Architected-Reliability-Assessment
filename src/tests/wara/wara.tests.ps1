@@ -28,6 +28,12 @@ Describe 'Start-WARACollector' {
             $scriptBlock | Should -Throw
         }
     }
+    Context 'Different Parameter Sets' {
+        It 'Should throw an exception when parameters from both sets are provided' {
+            $scriptBlock = { Start-WARACollector -TenantID $(new-guid).guid -ConfigFile 'C:\invalid\path\config.json' -SubscriptionIds '/subscriptions/11111111-1111-1111-111111111111' }
+            $scriptBlock | Should -Throw
+        }
+    }
     Context 'When given correct parameters with -passthru'{
         BeforeAll {
             $AllResources_TestData = get-content "$PSScriptRoot/../data/wara/test_allresourcesdata.json" -raw | ConvertFrom-Json -depth 20
