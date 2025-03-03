@@ -34,7 +34,7 @@ Describe 'Start-WARACollector Parameter Sets' {
     }
     Context 'TenantId + SubscriptionIds + ResourceGroups + Specialized' {
         It 'Should proceed with TenantId + SubscriptionIds + ResourceGroups + Specialized' {
-            $result = Start-WARACollector -TenantID $(New-Guid).Guid -SubscriptionIds '/subscriptions/11111111-1111-1111-111111111111' -ResourceGroups 'RG1'
+            $result = Start-WARACollector -TenantID $(New-Guid).Guid -SubscriptionIds '/subscriptions/11111111-1111-1111-111111111111' -ResourceGroups 'RG1' -SAP -AVS -AVD -HPC -AI_GPT_RAG
             Assert-MockCalled Start-WARACollector -Exactly 1 -Scope It
         }
     }
