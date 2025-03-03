@@ -28,7 +28,8 @@ https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 
 Param(
 [ValidatePattern('^https:\/\/.+$')]
-[string] $RecommendationsUrl = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
+[string] $RecommendationDataUri = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
+[string] $CustomRecommendationObject,
 [Parameter(mandatory = $true)]
 [string] $JSONFile,
 [string] $ExpertAnalysisFile
@@ -220,11 +221,10 @@ function Get-WARARecommendationList
 {
     Param(
         [Parameter(Mandatory = $true)]
-        [string]$RecommendationsUrl
+        [string]$RecommendationDataUri
     )
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Processing Recommendations from JSON file.')
 	# Get Recommendation Objects
-    $RecommendationDataUri = $RecommendationsUrl
     $RecommendationObject = Invoke-RestMethod $RecommendationDataUri
 
 	return $RecommendationObject
@@ -353,11 +353,21 @@ function Initialize-WARAImpactedResources
 		$ScriptDetails,
         [Parameter(mandatory = $true)]
         [AllowEmptyCollection()]
-        $RecommendationsUrl
+        $RecommendationDataUri
 	)
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting All Recommendations')
-	$RecommendationObject = Get-WARARecommendationList -RecommendationsUrl $RecommendationsUrl
+	$RecommendationObject = Get-WARARecommendationList -RecommendationDataUri $RecommendationDataUri
+    Write-Debug "Count of Recommendations: $($RecommendationObject.Count)"
+
+
+    if($CustomRecommendationObject) {
+        Write-Debug "Adding Custom Recommendations"
+        $CustomRecommendationObject = Get-Content $CustomRecommendationObject -raw | ConvertFrom-Json -depth 20
+        Write-Debug "Count of Custom Recommendations: $($CustomRecommendationObject.Count)"
+        $RecommendationObject += $CustomRecommendationObject
+        Write-Debug "Count of Recommendations after adding Custom Recommendations: $($RecommendationObject.Count)"
+    }
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from the standard Resources')
     $ResourceRecommendations = $RecommendationObject | Where-Object {[string]::IsNullOrEmpty($_.tags)}
@@ -381,7 +391,7 @@ function Initialize-WARAImpactedResources
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from HPC')
 		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'HPC'}
 	}
-    if ($ScriptDetails.AI -eq 'True') {
+    if ($ScriptDetails.AI_GPT_RAG -eq 'True') {
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from AI-GPT-RAG')
 		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'AI-GPT-RAG'}
 	}
@@ -651,7 +661,10 @@ function Export-WARAImpactedResources
 
 
 
-    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A$($ImpactedResourcesFormatted.count)" -ValidationType List -ValueSet @('Pending','Reviewed') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)'
+    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A1048576" -ValidationType List -ValueSet @('Pending','Reviewed') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)' -NoBlank $true
+    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "O13:O1048576" -ValidationType List -ValueSet @('High','Medium','Low') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (High, Medium, or Low)' -NoBlank $true
+    Add-ExcelDataValidationRule -Worksheet $ExcelPackage.$ImpactedResourcesSheetRef -Range "G13:G1048576" -ValidationType TextLength -Operator greaterThan -Value 1 -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (more than 1 character)' -NoBlank $true
+
 
     $null = $ImpactedResourcesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $ImpactedResourcesSheet |
     Export-Excel -ExcelPackage $excelPackage -WorksheetName $ImpactedResourcesSheetRef -TableName 'impactedresources' -TableStyle $TableStyle -Style $Style -StartRow 12 -PassThru
@@ -1121,7 +1134,7 @@ $ExpertAnalysisTemplate = Open-ExcelPackage -Path $ExpertAnalysisFile
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAImpactedResources')
 # Creating the Array with the Impacted Resources to be added to the Excel file
-$ImpactedResources 	= Initialize-WARAImpactedResources -ImpactedResources $JSONContent.ImpactedResources -Advisory $JSONContent.Advisory -Retirements $JSONContent.Retirements -ScriptDetails $JSONContent.ScriptDetails -RecommendationsUrl $RecommendationsUrl
+$ImpactedResources 	= Initialize-WARAImpactedResources -ImpactedResources $JSONContent.ImpactedResources -Advisory $JSONContent.Advisory -Retirements $JSONContent.Retirements -ScriptDetails $JSONContent.ScriptDetails -RecommendationDataUri $RecommendationDataUri
 
 Write-Host $ImpactedResourcesSheetRef -NoNewline -ForegroundColor Green
 Write-Host ': ' -NoNewline

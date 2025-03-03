@@ -103,9 +103,6 @@ if (!$WorkloadName) {
 
 $TableStyle = 'Light19'
 
-$Runtime = Measure-Command -Expression {
-
-
   ######################## REGULAR Functions ##########################
 
   function Test-ReviewedRecommendations {
@@ -185,7 +182,7 @@ $Runtime = Measure-Command -Expression {
     $ExcelContent = Import-Excel -Path $ExcelFile -WorksheetName '4.ImpactedResourcesAnalysis' -StartRow 12
     #$ImpactedResources = $ExcelContent
 
-    return $ExcelContent
+    return $ExcelContent.where({![String]::IsNullOrEmpty($_."Resource Type")})
   }
 
   function Get-ExcelWorkloadInventory {
@@ -1103,7 +1100,9 @@ $Runtime = Measure-Command -Expression {
 
     $RecommendationsFormatted = @()
 
-    $GroupedResources = $ImpactedResources | Group-Object -Property 'Guid' | Sort-Object -Property 'Count' -Descending
+    $GroupedResources = $ImpactedResources.where({![String]::IsNullOrEmpty($_.Guid)}) | Group-Object -Property 'Guid' | Sort-Object -Property 'Count' -Descending
+
+    $CustomRecommendations = $ImpactedResources.where({[String]::IsNullOrEmpty($_.Guid)})
 
     ForEach ($Resource in $GroupedResources) {
 
@@ -1124,6 +1123,26 @@ $Runtime = Measure-Command -Expression {
       }
       $RecommendationsFormatted += $obj
     }
+
+    $CustomRecommendations.Foreach(
+        {
+            $obj = @{
+                'Impact' = $_.Impact;
+                'Description' = $_.'Recommendation Title'
+                'Potential Benefit' = $_.'Potential Benefit';
+                'Impacted Resources' = 1;
+                'Resource Type' = $_.'Resource Type';
+                'Recommendation Control' = $_.'Recommendation Control';
+                'Long Description' = $_.'Long Description';
+                'Category' = $_.Category;
+                'Learn More Link' = $_.'Learn More Link';
+                'Guid' = $_.Guid;
+                'Notes' = $_.Notes;
+            }
+            $RecommendationsFormatted += $obj
+        }
+    )
+
 
     # Returns the array with all the recommendations already formatted to be exported to Excel
     return $RecommendationsFormatted
@@ -1266,6 +1285,9 @@ $Runtime = Measure-Command -Expression {
 
   }
 
+  # Start the stopwatch to time the script
+  $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
   #Call the functions
   $Version = "2.1.5"
   Write-Host "Version: " -NoNewline
@@ -1381,17 +1403,16 @@ $Runtime = Measure-Command -Expression {
   Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
 
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
-}
 
 Write-Progress -Id 1 -activity "Processing Office Apps" -Status "100% Complete." -Completed
-$TotalTime = $Runtime.Totalminutes.ToString('#######.##')
+
+$stopwatch.Stop()
 
 ################ Finishing
 
 Write-Host "---------------------------------------------------------------------"
 Write-Host ('Execution Complete. Total Runtime was: ') -NoNewline
-Write-Host $TotalTime -NoNewline -ForegroundColor Cyan
-Write-Host (' Minutes')
+Write-Host $stopwatch.Elapsed.toString('hh\:mm\:ss') -ForegroundColor Cyan
 Write-Host 'PowerPoint File Saved as: ' -NoNewline
 Write-Host $PPTFinalFile -ForegroundColor Cyan
 Write-Host 'Assessment Findings File Saved as: ' -NoNewline

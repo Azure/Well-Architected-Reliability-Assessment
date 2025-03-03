@@ -197,6 +197,7 @@ Accept wildcard characters: False
 ### -ConfigFile
 Path to the configuration file.
 This parameter is mandatory for the ConfigFileSet parameter set and validated using Test-Path.
+See config file example [here](configfile.example).
 
 ```yaml
 Type: String
@@ -212,7 +213,7 @@ Accept wildcard characters: False
 
 ### -RecommendationDataUri
 URI for the recommendation data.
-Default is 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json'.
+Default is 'https://azure.github.io/WARA-Build/objects/recommendations.json'.
 
 ```yaml
 Type: String
@@ -221,7 +222,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: Https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/data/recommendations.json
+Default value: https://azure.github.io/WARA-Build/objects/recommendations.json
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -237,7 +238,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: Https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv
+Default value: https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
