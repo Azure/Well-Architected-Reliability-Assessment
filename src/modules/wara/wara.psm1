@@ -125,7 +125,6 @@ function Start-WARACollector {
         [ValidateSet('AzureCloud', 'AzureUSGovernment', 'AzureGermanCloud', 'AzureChinaCloud')]
         [string] $AzureEnvironment = 'AzureCloud',
 
-        [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet', Mandatory = $true)]
         [ValidateScript({ Test-Path $_ -PathType Leaf })]
         [string] $ConfigFile,
