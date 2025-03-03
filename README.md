@@ -25,6 +25,10 @@ This repository holds scripts and automation built for the Well-Architected Reli
 
 ### Patch Notes
 
+- **Version 0.0.21**
+  - Fixes issue with Start-WARACollector not running when -ConfigFile was being passed due to added parameter set on the ConfigFile parameter.
+  - Added tests for parameter set testing to prevent this from happening again.
+
 - **Version 0.0.20**
   - Fixes performance issue with Get-WAFFilteredResources.
     - The function was not optimized for performance and was spending too much time processing scope. This has been fixed by changing how we filter resources. The function now uses Sort-Object | Get-Unique -AsString to filter resources and resulted in a significant performance improvement. The function now runs in a few milliseconds compared to a few minutes when collections were greater than 10,000 resources.
