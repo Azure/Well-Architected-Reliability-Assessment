@@ -1,0 +1,20 @@
+#This is a test config file and none of these GUIDs are real.
+[tenantid]
+36edfaa6-8599-453d-8301-0497588f6d40
+
+[subscriptionIds]
+/subscriptions/9ca26269-2fc6-4e0f-8309-1d5e134ece42
+
+[resourcegroups]
+/subscriptions/9ca26269-2fc6-4e0f-8309-1d5e134ece42/resourceGroups/RG-01
+/subscriptions/9ca26269-2fc6-4e0f-8309-1d5e134ece42/resourceGroups/RG-02
+/subscriptions/9ca26269-2fc6-4e0f-8309-1d5e134ece42/resourceGroups/RG-03
+/subscriptions/9ca26269-2fc6-4e0f-8309-1d5e134ece42/resourceGroups/RG-04
+/subscriptions/9ca26269-2fc6-4e0f-8309-1d5e134ece42/resourceGroups/RG-05
+/subscriptions/9ca26269-2fc6-4e0f-8309-1d5e134ece42/resourceGroups/RG-06
+/subscriptions/9ca26269-2fc6-4e0f-8309-1d5e134ece42/resourceGroups/RG-07
+/subscriptions/9ca26269-2fc6-4e0f-8309-1d5e134ece42/resourceGroups/RG-08
+
+[tags]
+env||environment=~preprod
+app||application!~app1||app2

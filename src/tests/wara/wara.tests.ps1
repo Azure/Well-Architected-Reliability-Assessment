@@ -3,6 +3,43 @@ BeforeAll {
     Import-Module -Name $modulePath -Force
 }
 
+Describe 'Start-WARACollector Parameter Sets' {
+    BeforeAll {
+
+        Mock Start-WARACollector {return $null} -Verifiable -RemoveParameterValidation "TenantID","SubscriptionIds","ConfigFile","ResourceGroups"
+    }
+    Context 'ConfigFile' {
+        It 'Should proceed when used alone.' {
+            $result = Start-WARACollector -ConfigFile "$PSScriptRoot/../data/wara/test_configfiledata.txt"
+            Assert-MockCalled Start-WARACollector -Exactly 1 -Scope It
+        }
+    }
+    Context 'ConfigFile + Specialized' {
+        It 'Should proceed with ConfigFile + Specialized.' {
+            $result = Start-WARACollector -ConfigFile "$PSScriptRoot/../data/wara/test_configfiledata.txt" -SAP -AVS -AVD -HPC -AI_GPT_RAG
+            Assert-MockCalled Start-WARACollector -Exactly 1 -Scope It
+        }
+    }
+    Context 'TenantId + SubscriptionIds' {
+        It 'Should proceed with TenantId + SubscriptionIds' {
+            $result = Start-WARACollector -TenantID $(New-Guid).Guid -SubscriptionIds '/subscriptions/11111111-1111-1111-111111111111'
+            Assert-MockCalled Start-WARACollector -Exactly 1 -Scope It
+        }
+    }
+    Context 'TenantId + SubscriptionIds + ResourceGroups' {
+        It 'Should proceed with TenantId + SubscriptionIds + ResourceGroups' {
+            $result = Start-WARACollector -TenantID $(New-Guid).Guid -SubscriptionIds '/subscriptions/11111111-1111-1111-111111111111' -ResourceGroups 'RG1'
+            Assert-MockCalled Start-WARACollector -Exactly 1 -Scope It
+        }
+    }
+    Context 'TenantId + SubscriptionIds + ResourceGroups + Specialized' {
+        It 'Should proceed with TenantId + SubscriptionIds + ResourceGroups + Specialized' {
+            $result = Start-WARACollector -TenantID $(New-Guid).Guid -SubscriptionIds '/subscriptions/11111111-1111-1111-111111111111' -ResourceGroups 'RG1'
+            Assert-MockCalled Start-WARACollector -Exactly 1 -Scope It
+        }
+    }
+}
+
 Describe 'Start-WARACollector' {
     Context 'When given the Default parameter set without SubscriptionIds and ResourceGroups' {
         It 'Should throw an exception with the specified message' {
