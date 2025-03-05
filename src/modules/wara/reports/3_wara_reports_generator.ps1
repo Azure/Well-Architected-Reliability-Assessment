@@ -50,8 +50,6 @@ if (-not $IsWindows) {
   Exit
   }
 
-$CurrentPath = Get-Location
-$CurrentPath = $CurrentPath.Path
 if (!$PPTTemplateFile) {
   write-host ('./Mandatory - Executive Summary presentation - Template.pptx')
   if ((Test-Path -Path ('./Mandatory - Executive Summary presentation - Template.pptx') -PathType Leaf) -eq $true) {

@@ -25,6 +25,20 @@ This repository holds scripts and automation built for the Well-Architected Reli
 
 ### Patch Notes
 
+- **Version 0.0.21**
+  - Fixes issue with Start-WARACollector not running when -ConfigFile was being passed due to added parameter set on the ConfigFile parameter.
+  - Added tests for parameter set testing to prevent this from happening again.
+
+- **Version 0.0.20**
+  - Fixes performance issue with Get-WAFFilteredResources.
+    - The function was not optimized for performance and was spending too much time processing scope. This has been fixed by changing how we filter resources. The function now uses Sort-Object | Get-Unique -AsString to filter resources and resulted in a significant performance improvement. The function now runs in a few milliseconds compared to a few minutes when collections were greater than 10,000 resources.
+  - Fixes issue with empty rows appearing in the Excel Assessment findings report.
+  - Improves the module version check message.
+  - Adds support for custom recommendations to the Expert Analysis Spreadsheet.
+    - The process documentation for this will be added soon.
+  - Add AI-GPT-RAG support to the Collector and Analyzer modules.
+    - This enables the flag -AI_GPT_RAG on the collector script to capture specialized workload data for AI workloads.
+
 - **Version 0.0.19**
   - Added clipboard history check to temporarily resolve issue with Start-WARAReport failing due to legacy code that uses copy() paste() to duplicate tables in the PowerPoint report.
     - If clipboard history is enabled on the machine, the Start-WARAReport cmdlet will throw an error and exit. This is a temporary workaround until the legacy code is updated to use the built-in duplicate() method for the slide in powerpoint.
