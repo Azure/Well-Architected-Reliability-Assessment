@@ -1,0 +1,27 @@
+[
+  {
+    "CheckSetName": "11111111-1111-1111-1111-111111111111",
+    "CheckName": "some_check",
+    "Recommendation": {
+      "aprlGuid": "11111111-1111-1111-1111-111111111111",
+      "automationAvailable": true,
+      "description": "This is a test recommendation.",
+      "learnMoreLink": [
+        {
+          "name": "Learn more",
+          "url": "https://github.com/azure/well-architected-reliability-assessment"
+        }
+      ],
+      "longDescription": "This test recommendation is used by unit tests defined in /tests/runbook/runbook.tests.ps1.",
+      "pgVerified": false,
+      "potentialBenefits": "Helps ensure runbook module quality",
+      "query": "Resource name: [{{resource_name}}]\nResource group name: [{{resource_group_name}}]\nSelector: // selector",
+      "recommendationControl": "Testing",
+      "recommendationImpact": "High",
+      "recommendationMetadataState": "Active",
+      "recommendationResourceType": "Microsoft.Compute/virtualMachines",
+      "recommendationTypeId": null,
+      "tags": null
+    }
+  }
+]
