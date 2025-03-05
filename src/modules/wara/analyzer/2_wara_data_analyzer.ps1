@@ -413,7 +413,7 @@ function Initialize-WARAImpactedResources
 			$Resources = $ImpactedResources | Where-Object {($_.recommendationId -eq $Recom.aprlGuid) -and ($_.checkName -eq $Recom.checkName) }
 
 			# If the recommendation is not a Custom Recommendation, we need to validate if the resources are not already in the tmp array (from a previous loop of a Custom Recommendation)
-			if ([string]::IsNullOrEmpty($Resources) -and $Recom.aprlGuid -notin $tmp.Guid)
+			if ([string]::IsNullOrEmpty($Resources) -and $Recom.aprlGuid -notin $tmp.Guid -and -not $Recom.checkName)
 			{
 				$Resources = $ImpactedResources| Where-Object {($_.recommendationId -eq $Recom.aprlGuid) }
 			}
