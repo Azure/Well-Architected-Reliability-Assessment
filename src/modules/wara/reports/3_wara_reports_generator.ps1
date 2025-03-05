@@ -51,9 +51,9 @@ if (-not $IsWindows) {
   }
 
 if (!$PPTTemplateFile) {
-  write-host ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
-  if ((Test-Path -Path ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx") -PathType Leaf) -eq $true) {
-    $PPTTemplateFile = ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
+  write-host ('./Mandatory - Executive Summary presentation - Template.pptx')
+  if ((Test-Path -Path ('./Mandatory - Executive Summary presentation - Template.pptx') -PathType Leaf) -eq $true) {
+    $PPTTemplateFile = ('./Mandatory - Executive Summary presentation - Template.pptx')
   }
   else {
     Write-Host "This script requires specific Microsoft PowerPoint template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
@@ -63,9 +63,9 @@ if (!$PPTTemplateFile) {
 }
 
 if (!$AssessmentFindingsFile) {
-  write-host ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
-  if ((Test-Path -Path ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx") -PathType Leaf) -eq $true) {
-    $AssessmentFindingsFile = ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
+  write-host ('./Assessment-Findings-Report-v1.xlsx')
+  if ((Test-Path -Path ('./Assessment-Findings-Report-v1.xlsx') -PathType Leaf) -eq $true) {
+    $AssessmentFindingsFile = ('./Assessment-Findings-Report-v1.xlsx')
   }
   else {
     Write-Host "This script requires specific Microsoft Excel template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
