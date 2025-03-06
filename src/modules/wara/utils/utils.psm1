@@ -405,7 +405,8 @@ function Connect-WAFAzure {
     )
 
     # Connect To Azure Tenant
-    if ((Get-AzContext).Tenant.Id -ne $TenantID) {
+    if ((Get-AzContext).Tenant.Id -ne $TenantID -or (Get-AzContext).Environment.Name -ne $AzureEnvironment) {
+        Write-Debug "Connecting to Azure Tenant with Tenant ID: $TenantID and Azure Environment: $AzureEnvironment"
         Connect-AzAccount -Tenant $TenantID -WarningAction SilentlyContinue -Environment $AzureEnvironment | Out-Null
     }
 }

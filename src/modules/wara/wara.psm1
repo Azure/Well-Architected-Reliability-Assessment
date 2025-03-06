@@ -295,7 +295,7 @@ function Start-WARACollector {
 
     #Connect to Azure
     Write-Debug 'Connecting to Azure if not connected.'
-    Write-Progress -Activity 'WARA Collector' -Status 'Connecting to Azure' -PercentComplete 20 -Id 1
+    Write-Progress -Activity 'WARA Collector' -Status 'Validating connection to Azure' -PercentComplete 20 -Id 1
     Connect-WAFAzure -TenantId $Scope_TenantId -AzureEnvironment $AzureEnvironment
 
     #Get Implicit Subscription Ids from Scope
