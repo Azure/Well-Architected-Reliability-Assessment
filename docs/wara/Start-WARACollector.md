@@ -7,22 +7,27 @@ Starts the WARA Collector process.
 ## SYNTAX
 
 ### Default (Default)
-```
-Start-WARACollector [-SAP] [-AVD] [-AVS] [-HPC] [-SubscriptionIds <String[]>] [-ResourceGroups <String[]>]
- -TenantID <Guid> [-Tags <String[]>] [-AzureEnvironment <String>] [-RecommendationDataUri <String>]
- [-RecommendationResourceTypesUri <String>] [-UseImplicitRunbookSelectors] [-RunbookFile <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+
+```powershell
+Start-WARACollector -TenantID <guid> [-SAP] [-AVD] [-AVS] [-HPC] [-AI_GPT_RAG] [-PassThru]
+[-SubscriptionIds <string[]>] [-ResourceGroups <string[]>] [-Tags <string[]>] [-AzureEnvironment <string>]
+[-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>] [<CommonParameters>]
 ```
 
-### ConfigFileSet
-```
-Start-WARACollector [-SAP] [-AVD] [-AVS] [-HPC] -ConfigFile <String> [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+### ConfigFile
+
+```powershell
+Start-WARACollector -ConfigFile <string> [-SAP] [-AVD] [-AVS] [-HPC] [-AI_GPT_RAG] [-PassThru]
+[-AzureEnvironment <string>] [-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>]
+[<CommonParameters>]
 ```
 
 ### Specialized
-```
-Start-WARACollector [-SAP] [-AVD] [-AVS] [-HPC] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+
+```powershell
+Start-WARACollector [-SAP] [-AVD] [-AVS] [-HPC] [-AI_GPT_RAG] [-PassThru] [-SubscriptionIds <string[]>]
+[-ResourceGroups <string[]>] [-TenantID <guid>] [-Tags <string[]>] [-AzureEnvironment <string>]
+[-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
