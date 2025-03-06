@@ -17,6 +17,9 @@
 .PARAMETER HPC
     Switch to enable HPC workload processing.
 
+.PARAMETER AI_GPT_RAG
+    Switch to enable Artificial Intelligence (GPT-RAG) workload processing.
+
 .PARAMETER PassThru
     Switch to enable the PassThru parameter. PassThru returns the output object.
 
