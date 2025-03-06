@@ -258,10 +258,10 @@ class advisorResourceObj {
     Date: 2024-12-12
 #>
 Function Get-WAFAdvisorMetadata {
-    param($ResourceURL = "https://management.azure.com/" )
+    param($ResourceURL = "https://management.azure.com" )
 
     # Get an access token for the Azure REST API
-    $securetoken = Get-AzAccessToken -AsSecureString -ResourceUrl "https://management.azure.com/" -WarningAction SilentlyContinue
+    $securetoken = Get-AzAccessToken -AsSecureString -ResourceUrl $ResourceURL -WarningAction SilentlyContinue
 
     # Convert the secure token to a plain text token
     $token = ConvertFrom-SecureString -SecureString $securetoken.token -AsPlainText

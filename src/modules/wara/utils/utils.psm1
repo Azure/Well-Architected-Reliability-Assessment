@@ -734,3 +734,61 @@ function Repair-WAFSubscriptionId {
     }
     return $fixedSubscriptionIds
 }
+
+<#
+.SYNOPSIS
+    Returns the Azure Management API URI endpoint for the specified Azure environment.
+
+.DESCRIPTION
+    The Get-WAFAzureEnvironmentAPIUri function returns the correct endpoint URI used to access management operations in Azure.
+    Based on the provided environment name, it supports the following environments:
+      • AzureCloud
+      • AzureUSGovernment
+      • AzureGermanCloud
+      • AzureChinaCloud
+
+.PARAMETER EnvironmentName
+    Specifies the name of the Azure environment.
+    Valid values include:
+      - AzureCloud
+      - AzureUSGovernment
+      - AzureGermanCloud
+      - AzureChinaCloud
+
+.EXAMPLE
+    PS> Get-WAFAzureEnvironmentAPIUri -EnvironmentName 'AzureCloud'
+    Returns: https://management.azure.com
+
+.EXAMPLE
+    PS> Get-WAFAzureEnvironmentAPIUri -EnvironmentName 'AzureUSGovernment'
+    Returns: https://management.usgovcloudapi.net
+
+.NOTES
+    Author: Kyle Poineal
+    Date: 2025-03-06
+#>
+Function Get-WAFAzureEnvironmentAPIUri{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $EnvironmentName
+    )
+
+    switch($EnvironmentName) {
+        'AzureCloud' {
+            return 'https://management.azure.com'
+        }
+        'AzureUSGovernment' {
+            return 'https://management.usgovcloudapi.net'
+        }
+        'AzureGermanCloud' {
+            return 'https://management.microsoftazure.de'
+        }
+        'AzureChinaCloud' {
+            return 'https://management.chinacloudapi.cn'
+        }
+        Default {
+            throw "The Azure environment [$EnvironmentName] is not supported."
+        }
+    }
+}

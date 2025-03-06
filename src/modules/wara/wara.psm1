@@ -203,6 +203,8 @@ function Start-WARACollector {
         }
     }
 
+    $BaseUrl = Get-WAFAzureEnvironmentAPIUri -EnvironmentName $AzureEnvironment
+
     #Use Null Coalescing to set the values of parameters.
     Write-Progress -Activity 'WARA Collector' -Status 'Setting Scope' -PercentComplete 1 -Id 1
     $Scope_TenantId = $ConfigData.TenantId ?? $TenantID ?? (throw 'Tenant ID is required.')
@@ -397,7 +399,7 @@ function Start-WARACollector {
     #Get Advisor Metadata to include recommendations that are not in Advisor under 'HighAvailability'
     Write-Debug 'Getting Advisor Metadata'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Advisor Metadata' -PercentComplete 59 -Id 1
-    $AdvisorMetadata = Get-WAFAdvisorMetadata
+    $AdvisorMetadata = Get-WAFAdvisorMetadata -ResourceURL $BaseURL
     Write-Debug "Count of Advisor Metadata: $($AdvisorMetadata.count)"
 
     #Get Other Recommendations
