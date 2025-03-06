@@ -118,6 +118,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -AI_GPT_RAG
+Switch to enable Artificial Intelligence (GPT-RAG) workload processing.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -SubscriptionIds
 Array of subscription IDs to include in the process.
 Validated using Test-WAFSubscriptionId.
