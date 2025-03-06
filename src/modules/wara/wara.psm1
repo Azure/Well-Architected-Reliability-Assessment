@@ -513,7 +513,7 @@ function Start-WARACollector {
     #Create Script Details Object
     Write-Debug 'Creating Script Details Object'
     $scriptDetails = [PSCustomObject]@{
-        Version                        = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+        Version                        = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version.toString()
         ElapsedTime                    = $stopWatch.Elapsed.toString('hh\:mm\:ss')
         SAP                            = [bool]$SAP
         AVD                            = [bool]$AVD
