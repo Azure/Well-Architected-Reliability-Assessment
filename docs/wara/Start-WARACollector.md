@@ -37,22 +37,26 @@ It supports multiple parameter sets, including Default, Specialized, and ConfigF
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 Start-WARACollector -ConfigFile "C:\path\to\config.txt"
 ```
 
 ### EXAMPLE 3
-```
+
+```powershell
 Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001" -Tags "Env||Environment!~Dev||QA" -AVD -SAP -HPC
 ```
 
 ### EXAMPLE 4
-```
+
+```powershell
 Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
 ```
 
