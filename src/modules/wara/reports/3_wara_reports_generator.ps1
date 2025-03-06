@@ -1174,8 +1174,8 @@ $TableStyle = 'Light19'
   foreach ($IExcel in $ImportExcel) {
     $IExcelPath = $IExcel.Path
     $IExcelVer = [string]$IExcel.Version
-    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Path: ' + $IExcelPath)
-    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Version: ' + $IExcelVer)
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Path: ' + $IExcelPath) 
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Version: ' + $IExcelVer) 
   }
 
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "10% Complete." -PercentComplete 10
@@ -1266,7 +1266,7 @@ $TableStyle = 'Light19'
       $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
     }
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
+  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.') 
   Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
 
   Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
