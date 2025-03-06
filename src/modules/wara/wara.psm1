@@ -513,7 +513,7 @@ function Start-WARACollector {
     #Create Script Details Object
     Write-Debug 'Creating Script Details Object'
     $scriptDetails = [PSCustomObject]@{
-        Version                        = "2.1.19"#$(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+        Version                        = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
         ElapsedTime                    = $stopWatch.Elapsed.toString('hh\:mm\:ss')
         SAP                            = [bool]$SAP
         AVD                            = [bool]$AVD
@@ -551,12 +551,17 @@ function Start-WARACollector {
     }
 
     Write-Debug 'Output JSON'
-    Write-Progress -Activity 'WARA Collector' -Status 'Output JSON' -PercentComplete 100 -Id 1 -Completed
+    Write-Progress -Activity 'WARA Collector' -Status 'Output Data' -PercentComplete 100 -Id 1 -Completed
+
+    #Return data if PassThru is enabled
+    if ($PassThru) {
+        Write-host "Returning data as PassThru is enabled." -ForegroundColor Yellow
+        return $outputJson
+    }
+
     #Output JSON to file
     $outputPath = ('.\WARA-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.json')
-    #Output JSON to file
     Write-Host "Output Path: $outputPath" -ForegroundColor Yellow
-    if ($PassThru) { return $outputJson }
     $outputJson | ConvertTo-Json -Depth 15 | Out-file $outputPath
 }
 
@@ -1219,7 +1224,7 @@ class specializedResourceFactory {
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
-            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually'}
+            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             #default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }
         return $return
