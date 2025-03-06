@@ -7,22 +7,27 @@ Starts the WARA Collector process.
 ## SYNTAX
 
 ### Default (Default)
-```
-Start-WARACollector [-SAP] [-AVD] [-AVS] [-HPC] [-SubscriptionIds <String[]>] [-ResourceGroups <String[]>]
- -TenantID <Guid> [-Tags <String[]>] [-AzureEnvironment <String>] [-RecommendationDataUri <String>]
- [-RecommendationResourceTypesUri <String>] [-UseImplicitRunbookSelectors] [-RunbookFile <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+
+```powershell
+Start-WARACollector -TenantID <guid> [-SAP] [-AVD] [-AVS] [-HPC] [-AI_GPT_RAG] [-PassThru]
+[-SubscriptionIds <string[]>] [-ResourceGroups <string[]>] [-Tags <string[]>] [-AzureEnvironment <string>]
+[-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>] [<CommonParameters>]
 ```
 
-### ConfigFileSet
-```
-Start-WARACollector [-SAP] [-AVD] [-AVS] [-HPC] -ConfigFile <String> [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+### ConfigFile
+
+```powershell
+Start-WARACollector -ConfigFile <string> [-SAP] [-AVD] [-AVS] [-HPC] [-AI_GPT_RAG] [-PassThru]
+[-AzureEnvironment <string>] [-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>]
+[<CommonParameters>]
 ```
 
 ### Specialized
-```
-Start-WARACollector [-SAP] [-AVD] [-AVS] [-HPC] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+
+```powershell
+Start-WARACollector [-SAP] [-AVD] [-AVS] [-HPC] [-AI_GPT_RAG] [-PassThru] [-SubscriptionIds <string[]>]
+[-ResourceGroups <string[]>] [-TenantID <guid>] [-Tags <string[]>] [-AzureEnvironment <string>]
+[-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -32,22 +37,26 @@ It supports multiple parameter sets, including Default, Specialized, and ConfigF
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000"
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 Start-WARACollector -ConfigFile "C:\path\to\config.txt"
 ```
 
 ### EXAMPLE 3
-```
+
+```powershell
 Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001" -Tags "Env||Environment!~Dev||QA" -AVD -SAP -HPC
 ```
 
 ### EXAMPLE 4
-```
+
+```powershell
 Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
 ```
 
@@ -100,6 +109,21 @@ Accept wildcard characters: False
 
 ### -HPC
 Switch to enable HPC workload processing.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AI_GPT_RAG
+Switch to enable Artificial Intelligence (GPT-RAG) workload processing.
 
 ```yaml
 Type: SwitchParameter
@@ -266,21 +290,6 @@ Validated using Test-Path.
 Type: String
 Parameter Sets: Default
 Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ProgressAction
-{{ Fill ProgressAction Description }}
-
-```yaml
-Type: ActionPreference
-Parameter Sets: (All)
-Aliases: proga
 
 Required: False
 Position: Named
