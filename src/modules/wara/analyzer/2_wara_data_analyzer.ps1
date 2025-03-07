@@ -687,6 +687,10 @@ function Initialize-WARAAnalysisPlanning
 	$ResourceTypes = $InScopeResources | Group-Object -Property type
 
 # Formula has to be extracted from the Excel file to be in this specific standard used by Excel, otherwise it will not work
+$InventoryFormula = @"
+=COUNTA(_xlfn.UNIQUE(_xlfn.VSTACK(_xlfn._xlws.FILTER($WorkloadInventorySheetRef!A:A, $WorkloadInventorySheetRef!C:C = TableTypes8[[#This Row],[Resource Type]]), _xlfn._xlws.FILTER($WorkloadInventorySheetRef!A:A, $WorkloadInventorySheetRef!C:C = TableTypes8[[#This Row],[Resource Type]]))))
+"@
+
 $ImpactedResourcesFormula = @"
 =IF(COUNTIF($ImpactedResourcesSheetRef!C:C, TableTypes8[[#This Row],[Resource Type]])=0, 0, COUNTA(_xlfn.UNIQUE(_xlfn._xlws.FILTER($ImpactedResourcesSheetRef!H:H, ($ImpactedResourcesSheetRef!C:C=TableTypes8[[#This Row],[Resource Type]]) * ($ImpactedResourcesSheetRef!H:H<>"Get ResourceID from Azure Portal")))))
 "@
@@ -708,7 +712,7 @@ $ReviewedFormula = @"
             $ResTypeObj = [AnalysisPlanningObj]::new()
             $ResTypeObj.Category = 'Impacted Resources'
             $ResTypeObj.ResourceType = $ResourceType.Name
-            $ResTypeObj.NumberOfResources = $ResourceType.'Count'
+            $ResTypeObj.NumberOfResources = $InventoryFormula
             $ResTypeObj.ImpactedResources = $ImpactedResourcesFormula
             $ResTypeObj.HasRecommendationsInAPRLAdvisor = $APRLOrAdv
             $ResTypeObj.AssessmentStatus = $ReviewedFormula
