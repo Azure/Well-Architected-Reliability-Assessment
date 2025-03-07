@@ -5,9 +5,11 @@ This document describes the PowerShell classes used within the WARA module.
 ## aprlResourceTypeObj
 
 ### SYNOPSIS
+
 Represents a resource type object for APRL.
 
 ### DESCRIPTION
+
 The `aprlResourceTypeObj` class encapsulates the details of a resource type in APRL, including the number of resources, availability in APRL/ADVISOR, assessment owner, status, and notes.
 
 ### PROPERTIES
@@ -22,9 +24,11 @@ The `aprlResourceTypeObj` class encapsulates the details of a resource type in A
 ## resourceTypeFactory
 
 ### SYNOPSIS
+
 Factory class to create resource type objects.
 
 ### DESCRIPTION
+
 The `resourceTypeFactory` class is responsible for creating instances of `aprlResourceTypeObj` based on impacted resources and types not in APRL or ADVISOR.
 
 ### PROPERTIES
@@ -33,11 +37,13 @@ The `resourceTypeFactory` class is responsible for creating instances of `aprlRe
 - **TypesNotInAPRLOrAdvisor**: Resource types that we want to create a recommendation for but do not have a recommendation for.
 
 ### CONSTRUCTORS
+
 ```powershell
 resourceTypeFactory([PSObject]$impactedResourceObj, [PSObject]$TypesNotInAPRLOrAdvisor)
 ```
 
 ### METHODS
+
 ```powershell
 [object[]] createResourceTypeObjects()
 ```
@@ -47,9 +53,11 @@ Creates resource type objects based on the impacted resources and types not in A
 ## aprlResourceObj
 
 ### SYNOPSIS
+
 Represents an APRL resource object.
 
 ### DESCRIPTION
+
 The `aprlResourceObj` class encapsulates the details of an APRL resource, including validation action, recommendation ID, name, ID, type, location, subscription ID, resource group, parameters, check name, and selector.
 
 ### PROPERTIES
@@ -73,9 +81,11 @@ The `aprlResourceObj` class encapsulates the details of an APRL resource, includ
 ## impactedResourceFactory
 
 ### SYNOPSIS
+
 Factory class to create impacted resource objects.
 
 ### DESCRIPTION
+
 The `impactedResourceFactory` class is responsible for creating instances of `aprlResourceObj` based on impacted resources, all resources, and recommendation objects.
 
 ### PROPERTIES
@@ -85,11 +95,13 @@ The `impactedResourceFactory` class is responsible for creating instances of `ap
 - **RecommendationObject**: The recommendation object.
 
 ### CONSTRUCTORS
+
 ```powershell
 impactedResourceFactory([PSObject]$impactedResources, [hashtable]$allResources, [hashtable]$RecommendationObject)
 ```
 
 ### METHODS
+
 ```powershell
 [object[]] createImpactedResourceObjects()
 ```
@@ -99,9 +111,11 @@ Creates and returns an array of `aprlResourceObj` instances based on the impacte
 ## validationResourceFactory
 
 ### SYNOPSIS
+
 Factory class to create validation resource objects.
 
 ### DESCRIPTION
+
 The `validationResourceFactory` class is responsible for creating instances of `aprlResourceObj` for validation purposes based on recommendation objects, validation resources, and types not in APRL or ADVISOR.
 
 ### PROPERTIES
@@ -111,11 +125,13 @@ The `validationResourceFactory` class is responsible for creating instances of `
 - **TypesNotInAPRLOrAdvisor**: Resource types that we want to create a recommendation for but do not have a recommendation for.
 
 ### CONSTRUCTORS
+
 ```powershell
 validationResourceFactory([PSObject]$recommendationObject, [hashtable]$validationResources, [PSObject]$TypesNotInAPRLOrAdvisor)
 ```
 
 ### METHODS
+
 ```powershell
 [object[]] createValidationResourceObjects()
 ```
@@ -131,9 +147,11 @@ Determines the validation action based on the provided query string.
 ## specializedResourceFactory
 
 ### SYNOPSIS
+
 Factory class to create specialized resource objects.
 
 ### DESCRIPTION
+
 The `specializedResourceFactory` class is responsible for creating instances of `aprlResourceObj` for specialized resources based on recommendation objects.
 
 ### PROPERTIES
@@ -142,11 +160,13 @@ The `specializedResourceFactory` class is responsible for creating instances of 
 - **RecommendationObject**: The recommendation object.
 
 ### CONSTRUCTORS
+
 ```powershell
 specializedResourceFactory([PSObject]$specializedResources, [PSObject]$RecommendationObject)
 ```
 
 ### METHODS
+
 ```powershell
 [object[]] createSpecializedResourceObjects()
 ```
