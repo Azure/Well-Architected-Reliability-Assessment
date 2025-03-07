@@ -702,7 +702,6 @@ $ReviewedFormula = @"
 "@
 
 	$tmp = @()
-	$Counter = 11
 	foreach ($ResourceType in $ResourceTypes)
 		{
 			$RootType = ""
@@ -717,7 +716,6 @@ $ReviewedFormula = @"
             $ResTypeObj.HasRecommendationsInAPRLAdvisor = $APRLOrAdv
             $ResTypeObj.AssessmentStatus = $ReviewedFormula
 
-			$Counter ++
 			$tmp += $ResTypeObj
 		}
 
@@ -750,8 +748,6 @@ function Export-WARAAnalysisPlanning
 {
 	Param($AnalysisPlanningFormatted, $ExcelPackage)
 
-	$Style = @()
-	$Style += New-ExcelStyle -HorizontalAlignment Center -Range A:H
 	$Style = @()
 	$Style += New-ExcelStyle -HorizontalAlignment Center -Range A:H
 
