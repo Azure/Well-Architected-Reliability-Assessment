@@ -261,7 +261,7 @@ Function Get-WAFAdvisorMetadata {
     param($ResourceURL = "https://management.azure.com/" )
 
     # Get an access token for the Azure REST API
-    $securetoken = Get-AzAccessToken -AsSecureString -ResourceUrl "https://management.azure.com/" -WarningAction SilentlyContinue
+    $securetoken = Get-AzAccessToken -AsSecureString -ResourceUrl $ResourceURL -WarningAction SilentlyContinue
 
     # Convert the secure token to a plain text token
     $token = ConvertFrom-SecureString -SecureString $securetoken.token -AsPlainText
@@ -272,7 +272,7 @@ Function Get-WAFAdvisorMetadata {
     }
 
     # Define the URI for the Advisor metadata
-    $AdvisorMetadataURI = $ResourceUrl+"/providers/Microsoft.Advisor/metadata?api-version=2023-01-01"
+    $AdvisorMetadataURI = $ResourceUrl+"providers/Microsoft.Advisor/metadata?api-version=2023-01-01"
 
     # Invoke the REST API to get the metadata
     $r = Invoke-RestMethod -Uri $AdvisorMetadataURI -Headers $authHeaders -Method Get

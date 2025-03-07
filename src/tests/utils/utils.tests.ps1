@@ -223,10 +223,34 @@ Describe 'Connect-WAFAzure' {
             Should -InvokeVerifiable
         }
 
-        It 'Should not call Connect-AzAccount if Get-AzContext returns a context of the same tenant' {
+        It 'Should call Connect-AzAccount if Get-AzContext returns a context of different environment' {
+            $tenantId = [Guid]::NewGuid()
+            Mock Get-AzContext {
+                return @{
+                    Tenant = @{ Id = $tenantId }
+                    Environment = @{Name = 'AzureCloud' }
+                }
+            } -ModuleName utils
+            Mock Connect-AzAccount { @{ } } -Verifiable -ModuleName utils
+
+
+            $azureEnvironment = 'AzureUSGovernment'
+
+            Connect-WAFAzure -TenantID $tenantId -AzureEnvironment $azureEnvironment
+
+            # Verify that Connect-AzAccount was called
+            Should -InvokeVerifiable
+        }
+
+        It 'Should not call Connect-AzAccount if Get-AzContext returns a context of the same tenant and the same environment' {
             $tenantId = [Guid]::NewGuid()
 
-            Mock Get-AzContext { return @{ Tenant = @{ Id = $tenantId } } } -ModuleName utils
+            Mock Get-AzContext {
+                return @{
+                    Tenant = @{ Id = $tenantId }
+                    Environment = @{Name = 'AzureCloud' }
+                }
+            } -ModuleName utils
             Mock Connect-AzAccount { @{ } } -Verifiable -ModuleName utils
 
             Connect-WAFAzure -TenantID $tenantId
@@ -380,3 +404,4 @@ Describe 'Repair-WAFSubscriptionId' {
         }
     }
 }
+

@@ -17,6 +17,9 @@
 .PARAMETER HPC
     Switch to enable HPC workload processing.
 
+.PARAMETER AI_GPT_RAG
+    Switch to enable Artificial Intelligence (GPT-RAG) workload processing.
+
 .PARAMETER PassThru
     Switch to enable the PassThru parameter. PassThru returns the output object.
 
@@ -200,6 +203,7 @@ function Start-WARACollector {
         }
     }
 
+
     #Use Null Coalescing to set the values of parameters.
     Write-Progress -Activity 'WARA Collector' -Status 'Setting Scope' -PercentComplete 1 -Id 1
     $Scope_TenantId = $ConfigData.TenantId ?? $TenantID ?? (throw 'Tenant ID is required.')
@@ -275,7 +279,8 @@ function Start-WARACollector {
     #Import WARA InScope Resource Types CSV from APRL
     Write-Debug 'Importing WARA InScope Resource Types CSV from GitHub'
     Write-Progress -Activity 'WARA Collector' -Status 'Importing WARA InScope Resource Types CSV' -PercentComplete 11 -Id 1
-    $RecommendationResourceTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv | Where-Object { $_.WARAinScope -eq 'yes' }
+    $RecommendationResourceTypes = Invoke-RestMethod $RecommendationResourceTypesUri
+    $RecommendationResourceTypes = $RecommendationResourceTypes | ConvertFrom-Csv | Where-Object { $_.WARAinScope -eq 'yes' }
     Write-Debug "Count of WARA InScope Resource Types: $($RecommendationResourceTypes.count)"
 
     #Add Specialized Workloads to WARA InScope Resource Types
@@ -292,8 +297,9 @@ function Start-WARACollector {
 
     #Connect to Azure
     Write-Debug 'Connecting to Azure if not connected.'
-    Write-Progress -Activity 'WARA Collector' -Status 'Connecting to Azure' -PercentComplete 20 -Id 1
+    Write-Progress -Activity 'WARA Collector' -Status 'Validating connection to Azure' -PercentComplete 20 -Id 1
     Connect-WAFAzure -TenantID $Scope_TenantId -AzureEnvironment $AzureEnvironment
+    $BaseURL = (Get-AzContext).Environment.ResourceManagerUrl
 
     #Get Implicit Subscription Ids from Scope
     Write-Debug 'Getting Implicit Subscription Ids from Scope'
@@ -394,7 +400,7 @@ function Start-WARACollector {
     #Get Advisor Metadata to include recommendations that are not in Advisor under 'HighAvailability'
     Write-Debug 'Getting Advisor Metadata'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Advisor Metadata' -PercentComplete 59 -Id 1
-    $AdvisorMetadata = Get-WAFAdvisorMetadata
+    $AdvisorMetadata = Get-WAFAdvisorMetadata -ResourceURL $BaseURL
     Write-Debug "Count of Advisor Metadata: $($AdvisorMetadata.count)"
 
     #Get Other Recommendations
@@ -481,7 +487,7 @@ function Start-WARACollector {
     #Build Resource Type Object
     Write-Debug 'Building Resource Type Object with impactedResourceObj and advisorResourceObj'
     Write-Progress -Activity 'WARA Collector' -Status 'Building Resource Type Object' -PercentComplete 78 -Id 1
-    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj $Scope_AllResources <# Adjusting this but keeping old code just in case. ($impactedResourceObj + $advisorResourceObj)#> -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
+    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj $Scope_AllResources -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
     Write-Debug "Count of Resource Type Object : $($resourceTypeObj.count)"
 
     #Get Azure Outages
@@ -510,7 +516,7 @@ function Start-WARACollector {
     #Create Script Details Object
     Write-Debug 'Creating Script Details Object'
     $scriptDetails = [PSCustomObject]@{
-        Version                        = "2.1.19"#$(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version
+        Version                        = $(Get-Module -Name $MyInvocation.MyCommand.ModuleName).Version.toString()
         ElapsedTime                    = $stopWatch.Elapsed.toString('hh\:mm\:ss')
         SAP                            = [bool]$SAP
         AVD                            = [bool]$AVD
@@ -548,13 +554,18 @@ function Start-WARACollector {
     }
 
     Write-Debug 'Output JSON'
-    Write-Progress -Activity 'WARA Collector' -Status 'Output JSON' -PercentComplete 100 -Id 1 -Completed
+    Write-Progress -Activity 'WARA Collector' -Status 'Output Data' -PercentComplete 100 -Id 1 -Completed
+
+    #Return data if PassThru is enabled
+    if ($PassThru) {
+        Write-host "Returning data as PassThru is enabled." -ForegroundColor Yellow
+        return $outputJson
+    }
+
     #Output JSON to file
     $outputPath = ('.\WARA-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.json')
-    #Output JSON to file
     Write-Host "Output Path: $outputPath" -ForegroundColor Yellow
-    if ($PassThru) { return $outputJson }
-    $outputJson | ConvertTo-Json -Depth 15 | Out-File $outputPath
+    $outputJson | ConvertTo-Json -Depth 15 | Out-file $outputPath
 }
 
 function Build-ImpactedResourceObj {
@@ -1101,7 +1112,7 @@ class specializedResourceFactory {
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
-            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
+            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually'  }
             #default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }
         return $return
