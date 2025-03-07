@@ -36,6 +36,12 @@ jobs:
         shell: pwsh
         continue-on-error: true
 
+      - name: Run wara.psm1 Pester Tests
+        run: |
+          pwsh .github/scripts/RunPesterTests.ps1 -moduleName wara
+        shell: pwsh
+        continue-on-error: true
+
       - name: Run advisor.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName advisor
@@ -51,6 +57,12 @@ jobs:
       - name: Run outage.psm1 Pester Tests
         run: |
           pwsh .github/scripts/RunPesterTests.ps1 -moduleName outage
+        shell: pwsh
+        continue-on-error: true
+
+      - name: Run runbook.psm1 Pester Tests
+        run: |
+          pwsh .github/scripts/RunPesterTests.ps1 -moduleName runbook
         shell: pwsh
         continue-on-error: true
 
