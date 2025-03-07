@@ -2,6 +2,77 @@
 
 This document describes the PowerShell classes used within the WARA module.
 
+## WARA Module Classes Diagram
+
+This diagram shows the classes in the WARA module and their relationships.
+
+```mermaid
+classDiagram
+    class aprlResourceTypeObj {
+        +string Resource Type
+        +int Number Of Resources
+        +string Available in APRL/ADVISOR?
+        +string Assessment Owner
+        +string Status
+        +string Notes
+    }
+
+    class resourceTypeFactory {
+        +PSObject impactedResourceObj
+        +PSObject TypesNotInAPRLOrAdvisor
+        +resourceTypeFactory(PSObject, PSObject)
+        +object[] createResourceTypeObjects()
+    }
+
+    class aprlResourceObj {
+        +string validationAction
+        +string recommendationId
+        +string name
+        +string id
+        +string type
+        +string location
+        +string subscriptionId
+        +string resourceGroup
+        +string param1
+        +string param2
+        +string param3
+        +string param4
+        +string param5
+        +string checkName
+        +string selector
+    }
+
+    class impactedResourceFactory {
+        +PSObject impactedResources
+        +hashtable allResources
+        +hashtable RecommendationObject
+        +impactedResourceFactory(PSObject, hashtable, hashtable)
+        +object[] createImpactedResourceObjects()
+    }
+
+    class validationResourceFactory {
+        +PSObject recommendationObject
+        +hashtable validationResources
+        +PSObject TypesNotInAPRLOrAdvisor
+        +validationResourceFactory(PSObject, hashtable, PSObject)
+        +object[] createValidationResourceObjects()
+        +static string getValidationAction(query)
+    }
+
+    class specializedResourceFactory {
+        +PSObject specializedResources
+        +PSObject RecommendationObject
+        +specializedResourceFactory(PSObject, PSObject)
+        +object[] createSpecializedResourceObjects()
+        +static string getValidationAction(query)
+    }
+
+    resourceTypeFactory ..> aprlResourceTypeObj : creates
+    impactedResourceFactory ..> aprlResourceObj : creates
+    validationResourceFactory ..> aprlResourceObj : creates
+    specializedResourceFactory ..> aprlResourceObj : creates
+```
+
 ## aprlResourceTypeObj
 
 ### SYNOPSIS
