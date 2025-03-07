@@ -203,7 +203,6 @@ function Start-WARACollector {
         }
     }
 
-    $BaseUrl = Get-WAFAzureEnvironmentAPIUri -EnvironmentName $AzureEnvironment
 
     #Use Null Coalescing to set the values of parameters.
     Write-Progress -Activity 'WARA Collector' -Status 'Setting Scope' -PercentComplete 1 -Id 1
@@ -280,7 +279,8 @@ function Start-WARACollector {
     #Import WARA InScope Resource Types CSV from APRL
     Write-Debug 'Importing WARA InScope Resource Types CSV from GitHub'
     Write-Progress -Activity 'WARA Collector' -Status 'Importing WARA InScope Resource Types CSV' -PercentComplete 11 -Id 1
-    $RecommendationResourceTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv | Where-Object { $_.WARAinScope -eq 'yes' }
+    $RecommendationResourceTypes = Invoke-RestMethod $RecommendationResourceTypesUri
+    $RecommendationResourceTypes = $RecommendationResourceTypes | ConvertFrom-Csv | Where-Object { $_.WARAinScope -eq 'yes' }
     Write-Debug "Count of WARA InScope Resource Types: $($RecommendationResourceTypes.count)"
 
     #Add Specialized Workloads to WARA InScope Resource Types
@@ -299,6 +299,7 @@ function Start-WARACollector {
     Write-Debug 'Connecting to Azure if not connected.'
     Write-Progress -Activity 'WARA Collector' -Status 'Validating connection to Azure' -PercentComplete 20 -Id 1
     Connect-WAFAzure -TenantId $Scope_TenantId -AzureEnvironment $AzureEnvironment
+    $BaseURL = (Get-AzContext).Environment.ResourceManagerUrl
 
     #Get Implicit Subscription Ids from Scope
     Write-Debug 'Getting Implicit Subscription Ids from Scope'
@@ -486,7 +487,7 @@ function Start-WARACollector {
     #Build Resource Type Object
     Write-Debug 'Building Resource Type Object with impactedResourceObj and advisorResourceObj'
     Write-Progress -Activity 'WARA Collector' -Status 'Building Resource Type Object' -PercentComplete 78 -Id 1
-    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj $Scope_AllResources <# Adjusting this but keeping old code just in case. ($impactedResourceObj + $advisorResourceObj)#> -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
+    $resourceTypeObj = Build-ResourceTypeObj -ResourceObj $Scope_AllResources -TypesNotInAPRLOrAdvisor $TypesNotInAPRLOrAdvisor
     Write-Debug "Count of Resource Type Object : $($resourceTypeObj.count)"
 
     #Get Azure Outages

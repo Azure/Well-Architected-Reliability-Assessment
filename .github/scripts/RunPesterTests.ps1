@@ -15,17 +15,19 @@ if ($env:GITHUB_WORKSPACE) {
 
 if($moduleName)
 {
-    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory | Where-Object { $_.Name -eq $moduleName }
+    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/" -Directory -Recurse | Where-Object { $_.Name -eq $moduleName }
 }
 else{
     # Grab directories
-    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/wara/" -Directory | Where-Object {$_.Name -notin @("analyzer","reports")}
+    $moduleDirectories = Get-ChildItem -Path "$basePath/modules/" -Directory -Recurse | Where-Object {$_.Name -notin @("analyzer","reports")}
 }
 
 $coveragePercent = @()
 $resultOfRun = @()
 $passedCount = @()
 $failedCount = @()
+
+
 
 foreach ($moduleDir in $moduleDirectories) {
     $manifestPath = "$($moduleDir.FullName)/$($moduleDir.Name).psd1"

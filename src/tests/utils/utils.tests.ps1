@@ -405,33 +405,3 @@ Describe 'Repair-WAFSubscriptionId' {
     }
 }
 
-Describe 'Get-WAFAzureEnvironmentAPIUri' {
-    Context 'When given a valid Azure Environment' {
-        It 'Should return the correct Azure Environment API URI for AzureCloud' {
-            $azureEnvironment = 'AzureCloud'
-            $result = Get-WAFAzureEnvironmentAPIUri $azureEnvironment
-            $result | Should -Be 'https://management.azure.com'
-        }
-        It 'Should return the correct Azure Environment API URI for AzureUSGovernment' {
-            $azureEnvironment = 'AzureUSGovernment'
-            $result = Get-WAFAzureEnvironmentAPIUri $azureEnvironment
-            $result | Should -Be 'https://management.usgovcloudapi.net'
-        }
-        It 'Should return the correct Azure Environment API URI for AzureGermanCloud' {
-            $azureEnvironment = 'AzureGermanCloud'
-            $result = Get-WAFAzureEnvironmentAPIUri $azureEnvironment
-            $result | Should -Be 'https://management.microsoftazure.de'
-        }
-        It 'Should return the correct Azure Environment API URI for AzureChinaCloud' {
-            $azureEnvironment = 'AzureChinaCloud'
-            $result = Get-WAFAzureEnvironmentAPIUri $azureEnvironment
-            $result | Should -Be 'https://management.chinacloudapi.cn'
-        }
-    }
-    Context 'When given an invalid Azure Environment' {
-        It 'Should throw an error indicating so' {
-            $azureEnvironment = 'AzureCloudInvalid'
-            { Get-WAFAzureEnvironmentAPIUri $azureEnvironment } | Should -Throw
-        }
-    }
-}
