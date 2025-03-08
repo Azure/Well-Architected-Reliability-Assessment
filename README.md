@@ -261,13 +261,13 @@ Start-WARAAnalyzer -JSONFile 'C:\WARA\WARA_File_2024-04-01_10_01.json'
 The `Start-WARAReport` cmdlet is used to generate the WARA reports.
 
 > [!NOTE]
-> Whatever directory you run the `Start-WARAReport` cmdlet in, the Word and PowerPoint files will be created in that directory. For example: if you run the `Start-WARAReport` cmdlet in the `C:\Temp` directory, the Word and PowerPoint files will be created in the `C:\Temp` directory.
+> Whatever directory you run the `Start-WARAReport` cmdlet in, the Excel and PowerPoint files will be created in that directory. For example: if you run the `Start-WARAReport` cmdlet in the `C:\Temp` directory, the Excel and PowerPoint files will be created in the `C:\Temp` directory.
 
 You can review all of the parameters of Start-WARAReport [here](docs/wara/Start-WARAReport.md).
 
 #### Examples
 
-##### Create the Word and PowerPoint reports from the Action Plan Excel output
+##### Create the Excel and PowerPoint reports from the Action Plan Excel output
 
 ```PowerShell
 Start-WARAReport -ExpertAnalysisFile 'C:\WARA\Expert-Analysis-v1-2025-02-04-11-14.xlsx'
