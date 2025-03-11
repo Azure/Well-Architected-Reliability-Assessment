@@ -397,17 +397,17 @@ function Start-WARACollector {
     $impactedResourceObj += $validationResourceObj
     Write-Debug "Count of combined validationResourceObj impactedResourceObj objects: $($impactedResourceObj.count)"
 
-<#     #Get Advisor Metadata to include recommendations that are not in Advisor under 'HighAvailability'
+    #Get Advisor Metadata to include recommendations that are not in Advisor under 'HighAvailability'
     Write-Debug 'Getting Advisor Metadata'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Advisor Metadata' -PercentComplete 59 -Id 1
-    $AdvisorMetadata = Get-WAFAdvisorMetadata -ResourceURL $BaseURL
+    $null = Get-WAFAdvisorMetadata -ResourceURL $BaseURL -ErrorAction SilentlyContinue
     Write-Debug "Count of Advisor Metadata: $($AdvisorMetadata.count)"
 
     #Get Other Recommendations
     Write-Debug 'Getting Other Recommendations'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Other Recommendations' -PercentComplete 62 -Id 1
-    $OtherRecommendations = Get-WARAOtherRecommendations -RecommendationObject $RecommendationObject -AdvisorMetadata $AdvisorMetadata
-    Write-Debug "Count of Other Recommendations: $($OtherRecommendations.count)" #>
+    $null = Get-WARAOtherRecommendations -RecommendationObject $RecommendationObject -AdvisorMetadata $AdvisorMetadata -ErrorAction SilentlyContinue
+    Write-Debug "Count of Other Recommendations: $($OtherRecommendations.count)"
 
     #Get Advisor Recommendations
     Write-Debug 'Getting Advisor Recommendations'
