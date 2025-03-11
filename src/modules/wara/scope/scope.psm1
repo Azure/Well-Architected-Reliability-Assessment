@@ -309,7 +309,8 @@ function Get-WAFFilteredResourceList {
 
     $FilteredResources = @()
 
-    $FilteredResources += $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources | Sort-Object | Get-Unique -CaseInsensitive -AsString
-
+    #$FilteredResources += $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources | Sort-Object | Get-Unique -CaseInsensitive -AsString
+    $FilteredResources += $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources
+    $FilteredResources = Get-unique -InputObject $FilteredResources -CaseInsensitive
     return ,$FilteredResources
 }
