@@ -568,6 +568,8 @@ function Initialize-WARAImpactedResources
     $ARCHObj.ValidationMSG = $ArchtectureMSG
     $ARCHObj.ValidationCategory = 'Architectural'
     $ARCHObj.ResourceType = 'Microsoft.Subscription/Subscriptions'
+    $ARCHObj.Impact = 'Low'
+    $ARCHObj.RecommendationControl = 'Governance'
 
     $tmp += $ARCHObj
 
