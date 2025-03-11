@@ -1281,6 +1281,17 @@ $TableStyle = 'Light19'
     }
     Add-PivotTable @PTParams
 
+    $ChartP0 = $Excel."1.Dashboard".Drawings.AddChart('ChartP0', 'BarClustered', $Excel."7.PivotTable".PivotTables['P0'])
+    $ChartP0.SetSize(480, 700)
+    $ChartP0.SetPosition(18, 10, 2, 60)
+    $ChartP0.RoundedCorners = $false
+    #$ChartP0.DisplayBlanksAs = 'Gap'
+    $ChartP0.Title.Font.Bold = $true
+    $ChartP0.Title.Font.SetFromFont("Segoe UI")
+    $ChartP0.Title.Font.Size = 11
+    $ChartP0.XAxis.Title.Font.SetFromFont('Segoe UI')
+    $ChartP0.XAxis.Title.Font.Size = 9
+
     Close-ExcelPackage $Excel
 
   }
@@ -1444,7 +1455,7 @@ $TableStyle = 'Light19'
 
   Build-ExcelPivotTable -NewAssessmentFindingsFile $NewAssessmentFindingsFile
 
-  Build-ExcelPivotChart -NewAssessmentFindingsFile $NewAssessmentFindingsFile
+  #Build-ExcelPivotChart -NewAssessmentFindingsFile $NewAssessmentFindingsFile
 
   if($csvExport.IsPresent)
     {
