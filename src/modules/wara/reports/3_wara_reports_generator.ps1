@@ -1427,7 +1427,7 @@ Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Resource Typ
 
 $TempImpactedResources = $ExcelImpactedResources | Select-Object -Property 'Resource Type', 'id' -Unique
 
-  $ResourcesTypes = $TempImpactedResources | Group-Object -Property 'Resource Type' | Sort-Object -Property 'Count' -Descending | Select-Object -First 10
+$ResourcesTypes = $TempImpactedResources | Group-Object -Property 'Resource Type' | Sort-Object -Property 'Count' -Descending | Select-Object -First 10
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
 #Openning PPT
