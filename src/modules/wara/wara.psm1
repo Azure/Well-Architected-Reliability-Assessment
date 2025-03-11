@@ -397,7 +397,7 @@ function Start-WARACollector {
     $impactedResourceObj += $validationResourceObj
     Write-Debug "Count of combined validationResourceObj impactedResourceObj objects: $($impactedResourceObj.count)"
 
-    #Get Advisor Metadata to include recommendations that are not in Advisor under 'HighAvailability'
+<#     #Get Advisor Metadata to include recommendations that are not in Advisor under 'HighAvailability'
     Write-Debug 'Getting Advisor Metadata'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Advisor Metadata' -PercentComplete 59 -Id 1
     $AdvisorMetadata = Get-WAFAdvisorMetadata -ResourceURL $BaseURL
@@ -407,12 +407,12 @@ function Start-WARACollector {
     Write-Debug 'Getting Other Recommendations'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Other Recommendations' -PercentComplete 62 -Id 1
     $OtherRecommendations = Get-WARAOtherRecommendations -RecommendationObject $RecommendationObject -AdvisorMetadata $AdvisorMetadata
-    Write-Debug "Count of Other Recommendations: $($OtherRecommendations.count)"
+    Write-Debug "Count of Other Recommendations: $($OtherRecommendations.count)" #>
 
     #Get Advisor Recommendations
     Write-Debug 'Getting Advisor Recommendations'
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Advisor Recommendations' -PercentComplete 65 -Id 1
-    $advisorResourceObj = Get-WAFAdvisorRecommendation -AdditionalRecommendationIds $OtherRecommendations -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '') -HighAvailability
+    $advisorResourceObj = Get-WAFAdvisorRecommendation -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '') -HighAvailability
     Write-Debug "Count of Advisor Recommendations: $($advisorResourceObj.count)"
 
     #Prior to filtering, capture all "global" recommendations that are microsoft.subscriptions/subscriptions since these get filtered out.
