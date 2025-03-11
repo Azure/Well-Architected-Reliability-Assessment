@@ -33,30 +33,31 @@ https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 #>
 
 Param(
-  [switch] $Help,
-  #[switch] $csvExport,
-  [switch] $includeLow,
-  [string] $CustomerName,
-  [string] $WorkloadName,
-  [Parameter(mandatory = $true)]
-  [Alias('ExcelFile')]
-  [string] $ExpertAnalysisFile,
-  [string] $AssessmentFindingsFile,
-  [string] $PPTTemplateFile
+    [switch] $Help,
+    #[switch] $csvExport,
+    [switch] $includeLow,
+    [string] $CustomerName,
+    [string] $WorkloadName,
+    [Parameter(mandatory = $true)]
+    [Alias('ExcelFile')]
+    [string] $ExpertAnalysisFile,
+    [string] $AssessmentFindingsFile,
+    [string] $PPTTemplateFile
 )
 
 # Checking the operating system running this script.
 if (-not $IsWindows) {
-  Write-Host 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
-  Exit
-  }
+    Write-Host 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
+    Exit
+}
 
-  # Check if Clipboard History is enabled
+# Check if Clipboard History is enabled
 $clipboardHistory = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Clipboard" -Name "EnableClipboardHistory" -ErrorAction SilentlyContinue
 
 if ($clipboardHistory.EnableClipboardHistory -eq 1) {
     Throw "Clipboard History is enabled. Please disable Clipboard History before running this script."
-} else {
+}
+else {
     Write-Debug "Clipboard History is disabled."
 }
 
@@ -64,67 +65,66 @@ if ($clipboardHistory.EnableClipboardHistory -eq 1) {
 <# $CurrentPath = Get-Location
 $CurrentPath = $CurrentPath.Path #>
 if (!$PPTTemplateFile) {
-  write-host ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
-  if ((Test-Path -Path ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx") -PathType Leaf) -eq $true) {
-    $PPTTemplateFile = ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
-  }
-  else {
-    Write-Host "This script requires specific Microsoft PowerPoint template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
-    Write-Host "https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main/tools" -ForegroundColor Yellow
-    Exit
-  }
+    write-host ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
+    if ((Test-Path -Path ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx") -PathType Leaf) -eq $true) {
+        $PPTTemplateFile = ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
+    }
+    else {
+        Write-Host "This script requires specific Microsoft PowerPoint template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
+        Write-Host "https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main/tools" -ForegroundColor Yellow
+        Exit
+    }
 }
 
 if (!$AssessmentFindingsFile) {
-  write-host ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
-  if ((Test-Path -Path ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx") -PathType Leaf) -eq $true) {
-    $AssessmentFindingsFile = ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
-  }
-  else {
-    Write-Host "This script requires specific Microsoft Excel template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
-    Write-Host "https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main/tools" -ForegroundColor Yellow
-    Exit
-  }
+    write-host ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
+    if ((Test-Path -Path ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx") -PathType Leaf) -eq $true) {
+        $AssessmentFindingsFile = ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
+    }
+    else {
+        Write-Host "This script requires specific Microsoft Excel template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
+        Write-Host "https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main/tools" -ForegroundColor Yellow
+        Exit
+    }
 }
 
 if (!$ExpertAnalysisFile) {
-  Write-Host "The Expert-Analysis Excel file is missing. Please provide the path to the Expert-Analysis Excel file." -ForegroundColor Yellow
-  Exit
+    Write-Host "The Expert-Analysis Excel file is missing. Please provide the path to the Expert-Analysis Excel file." -ForegroundColor Yellow
+    Exit
 }
 
 
 if (!$CustomerName) {
-  $CustomerName = '[Customer Name]'
+    $CustomerName = '[Customer Name]'
 }
 
 if (!$WorkloadName) {
-  $WorkloadName = '[Workload Name]'
+    $WorkloadName = '[Workload Name]'
 }
 
 $TableStyle = 'Light19'
 
-  ######################## REGULAR Functions ##########################
+######################## REGULAR Functions ##########################
 
-  function Test-ReviewedRecommendations {
+function Test-ReviewedRecommendations {
     Param($ExcelFile)
 
     $ExcelContent = Import-Excel -Path $ExcelFile -WorksheetName '4.ImpactedResourcesAnalysis' -StartRow 12
 
-    if ( ($ExcelContent | Where-Object { $_.Impact -ne 'Low' -and $_.'REQUIRED ACTIONS / REVIEW STATUS' -ne 'Reviewed' -and ![String]::IsNullOrEmpty($_.'REQUIRED ACTIONS / REVIEW STATUS')}).count -ge 1)
-      {
+    if ( ($ExcelContent | Where-Object { $_.Impact -ne 'Low' -and $_.'REQUIRED ACTIONS / REVIEW STATUS' -ne 'Reviewed' -and ![String]::IsNullOrEmpty($_.'REQUIRED ACTIONS / REVIEW STATUS') }).count -ge 1) {
         Write-Host ""
         Write-Host "There are still some recommendations that need to be reviewed." -ForegroundColor Yellow
         Write-Host "Please review all the recommendations in the Expert-Analysis file before running the report generator." -ForegroundColor Yellow
         Write-Host ""
         Exit
-      }
+    }
 
-  }
+}
 
-  function New-AssessmentFindingsFile {
+function New-AssessmentFindingsFile {
     Param(
-      [string]$AssessmentFindingsFile
-      )
+        [string]$AssessmentFindingsFile
+    )
 
     $workingFolderPath = Get-Location
     $workingFolderPath = $workingFolderPath.Path
@@ -133,145 +133,142 @@ $TableStyle = 'Light19'
     Close-ExcelPackage -ExcelPackage $ExcelPkg -SaveAs $NewAssessmentFindings
 
     return $NewAssessmentFindings
-  }
+}
 
-  function New-PPTFile {
+function New-PPTFile {
     Param(
-      [string]$PPTTemplateFile
-      )
+        [string]$PPTTemplateFile
+    )
 
     $workingFolderPath = Get-Location
     $workingFolderPath = $workingFolderPath.Path
     $NewPPTFile = ($workingFolderPath + '\Executive Summary Presentation - ' + $CustomerName + ' - ' + (get-date -Format "yyyy-MM-dd-HH-mm") + '.pptx')
 
     return $NewPPTFile
-  }
+}
 
-  function Test-Requirement {
+function Test-Requirement {
     # Install required modules
     Write-Host "Validating " -NoNewline
     Write-Host "ImportExcel" -ForegroundColor Cyan -NoNewline
     Write-Host " Module.."
     $ImportExcel = Get-Module -Name ImportExcel -ListAvailable -ErrorAction silentlycontinue
     if ($null -eq $ImportExcel) {
-      Write-Host "Installing ImportExcel Module" -ForegroundColor Yellow
-      Install-Module -Name ImportExcel -Force -SkipPublisherCheck
+        Write-Host "Installing ImportExcel Module" -ForegroundColor Yellow
+        Install-Module -Name ImportExcel -Force -SkipPublisherCheck
     }
-  }
+}
 
-  function Set-LocalFile {
+function Set-LocalFile {
     # Define script path as the default path to save files
-      $workingFolderPath = $PSScriptRoot
-      Set-Location -path $workingFolderPath;
-      $clonePath = "$workingFolderPath\Azure-Proactive-Resiliency-Library"
-      Write-Debug "Checking the version of the script"
-      $RepoVersion = Get-Content -Path "$clonePath\tools\Version.json" -ErrorAction SilentlyContinue | ConvertFrom-Json
-      if ($Version -ne $RepoVersion.Generator) {
+    $workingFolderPath = $PSScriptRoot
+    Set-Location -path $workingFolderPath;
+    $clonePath = "$workingFolderPath\Azure-Proactive-Resiliency-Library"
+    Write-Debug "Checking the version of the script"
+    $RepoVersion = Get-Content -Path "$clonePath\tools\Version.json" -ErrorAction SilentlyContinue | ConvertFrom-Json
+    if ($Version -ne $RepoVersion.Generator) {
         Write-Host "This version of the script is outdated. " -BackgroundColor DarkRed
         Write-Host "Please use a more recent version of the script." -BackgroundColor DarkRed
-      }
-      else {
+    }
+    else {
         Write-Host "This version of the script is current version. " -BackgroundColor DarkGreen
-      }
+    }
 
-  }
+}
 
-  function Get-ExcelImpactedResources {
+function Get-ExcelImpactedResources {
     Param($ExcelFile)
 
     $ExcelContent = Import-Excel -Path $ExcelFile -WorksheetName '4.ImpactedResourcesAnalysis' -StartRow 12
     #$ImpactedResources = $ExcelContent
 
-    return $ExcelContent.where({![String]::IsNullOrEmpty($_."Resource Type")})
-  }
+    return $ExcelContent.where({ ![String]::IsNullOrEmpty($_."Resource Type") })
+}
 
-  function Get-ExcelWorkloadInventory {
+function Get-ExcelWorkloadInventory {
     Param($ExcelFile)
 
     $ExcelContent = Import-Excel -Path $ExcelFile -WorksheetName '2.WorkloadInventory' -StartRow 12
 
     return $ExcelContent
 
-  }
+}
 
-  function Get-ExcelPlatformIssues {
+function Get-ExcelPlatformIssues {
     Param($ExcelFile)
 
     try {
-      $PlatformIssues = Import-Excel -Path $ExcelFile -WorksheetName '5.PlatformIssuesAnalysis' -StartRow 12
+        $PlatformIssues = Import-Excel -Path $ExcelFile -WorksheetName '5.PlatformIssuesAnalysis' -StartRow 12
     }
     catch {
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Platform Issues not found in the Excel File..')
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Platform Issues not found in the Excel File..')
     }
 
     return $PlatformIssues
 
-  }
+}
 
-  function Get-ExcelSupportTicket {
+function Get-ExcelSupportTicket {
     Param($ExcelFile)
 
     try {
-      $SupportTickets = Import-Excel -Path $ExcelFile -WorksheetName "6.SupportRequestsAnalysis" -AsText 'Ticket ID' -StartRow 12
+        $SupportTickets = Import-Excel -Path $ExcelFile -WorksheetName "6.SupportRequestsAnalysis" -AsText 'Ticket ID' -StartRow 12
     }
     catch {
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Support Tickets not found in the Excel File..')
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Support Tickets not found in the Excel File..')
     }
 
     return $SupportTickets
-  }
+}
 
-  function Get-ExcelRetirement {
+function Get-ExcelRetirement {
     Param($ExcelFile)
 
     try {
-      $Retirements = Import-Excel -Path $ExcelFile -WorksheetName "4.ImpactedResourcesAnalysis" -StartRow 12
-      $Retirements = $Retirements | Where-Object {$_.Source -eq 'Azure Service Health - Service Retirements'}
+        $Retirements = Import-Excel -Path $ExcelFile -WorksheetName "4.ImpactedResourcesAnalysis" -StartRow 12
+        $Retirements = $Retirements | Where-Object { $_.Source -eq 'Azure Service Health - Service Retirements' }
     }
     catch {
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Service Retirements not found in the Excel File..')
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Service Retirements not found in the Excel File..')
     }
 
     return $Retirements
 
-  }
+}
 
-  function Build-SummaryActionPlan {
-    Param($ImpactedResources,$includeLow)
+function Build-SummaryActionPlan {
+    Param($ImpactedResources, $includeLow)
 
-    if ($includeLow.IsPresent)
-      {
-        $Recommendations = $ImpactedResources | Where-Object {$_.impact -in ('High','Medium','Low')}
-      }
-    else
-      {
-        $Recommendations = $ImpactedResources | Where-Object {$_.impact -in ('High','Medium')}
-      }
+    if ($includeLow.IsPresent) {
+        $Recommendations = $ImpactedResources | Where-Object { $_.impact -in ('High', 'Medium', 'Low') }
+    }
+    else {
+        $Recommendations = $ImpactedResources | Where-Object { $_.impact -in ('High', 'Medium') }
+    }
 
     $RecomCount = ($ImpactedResources.recommendationId | Select-Object -Unique).count
-    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Creating CSV file for: '+ $RecomCount +' recommendations')
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Creating CSV file for: ' + $RecomCount + ' recommendations')
 
-    $CXSummaryArray = Foreach ($Recommendation in $Recommendations)
-      {
+    $CXSummaryArray = Foreach ($Recommendation in $Recommendations) {
         $tmp = [PSCustomObject]@{
-          'Recommendation Guid'       = $Recommendation.Guid
-          'Recommendation Title'      = $Recommendation.'Recommendation Title'
-          'Priority'                  = $Recommendation.Impact
-          'Description'               = $Description.'Long Description'
-          'Resource ID'               = $Recommendation.id
+            'Recommendation Guid'  = $Recommendation.Guid
+            'Recommendation Title' = $Recommendation.'Recommendation Title'
+            'Priority'             = $Recommendation.Impact
+            'Description'          = $Description.'Long Description'
+            'Resource ID'          = $Recommendation.id
         }
         $tmp
-      }
+    }
 
     return $CXSummaryArray
 
-  }
+}
 
-  ######################## PPT Functions ##########################
+######################## PPT Functions ##########################
 
-  ############# Slide 1
-  function Remove-PPTSlide1 {
-    Param($Presentation,$CustomerName,$WorkloadName)
+############# Slide 1
+function Remove-PPTSlide1 {
+    Param($Presentation, $CustomerName, $WorkloadName)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Removing Slide 1..')
 
     ($Presentation.Slides | Where-Object { $_.SlideIndex -eq 1 }).Delete()
@@ -280,11 +277,11 @@ $TableStyle = 'Light19'
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Slide 1 - Adding Customer name: ' + $CustomerName + '. And Workload name: ' + $WorkloadName)
     ($Slide1.Shapes | Where-Object { $_.Id -eq 5 }).TextFrame.TextRange.Text = ($CustomerName + ' - ' + $WorkloadName)
-  }
+}
 
-  ############# SLide 12
-  function Build-PPTSlide12 {
-    Param($Presentation,$AUTOMESSAGE,$WorkloadName,$ResourcesTypes)
+############# SLide 12
+function Build-PPTSlide12 {
+    Param($Presentation, $AUTOMESSAGE, $WorkloadName, $ResourcesTypes)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 12 - Workload Summary..')
 
     $SlideWorkloadSummary = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 12 }
@@ -300,27 +297,27 @@ $TableStyle = 'Light19'
 
     $loop = 1
     foreach ($ResourcesType in $ResourcesTypes) {
-      $LogResName = $ResourcesType.Name
-      $LogResCount = $ResourcesType.'Count'
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 12 - Adding Resource Type: ' + $LogResName + '. Count: ' + $LogResCount)
-      if ($loop -eq 1) {
-        $ResourceTemp = ($ResourcesType.Name + ' (' + $ResourcesType.'Count' + ')')
+        $LogResName = $ResourcesType.Name
+        $LogResCount = $ResourcesType.'Count'
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 12 - Adding Resource Type: ' + $LogResName + '. Count: ' + $LogResCount)
+        if ($loop -eq 1) {
+            $ResourceTemp = ($ResourcesType.Name + ' (' + $ResourcesType.'Count' + ')')
         ($SlideWorkloadSummary.Shapes | Where-Object { $_.Id -eq 6 }).Table.Columns(1).Width = 685
         ($SlideWorkloadSummary.Shapes | Where-Object { $_.Id -eq 6 }).Table.Rows(1).Cells(1).Shape.TextFrame.TextRange.Text = $ResourceTemp
         ($SlideWorkloadSummary.Shapes | Where-Object { $_.Id -eq 6 }).Table.Rows(1).Height = 20
-      }
-      else {
-        $ResourceTemp = ($ResourcesType.Name + ' (' + $ResourcesType.'Count' + ')')
+        }
+        else {
+            $ResourceTemp = ($ResourcesType.Name + ' (' + $ResourcesType.'Count' + ')')
         ($SlideWorkloadSummary.Shapes | Where-Object { $_.Id -eq 6 }).Table.Rows.Add() | Out-Null
         ($SlideWorkloadSummary.Shapes | Where-Object { $_.Id -eq 6 }).Table.Rows($loop).Cells(1).Shape.TextFrame.TextRange.Text = $ResourceTemp
-      }
-      $loop ++
+        }
+        $loop ++
     }
-  }
+}
 
-  ############# Slide 16
-  function Build-PPTSlide16 {
-    Param($Presentation,$AUTOMESSAGE,$ImpactedResources)
+############# Slide 16
+function Build-PPTSlide16 {
+    Param($Presentation, $AUTOMESSAGE, $ImpactedResources)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 16 - Health and Risk Dashboard..')
 
     $SlideHealthAndRisk = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 16 }
@@ -333,12 +330,12 @@ $TableStyle = 'Light19'
 
     $count = 1
     foreach ($Impact in $ServiceHighImpact) {
-      $LogImpactName = $Impact.Name
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 16 - Adding Service High Impact Name: ' + $LogImpactName)
-      if ($count -lt 5) {
+        $LogImpactName = $Impact.Name
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 16 - Adding Service High Impact Name: ' + $LogImpactName)
+        if ($count -lt 5) {
           ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs($count).text = $Impact.Name
-        $count ++
-      }
+            $count ++
+        }
     }
 
     while (($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs().count -gt 5) {
@@ -346,17 +343,17 @@ $TableStyle = 'Light19'
     }
 
     if ($WAFHighImpact.count -ne 0) {
-      $count = 1
-      foreach ($Impact in $WAFHighImpact) {
-        $LogWAFImpactName = $Impact.Name
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 16 - Adding WAF High Impact: ' + $LogWAFImpactName)
-        if ($count -lt 5) {
+        $count = 1
+        foreach ($Impact in $WAFHighImpact) {
+            $LogWAFImpactName = $Impact.Name
+            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 16 - Adding WAF High Impact: ' + $LogWAFImpactName)
+            if ($count -lt 5) {
           ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 12 }).TextFrame.TextRange.Paragraphs($count).text = $Impact.Name
-          $count ++
+                $count ++
+            }
         }
-      }
     }
-<#     else {
+    <#     else {
       ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 12 }).TextFrame.TextRange.Text = ' '
     } #>
 
@@ -375,14 +372,14 @@ $TableStyle = 'Light19'
     ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 24 }).TextFrame.TextRange.Text = [string]($ImpactedResources | Where-Object { $_.Impact -eq 'Low' } | Select-Object -Property Guid -Unique).count
     #Impacted Resources
     ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 30 }).TextFrame.TextRange.Text = [string]($ImpactedResources | Select-Object -Property id -Unique).count
-  }
+}
 
-  ############# Slide 23
-  function Build-PPTSlide23 {
-    Param($Presentation,$AUTOMESSAGE,$ImpactedResources)
+############# Slide 23
+function Build-PPTSlide23 {
+    Param($Presentation, $AUTOMESSAGE, $ImpactedResources)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 23 - High Impact Issues..')
 
-    $HighImpact = $ImpactedResources | Where-Object { $_.Impact -eq 'High' } | Group-Object -Property 'Recommendation Title','Resource Type' | Sort-Object -Property "Count" -Descending
+    $HighImpact = $ImpactedResources | Where-Object { $_.Impact -eq 'High' } | Group-Object -Property 'Recommendation Title', 'Resource Type' | Sort-Object -Property "Count" -Descending
 
     $FirstSlide = 23
     $TableID = 6
@@ -395,91 +392,91 @@ $TableStyle = 'Light19'
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 23 - Cleaning Table..')
     $row = 2
     while ($row -lt 6) {
-      $cell = 1
-      while ($cell -lt 5) {
+        $cell = 1
+        while ($cell -lt 5) {
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells($cell).Shape.TextFrame.TextRange.Text = ''
-        $Cell ++
-      }
-      $row ++
+            $Cell ++
+        }
+        $row ++
     }
 
     $Counter = 1
     $RecomNumber = 1
     $row = 2
     foreach ($Impact in $HighImpact) {
-      $LogHighImpact = $Impact.Values[0]
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 23 - Adding High Impact: ' + $LogHighImpact )
-      if ($Counter -lt 14) {
-        #Number
+        $LogHighImpact = $Impact.Values[0]
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 23 - Adding High Impact: ' + $LogHighImpact )
+        if ($Counter -lt 14) {
+            #Number
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(1).Shape.TextFrame.TextRange.Text = [string]$RecomNumber
-        #Recommendation
+            #Recommendation
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(2).Shape.TextFrame.TextRange.Text = $Impact.Values[0]
-        #Service
+            #Service
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(3).Shape.TextFrame.TextRange.Text = $Impact.Values[1]
-        #Impacted Resources
+            #Impacted Resources
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(4).Shape.TextFrame.TextRange.Text = [string]$Impact.'Count'
-        $counter ++
-        $RecomNumber ++
-        $row ++
-      }
-      else {
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 23 - Adding new Slide..')
-        $Counter = 1
-        $CustomLayout = $CurrentSlide.CustomLayout
-        $FirstSlide ++
-        $Presentation.Slides.addSlide($FirstSlide, $customLayout) | Out-Null
-
-        $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Copy()
-        Start-Sleep -Milliseconds 100
-        ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        $TableID = 3
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 41 }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 23 - Cleaning table of new slide..')
-        $rowTemp = 2
-        while ($rowTemp -lt 15) {
-          $cell = 1
-          while ($cell -lt 5) {
-            ($NextSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($rowTemp).Cells($cell).Shape.TextFrame.TextRange.Text = ''
-            $Cell ++
-          }
-          $rowTemp ++
+            $counter ++
+            $RecomNumber ++
+            $row ++
         }
+        else {
+            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 23 - Adding new Slide..')
+            $Counter = 1
+            $CustomLayout = $CurrentSlide.CustomLayout
+            $FirstSlide ++
+            $Presentation.Slides.addSlide($FirstSlide, $customLayout) | Out-Null
 
-        $CurrentSlide = $NextSlide
+            $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
+        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Copy()
+            Start-Sleep -Milliseconds 100
+        ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
+            Start-Sleep -Milliseconds 100
+        ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Copy()
+            Start-Sleep -Milliseconds 100
+            $NextSlide.Shapes.Paste() | Out-Null
+            Start-Sleep -Milliseconds 100
+            $TableID = 3
+        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 41 }).Copy()
+            Start-Sleep -Milliseconds 100
+            $NextSlide.Shapes.Paste() | Out-Null
+            Start-Sleep -Milliseconds 100
 
-        $row = 2
-        #Number
+            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 23 - Cleaning table of new slide..')
+            $rowTemp = 2
+            while ($rowTemp -lt 15) {
+                $cell = 1
+                while ($cell -lt 5) {
+            ($NextSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($rowTemp).Cells($cell).Shape.TextFrame.TextRange.Text = ''
+                    $Cell ++
+                }
+                $rowTemp ++
+            }
+
+            $CurrentSlide = $NextSlide
+
+            $row = 2
+            #Number
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(1).Shape.TextFrame.TextRange.Text = [string]$RecomNumber
-        #Recommendation
+            #Recommendation
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(2).Shape.TextFrame.TextRange.Text = $Impact.Values[0]
-        #Service
+            #Service
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(3).Shape.TextFrame.TextRange.Text = $Impact.Values[1]
-        #Impacted Resources
+            #Impacted Resources
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(4).Shape.TextFrame.TextRange.Text = [string]$Impact.'Count'
-        $Counter ++
-        $RecomNumber ++
-        $row ++
-      }
+            $Counter ++
+            $RecomNumber ++
+            $row ++
+        }
     }
 
-  }
+}
 
-  ############# Slide 24
-  function Build-PPTSlide24 {
-    Param($Presentation,$AUTOMESSAGE,$ImpactedResources)
+############# Slide 24
+function Build-PPTSlide24 {
+    Param($Presentation, $AUTOMESSAGE, $ImpactedResources)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 24 - Medium Impact Issues..')
 
-    $MediumImpact = $ImpactedResources | Where-Object { $_.Impact -eq 'Medium' } | Group-Object -Property 'Recommendation Title','Resource Type' | Sort-Object -Property "Count" -Descending
+    $MediumImpact = $ImpactedResources | Where-Object { $_.Impact -eq 'Medium' } | Group-Object -Property 'Recommendation Title', 'Resource Type' | Sort-Object -Property "Count" -Descending
 
     $FirstSlide = 24
     $TableID = 6
@@ -492,91 +489,91 @@ $TableStyle = 'Light19'
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 24 - Cleaning Table..')
     $row = 2
     while ($row -lt 6) {
-      $cell = 1
-      while ($cell -lt 5) {
+        $cell = 1
+        while ($cell -lt 5) {
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells($cell).Shape.TextFrame.TextRange.Text = ''
-        $Cell ++
-      }
-      $row ++
+            $Cell ++
+        }
+        $row ++
     }
 
     $Counter = 1
     $RecomNumber = 1
     $row = 2
     foreach ($Impact in $MediumImpact) {
-      $LogMediumImpact = $Impact.Values[0]
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 24 - Adding Medium Impact: ' + $LogMediumImpact)
-      if ($Counter -lt 14) {
-        #Number
+        $LogMediumImpact = $Impact.Values[0]
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 24 - Adding Medium Impact: ' + $LogMediumImpact)
+        if ($Counter -lt 14) {
+            #Number
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(1).Shape.TextFrame.TextRange.Text = [string]$RecomNumber
-        #Recommendation
+            #Recommendation
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(2).Shape.TextFrame.TextRange.Text = $Impact.Values[0]
-        #Service
+            #Service
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(3).Shape.TextFrame.TextRange.Text = $Impact.Values[1]
-        #Impacted Resources
+            #Impacted Resources
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(4).Shape.TextFrame.TextRange.Text = [string]$Impact.'Count'
-        $counter ++
-        $RecomNumber ++
-        $row ++
-      }
-      else {
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 24 - Creating new slide..')
-        $Counter = 1
-        $CustomLayout = $CurrentSlide.CustomLayout
-        $FirstSlide ++
-        $Presentation.Slides.addSlide($FirstSlide, $customLayout) | Out-Null
-
-        $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Copy()
-        Start-Sleep -Milliseconds 100
-        ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        $TableID = 3
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 41 }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 24 - Cleaning Table of new slide..')
-        $rowTemp = 2
-        while ($rowTemp -lt 15) {
-          $cell = 1
-          while ($cell -lt 5) {
-            ($NextSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($rowTemp).Cells($cell).Shape.TextFrame.TextRange.Text = ''
-            $Cell ++
-          }
-          $rowTemp ++
+            $counter ++
+            $RecomNumber ++
+            $row ++
         }
+        else {
+            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 24 - Creating new slide..')
+            $Counter = 1
+            $CustomLayout = $CurrentSlide.CustomLayout
+            $FirstSlide ++
+            $Presentation.Slides.addSlide($FirstSlide, $customLayout) | Out-Null
 
-        $CurrentSlide = $NextSlide
+            $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
+        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Copy()
+            Start-Sleep -Milliseconds 100
+        ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
+            Start-Sleep -Milliseconds 100
+        ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Copy()
+            Start-Sleep -Milliseconds 100
+            $NextSlide.Shapes.Paste() | Out-Null
+            Start-Sleep -Milliseconds 100
+            $TableID = 3
+        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 41 }).Copy()
+            Start-Sleep -Milliseconds 100
+            $NextSlide.Shapes.Paste() | Out-Null
+            Start-Sleep -Milliseconds 100
 
-        $row = 2
-        #Number
+            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 24 - Cleaning Table of new slide..')
+            $rowTemp = 2
+            while ($rowTemp -lt 15) {
+                $cell = 1
+                while ($cell -lt 5) {
+            ($NextSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($rowTemp).Cells($cell).Shape.TextFrame.TextRange.Text = ''
+                    $Cell ++
+                }
+                $rowTemp ++
+            }
+
+            $CurrentSlide = $NextSlide
+
+            $row = 2
+            #Number
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(1).Shape.TextFrame.TextRange.Text = [string]$RecomNumber
-        #Recommendation
+            #Recommendation
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(2).Shape.TextFrame.TextRange.Text = $Impact.Values[0]
-        #Service
+            #Service
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(3).Shape.TextFrame.TextRange.Text = $Impact.Values[1]
-        #Impacted Resources
+            #Impacted Resources
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(4).Shape.TextFrame.TextRange.Text = [string]$Impact.'Count'
-        $Counter ++
-        $RecomNumber ++
-        $row ++
-      }
+            $Counter ++
+            $RecomNumber ++
+            $row ++
+        }
     }
 
-  }
+}
 
-  ############# Slide 25
-  function Build-PPTSlide25 {
-    Param($Presentation,$AUTOMESSAGE,$ImpactedResources)
+############# Slide 25
+function Build-PPTSlide25 {
+    Param($Presentation, $AUTOMESSAGE, $ImpactedResources)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 25 - Low Impact Issues..')
 
-    $LowImpact = $ImpactedResources | Where-Object { $_.Impact -eq 'Low' } | Group-Object -Property 'Recommendation Title','Resource Type' | Sort-Object -Property "Count" -Descending
+    $LowImpact = $ImpactedResources | Where-Object { $_.Impact -eq 'Low' } | Group-Object -Property 'Recommendation Title', 'Resource Type' | Sort-Object -Property "Count" -Descending
 
     $FirstSlide = 25
     $TableID = 6
@@ -589,207 +586,207 @@ $TableStyle = 'Light19'
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 25 - Cleaning Table..')
     $row = 2
     while ($row -lt 6) {
-      $cell = 1
-      while ($cell -lt 5) {
+        $cell = 1
+        while ($cell -lt 5) {
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells($cell).Shape.TextFrame.TextRange.Text = ''
-        $Cell ++
-      }
-      $row ++
+            $Cell ++
+        }
+        $row ++
     }
 
     $Counter = 1
     $RecomNumber = 1
     $row = 2
     foreach ($Impact in $LowImpact) {
-      $LogLowImpact = $Impact.Values[0]
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 25 - Adding Low Impact: ' + $LogLowImpact)
-      if ($Counter -lt 14) {
-        #Number
+        $LogLowImpact = $Impact.Values[0]
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 25 - Adding Low Impact: ' + $LogLowImpact)
+        if ($Counter -lt 14) {
+            #Number
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(1).Shape.TextFrame.TextRange.Text = [string]$RecomNumber
-        #Recommendation
+            #Recommendation
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(2).Shape.TextFrame.TextRange.Text = $Impact.Values[0]
-        #Service
+            #Service
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(3).Shape.TextFrame.TextRange.Text = $Impact.Values[1]
-        #Impacted Resources
+            #Impacted Resources
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(4).Shape.TextFrame.TextRange.Text = [string]$Impact.'Count'
-        $counter ++
-        $RecomNumber ++
-        $row ++
-      }
-      else {
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 25 - Creating new Slide..')
-        $Counter = 1
-        $CustomLayout = $CurrentSlide.CustomLayout
-        $FirstSlide ++
-        $Presentation.Slides.addSlide($FirstSlide, $customLayout) | Out-Null
-
-        $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Copy()
-        Start-Sleep -Milliseconds 100
-        ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-        $TableID = 3
-        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 41 }).Copy()
-        Start-Sleep -Milliseconds 100
-        $NextSlide.Shapes.Paste() | Out-Null
-        Start-Sleep -Milliseconds 100
-
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 25 - Cleaning Table of new slide..')
-        $rowTemp = 2
-        while ($rowTemp -lt 15) {
-          $cell = 1
-          while ($cell -lt 5) {
-            ($NextSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($rowTemp).Cells($cell).Shape.TextFrame.TextRange.Text = ''
-            $Cell ++
-          }
-          $rowTemp ++
+            $counter ++
+            $RecomNumber ++
+            $row ++
         }
+        else {
+            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 25 - Creating new Slide..')
+            $Counter = 1
+            $CustomLayout = $CurrentSlide.CustomLayout
+            $FirstSlide ++
+            $Presentation.Slides.addSlide($FirstSlide, $customLayout) | Out-Null
 
-        $CurrentSlide = $NextSlide
+            $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $FirstSlide }
+        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Copy()
+            Start-Sleep -Milliseconds 100
+        ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
+            Start-Sleep -Milliseconds 100
+        ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Copy()
+            Start-Sleep -Milliseconds 100
+            $NextSlide.Shapes.Paste() | Out-Null
+            Start-Sleep -Milliseconds 100
+            $TableID = 3
+        ($CoreSlide.Shapes | Where-Object { $_.Id -eq 41 }).Copy()
+            Start-Sleep -Milliseconds 100
+            $NextSlide.Shapes.Paste() | Out-Null
+            Start-Sleep -Milliseconds 100
 
-        $row = 2
-        #Number
+            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 25 - Cleaning Table of new slide..')
+            $rowTemp = 2
+            while ($rowTemp -lt 15) {
+                $cell = 1
+                while ($cell -lt 5) {
+            ($NextSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($rowTemp).Cells($cell).Shape.TextFrame.TextRange.Text = ''
+                    $Cell ++
+                }
+                $rowTemp ++
+            }
+
+            $CurrentSlide = $NextSlide
+
+            $row = 2
+            #Number
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(1).Shape.TextFrame.TextRange.Text = [string]$RecomNumber
-        #Recommendation
+            #Recommendation
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(2).Shape.TextFrame.TextRange.Text = $Impact.Values[0]
-        #Service
+            #Service
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(3).Shape.TextFrame.TextRange.Text = $Impact.Values[1]
-        #Impacted Resources
+            #Impacted Resources
         ($CurrentSlide.Shapes | Where-Object { $_.Id -eq $TableID }).Table.Rows($row).Cells(4).Shape.TextFrame.TextRange.Text = [string]$Impact.'Count'
-        $Counter ++
-        $RecomNumber ++
-        $row ++
-      }
+            $Counter ++
+            $RecomNumber ++
+            $row ++
+        }
     }
 
-  }
+}
 
-  ############# Slide 28
-  function Build-PPTSlide28 {
-    Param($Presentation,$AUTOMESSAGE,$PlatformIssues)
+############# Slide 28
+function Build-PPTSlide28 {
+    Param($Presentation, $AUTOMESSAGE, $PlatformIssues)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Recent Microsoft Outages..')
 
     $Loop = 1
     $CurrentSlide = 28
 
     if (![string]::IsNullOrEmpty($PlatformIssues)) {
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Outages found..')
-      foreach ($Outage in $PlatformIssues) {
-        if ($Loop -eq 1) {
-          $OutageName = ($Outage.'Tracking ID' + ' - ' + $Outage.title)
-          Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Adding Outage: ' + $OutageName)
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Outages found..')
+        foreach ($Outage in $PlatformIssues) {
+            if ($Loop -eq 1) {
+                $OutageName = ($Outage.'Tracking ID' + ' - ' + $Outage.title)
+                Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Adding Outage: ' + $OutageName)
 
-          $OutageService = $Outage.'Impacted Service'
+                $OutageService = $Outage.'Impacted Service'
 
-          $SlidePlatformIssues = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 28 }
+                $SlidePlatformIssues = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 28 }
 
-          $TargetShape = ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 4 })
-          $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
+                $TargetShape = ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 4 })
+                $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
 
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $OutageName
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Text = "What happened:"
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = $Outage.'What happened'
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(4).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(4).Text = "Impacted Service:"
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Text = $OutageService
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(4).Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(6).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(6).Text = "How can customers make incidents like this less impactful:"
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(7).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(7).Text = $Outage.'How can customers make incidents like this less impactful'
 
-          while (($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
+                while (($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
             ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(8).Delete()
-          }
-        }
-        else {
-          Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Creating new Slide..')
-          ############### NEXT 9 SLIDES
+                }
+            }
+            else {
+                Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Creating new Slide..')
+                ############### NEXT 9 SLIDES
 
-          $OutageName = ($Outage.'Tracking ID' + ' - ' + $Outage.title)
-          Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Adding Outage: ' + $OutageName)
+                $OutageName = ($Outage.'Tracking ID' + ' - ' + $Outage.title)
+                Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Adding Outage: ' + $OutageName)
 
-          $OutageService = $Outage.'Impacted Service'
-          $CustomLayout = $SlidePlatformIssues.CustomLayout
-          $Presentation.Slides.addSlide($CurrentSlide, $customLayout) | Out-Null
+                $OutageService = $Outage.'Impacted Service'
+                $CustomLayout = $SlidePlatformIssues.CustomLayout
+                $Presentation.Slides.addSlide($CurrentSlide, $customLayout) | Out-Null
 
-          $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $CurrentSlide }
+                $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $CurrentSlide }
 
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 6 }).TextFrame.TextRange.Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
 
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
 
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 4 }).Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
 
-          $NextSlide.Shapes.Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                $NextSlide.Shapes.Paste() | Out-Null
+                Start-Sleep -Milliseconds 100
 
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
 
-          $NextSlide.Shapes.Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                $NextSlide.Shapes.Paste() | Out-Null
+                Start-Sleep -Milliseconds 100
 
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(1).Text = $OutageName
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(2).Text = "What happened:"
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(3).Text = $Outage.'What happened'
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(2).Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(4).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(4).Text = "Impacted Service:"
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(3).Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(5).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(5).Text = $OutageService
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(4).Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(6).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(6).Text = "How can customers make incidents like this less impactful:"
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(5).Copy()
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(7).Paste() | Out-Null
-          Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
           ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(7).Text = $Outage.'How can customers make incidents like this less impactful'
 
           ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 31 }).Copy()
 
-          $NextSlide.Shapes.Paste() | Out-Null
+                $NextSlide.Shapes.Paste() | Out-Null
 
-          while (($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
+                while (($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 4 }).TextFrame.TextRange.Paragraphs(8).Delete()
-          }
+                }
+            }
+            $Loop ++
+            $CurrentSlide ++
         }
-        $Loop ++
-        $CurrentSlide ++
-      }
     }
-  }
+}
 
-  ############# Slide 29
-  function Build-PPTSlide29 {
-    Param($Presentation,$AUTOMESSAGE,$SupportTickets)
+############# Slide 29
+function Build-PPTSlide29 {
+    Param($Presentation, $AUTOMESSAGE, $SupportTickets)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Sev-A Support Requests..')
 
     $Loop = 1
@@ -797,18 +794,18 @@ $TableStyle = 'Light19'
     $Slide = 1
 
     if (![string]::IsNullOrEmpty($SupportTickets)) {
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Support Tickets found..')
-      foreach ($Tickets in $SupportTickets) {
-        $TicketName = ($Tickets.'Ticket ID' + ' - ' + $Tickets.Title)
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Adding Ticket: ' + $TicketName)
-        $TicketStatus = $Tickets.'Status'
-        $TicketDate = $Tickets.'Creation Date'
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Support Tickets found..')
+        foreach ($Tickets in $SupportTickets) {
+            $TicketName = ($Tickets.'Ticket ID' + ' - ' + $Tickets.Title)
+            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Adding Ticket: ' + $TicketName)
+            $TicketStatus = $Tickets.'Status'
+            $TicketDate = $Tickets.'Creation Date'
 
-        if ($Slide -eq 1) {
-          if ($Loop -eq 1) {
-            $SlideSupportRequests = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 29 }
-            $TargetShape = ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 4 })
-            $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
+            if ($Slide -eq 1) {
+                if ($Loop -eq 1) {
+                    $SlideSupportRequests = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 29 }
+                    $TargetShape = ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 4 })
+                    $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
 
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $TicketName
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
@@ -817,235 +814,235 @@ $TableStyle = 'Light19'
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(4).Paste() | Out-Null
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(4).Text = "Recommendation: "
 
-            while (($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 4) {
+                    while (($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 4) {
               ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Delete()
-            }
-            $ParagraphLoop = 5
-            $Loop ++
-          }
-          else {
+                    }
+                    $ParagraphLoop = 5
+                    $Loop ++
+                }
+                else {
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.InsertAfter(".") | Out-Null
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Copy()
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Text = $TicketName
-            $ParagraphLoop ++
+                    $ParagraphLoop ++
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.InsertAfter(".") | Out-Null
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Copy()
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Text = "Status: $TicketStatus"
-            $ParagraphLoop ++
+                    $ParagraphLoop ++
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.InsertAfter(".") | Out-Null
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Copy()
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Text = "Creation Date: $TicketDate"
-            $ParagraphLoop ++
+                    $ParagraphLoop ++
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.InsertAfter(".") | Out-Null
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(4).Copy()
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Text = "Recommendation: "
-            $ParagraphLoop ++
+                    $ParagraphLoop ++
 
-            if ($Loop -eq 4) {
-              $Loop = 1
-              $Slide ++
-              $CurrentSlide ++
+                    if ($Loop -eq 4) {
+                        $Loop = 1
+                        $Slide ++
+                        $CurrentSlide ++
+                    }
+                    else {
+                        $Loop ++
+                    }
+                    Start-Sleep -Milliseconds 500
+                }
             }
             else {
-              $Loop ++
-            }
-            Start-Sleep -Milliseconds 500
-          }
-        }
-        else {
-          if ($Loop -eq 1) {
-            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Adding new Slide..')
-            $CustomLayout = $SlideSupportRequests.CustomLayout
-            $Presentation.Slides.addSlide($CurrentSlide, $customLayout) | Out-Null
+                if ($Loop -eq 1) {
+                    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Adding new Slide..')
+                    $CustomLayout = $SlideSupportRequests.CustomLayout
+                    $Presentation.Slides.addSlide($CurrentSlide, $customLayout) | Out-Null
 
-            $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $CurrentSlide }
+                    $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $CurrentSlide }
 
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 6 }).TextFrame.TextRange.Copy()
-            Start-Sleep -Milliseconds 200
+                    Start-Sleep -Milliseconds 200
 
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 2 }).TextFrame.TextRange.Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
 
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 4 }).Copy()
-            Start-Sleep -Milliseconds 200
+                    Start-Sleep -Milliseconds 200
 
-            $NextSlide.Shapes.Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    $NextSlide.Shapes.Paste() | Out-Null
+                    Start-Sleep -Milliseconds 100
 
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 2 }).Copy()
-            Start-Sleep -Milliseconds 200
+                    Start-Sleep -Milliseconds 200
 
-            $NextSlide.Shapes.Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    $NextSlide.Shapes.Paste() | Out-Null
+                    Start-Sleep -Milliseconds 100
 
             ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).Copy()
-            Start-Sleep -Milliseconds 200
+                    Start-Sleep -Milliseconds 200
 
-            $NextSlide.Shapes.Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    $NextSlide.Shapes.Paste() | Out-Null
+                    Start-Sleep -Milliseconds 100
 
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(1).Text = $TicketName
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(3).Text = "Creation Date: $TicketDate"
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(4).Text = "Recommendation: "
 
-            while (($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs().count -gt 4) {
+                    while (($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs().count -gt 4) {
               ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(5).Delete()
-            }
-            $ParagraphLoop = 5
-            $Loop ++
-          }
-          else {
+                    }
+                    $ParagraphLoop = 5
+                    $Loop ++
+                }
+                else {
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.InsertAfter(".") | Out-Null
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(1).Copy()
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Text = $TicketName
-            $ParagraphLoop ++
+                    $ParagraphLoop ++
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.InsertAfter(".") | Out-Null
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(2).Copy()
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Text = "Status: $TicketStatus"
-            $ParagraphLoop ++
+                    $ParagraphLoop ++
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.InsertAfter(".") | Out-Null
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(3).Copy()
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Text = "Creation Date: $TicketDate"
-            $ParagraphLoop ++
+                    $ParagraphLoop ++
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.InsertAfter(".") | Out-Null
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(4).Copy()
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($NextSlide.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs($ParagraphLoop).Text = "Recommendation: "
-            $ParagraphLoop ++
+                    $ParagraphLoop ++
 
-            if ($Loop -eq 4) {
-              $Loop = 1
-              $Slide ++
-              $CurrentSlide ++
+                    if ($Loop -eq 4) {
+                        $Loop = 1
+                        $Slide ++
+                        $CurrentSlide ++
+                    }
+                    else {
+                        $Loop ++
+                    }
+                }
             }
-            else {
-              $Loop ++
-            }
-          }
+            Start-Sleep -Milliseconds 500
         }
-        Start-Sleep -Milliseconds 500
-      }
     }
-  }
+}
 
-  ############# Slide 30
-  function Build-PPTSlide30 {
-    Param($Presentation,$AUTOMESSAGE,$Retirements)
+############# Slide 30
+function Build-PPTSlide30 {
+    Param($Presentation, $AUTOMESSAGE, $Retirements)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 30 - Service Retirement Notifications..')
 
     $Loop = 1
 
     if (![string]::IsNullOrEmpty($Retirements)) {
-      Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 30 - Service Retirement found..')
-      $SlideRetirements = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 30 }
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 30 - Service Retirement found..')
+        $SlideRetirements = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 30 }
 
-      $TargetShape = ($SlideRetirements.Shapes | Where-Object { $_.Id -eq 4 })
-      $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
-      #$TargetShape.Delete()
+        $TargetShape = ($SlideRetirements.Shapes | Where-Object { $_.Id -eq 4 })
+        $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
+        #$TargetShape.Delete()
 
       ($SlideRetirements.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = '.'
 
-      while (($SlideRetirements.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 2) {
+        while (($SlideRetirements.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 2) {
         ($SlideRetirements.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Delete()
-      }
+        }
 
-      foreach ($Retirement in $Retirements) {
+        foreach ($Retirement in $Retirements) {
 
-        if ($Loop -lt 15) {
-          if ($Loop -eq 1) {
-            $RetireName = ($Retirement.'Retirement TrackingId' + ' - ' + $Retirement.'Recommendation Title')
-            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 30 - Adding Retirement: ' + $RetireName)
+            if ($Loop -lt 15) {
+                if ($Loop -eq 1) {
+                    $RetireName = ($Retirement.'Retirement TrackingId' + ' - ' + $Retirement.'Recommendation Title')
+                    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 30 - Adding Retirement: ' + $RetireName)
 
             ($SlideRetirements.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $RetireName
-            $Loop ++
-          }
-          else {
-            $RetireName = ($Retirement.'Retirement TrackingId' + ' : ' + $Retirement.'Recommendation Title')
+                    $Loop ++
+                }
+                else {
+                    $RetireName = ($Retirement.'Retirement TrackingId' + ' : ' + $Retirement.'Recommendation Title')
 
             ($SlideRetirements.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.InsertAfter(".") | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideRetirements.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Copy()
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideRetirements.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs($Loop).Paste() | Out-Null
-            Start-Sleep -Milliseconds 100
+                    Start-Sleep -Milliseconds 100
             ($SlideRetirements.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs($Loop).Text = $RetireName
-            $Loop ++
-          }
+                    $Loop ++
+                }
+            }
         }
-      }
     }
-  }
+}
 
-  ######################## Assessment Findings Functions ##########################
+######################## Assessment Findings Functions ##########################
 
-  function Initialize-ExcelImpactedResources {
+function Initialize-ExcelImpactedResources {
     Param($ImpactedResources)
 
     $ImpactedResourcesFormatted = @()
 
     ForEach ($Resource in $ImpactedResources) {
-      $obj = @{
-        'Impacted?' = 'Yes';
-        'Resource Type' = $Resource.'Resource Type';
-        'subscriptionId' = $Resource.subscriptionId;
-        'resourceGroup' = $Resource.resourceGroup;
-        'location' = $Resource.location;
-        'name' = $Resource.name;
-        'id' = $Resource.id;
-        'custom1' = $Resource.custom1;
-        'custom2' = $Resource.custom2;
-        'custom3' = $Resource.custom3;
-        'custom4' = $Resource.custom4;
-        'custom5' = $Resource.custom5;
-        'Recommendation Title' = $Resource.'Recommendation Title';
-        'Impact' = $Resource.Impact;
-        'Recommendation Control' = $Resource.'Recommendation Control';
-        'Potential Benefit' = $Resource.'Potential Benefit';
-        'Learn More Link' = $Resource.'Learn More Link';
-        'Long Description' = $Resource.'Long Description';
-        'Guid' = $Resource.Guid;
-        'Category' = $Resource.Category;
-        'Source' = $Resource.'Source';
-        'WAF Pillar' = $Resource.'WAF Pillar';
-        'Platform Issue TrackingId' = $Resource.'Platform Issue TrackingId';
-        'Retirement TrackingId' = $Resource.'Retirement TrackingId';
-        'Support Request Number' = $Resource.'Support Request Number';
-        'Notes' = $Resource.Notes;
-        'checkName' = $Resource.checkName
-      }
-      $ImpactedResourcesFormatted += $obj
+        $obj = @{
+            'Impacted?'                 = 'Yes';
+            'Resource Type'             = $Resource.'Resource Type';
+            'subscriptionId'            = $Resource.subscriptionId;
+            'resourceGroup'             = $Resource.resourceGroup;
+            'location'                  = $Resource.location;
+            'name'                      = $Resource.name;
+            'id'                        = $Resource.id;
+            'custom1'                   = $Resource.custom1;
+            'custom2'                   = $Resource.custom2;
+            'custom3'                   = $Resource.custom3;
+            'custom4'                   = $Resource.custom4;
+            'custom5'                   = $Resource.custom5;
+            'Recommendation Title'      = $Resource.'Recommendation Title';
+            'Impact'                    = $Resource.Impact;
+            'Recommendation Control'    = $Resource.'Recommendation Control';
+            'Potential Benefit'         = $Resource.'Potential Benefit';
+            'Learn More Link'           = $Resource.'Learn More Link';
+            'Long Description'          = $Resource.'Long Description';
+            'Guid'                      = $Resource.Guid;
+            'Category'                  = $Resource.Category;
+            'Source'                    = $Resource.'Source';
+            'WAF Pillar'                = $Resource.'WAF Pillar';
+            'Platform Issue TrackingId' = $Resource.'Platform Issue TrackingId';
+            'Retirement TrackingId'     = $Resource.'Retirement TrackingId';
+            'Support Request Number'    = $Resource.'Support Request Number';
+            'Notes'                     = $Resource.Notes;
+            'checkName'                 = $Resource.checkName
+        }
+        $ImpactedResourcesFormatted += $obj
     }
 
     # Returns the array with all the recommendations already formatted to be exported to Excel
     return $ImpactedResourcesFormatted
 
-  }
+}
 
-  function Export-ExcelImpactedResources {
+function Export-ExcelImpactedResources {
     Param($ImpactedResourcesFormatted)
 
     $Style = @()
@@ -1091,53 +1088,53 @@ $TableStyle = 'Light19'
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Impacted Resources to Excel')
     $ImpactedResourcesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $ImpactedResourcesSheet |
-      Export-Excel -Path $NewAssessmentFindingsFile -WorksheetName '3.ImpactedResources' -TableName 'impactedresources' -TableStyle $TableStyle -Style $Style -StartRow 12
+    Export-Excel -Path $NewAssessmentFindingsFile -WorksheetName '3.ImpactedResources' -TableName 'impactedresources' -TableStyle $TableStyle -Style $Style -StartRow 12
 
-  }
+}
 
-  function Initialize-ExcelRecommendations {
+function Initialize-ExcelRecommendations {
     Param($ImpactedResources)
 
     $RecommendationsFormatted = @()
 
-    $GroupedResources = $ImpactedResources.where({![String]::IsNullOrEmpty($_.Guid)}) | Group-Object -Property 'Guid' | Sort-Object -Property 'Count' -Descending
+    $GroupedResources = $ImpactedResources.where({ ![String]::IsNullOrEmpty($_.Guid) }) | Group-Object -Property 'Guid' | Sort-Object -Property 'Count' -Descending
 
-    $CustomRecommendations = $ImpactedResources.where({[String]::IsNullOrEmpty($_.Guid)})
+    $CustomRecommendations = $ImpactedResources.where({ [String]::IsNullOrEmpty($_.Guid) })
 
     ForEach ($Resource in $GroupedResources) {
 
-      $Recommendation = $ImpactedResources | Where-Object { $_.Guid -eq $Resource.Name } | Select-Object -First 1
+        $Recommendation = $ImpactedResources | Where-Object { $_.Guid -eq $Resource.Name } | Select-Object -First 1
 
-      $obj = @{
-        'Impact' = $Recommendation.Impact;
-        'Description' = $Recommendation.'Recommendation Title';
-        'Potential Benefit' = $Recommendation.'Potential Benefit';
-        'Impacted Resources' = $Resource.Count;
-        'Resource Type' = $Recommendation.'Resource Type';
-        'Recommendation Control' = $Recommendation.'Recommendation Control';
-        'Long Description' = $Recommendation.'Long Description';
-        'Category' = $Recommendation.Category;
-        'Learn More Link' = $Recommendation.'Learn More Link';
-        'Guid' = $Recommendation.Guid;
-        'Notes' = $Recommendation.Notes;
-      }
-      $RecommendationsFormatted += $obj
+        $obj = @{
+            'Impact'                 = $Recommendation.Impact;
+            'Description'            = $Recommendation.'Recommendation Title';
+            'Potential Benefit'      = $Recommendation.'Potential Benefit';
+            'Impacted Resources'     = $Resource.Count;
+            'Resource Type'          = $Recommendation.'Resource Type';
+            'Recommendation Control' = $Recommendation.'Recommendation Control';
+            'Long Description'       = $Recommendation.'Long Description';
+            'Category'               = $Recommendation.Category;
+            'Learn More Link'        = $Recommendation.'Learn More Link';
+            'Guid'                   = $Recommendation.Guid;
+            'Notes'                  = $Recommendation.Notes;
+        }
+        $RecommendationsFormatted += $obj
     }
 
     $CustomRecommendations.Foreach(
         {
             $obj = @{
-                'Impact' = $_.Impact;
-                'Description' = $_.'Recommendation Title'
-                'Potential Benefit' = $_.'Potential Benefit';
-                'Impacted Resources' = 1;
-                'Resource Type' = $_.'Resource Type';
+                'Impact'                 = $_.Impact;
+                'Description'            = $_.'Recommendation Title'
+                'Potential Benefit'      = $_.'Potential Benefit';
+                'Impacted Resources'     = 1;
+                'Resource Type'          = $_.'Resource Type';
                 'Recommendation Control' = $_.'Recommendation Control';
-                'Long Description' = $_.'Long Description';
-                'Category' = $_.Category;
-                'Learn More Link' = $_.'Learn More Link';
-                'Guid' = $_.Guid;
-                'Notes' = $_.Notes;
+                'Long Description'       = $_.'Long Description';
+                'Category'               = $_.Category;
+                'Learn More Link'        = $_.'Learn More Link';
+                'Guid'                   = $_.Guid;
+                'Notes'                  = $_.Notes;
             }
             $RecommendationsFormatted += $obj
         }
@@ -1147,9 +1144,9 @@ $TableStyle = 'Light19'
     # Returns the array with all the recommendations already formatted to be exported to Excel
     return $RecommendationsFormatted
 
-  }
+}
 
-  function Export-ExcelRecommendations {
+function Export-ExcelRecommendations {
     Param($RecommendationsFormatted)
 
     $Style = @()
@@ -1183,11 +1180,11 @@ $TableStyle = 'Light19'
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Recommendations to Excel')
     $RecommendationsFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $RecommendationSheet |
-      Export-Excel -Path $NewAssessmentFindingsFile -WorksheetName '2.Recommendations' -TableName 'recommendationT' -TableStyle $TableStyle -Style $Style -StartRow 11
+    Export-Excel -Path $NewAssessmentFindingsFile -WorksheetName '2.Recommendations' -TableName 'recommendationT' -TableStyle $TableStyle -Style $Style -StartRow 11
 
-  }
+}
 
-  function Export-ExcelWorkloadInventory {
+function Export-ExcelWorkloadInventory {
     Param($ExcelWorkloadInventory)
 
     $Style = @()
@@ -1209,11 +1206,11 @@ $TableStyle = 'Light19'
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Workload Inventory to Excel')
     $ExcelWorkloadInventory | ForEach-Object { [PSCustomObject]$_ } | Select-Object $WorkloadSheet |
-      Export-Excel -Path $NewAssessmentFindingsFile -WorksheetName '6.WorkloadInventory' -TableName 'WorkloadResources' -TableStyle $TableStyle -Style $Style -StartRow 12
+    Export-Excel -Path $NewAssessmentFindingsFile -WorksheetName '6.WorkloadInventory' -TableName 'WorkloadResources' -TableStyle $TableStyle -Style $Style -StartRow 12
 
-  }
+}
 
-  function Build-ExcelPivotTable {
+function Build-ExcelPivotTable {
     Param($NewAssessmentFindingsFile)
 
     # Open the Excel file to add the Pivot Tables and Charts
@@ -1222,62 +1219,62 @@ $TableStyle = 'Light19'
     $Address = $Excel.'2.Recommendations'.Tables[0].Address.Address
 
     $PTParams = @{
-      PivotTableName    = 'P0'
-      Address           = $Excel.'7.PivotTable'.cells['A3']
-      SourceWorkSheet   = $Excel."2.Recommendations"
-      SourceRange       = $Address
-      PivotRows         = @('Resource Type')
-      PivotColumns      = @('Impact')
-      PivotData         = @{'Resource Type' = 'Count' }
-      PivotTableStyle   = 'Medium9'
-      Activate          = $true
-      PivotFilter       = 'Category'
-      ShowPercent       = $false
-      IncludePivotChart = $false
+        PivotTableName    = 'P0'
+        Address           = $Excel.'7.PivotTable'.cells['A3']
+        SourceWorkSheet   = $Excel."2.Recommendations"
+        SourceRange       = $Address
+        PivotRows         = @('Resource Type')
+        PivotColumns      = @('Impact')
+        PivotData         = @{'Resource Type' = 'Count' }
+        PivotTableStyle   = 'Medium9'
+        Activate          = $true
+        PivotFilter       = 'Category'
+        ShowPercent       = $false
+        IncludePivotChart = $false
     }
     Add-PivotTable @PTParams
 
     $PTParams = @{
-      PivotTableName    = 'P1'
-      Address           = $Excel.'7.PivotTable'.cells['H3']
-      SourceWorkSheet   = $Excel."2.Recommendations"
-      SourceRange       = $Address
-      PivotRows         = @('Recommendation Control')
-      PivotColumns      = @('Impact')
-      PivotData         = @{'Resource Type' = 'Count' }
-      PivotTableStyle   = 'Medium9'
-      Activate          = $true
-      PivotFilter       = 'Resource Type'
-      ShowPercent       = $false
-      IncludePivotChart = $false
+        PivotTableName    = 'P1'
+        Address           = $Excel.'7.PivotTable'.cells['H3']
+        SourceWorkSheet   = $Excel."2.Recommendations"
+        SourceRange       = $Address
+        PivotRows         = @('Recommendation Control')
+        PivotColumns      = @('Impact')
+        PivotData         = @{'Resource Type' = 'Count' }
+        PivotTableStyle   = 'Medium9'
+        Activate          = $true
+        PivotFilter       = 'Resource Type'
+        ShowPercent       = $false
+        IncludePivotChart = $false
     }
     Add-PivotTable @PTParams
 
     $PTParams = @{
-      PivotTableName    = 'P2'
-      Address           = $Excel.'7.PivotTable'.cells['O3']
-      SourceWorkSheet   = $Excel."2.Recommendations"
-      SourceRange       = $Address
-      PivotRows         = @('Impact')
-      PivotData         = @{'Impacted Resources' = 'Sum' }
-      PivotTableStyle   = 'Medium9'
-      Activate          = $true
-      ShowPercent       = $false
-      IncludePivotChart = $false
+        PivotTableName    = 'P2'
+        Address           = $Excel.'7.PivotTable'.cells['O3']
+        SourceWorkSheet   = $Excel."2.Recommendations"
+        SourceRange       = $Address
+        PivotRows         = @('Impact')
+        PivotData         = @{'Impacted Resources' = 'Sum' }
+        PivotTableStyle   = 'Medium9'
+        Activate          = $true
+        ShowPercent       = $false
+        IncludePivotChart = $false
     }
     Add-PivotTable @PTParams
 
     $PTParams = @{
-      PivotTableName    = 'P3'
-      Address           = $Excel.'7.PivotTable'.cells['S3']
-      SourceWorkSheet   = $Excel."2.Recommendations"
-      SourceRange       = $Address
-      PivotRows         = @('Impact')
-      PivotData         = @{'Guid' = 'Count' }
-      PivotTableStyle   = 'Medium10'
-      Activate          = $true
-      ShowPercent       = $false
-      IncludePivotChart = $false
+        PivotTableName    = 'P3'
+        Address           = $Excel.'7.PivotTable'.cells['S3']
+        SourceWorkSheet   = $Excel."2.Recommendations"
+        SourceRange       = $Address
+        PivotRows         = @('Impact')
+        PivotData         = @{'Guid' = 'Count' }
+        PivotTableStyle   = 'Medium10'
+        Activate          = $true
+        ShowPercent       = $false
+        IncludePivotChart = $false
     }
     Add-PivotTable @PTParams
 
@@ -1294,9 +1291,9 @@ $TableStyle = 'Light19'
 
     Close-ExcelPackage $Excel
 
-  }
+}
 
-  function Build-ExcelPivotChart {
+function Build-ExcelPivotChart {
     Param($NewAssessmentFindingsFile)
 
     $ExcelApplication = New-Object -ComObject Excel.Application
@@ -1349,127 +1346,126 @@ $TableStyle = 'Light19'
 
     $Excel1.Save()
     $Excel1.Dispose()
-  }
+}
 
-  # Start the stopwatch to time the script
-  $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+# Start the stopwatch to time the script
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-  #Call the functions
-  $Version = "2.1.5"
-  Write-Host "Version: " -NoNewline
-  Write-Host $Version -ForegroundColor DarkBlue -NoNewline
-  Write-Host " "
+#Call the functions
+$Version = "2.1.5"
+Write-Host "Version: " -NoNewline
+Write-Host $Version -ForegroundColor DarkBlue -NoNewline
+Write-Host " "
 
-  $CoreFile = get-item -Path $ExpertAnalysisFile
-  $CoreFile = $CoreFile.FullName
+$CoreFile = get-item -Path $ExpertAnalysisFile
+$CoreFile = $CoreFile.FullName
 
-  Test-ReviewedRecommendations -ExcelFile $CoreFile
+Test-ReviewedRecommendations -ExcelFile $CoreFile
 
-  Write-Debug (' ---------------------------------- STARTING REPORT GENERATOR SCRIPT --------------------------------------- ')
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting Report Generator Script..')
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Script Version: ' + $Version)
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Excel File: ' + $ExcelFile)
-  $ImportExcel = Get-Module -Name ImportExcel -ListAvailable -ErrorAction silentlycontinue
-  foreach ($IExcel in $ImportExcel) {
+Write-Debug (' ---------------------------------- STARTING REPORT GENERATOR SCRIPT --------------------------------------- ')
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting Report Generator Script..')
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Script Version: ' + $Version)
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Excel File: ' + $ExcelFile)
+$ImportExcel = Get-Module -Name ImportExcel -ListAvailable -ErrorAction silentlycontinue
+foreach ($IExcel in $ImportExcel) {
     $IExcelPath = $IExcel.Path
     $IExcelVer = [string]$IExcel.Version
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Path: ' + $IExcelPath)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Version: ' + $IExcelVer)
-  }
+}
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "10% Complete." -PercentComplete 10
-  Test-Requirement
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "15% Complete." -PercentComplete 15
-  #Set-LocalFile
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "20% Complete." -PercentComplete 20
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "10% Complete." -PercentComplete 10
+Test-Requirement
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "15% Complete." -PercentComplete 15
+#Set-LocalFile
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "20% Complete." -PercentComplete 20
 
-  $ExcelImpactedResources = Get-ExcelImpactedResources -ExcelFile $CoreFile
+$ExcelImpactedResources = Get-ExcelImpactedResources -ExcelFile $CoreFile
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "25% Complete." -PercentComplete 25
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "25% Complete." -PercentComplete 25
 
-  $ExcelPlatformIssues = Get-ExcelPlatformIssues -ExcelFile $CoreFile
+$ExcelPlatformIssues = Get-ExcelPlatformIssues -ExcelFile $CoreFile
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "30% Complete." -PercentComplete 30
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "30% Complete." -PercentComplete 30
 
-  $ExcelSupportTickets = Get-ExcelSupportTicket -ExcelFile $CoreFile
+$ExcelSupportTickets = Get-ExcelSupportTicket -ExcelFile $CoreFile
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "35% Complete." -PercentComplete 35
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "35% Complete." -PercentComplete 35
 
-  $ExcelWorkloadInventory = Get-ExcelWorkloadInventory -ExcelFile $CoreFile
+$ExcelWorkloadInventory = Get-ExcelWorkloadInventory -ExcelFile $CoreFile
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "40% Complete." -PercentComplete 40
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "40% Complete." -PercentComplete 40
 
-  $ExcelRetirements = Get-ExcelRetirement -ExcelFile $CoreFile
+$ExcelRetirements = Get-ExcelRetirement -ExcelFile $CoreFile
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "45% Complete." -PercentComplete 45
-
-
-  $PPTFinalFile = New-PPTFile -PPTTemplateFile $PPTTemplateFile
-  Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
-  Write-Host " and " -NoNewline
-  Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
-  Write-Host " "
-  Write-Host "Editing " -NoNewline
-  $NewAssessmentFindingsFile = New-AssessmentFindingsFile -AssessmentFindingsFile $AssessmentFindingsFile
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "45% Complete." -PercentComplete 45
 
 
-  $AUTOMESSAGE = 'AUTOMATICALLY MODIFIED (Please Review)'
+$PPTFinalFile = New-PPTFile -PPTTemplateFile $PPTTemplateFile
+Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
+Write-Host " and " -NoNewline
+Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
+Write-Host " "
+Write-Host "Editing " -NoNewline
+$NewAssessmentFindingsFile = New-AssessmentFindingsFile -AssessmentFindingsFile $AssessmentFindingsFile
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Resource Types..')
 
-  $TempImpactedResources = $ExcelImpactedResources | Select-Object -Property 'Resource Type','id' -Unique
+$AUTOMESSAGE = 'AUTOMATICALLY MODIFIED (Please Review)'
 
-  $ResourcesTypes = $TempImpactedResources | Group-Object -Property 'Resource Type' | Sort-Object -Property 'Count' -Descending | Select-Object -First 10
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Resource Types..')
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
-  #Openning PPT
-  $Application = New-Object -ComObject PowerPoint.Application
-  $Presentation = $Application.Presentations.Open($PPTTemplateFile, $null, $null, $null)
+$TempImpactedResources = $ExcelImpactedResources | Select-Object -Property 'Resource Type', 'id' -Unique
 
-  Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -WorkloadName $WorkloadName
-  Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
-  Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+$ResourcesTypes = $TempImpactedResources | Group-Object -Property 'Resource Type' | Sort-Object -Property 'Count' -Descending | Select-Object -First 10
 
-  Build-PPTSlide30 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Retirements $ExcelRetirements
-  Build-PPTSlide29 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -SupportTickets $ExcelSupportTickets
-  Build-PPTSlide28 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -PlatformIssues $ExcelPlatformIssues
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
+#Openning PPT
+$Application = New-Object -ComObject PowerPoint.Application
+$Presentation = $Application.Presentations.Open($PPTTemplateFile, $null, $null, $null)
 
-  Build-PPTSlide25 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
-  Build-PPTSlide24 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
-  Build-PPTSlide23 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -WorkloadName $WorkloadName
+Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
+Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing PowerPoint..')
-  $Presentation.SaveAs($PPTFinalFile)
-  $Presentation.Close()
-  $Application.Quit()
+Build-PPTSlide30 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Retirements $ExcelRetirements
+Build-PPTSlide29 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -SupportTickets $ExcelSupportTickets
+Build-PPTSlide28 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -PlatformIssues $ExcelPlatformIssues
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting to Process Assessment Findings..')
+Build-PPTSlide25 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+Build-PPTSlide24 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+Build-PPTSlide23 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
 
-  $ImpactedResourcesFormatted = Initialize-ExcelImpactedResources -ImpactedResources $ExcelImpactedResources
-  Export-ExcelImpactedResources -ImpactedResourcesFormatted $ImpactedResourcesFormatted
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing PowerPoint..')
+$Presentation.SaveAs($PPTFinalFile)
+$Presentation.Close()
+$Application.Quit()
 
-  $RecommendationsFormatted = Initialize-ExcelRecommendations -ImpactedResources $ExcelImpactedResources
-  Export-ExcelRecommendations -RecommendationsFormatted $RecommendationsFormatted
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting to Process Assessment Findings..')
 
-  Export-ExcelWorkloadInventory -ExcelWorkloadInventory $ExcelWorkloadInventory
+$ImpactedResourcesFormatted = Initialize-ExcelImpactedResources -ImpactedResources $ExcelImpactedResources
+Export-ExcelImpactedResources -ImpactedResourcesFormatted $ImpactedResourcesFormatted
 
-  Build-ExcelPivotTable -NewAssessmentFindingsFile $NewAssessmentFindingsFile
+$RecommendationsFormatted = Initialize-ExcelRecommendations -ImpactedResources $ExcelImpactedResources
+Export-ExcelRecommendations -RecommendationsFormatted $RecommendationsFormatted
 
-  #Build-ExcelPivotChart -NewAssessmentFindingsFile $NewAssessmentFindingsFile
+Export-ExcelWorkloadInventory -ExcelWorkloadInventory $ExcelWorkloadInventory
 
-  if($csvExport.IsPresent)
-    {
-      $WorkloadRecommendationTemplate = Build-SummaryActionPlan -ImpactedResources $ExcelImpactedResources -includeLow $includeLow
+Build-ExcelPivotTable -NewAssessmentFindingsFile $NewAssessmentFindingsFile
 
-      $CSVFile = ($PSScriptRoot + '\Impacted Resources and Recommendations Template ' + (get-date -Format "yyyy-MM-dd-HH-mm") + '.csv')
+#Build-ExcelPivotChart -NewAssessmentFindingsFile $NewAssessmentFindingsFile
 
-      $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
-    }
+if ($csvExport.IsPresent) {
+    $WorkloadRecommendationTemplate = Build-SummaryActionPlan -ImpactedResources $ExcelImpactedResources -includeLow $includeLow
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
-  Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
+    $CSVFile = ($PSScriptRoot + '\Impacted Resources and Recommendations Template ' + (get-date -Format "yyyy-MM-dd-HH-mm") + '.csv')
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
+    $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
+}
+
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
+Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
+
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
 
 Write-Progress -Id 1 -activity "Processing Office Apps" -Status "100% Complete." -Completed
 
@@ -1485,10 +1481,9 @@ Write-Host $PPTFinalFile -ForegroundColor Cyan
 Write-Host 'Assessment Findings File Saved as: ' -NoNewline
 Write-Host $NewAssessmentFindingsFile -ForegroundColor Cyan
 
-if ($csvExport.IsPresent)
-  {
+if ($csvExport.IsPresent) {
     Write-Host 'CSV File Saved as: ' -NoNewline
     Write-Host $CSVFile -ForegroundColor Cyan
-  }
+}
 
 Write-Host "---------------------------------------------------------------------"
