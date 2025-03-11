@@ -1278,6 +1278,13 @@ function Build-ExcelPivotTable {
     }
     Add-PivotTable @PTParams
 
+    return $Excel
+
+}
+
+function Build-ExcelPivotChart {
+    Param($Excel)
+
     $ChartP0 = $Excel."1.Dashboard".Drawings.AddChart('ChartP0', 'BarClustered', $Excel."7.PivotTable".PivotTables['P0'])
     $ChartP0.SetSize(480, 700)
     $ChartP0.SetPosition(18, 10, 2, 60)
@@ -1289,63 +1296,19 @@ function Build-ExcelPivotTable {
     $ChartP0.XAxis.Title.Font.SetFromFont('Segoe UI')
     $ChartP0.XAxis.Title.Font.Size = 9
 
-    Close-ExcelPackage $Excel
-
-}
-
-function Build-ExcelPivotChart {
-    Param($NewAssessmentFindingsFile)
-
-    $ExcelApplication = New-Object -ComObject Excel.Application
-    Start-Sleep -Seconds 2
-    $Ex = $ExcelApplication.Workbooks.Open($NewAssessmentFindingsFile)
-    Start-Sleep -Seconds 5
-    $Ex.Save()
-    $Ex.Close()
-    $ExcelApplication.Quit()
-    Get-Process -Name 'excel' -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
-
-    $Excel1 = New-Object -TypeName OfficeOpenXml.ExcelPackage $NewAssessmentFindingsFile
-
-    $WS0 = $Excel1.Workbook.Worksheets | Where-Object { $_.Name -eq '1.Dashboard' }
-    $WS1 = $Excel1.Workbook.Worksheets | Where-Object { $_.Name -eq '7.PivotTable' }
-
-    $ChartP0 = $WS0.Drawings.AddChart('ChartP0', 'BarClustered', $WS1.PivotTables['P0'])
-    $ChartP0.SetSize(480, 700)
-    $ChartP0.SetPosition(18, 10, 2, 60)
-    $ChartP0.RoundedCorners = $false
-    #$ChartP0.DisplayBlanksAs = 'Gap'
-    $ChartP0.Legend.Font.LatinFont = '+mn-lt'
-    $ChartP0.Legend.Font.ComplexFont = '+mn-cs'
-    $ChartP0.Legend.Font.Size = 10
-    $ChartP0.YAxis.Font.LatinFont = '+mn-lt'
-    $ChartP0.YAxis.Font.ComplexFont = '+mn-cs'
-    $ChartP0.YAxis.Font.Size = 9
-    $ChartP0.XAxis.Font.LatinFont = '+mn-lt'
-    $ChartP0.XAxis.Font.ComplexFont = '+mn-cs'
-    $ChartP0.XAxis.Font.Size = 9
-    #$ChartP0.Style = 'Style7'
-    #$ChartP0.DataLabel.ShowValue = $true
-
-    $ChartP1 = $WS0.Drawings.AddChart('ChartP1', 'BarClustered', $WS1.PivotTables['P1'])
-    #$ChartP0.SetPosition(365, 195)
+    $ChartP1 = $Excel."1.Dashboard".Drawings.AddChart('ChartP1', 'BarClustered', $Excel."7.PivotTable".PivotTables['P1'])
     $ChartP1.SetSize(350, 700)
     $ChartP1.SetPosition(18, 10, 6, 75)
     $ChartP1.RoundedCorners = $false
     #$ChartP1.DisplayBlanksAs = 'Gap'
-    $ChartP1.Legend.Font.LatinFont = '+mn-lt'
-    $ChartP1.Legend.Font.ComplexFont = '+mn-cs'
-    $ChartP1.Legend.Font.Size = 10
-    $ChartP1.YAxis.Font.LatinFont = '+mn-lt'
-    $ChartP1.YAxis.Font.ComplexFont = '+mn-cs'
-    $ChartP1.YAxis.Font.Size = 9
-    $ChartP1.XAxis.Font.LatinFont = '+mn-lt'
-    $ChartP1.XAxis.Font.ComplexFont = '+mn-cs'
-    $ChartP1.XAxis.Font.Size = 9
-    #$ChartP0.DataLabel.ShowValue = $true
+    $ChartP1.Title.Font.Bold = $true
+    $ChartP1.Title.Font.SetFromFont("Segoe UI")
+    $ChartP1.Title.Font.Size = 11
+    $ChartP1.XAxis.Title.Font.SetFromFont('Segoe UI')
+    $ChartP1.XAxis.Title.Font.Size = 9
 
-    $Excel1.Save()
-    $Excel1.Dispose()
+    Close-ExcelPackage $Excel
+
 }
 
 # Start the stopwatch to time the script
@@ -1450,9 +1413,9 @@ Export-ExcelRecommendations -RecommendationsFormatted $RecommendationsFormatted
 
 Export-ExcelWorkloadInventory -ExcelWorkloadInventory $ExcelWorkloadInventory
 
-Build-ExcelPivotTable -NewAssessmentFindingsFile $NewAssessmentFindingsFile
+$ExcelFileLive = Build-ExcelPivotTable -NewAssessmentFindingsFile $NewAssessmentFindingsFile
 
-#Build-ExcelPivotChart -NewAssessmentFindingsFile $NewAssessmentFindingsFile
+Build-ExcelPivotChart -Excel $ExcelFileLive
 
 if ($csvExport.IsPresent) {
     $WorkloadRecommendationTemplate = Build-SummaryActionPlan -ImpactedResources $ExcelImpactedResources -includeLow $includeLow
