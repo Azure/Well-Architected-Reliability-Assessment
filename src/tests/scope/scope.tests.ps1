@@ -2,7 +2,7 @@
 BeforeAll {
     $modulePath = "$PSScriptRoot/../../modules/wara/scope/scope.psm1"
     $testDataPath = "$PSScriptRoot/../data/newResourceData.json"
-    $testAdvisorDataPath = "$PSScriptRoot/../data/advisor/bigadvisortestdata.json"
+    $testAdvisorDataPath = "$PSScriptRoot/../data/advisor/bigAdvisorTestData.json"
     Import-Module -Name $modulePath -Force
     $objectlist = get-content $testDataPath -Raw | ConvertFrom-Json -depth 10
     $testAdvisorData = get-content $testAdvisorDataPath -Raw | ConvertFrom-Json -depth 10
