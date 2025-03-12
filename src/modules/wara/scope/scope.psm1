@@ -298,6 +298,8 @@ function Get-WAFFilteredResourceList {
         [string] $KeyColumn = 'Id'
     )
 
+    ##TODO: Replace all of this with something like $scopes.foreach({$allresources -match "$_*"})
+
     $SubscriptionFilteredResources = @()
     $SubscriptionFilters ? $($SubscriptionFilteredResources = Get-WAFSubscriptionsByList -ObjectList $UnfilteredResources -FilterList $SubscriptionFilters -KeyColumn $KeyColumn) : $(Write-Debug 'Subscription Filters not provided.')
 
