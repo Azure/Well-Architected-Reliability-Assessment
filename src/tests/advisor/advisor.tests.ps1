@@ -39,7 +39,7 @@ Describe 'Get-WAFAdvisorRecommendations' {
             $result.recommendationId    | Should -Contain '242639fd-cd73-4be2-8f55-70478db8d1a5'
             $result.type                | Should -Contain 'microsoft.subscriptions/subscriptions'
             $result.name                | Should -Contain '55555555-5555-5555-5555-555555555555'
-            $result.id                  | Should -Contain '/subscriptions/5555555-5555-5555-5555-555555555555'
+            $result.id                  | Should -Contain '/subscriptions/55555555-5555-5555-5555-555555555555'
             $result.subscriptionId      | Should -Contain '55555555-5555-5555-5555-555555555555'
             $result.resourceGroup       | Should -Contain 'N/A'
             $result.location            | Should -Contain 'global'
