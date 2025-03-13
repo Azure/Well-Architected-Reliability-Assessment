@@ -60,3 +60,31 @@ Describe 'Get-WAFAdvisorMetadata' {
         }
     }
 }
+
+Describe 'advisorResourceObj' {
+    Context 'When the class is instantiated' {
+        It 'Should have the correct properties' {
+
+            InModuleScope 'advisor' -Parameters @{
+                test_advisordata = $test_AdvisorData
+            } {
+                #$result = $Advisor_TestData.ForEach({ [advisorResourceObj]::new($_) })
+                $result = [advisorResourceObj]::new($test_AdvisorData[0])
+                $result2 = [advisorResourceObj]::new($test_AdvisorData[1])
+                $result.GetType().Name | Should -Be 'advisorResourceObj'
+                $result.Equals($result2) | Should -BeTrue
+                <# $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'recommendationId'
+                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'type'
+                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'name'
+                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'id'
+                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'subscriptionId'
+                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'resourceGroup'
+                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'location'
+                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'category'
+                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'impact'
+                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'description' #>
+            }
+
+        }
+    }
+}
