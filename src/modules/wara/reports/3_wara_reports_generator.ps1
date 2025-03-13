@@ -1286,26 +1286,50 @@ function Build-ExcelPivotChart {
     Param($Excel)
 
     $ChartP0 = $Excel."1.Dashboard".Drawings.AddChart('ChartP0', 'BarClustered', $Excel."7.PivotTable".PivotTables['P0'])
-    $ChartP0.SetSize(480, 700)
-    $ChartP0.SetPosition(18, 10, 2, 60)
-    $ChartP0.RoundedCorners = $false
+    $ChartP0.SetSize(600, 700)
+    $ChartP0.SetPosition(18, 10, .5, 90)
+    $ChartP0.fill.color = [System.Drawing.Color]::FromArgb(255,194,194,194)
+    $ChartP0.PlotArea.fill.color = [System.Drawing.Color]::FromArgb(255,194,194,194)
+    $ChartP0.RoundedCorners = $true
+    $ChartP0.Legend.Position = 'Top'
     #$ChartP0.DisplayBlanksAs = 'Gap'
+
     $ChartP0.Title.Font.Bold = $true
     $ChartP0.Title.Font.SetFromFont("Segoe UI")
     $ChartP0.Title.Font.Size = 11
+    $ChartP0.Title.Text = 'Recommendations by Impact per ResourceType'
+
     $ChartP0.XAxis.Title.Font.SetFromFont('Segoe UI')
     $ChartP0.XAxis.Title.Font.Size = 9
+    $ChartP0.XAxis.MinorTickMark = "None"
+    $ChartP0.XAxis.MajorTickMark = "None"
+
+    $ChartP0.YAxis.Title.Font.SetFromFont('Segoe UI')
+    $ChartP0.YAxis.Title.Font.Size = 9
+    $ChartP0.YAxis.MinorTickMark = "None"
+    $ChartP0.YAxis.MajorTickMark = "None"
 
     $ChartP1 = $Excel."1.Dashboard".Drawings.AddChart('ChartP1', 'BarClustered', $Excel."7.PivotTable".PivotTables['P1'])
-    $ChartP1.SetSize(350, 700)
+    $ChartP1.SetSize(500, 700)
     $ChartP1.SetPosition(18, 10, 6, 75)
-    $ChartP1.RoundedCorners = $false
+    $ChartP1.fill.color = [System.Drawing.Color]::FromArgb(255,194,194,194)
+    $ChartP1.PlotArea.fill.color = [System.Drawing.Color]::FromArgb(255,194,194,194)
+    $ChartP1.RoundedCorners = $true
+    $ChartP1.Legend.Position = 'Top'
     #$ChartP1.DisplayBlanksAs = 'Gap'
+
     $ChartP1.Title.Font.Bold = $true
     $ChartP1.Title.Font.SetFromFont("Segoe UI")
     $ChartP1.Title.Font.Size = 11
+    $ChartP1.Title.Text = 'Recommendations by Impact per Category'
+
     $ChartP1.XAxis.Title.Font.SetFromFont('Segoe UI')
     $ChartP1.XAxis.Title.Font.Size = 9
+    $ChartP1.XAxis.MinorTickMark = "None"
+
+    $ChartP1.YAxis.Title.Font.SetFromFont('Segoe UI')
+    $ChartP1.YAxis.Title.Font.Size = 9
+    $ChartP1.YAxis.MinorTickMark = "None"
 
     Close-ExcelPackage $Excel
 
@@ -1381,7 +1405,7 @@ $TempImpactedResources = $ExcelImpactedResources | Select-Object -Property 'Reso
 
 $ResourcesTypes = $TempImpactedResources | Group-Object -Property 'Resource Type' | Sort-Object -Property 'Count' -Descending | Select-Object -First 10
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
+<# Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
 #Openning PPT
 $Application = New-Object -ComObject PowerPoint.Application
 $Presentation = $Application.Presentations.Open($PPTTemplateFile, $null, $null, $null)
@@ -1401,7 +1425,7 @@ Build-PPTSlide23 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Impacted
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing PowerPoint..')
 $Presentation.SaveAs($PPTFinalFile)
 $Presentation.Close()
-$Application.Quit()
+$Application.Quit() #>
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting to Process Assessment Findings..')
 
