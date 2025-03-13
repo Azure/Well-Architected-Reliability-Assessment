@@ -206,7 +206,7 @@ function Build-WAFAdvisorObject {
     Author: Kyle Poineal
     Date: 2024-12-12
 #>
-class advisorResourceObj : IEquatable[object] {
+class advisorResourceObj : IComparable, IEquatable[object] {
     <# Define the class. Try constructors, properties, or methods. #>
     [string] $recommendationId
     [string] $type
@@ -234,7 +234,7 @@ class advisorResourceObj : IEquatable[object] {
         $this.Description = $psObject.description
     }
 
-    # Implement the Equals method to compare two advisorResourceObj objects
+    # Implement the Equals method to equate two advisorResourceObj objects
     [bool] Equals([object] $other) {
         if ($other -isnot [advisorResourceObj]) {
             throw "Expected an advisorResourceObj object"
@@ -247,7 +247,7 @@ class advisorResourceObj : IEquatable[object] {
         return $true
     }
 
-<#     # Implement the CompareTo method to compare two advisorResourceObj objects
+    # Implement the CompareTo method to compare two advisorResourceObj objects
     [int] CompareTo([object] $other) {
         if ($other -isnot [advisorResourceObj]) {
             throw "Expected an advisorResourceObj object"
@@ -258,7 +258,7 @@ class advisorResourceObj : IEquatable[object] {
             }
         }
         return 0
-    } #>
+    }
 
     # Implements the GetHashCode method to generate a hash code for the advisorResourceObj object
     #[int] GetHashCode() {

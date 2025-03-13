@@ -6,9 +6,9 @@ BeforeAll {
     $objectlist = get-content $testDataPath -Raw | ConvertFrom-Json -depth 20
     $test_AdvisorData = get-content $test_AdvisorDataPath -raw | ConvertFrom-Json -depth 100
     Mock Invoke-WAFQuery { return $objectlist } -ModuleName advisor -Verifiable
-    Mock Get-AzAccessToken {return @{
-        token = ConvertTo-SecureString -String "fake-token" -AsPlainText -Force
-    }} -ModuleName advisor -Verifiable
+    Mock Get-AzAccessToken { return @{
+            token = ConvertTo-SecureString -String "fake-token" -AsPlainText -Force
+        } } -ModuleName advisor -Verifiable
     Mock Invoke-RestMethod { return $test_AdvisorData } -ModuleName advisor -Verifiable
 }
 
@@ -62,29 +62,61 @@ Describe 'Get-WAFAdvisorMetadata' {
 }
 
 Describe 'advisorResourceObj' {
+    BeforeAll {
+        $results = InModuleScope 'advisor' -Parameters @{
+            objectlist = $objectlist
+        } {
+
+            #Create a new instance of the class
+            return $objectlist.foreach({ [advisorResourceObj]::new($_) })
+
+        }
+    }
     Context 'When the class is instantiated' {
+        It 'Should be of type advisorResourceObj' {
+            $results[0].GetType().Name | Should -Be 'advisorResourceObj'
+        }
+        It 'Should work with the Equals() method correctly' {
+            $results[0].Equals($results[0]) | Should -BeTrue
+            $results[0].Equals($results[1]) | Should -BeFalse
+        }
         It 'Should have the correct properties' {
 
-            InModuleScope 'advisor' -Parameters @{
-                test_advisordata = $test_AdvisorData
-            } {
-                #$result = $Advisor_TestData.ForEach({ [advisorResourceObj]::new($_) })
-                $result = [advisorResourceObj]::new($test_AdvisorData[0])
-                $result2 = [advisorResourceObj]::new($test_AdvisorData[1])
-                $result.GetType().Name | Should -Be 'advisorResourceObj'
-                $result.Equals($result2) | Should -BeTrue
-                <# $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'recommendationId'
-                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'type'
-                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'name'
-                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'id'
-                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'subscriptionId'
-                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'resourceGroup'
-                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'location'
-                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'category'
-                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'impact'
-                $result | Should -HaveMemberType NoteProperty -MemberType String -Name 'description' #>
-            }
+            #Get the properties of the object
+            $propertynames = $results[0].psobject.Properties.name
 
+            #Test the number of properties
+            $propertynames.count
+
+            #Test the properties
+            $propertynames | Should -Contain 'recommendationId'
+            $propertynames | Should -Contain 'type'
+            $propertynames | Should -Contain 'name'
+            $propertynames | Should -Contain 'id'
+            $propertynames | Should -Contain 'subscriptionId'
+            $propertynames | Should -Contain 'resourceGroup'
+            $propertynames | Should -Contain 'location'
+            $propertynames | Should -Contain 'category'
+            $propertynames | Should -Contain 'impact'
+            $propertynames | Should -Contain 'description'
+        }
+        It 'Should be able to be sorted as a collection and remove duplicates using Linq Distinct method' {
+
+            #Test the count of the collection
+            $results | Should -HaveCount 448
+
+            #Test the sorting of the collection
+            #Create duplicates in the collection by multiplying it by 10
+            $results = $results * 10
+
+            #Count the collection with duplicates
+            $results | Should -HaveCount 4480
+
+            #Sort the $results collection using Linq Distinct method
+            $FilteredResources = [System.Linq.Enumerable]::Distinct([object[]]$results).toArray()
+
+            #Count the collection after removing duplicates
+            $FilteredResources | Should -HaveCount 448
         }
     }
 }
