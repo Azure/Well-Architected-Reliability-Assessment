@@ -135,9 +135,9 @@ Describe 'Start-WARACollector' {
             $scriptblock.impactedresources.where({ $_.validationAction -eq "IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line" }).count | Should -BeExactly 4
 
             # Validate the output of advisor recommendations by type
-            $scriptblock.advisory.count | Should -BeExactly 2
+            $scriptblock.advisory.count | Should -BeExactly 4
             $scriptblock.advisory.where({ $_.type -eq "microsoft.subscriptions/subscriptions" }).count | Should -BeExactly 1
-            $scriptblock.advisory.where({ $_.type -eq "microsoft.apimanagement/service" }).count | Should -BeExactly 1
+            $scriptblock.advisory.where({ $_.type -eq "microsoft.apimanagement/service" }).count | Should -BeExactly 3
 
             # Validate the output of resourcetype
             $scriptblock.resourcetype.count | Should -BeExactly 3
