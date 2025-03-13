@@ -260,6 +260,11 @@ class advisorResourceObj : IComparable, IEquatable[object] {
         return 0
     }
 
+    # Implements the GetHashCode method to generate a hash code for the advisorResourceObj object
+    #[int] GetHashCode() {
+    #    return [System.HashCode]::Combine($this.RecommendationId, $this.Type, $this.Name, $this.Id, $this.SubscriptionId, $this.ResourceGroup, $this.Location, $this.Category, $this.Impact, $this.Description)
+    #}
+
 }
 
 
