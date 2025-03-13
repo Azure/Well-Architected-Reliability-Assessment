@@ -100,7 +100,16 @@ Describe 'Start-WARACollector' {
 
             Mock Get-WARAOtherRecommendations { return $null } -ModuleName 'wara'
 
-            Mock Get-WAFAdvisorRecommendation { return $Advisor_TestData } -ModuleName 'wara'
+            Mock Get-WAFAdvisorRecommendation {
+
+                $AdvData = InModuleScope 'advisor' -Parameters @{
+                        Advisor_TestData = $Advisor_TestData
+                    } {
+                        Build-WAFAdvisorObject -AdvQueryResult $Advisor_TestData
+                    }
+                return $AdvData
+            } -ModuleName 'wara'
+
 
             Mock Get-WAFTaggedResourceGroup { return $TaggedResourceGroup_TestData } -ModuleName 'wara'
 
@@ -136,6 +145,7 @@ Describe 'Start-WARACollector' {
 
             # Validate the output of advisor recommendations by type
             $scriptblock.advisory.count | Should -BeExactly 4
+            $scriptblock.advisory[0].gettype().Name | Should -Be 'advisorResourceObj'
             $scriptblock.advisory.where({ $_.type -eq "microsoft.subscriptions/subscriptions" }).count | Should -BeExactly 1
             $scriptblock.advisory.where({ $_.type -eq "microsoft.apimanagement/service" }).count | Should -BeExactly 3
 
@@ -293,7 +303,7 @@ Describe 'Get-WARAOtherRecommendations' {
 
             InModuleScope 'wara' -Parameters @{
                 RecommendationObject = $recommendationObject
-                AdvisorMetadata     = $advisorMetadata
+                AdvisorMetadata      = $advisorMetadata
             } {
                 $OtherRecommendations = Get-WARAOtherRecommendations -RecommendationObject $RecommendationObject -AdvisorMetadata $AdvisorMetadata
             }
