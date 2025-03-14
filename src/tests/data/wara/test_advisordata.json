@@ -22,5 +22,29 @@
   "category": "HighAvailability",
   "impact": "High",
   "description": "Deploy an Azure API Management instance to multiple Azure regions for increased service availability"
+},
+{
+  "recommendationId": "2e4d65a3-1e77-4759-bcaa-13009484a97e",
+  "type": "microsoft.apimanagement/service",
+  "name": "apiService4",
+  "id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.ApiManagement/service/apiService4",
+  "subscriptionId": "22222222-2222-2222-2222-222222222222",
+  "resourceGroup": "rg-B1",
+  "location": "eastus2",
+  "category": "HighAvailability",
+  "impact": "High",
+  "description": "Deploy an Azure API Management instance to multiple Azure regions for increased service availability"
+},
+{
+  "recommendationId": "2e4d65a3-1e77-4759-bcaa-13009484a97e",
+  "type": "microsoft.apimanagement/service",
+  "name": "apiService5",
+  "id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-B1/providers/Microsoft.ApiManagement/service/apiService5",
+  "subscriptionId": "22222222-2222-2222-2222-222222222222",
+  "resourceGroup": "rg-B1",
+  "location": "eastus2",
+  "category": "HighAvailability",
+  "impact": "High",
+  "description": "Deploy an Azure API Management instance to multiple Azure regions for increased service availability"
 }
 ]

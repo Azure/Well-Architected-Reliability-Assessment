@@ -206,7 +206,7 @@ function Build-WAFAdvisorObject {
     Author: Kyle Poineal
     Date: 2024-12-12
 #>
-class advisorResourceObj {
+class advisorResourceObj : IComparable, IEquatable[object] {
     <# Define the class. Try constructors, properties, or methods. #>
     [string] $recommendationId
     [string] $type
@@ -219,7 +219,7 @@ class advisorResourceObj {
     [string] $impact
     [string] $description
 
-    # Default Contructor that takes a PSObject as input
+    # Default Constructor that takes a PSObject as input
     # Right now this is just a simple assignment of properties, but can be expanded to include more complex logic in the future.
     advisorResourceObj([PSObject]$psObject) {
         $this.RecommendationId = $psObject.recommendationId
@@ -233,6 +233,38 @@ class advisorResourceObj {
         $this.Impact = $psObject.impact
         $this.Description = $psObject.description
     }
+
+    # Implement the Equals method to equate two advisorResourceObj objects
+    [bool] Equals([object] $other) {
+        if ($other -isnot [advisorResourceObj]) {
+            throw "Expected an advisorResourceObj object"
+        }
+        foreach ($property in $this.PSObject.Properties.Name) {
+            if ($this.$property -ne $other.$property) {
+                return $false
+            }
+        }
+        return $true
+    }
+
+    # Implement the CompareTo method to compare two advisorResourceObj objects
+    [int] CompareTo([object] $other) {
+        if ($other -isnot [advisorResourceObj]) {
+            throw "Expected an advisorResourceObj object"
+        }
+        foreach ($property in $this.PSObject.Properties.Name) {
+            if ($this.$property -ne $other.$property) {
+                return $this.$property.CompareTo($other.$property)
+            }
+        }
+        return 0
+    }
+
+    # Implements the GetHashCode method to generate a hash code for the advisorResourceObj object
+    #[int] GetHashCode() {
+    #    return [System.HashCode]::Combine($this.RecommendationId, $this.Type, $this.Name, $this.Id, $this.SubscriptionId, $this.ResourceGroup, $this.Location, $this.Category, $this.Impact, $this.Description)
+    #}
+
 }
 
 

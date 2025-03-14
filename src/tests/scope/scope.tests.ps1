@@ -1,9 +1,12 @@
 
 BeforeAll {
     $modulePath = "$PSScriptRoot/../../modules/wara/scope/scope.psm1"
+    $advisormodulePath = "$PSScriptRoot/../../modules/wara/advisor/advisor.psm1"
     $testDataPath = "$PSScriptRoot/../data/newResourceData.json"
     $testAdvisorDataPath = "$PSScriptRoot/../data/advisor/bigAdvisorTestData.json"
-    Import-Module -Name $modulePath -Force
+
+    Import-Module -Name $modulePath,$advisormodulePath -Force
+
     $objectlist = get-content $testDataPath -Raw | ConvertFrom-Json -depth 10
     $testAdvisorData = get-content $testAdvisorDataPath -Raw | ConvertFrom-Json -depth 10
     $SubscriptionFilterList = @('/subscriptions/11111111-1111-1111-1111-111111111111', '/subscriptions/33333333-3333-3333-3333-333333333333')
@@ -48,6 +51,8 @@ Describe 'Get-WAFResourcesByList' {
 Describe 'Get-WAFFilteredResourceList' {
     Context 'When given a valid list of resource ids, resource groups, and subscriptions it should filter the list and only return resourceids that are in scope.' {
         It 'Should return the corresponding resource ids that match the resource ids' {
+            $objectlist = $objectlist * 10 # Multiply the test data by 10 to simulate a large data set of duplicates
+
             $result = Get-WAFFilteredResourceList -UnfilteredResources $ObjectList -ResourceFilters $ResourceFilterList -ResourceGroupFilters $ResourceGroupFilterList -SubscriptionFilters $SubscriptionFilterList -KeyColumn $KeyColumn
             $result | Should -HaveCount 6
             $result.id | Should -Contain '/subscriptions/77777777-7777-7777-7777-777777777777/resourceGroups/test7/providers/Microsoft.Compute/virtualMachines/TestVM7'
@@ -59,12 +64,20 @@ Describe 'Get-WAFFilteredResourceList' {
         }
     }
     Context 'For Advisor recommendations, When given a valid list of resource ids, resource groups, and subscriptions it should filter the list and only return resourceids that are in scope.' {
+
         It 'Should return the corresponding advisor recommendations that match the resource ids' {
-            $result = Get-WAFFilteredResourceList -UnfilteredResources $testAdvisorData -ResourceFilters $ResourceFilterList -ResourceGroupFilters $ResourceGroupFilterList -SubscriptionFilters $SubscriptionFilterList -KeyColumn $KeyColumn
+
+            # Mock the advisor query and return [advisorResourceObj]
+            $this = Build-WAFAdvisorObject -AdvQueryResult $testAdvisorData
+
+            $this = $this * 10 # Multiply the test data by 10 to simulate a large data set of duplicates
+
+            $result = Get-WAFFilteredResourceList -UnfilteredResources $this -ResourceFilters $ResourceFilterList -ResourceGroupFilters $ResourceGroupFilterList -SubscriptionFilters $SubscriptionFilterList -KeyColumn $KeyColumn
+            $result[0].gettype().name | Should -be 'advisorResourceObj'
             $result | Should -HaveCount 49
-            $result.where({$_ -match "/subscriptions/33333333-3333-3333-3333-333333333333*"}).count | Should -Be 29
-            $result.where({$_ -match "/subscriptions/11111111-1111-1111-1111-111111111111*"}).count | Should -Be 20
-            $result.where({$_ -match "rg-20"}).count | Should -Be 20
+            $result.where({$_.id -match "/subscriptions/33333333-3333-3333-3333-333333333333*"}).count | Should -Be 29
+            $result.where({$_.id -match "/subscriptions/11111111-1111-1111-1111-111111111111*"}).count | Should -Be 20
+            $result.where({$_.id -match "rg-20"}).count | Should -Be 20
         }
     }
 }
