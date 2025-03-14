@@ -310,7 +310,7 @@ REQUIRED ACTIONS: Review Platform Issue and create recommendations.
 This Platform Issue may have affected the workload, since it cannot be validated automatically, follow these steps:
 1. Review all information about the Platform Issue.
 2. Discuss with the Account Team/Workload Owner if this Platform Issue affected the workload and how, you can also check if there are associated Support Requests.
-3. If this issue affected the workload, create recommendations in the "3.ImpactedResources" worksheet based on the "How can customers make incidents like this less impactful" field. You can associate the recommendation(s) with the Workload or individual resources.
+3. If this issue affected the workload, create recommendations in the "4.ImpactedResources" worksheet based on the "How can customers make incidents like this less impactful" field. You can associate the recommendation(s) with the Workload or individual resources.
 4. If the recommendation(s) already exists, simply add the TrackingID to the respective column of the associated Recommendation(s).
 or
 5. Delete this row if the workload was not affected by this Platform Issue.
@@ -324,7 +324,7 @@ REQUIRED ACTIONS: Review Customer Support Requests and create recommendations.
 This Customer Support Request is associated with the Subscription of the workload, since it cannot be validated automatically, follow these steps:
 1. Review all information about the Support Request in the Azure Portal.
 2. Discuss with Workload Owner if this Support Request affected the workload and how.
-3. If this Support Request was relevant for the workload, create recommendations in the "3.ImpactedResources" worksheet based on it was resolved. You can associate the recommendation(s) with the Workload or individual resources. The goal is to make sure other resources or services follow the Microsoft recommendation/solution and prevent this incident from happening again.
+3. If this Support Request was relevant for the workload, create recommendations in the "4.ImpactedResources" worksheet based on it was resolved. You can associate the recommendation(s) with the Workload or individual resources. The goal is to make sure other resources or services follow the Microsoft recommendation/solution and prevent this incident from happening again.
 4. If the recommendation(s) already exists, simply add the TicketID to the respective column of the associated Recommendation(s).
 or
 5. Delete this row if the workload was not affected, associated with this Support Request.
