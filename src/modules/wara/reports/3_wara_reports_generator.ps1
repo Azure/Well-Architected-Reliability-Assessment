@@ -1405,7 +1405,7 @@ $TempImpactedResources = $ExcelImpactedResources | Select-Object -Property 'Reso
 
 $ResourcesTypes = $TempImpactedResources | Group-Object -Property 'Resource Type' | Sort-Object -Property 'Count' -Descending | Select-Object -First 10
 
-<# Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
 #Openning PPT
 $Application = New-Object -ComObject PowerPoint.Application
 $Presentation = $Application.Presentations.Open($PPTTemplateFile, $null, $null, $null)
@@ -1425,7 +1425,7 @@ Build-PPTSlide23 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Impacted
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing PowerPoint..')
 $Presentation.SaveAs($PPTFinalFile)
 $Presentation.Close()
-$Application.Quit() #>
+$Application.Quit()
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting to Process Assessment Findings..')
 
