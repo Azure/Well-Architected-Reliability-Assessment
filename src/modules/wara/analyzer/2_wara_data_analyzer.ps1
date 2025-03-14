@@ -472,7 +472,7 @@ function Initialize-WARAImpactedResources
 			}
 		}
 
-    # Second loop through the advisories to get the impacted resources
+    # Second loop through the resources without GUID
     $Resources = $ImpactedResources | Where-Object {[string]::IsNullOrEmpty($_.recommendationId)}
     foreach ($Resource in $Resources)
     {
