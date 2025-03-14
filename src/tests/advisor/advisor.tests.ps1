@@ -86,7 +86,7 @@ Describe 'advisorResourceObj' {
             $propertynames = $results[0].psobject.Properties.name
 
             #Test the number of properties
-            $propertynames.count
+            $propertynames.count | Should -Be 10
 
             #Test the properties
             $propertynames | Should -Contain 'recommendationId'
