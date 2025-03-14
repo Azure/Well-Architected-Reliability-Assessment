@@ -415,7 +415,7 @@ function Initialize-WARAImpactedResources
 			# If the recommendation is not a Custom Recommendation, we need to validate if the resources are not already in the tmp array (from a previous loop of a Custom Recommendation)
 			if ([string]::IsNullOrEmpty($Resources) -and $Recom.aprlGuid -notin $tmp.Guid -and -not $Recom.checkName)
 			{
-				$Resources = $ImpactedResources| Where-Object {($_.recommendationId -eq $Recom.aprlGuid) }
+				$Resources = $ImpactedResources | Where-Object {($_.recommendationId -eq $Recom.aprlGuid) }
 			}
 
 			foreach ($Resource in $Resources)
@@ -472,7 +472,40 @@ function Initialize-WARAImpactedResources
 			}
 		}
 
-	# Second loop through the advisories to get the impacted resources
+    # Second loop through the advisories to get the impacted resources
+    $Resources = $ImpactedResources | Where-Object {[string]::IsNullOrEmpty($_.recommendationId)}
+    foreach ($Resource in $Resources)
+    {
+        $ValidationMSG = switch ($Resource.validationAction) {
+            'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if Applicable, if not Delete this line' {
+                Get-WARAMessage -Message 'ImpactedResources_Type'
+
+            }
+            default {
+                'Custom'
+            }
+        }
+
+        $ResObj = [ImpactedResourceObj]::new()
+        $ResObj.ValidationMSG = $ValidationMSG
+        $ResObj.ValidationCategory = 'Resource'
+        $ResObj.ResourceType = $Resource.type
+        $ResObj.SubscriptionId = $Resource.subscriptionId
+        $ResObj.ResourceGroup = $Resource.resourceGroup
+        $ResObj.Location = $Resource.location
+        $ResObj.Name = $Resource.name
+        $ResObj.Id = $Resource.id
+        $ResObj.RecommendationControl = 'Other Best Practices'
+        $ResObj.Impact = 'Low'
+        $ResObj.Category = 'Azure Service'
+        $ResObj.Source = $Resource.selector
+        $ResObj.WAFPillar = 'Reliability'
+        $ResObj.CheckName = $Resource.checkName
+
+        $tmp += $ResObj
+    }
+
+	# Third loop through the Advisories
 	$ADVMessage = "Reviewed"
 	foreach ($adv in $Advisory)
 		{
@@ -499,7 +532,7 @@ function Initialize-WARAImpactedResources
 				}
 		}
 
-	# Third loop through the retirements
+	# Fourth loop through the Service Retirements
 	$ServiceRetirementMSG = Get-WARAMessage -Message 'ImpactedResources_ServiceRetirement'
 	foreach ($Retirement in $Retirements)
 		{
@@ -537,7 +570,7 @@ function Initialize-WARAImpactedResources
 			}
 		}
 
-	# Fourth loop through the WAF recommendations
+	# Fifth loop through the WAF Recommendations
 	$WAFMSG = Get-WARAMessage -Message 'ImpactedResources_WAF'
 	foreach ($waf in $WAFRecommendations)
 		{
