@@ -1098,187 +1098,240 @@ $TableStyle = 'Light19'
     $Address = $Excel.'2.Recommendations'.Tables[0].Address.Address
 
     $PTParams = @{
-      PivotTableName    = 'P0'
-      Address           = $Excel.'7.PivotTable'.cells['A3']
-      SourceWorkSheet   = $Excel."2.Recommendations"
-      SourceRange       = $Address
-      PivotRows         = @('Resource Type')
-      PivotColumns      = @('Impact')
-      PivotData         = @{'Resource Type' = 'Count' }
-      PivotTableStyle   = 'Medium9'
-      Activate          = $true
-      PivotFilter       = 'Category'
-      ShowPercent       = $false
-      IncludePivotChart = $false
+        PivotTableName    = 'P0'
+        Address           = $Excel.'7.PivotTable'.cells['A3']
+        SourceWorkSheet   = $Excel."2.Recommendations"
+        SourceRange       = $Address
+        PivotRows         = @('Resource Type')
+        PivotColumns      = @('Impact')
+        PivotData         = @{'Resource Type' = 'Count' }
+        PivotTableStyle   = 'Medium9'
+        Activate          = $true
+        PivotFilter       = 'Category'
+        ShowPercent       = $false
+        IncludePivotChart = $false
     }
     Add-PivotTable @PTParams
 
     $PTParams = @{
-      PivotTableName    = 'P1'
-      Address           = $Excel.'7.PivotTable'.cells['H3']
-      SourceWorkSheet   = $Excel."2.Recommendations"
-      SourceRange       = $Address
-      PivotRows         = @('Recommendation Control')
-      PivotColumns      = @('Impact')
-      PivotData         = @{'Resource Type' = 'Count' }
-      PivotTableStyle   = 'Medium9'
-      Activate          = $true
-      PivotFilter       = 'Resource Type'
-      ShowPercent       = $false
-      IncludePivotChart = $false
+        PivotTableName    = 'P1'
+        Address           = $Excel.'7.PivotTable'.cells['H3']
+        SourceWorkSheet   = $Excel."2.Recommendations"
+        SourceRange       = $Address
+        PivotRows         = @('Recommendation Control')
+        PivotColumns      = @('Impact')
+        PivotData         = @{'Resource Type' = 'Count' }
+        PivotTableStyle   = 'Medium9'
+        Activate          = $true
+        PivotFilter       = 'Resource Type'
+        ShowPercent       = $false
+        IncludePivotChart = $false
     }
     Add-PivotTable @PTParams
 
     $PTParams = @{
-      PivotTableName    = 'P2'
-      Address           = $Excel.'7.PivotTable'.cells['O3']
-      SourceWorkSheet   = $Excel."2.Recommendations"
-      SourceRange       = $Address
-      PivotRows         = @('Impact')
-      PivotData         = @{'Impacted Resources' = 'Sum' }
-      PivotTableStyle   = 'Medium9'
-      Activate          = $true
-      ShowPercent       = $false
-      IncludePivotChart = $false
+        PivotTableName    = 'P2'
+        Address           = $Excel.'7.PivotTable'.cells['O3']
+        SourceWorkSheet   = $Excel."2.Recommendations"
+        SourceRange       = $Address
+        PivotRows         = @('Impact')
+        PivotData         = @{'Impacted Resources' = 'Sum' }
+        PivotTableStyle   = 'Medium9'
+        Activate          = $true
+        ShowPercent       = $false
+        IncludePivotChart = $false
     }
     Add-PivotTable @PTParams
 
     $PTParams = @{
-      PivotTableName    = 'P3'
-      Address           = $Excel.'7.PivotTable'.cells['S3']
-      SourceWorkSheet   = $Excel."2.Recommendations"
-      SourceRange       = $Address
-      PivotRows         = @('Impact')
-      PivotData         = @{'Guid' = 'Count' }
-      PivotTableStyle   = 'Medium10'
-      Activate          = $true
-      ShowPercent       = $false
-      IncludePivotChart = $false
+        PivotTableName    = 'P3'
+        Address           = $Excel.'7.PivotTable'.cells['S3']
+        SourceWorkSheet   = $Excel."2.Recommendations"
+        SourceRange       = $Address
+        PivotRows         = @('Impact')
+        PivotData         = @{'Guid' = 'Count' }
+        PivotTableStyle   = 'Medium10'
+        Activate          = $true
+        ShowPercent       = $false
+        IncludePivotChart = $false
     }
     Add-PivotTable @PTParams
+
+    return $Excel
+
+}
+
+function Build-ExcelPivotChart {
+    Param($Excel)
+
+    $ChartP0 = $Excel."1.Dashboard".Drawings.AddChart('ChartP0', 'BarClustered', $Excel."7.PivotTable".PivotTables['P0'])
+    $ChartP0.SetSize(600, 700)
+    $ChartP0.SetPosition(18, 10, .5, 90)
+    $ChartP0.fill.color = [System.Drawing.Color]::FromArgb(255,194,194,194)
+    $ChartP0.PlotArea.fill.color = [System.Drawing.Color]::FromArgb(255,194,194,194)
+    $ChartP0.RoundedCorners = $true
+    $ChartP0.Legend.Position = 'Top'
+    #$ChartP0.DisplayBlanksAs = 'Gap'
+
+    $ChartP0.Title.Font.Bold = $true
+    $ChartP0.Title.Font.SetFromFont("Segoe UI")
+    $ChartP0.Title.Font.Size = 11
+    $ChartP0.Title.Text = 'Recommendations by Impact per ResourceType'
+
+    $ChartP0.XAxis.Title.Font.SetFromFont('Segoe UI')
+    $ChartP0.XAxis.Title.Font.Size = 9
+    $ChartP0.XAxis.MinorTickMark = "None"
+    $ChartP0.XAxis.MajorTickMark = "None"
+
+    $ChartP0.YAxis.Title.Font.SetFromFont('Segoe UI')
+    $ChartP0.YAxis.Title.Font.Size = 9
+    $ChartP0.YAxis.MinorTickMark = "None"
+    $ChartP0.YAxis.MajorTickMark = "None"
+
+    $ChartP1 = $Excel."1.Dashboard".Drawings.AddChart('ChartP1', 'BarClustered', $Excel."7.PivotTable".PivotTables['P1'])
+    $ChartP1.SetSize(500, 700)
+    $ChartP1.SetPosition(18, 10, 6, 75)
+    $ChartP1.fill.color = [System.Drawing.Color]::FromArgb(255,194,194,194)
+    $ChartP1.PlotArea.fill.color = [System.Drawing.Color]::FromArgb(255,194,194,194)
+    $ChartP1.RoundedCorners = $true
+    $ChartP1.Legend.Position = 'Top'
+    #$ChartP1.DisplayBlanksAs = 'Gap'
+
+    $ChartP1.Title.Font.Bold = $true
+    $ChartP1.Title.Font.SetFromFont("Segoe UI")
+    $ChartP1.Title.Font.Size = 11
+    $ChartP1.Title.Text = 'Recommendations by Impact per Category'
+
+    $ChartP1.XAxis.Title.Font.SetFromFont('Segoe UI')
+    $ChartP1.XAxis.Title.Font.Size = 9
+    $ChartP1.XAxis.MinorTickMark = "None"
+
+    $ChartP1.YAxis.Title.Font.SetFromFont('Segoe UI')
+    $ChartP1.YAxis.Title.Font.Size = 9
+    $ChartP1.YAxis.MinorTickMark = "None"
 
     Close-ExcelPackage $Excel
 
-  }
+}
 
-  # Start the stopwatch to time the script
-  $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+# Start the stopwatch to time the script
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-  #Call the functions
-  $Version = "2.1.5"
-  Write-Host "Version: " -NoNewline
-  Write-Host $Version -ForegroundColor DarkBlue -NoNewline
-  Write-Host " "
+#Call the functions
+$Version = "2.1.5"
+Write-Host "Version: " -NoNewline
+Write-Host $Version -ForegroundColor DarkBlue -NoNewline
+Write-Host " "
 
-  $CoreFile = get-item -Path $ExpertAnalysisFile
-  $CoreFile = $CoreFile.FullName
+$CoreFile = get-item -Path $ExpertAnalysisFile
+$CoreFile = $CoreFile.FullName
 
-  Test-ReviewedRecommendations -ExcelFile $CoreFile
+Test-ReviewedRecommendations -ExcelFile $CoreFile
 
-  Write-Debug (' ---------------------------------- STARTING REPORT GENERATOR SCRIPT --------------------------------------- ')
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting Report Generator Script..')
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Script Version: ' + $Version)
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Excel File: ' + $ExcelFile)
-  $ImportExcel = Get-Module -Name ImportExcel -ListAvailable -ErrorAction silentlycontinue
-  foreach ($IExcel in $ImportExcel) {
+Write-Debug (' ---------------------------------- STARTING REPORT GENERATOR SCRIPT --------------------------------------- ')
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting Report Generator Script..')
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Script Version: ' + $Version)
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Excel File: ' + $ExcelFile)
+$ImportExcel = Get-Module -Name ImportExcel -ListAvailable -ErrorAction silentlycontinue
+foreach ($IExcel in $ImportExcel) {
     $IExcelPath = $IExcel.Path
     $IExcelVer = [string]$IExcel.Version
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Path: ' + $IExcelPath)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - ImportExcel Module Version: ' + $IExcelVer)
-  }
+}
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "10% Complete." -PercentComplete 10
-  Test-Requirement
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "15% Complete." -PercentComplete 15
-  #Set-LocalFile
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "20% Complete." -PercentComplete 20
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "10% Complete." -PercentComplete 10
+Test-Requirement
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "15% Complete." -PercentComplete 15
+#Set-LocalFile
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "20% Complete." -PercentComplete 20
 
-  $ExcelImpactedResources = Get-ExcelImpactedResources -ExcelFile $CoreFile
+$ExcelImpactedResources = Get-ExcelImpactedResources -ExcelFile $CoreFile
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "25% Complete." -PercentComplete 25
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "25% Complete." -PercentComplete 25
 
-  $ExcelPlatformIssues = Get-ExcelPlatformIssues -ExcelFile $CoreFile
+$ExcelPlatformIssues = Get-ExcelPlatformIssues -ExcelFile $CoreFile
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "30% Complete." -PercentComplete 30
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "30% Complete." -PercentComplete 30
 
-  $ExcelSupportTickets = Get-ExcelSupportTicket -ExcelFile $CoreFile
+$ExcelSupportTickets = Get-ExcelSupportTicket -ExcelFile $CoreFile
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "35% Complete." -PercentComplete 35
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "35% Complete." -PercentComplete 35
 
-  $ExcelWorkloadInventory = Get-ExcelWorkloadInventory -ExcelFile $CoreFile
+$ExcelWorkloadInventory = Get-ExcelWorkloadInventory -ExcelFile $CoreFile
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "40% Complete." -PercentComplete 40
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "40% Complete." -PercentComplete 40
 
-  $ExcelRetirements = Get-ExcelRetirement -ExcelFile $CoreFile
+$ExcelRetirements = Get-ExcelRetirement -ExcelFile $CoreFile
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "45% Complete." -PercentComplete 45
-
-
-  $PPTFinalFile = New-PPTFile -PPTTemplateFile $PPTTemplateFile
-  Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
-  Write-Host " and " -NoNewline
-  Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
-  Write-Host " "
-  Write-Host "Editing " -NoNewline
-  $NewAssessmentFindingsFile = New-AssessmentFindingsFile -AssessmentFindingsFile $AssessmentFindingsFile
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "45% Complete." -PercentComplete 45
 
 
-  $AUTOMESSAGE = 'AUTOMATICALLY MODIFIED (Please Review)'
+$PPTFinalFile = New-PPTFile -PPTTemplateFile $PPTTemplateFile
+Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
+Write-Host " and " -NoNewline
+Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
+Write-Host " "
+Write-Host "Editing " -NoNewline
+$NewAssessmentFindingsFile = New-AssessmentFindingsFile -AssessmentFindingsFile $AssessmentFindingsFile
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Resource Types..')
 
-  $TempImpactedResources = $ExcelImpactedResources | Select-Object -Property 'Resource Type','id' -Unique
+$AUTOMESSAGE = 'AUTOMATICALLY MODIFIED (Please Review)'
 
-  $ResourcesTypes = $TempImpactedResources | Group-Object -Property 'Resource Type' | Sort-Object -Property 'Count' -Descending | Select-Object -First 10
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Resource Types..')
 
+$TempImpactedResources = $ExcelImpactedResources | Select-Object -Property 'Resource Type', 'id' -Unique
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
-  #Openning PPT
-  $Application = New-Object -ComObject PowerPoint.Application
-  $Presentation = $Application.Presentations.Open($PPTTemplateFile, $null, $null, $null)
+$ResourcesTypes = $TempImpactedResources | Group-Object -Property 'Resource Type' | Sort-Object -Property 'Count' -Descending | Select-Object -First 10
 
-  Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -WorkloadName $WorkloadName
-  Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
-  Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
+#Openning PPT
+$Application = New-Object -ComObject PowerPoint.Application
+$Presentation = $Application.Presentations.Open($PPTTemplateFile, $null, $null, $null)
 
-  Build-PPTSlide30 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Retirements $ExcelRetirements
-  Build-PPTSlide29 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -SupportTickets $ExcelSupportTickets
-  Build-PPTSlide28 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -PlatformIssues $ExcelPlatformIssues
+Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -WorkloadName $WorkloadName
+Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
+Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
 
-  Build-PPTSlide25 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
-  Build-PPTSlide24 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
-  Build-PPTSlide23 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+Build-PPTSlide30 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Retirements $ExcelRetirements
+Build-PPTSlide29 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -SupportTickets $ExcelSupportTickets
+Build-PPTSlide28 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -PlatformIssues $ExcelPlatformIssues
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing PowerPoint..')
-  $Presentation.SaveAs($PPTFinalFile)
-  $Presentation.Close()
-  $Application.Quit()
+Build-PPTSlide25 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+Build-PPTSlide24 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+Build-PPTSlide23 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting to Process Assessment Findings..')
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing PowerPoint..')
+$Presentation.SaveAs($PPTFinalFile)
+$Presentation.Close()
+$Application.Quit()
 
-  $ImpactedResourcesFormatted = Initialize-ExcelImpactedResources -ImpactedResources $ExcelImpactedResources
-  Export-ExcelImpactedResources -ImpactedResourcesFormatted $ImpactedResourcesFormatted
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting to Process Assessment Findings..')
 
-  $RecommendationsFormatted = Initialize-ExcelRecommendations -ImpactedResources $ExcelImpactedResources
-  Export-ExcelRecommendations -RecommendationsFormatted $RecommendationsFormatted
+$ImpactedResourcesFormatted = Initialize-ExcelImpactedResources -ImpactedResources $ExcelImpactedResources
+Export-ExcelImpactedResources -ImpactedResourcesFormatted $ImpactedResourcesFormatted
 
-  Export-ExcelWorkloadInventory -ExcelWorkloadInventory $ExcelWorkloadInventory
+$RecommendationsFormatted = Initialize-ExcelRecommendations -ImpactedResources $ExcelImpactedResources
+Export-ExcelRecommendations -RecommendationsFormatted $RecommendationsFormatted
 
-  Build-ExcelPivotTable -NewAssessmentFindingsFile $NewAssessmentFindingsFile
+Export-ExcelWorkloadInventory -ExcelWorkloadInventory $ExcelWorkloadInventory
 
-  if($csvExport.IsPresent)
-    {
-      $WorkloadRecommendationTemplate = Build-SummaryActionPlan -ImpactedResources $ExcelImpactedResources -includeLow $includeLow
+$ExcelFileLive = Build-ExcelPivotTable -NewAssessmentFindingsFile $NewAssessmentFindingsFile
 
-      $CSVFile = ($PSScriptRoot + '\Impacted Resources and Recommendations Template ' + (get-date -Format "yyyy-MM-dd-HH-mm") + '.csv')
+Build-ExcelPivotChart -Excel $ExcelFileLive
 
-      $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
-    }
+if ($csvExport.IsPresent) {
+    $WorkloadRecommendationTemplate = Build-SummaryActionPlan -ImpactedResources $ExcelImpactedResources -includeLow $includeLow
 
-  Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
-  Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
+    $CSVFile = ($PSScriptRoot + '\Impacted Resources and Recommendations Template ' + (get-date -Format "yyyy-MM-dd-HH-mm") + '.csv')
 
-  Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
+    $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
+}
+
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
+Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
+
+Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
 
 Write-Progress -Id 1 -activity "Processing Office Apps" -Status "100% Complete." -Completed
 
@@ -1294,10 +1347,9 @@ Write-Host $PPTFinalFile -ForegroundColor Cyan
 Write-Host 'Assessment Findings File Saved as: ' -NoNewline
 Write-Host $NewAssessmentFindingsFile -ForegroundColor Cyan
 
-if ($csvExport.IsPresent)
-  {
+if ($csvExport.IsPresent) {
     Write-Host 'CSV File Saved as: ' -NoNewline
     Write-Host $CSVFile -ForegroundColor Cyan
-  }
+}
 
 Write-Host "---------------------------------------------------------------------"
