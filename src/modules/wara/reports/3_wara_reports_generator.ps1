@@ -329,22 +329,24 @@ $TableStyle = 'Light19'
     $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
 
     $ServiceHighImpact = $ImpactedResources | Where-Object { $_.Impact -eq 'High' -and $_.Category -eq 'Azure Service' } | Group-Object -Property 'Recommendation Title' | Sort-Object -Property "Count" -Descending
-    $WAFHighImpact = $ImpactedResources | Where-Object { $_.Impact -eq 'High' -and $_.Category -eq 'Well Architected' } | Group-Object -Property 'Recommendation Title' | Sort-Object -Property "Count" -Descending
+    #$WAFHighImpact = $ImpactedResources | Where-Object { $_.Impact -eq 'High' -and $_.Category -eq 'Well Architected' } | Group-Object -Property 'Recommendation Title' | Sort-Object -Property "Count" -Descending
 
     $count = 1
     foreach ($Impact in $ServiceHighImpact) {
       $LogImpactName = $Impact.Name
       Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 16 - Adding Service High Impact Name: ' + $LogImpactName)
-      if ($count -lt 5) {
+      if ($count -lt 7) {
           ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs($count).text = $Impact.Name
         $count ++
       }
     }
 
-    while (($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs().count -gt 5) {
+
+    while (($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs().count -gt 6) {
       ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 9 }).TextFrame.TextRange.Paragraphs(6).Delete()
     }
 
+    <#
     if ($WAFHighImpact.count -ne 0) {
       $count = 1
       foreach ($Impact in $WAFHighImpact) {
@@ -360,21 +362,23 @@ $TableStyle = 'Light19'
       ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 12 }).TextFrame.TextRange.Text = ' '
     }
 
+    
     while (($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 12 }).TextFrame.TextRange.Paragraphs().count -gt 5) {
       ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 12 }).TextFrame.TextRange.Paragraphs(6).Delete()
     }
+      #>
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 16 - Adding general values...')
     #Total Recomendations
-    ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 44 }).GroupItems[3].TextFrame.TextRange.Text = [string]($ImpactedResources | Select-Object -Property Guid -Unique).count
+    ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 19 }).TextFrame.TextRange.Text = [string]($ImpactedResources | Select-Object -Property Guid -Unique).count
     #High Impact
-    ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 44 }).GroupItems[4].TextFrame.TextRange.Text = [string]($ImpactedResources | Where-Object { $_.Impact -eq 'High' } | Select-Object -Property Guid -Unique).count
+    ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 21 }).TextFrame.TextRange.Text = [string]($ImpactedResources | Where-Object { $_.Impact -eq 'High' } | Select-Object -Property Guid -Unique).count
     #Medium Impact
-    ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 44 }).GroupItems[5].TextFrame.TextRange.Text = [string]($ImpactedResources | Where-Object { $_.Impact -eq 'Medium' } | Select-Object -Property Guid -Unique).count
+    ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 23 }).TextFrame.TextRange.Text = [string]($ImpactedResources | Where-Object { $_.Impact -eq 'Medium' } | Select-Object -Property Guid -Unique).count
     #Low Impact
-    ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 44 }).GroupItems[6].TextFrame.TextRange.Text = [string]($ImpactedResources | Where-Object { $_.Impact -eq 'Low' } | Select-Object -Property Guid -Unique).count
+    ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 24 }).TextFrame.TextRange.Text = [string]($ImpactedResources | Where-Object { $_.Impact -eq 'Low' } | Select-Object -Property Guid -Unique).count
     #Impacted Resources
-    ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 44 }).GroupItems[7].TextFrame.TextRange.Text = [string]($ImpactedResources | Select-Object -Property id -Unique).count
+    ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 30 }).TextFrame.TextRange.Text = [string]($ImpactedResources | Select-Object -Property id -Unique).count
   }
 
   ############# Slide 23
