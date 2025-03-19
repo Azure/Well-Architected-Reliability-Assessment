@@ -585,7 +585,7 @@ function Initialize-WARAImpactedResources
                     $WAFObj.Impact = $waf.recommendationImpact
                     $WAFObj.RecommendationControl = ($waf.recommendationControl -csplit '(?=[A-Z])' -ne '' -join ' ')
                     $WAFObj.PotentialBenefit = $waf.potentialBenefits
-                    $WAFObj.LearnMoreLink = ($Recom.learnMoreLink.url -join " `n")
+                    $WAFObj.LearnMoreLink = ($waf.learnMoreLink.url -join " `n")
                     $WAFObj.LongDescription = $waf.longDescription
                     $WAFObj.Guid = $waf.aprlGuid
                     $WAFObj.Category = 'Well Architected'
