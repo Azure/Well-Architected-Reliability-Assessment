@@ -381,6 +381,53 @@ $TableStyle = 'Light19'
     ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 30 }).TextFrame.TextRange.Text = [string]($ImpactedResources | Select-Object -Property id -Unique).count
   }
 
+    ############# Slide 17
+  function Build-PPTSlide17 {
+    Param($Presentation, $AUTOMESSAGE, $ExcelWorkbooks)
+
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 17 - Health and Risk Dashboard..')
+
+    $ChartSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 17 }
+
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 17 - Adding Automation Message..')
+    $TargetShape = ($ChartSlide.Shapes | Where-Object { $_.Id -eq 41 })
+    $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
+
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 17 - Loading Excel Worksheet..')
+    $WS = $ExcelWorkbooks.Worksheets | Where-Object { $_.Name -eq '1.Dashboard' }
+    Start-Sleep 1
+
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 17 - Copying Chart P1..')
+    $WS.ChartObjects('ChartP1').copy()
+    Start-Sleep -Milliseconds 500
+
+    $ChartSlide.Shapes.Paste() | Out-Null
+    Start-Sleep 1
+
+    $Shape = $ChartSlide.Shapes | Where-Object { $_.Name -eq 'ChartP1' }
+
+    $Shape.ScaleHeight(0.85, $false)
+    Start-Sleep -Milliseconds 500
+    $Shape.IncrementLeft(-260)
+    Start-Sleep -Milliseconds 500
+    $Shape.IncrementTop(77)
+    Start-Sleep -Milliseconds 500
+
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 17 - Copying Chart P0..')
+    $WS.ChartObjects('ChartP0').copy()
+    Start-Sleep -Milliseconds 500
+
+    $ChartSlide.Shapes.Paste() | Out-Null
+    Start-Sleep 1
+
+    $Shape = $ChartSlide.Shapes | Where-Object { $_.Name -eq 'ChartP0' }
+
+    $Shape.IncrementLeft(240)
+    Start-Sleep -Milliseconds 500
+
+
+  }
+
   ############# Slide 23
   function Build-PPTSlide23 {
     Param($Presentation,$AUTOMESSAGE,$ImpactedResources)
@@ -1284,28 +1331,6 @@ $TempImpactedResources = $ExcelImpactedResources | Select-Object -Property 'Reso
 
 $ResourcesTypes = $TempImpactedResources | Group-Object -Property 'Resource Type' | Sort-Object -Property 'Count' -Descending | Select-Object -First 10
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
-#Openning PPT
-$Application = New-Object -ComObject PowerPoint.Application
-$Presentation = $Application.Presentations.Open($PPTTemplateFile, $null, $null, $null)
-
-Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -WorkloadName $WorkloadName
-Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
-Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
-
-Build-PPTSlide30 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Retirements $ExcelRetirements
-Build-PPTSlide29 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -SupportTickets $ExcelSupportTickets
-Build-PPTSlide28 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -PlatformIssues $ExcelPlatformIssues
-
-Build-PPTSlide25 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
-Build-PPTSlide24 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
-Build-PPTSlide23 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
-
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing PowerPoint..')
-$Presentation.SaveAs($PPTFinalFile)
-$Presentation.Close()
-$Application.Quit()
-
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting to Process Assessment Findings..')
 
 $ImpactedResourcesFormatted = Initialize-ExcelImpactedResources -ImpactedResources $ExcelImpactedResources
@@ -1320,6 +1345,62 @@ $ExcelFileLive = Build-ExcelPivotTable -NewAssessmentFindingsFile $NewAssessment
 
 Build-ExcelPivotChart -Excel $ExcelFileLive
 
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
+# Openning PPT
+try
+    {
+        $Application = New-Object -ComObject PowerPoint.Application
+        $Presentation = $Application.Presentations.Open($PPTTemplateFile, $null, $null, $null)
+    }
+catch
+    {
+        Write-Host ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + "- Error: " + $_.Exception.Message)
+        Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process -Force
+    }
+
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting Excel..')
+# Openning Excel
+try
+    {
+        $ExcelApplication = New-Object -ComObject Excel.Application
+        Start-Sleep -Milliseconds 500
+        $ExcelWorkbooks = $ExcelApplication.Workbooks.Open($ExcelFile)
+    }
+catch
+    {
+        Write-Host ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + "- Error: " + $_.Exception.Message)
+        Get-Process -Name "excel" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process -Force
+    }
+
+
+Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -WorkloadName $WorkloadName
+Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
+Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+
+while ([string]::IsNullOrEmpty($Ex)) {
+    Start-Sleep 1
+}
+
+Build-PPTSlide17 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ExcelWorkbooks $ExcelWorkbooks
+
+Build-PPTSlide30 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Retirements $ExcelRetirements
+Build-PPTSlide29 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -SupportTickets $ExcelSupportTickets
+Build-PPTSlide28 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -PlatformIssues $ExcelPlatformIssues
+
+Build-PPTSlide25 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+Build-PPTSlide24 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+Build-PPTSlide23 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing Excel..')
+$ExcelWorkbooks.Save()
+$ExcelWorkbooks.Close()
+$ExcelApplication.Quit()
+
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing PowerPoint..')
+$Presentation.SaveAs($PPTFinalFile)
+$Presentation.Close()
+$Application.Quit()
+
 if ($csvExport.IsPresent) {
     $WorkloadRecommendationTemplate = Build-SummaryActionPlan -ImpactedResources $ExcelImpactedResources -includeLow $includeLow
 
@@ -1328,8 +1409,17 @@ if ($csvExport.IsPresent) {
     $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
 }
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
-Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process
+if (Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' })
+    {
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
+        Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process -Force
+    }
+
+if (Get-Process -Name "excel" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } )
+    {
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill Excel process.')
+        Get-Process -Name "excel" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process -Force
+    }
 
 Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
 
