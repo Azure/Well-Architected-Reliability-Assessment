@@ -315,7 +315,7 @@ function Get-WAFFilteredResourceList {
     $FilteredResources += $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources
 
     if($FilteredResources.Count -eq 0){
-        Write-Warning 'No resources found matching the provided filters.'
+        Write-Debug 'No resources found matching the provided filters.'
         return ,$FilteredResources
     }
 
