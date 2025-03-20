@@ -399,15 +399,15 @@ function Initialize-WARAImpactedResources
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Overall Recommendations found: ' + [string]$ResourceRecommendations.Count)
 
 	# Filtering the recommendations to get only the active ones and the ones that are not already in the advisories list
-	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Filtering Active Recommendations and Recommendations not in Advisories')
-	$RecommendationContent = $ResourceRecommendations | Where-Object {($_.recommendationMetadataState -eq 'Active' -and $_.recommendationTypeId -notin $JSONContent.Advisory.recommendationId) }
+	#Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Filtering Active Recommendations and Recommendations not in Advisories')
+	#$RecommendationContent = $ResourceRecommendations | Where-Object {($_.recommendationMetadataState -eq 'Active' -and $_.recommendationTypeId -notin $JSONContent.Advisory.recommendationId) }
 
-	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Recommendations After Filtering: ' + [string]$RecommendationContent.Count)
+	#Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Recommendations After Filtering: ' + [string]$RecommendationContent.Count)
 
 	$tmp = @()
 
 	# First loop through the recommendations to get the impacted resources
-	foreach ($Recom in $RecommendationContent)
+	foreach ($Recom in $ResourceRecommendations)
 		{
 			# Getting the impacted resources for the recommendation and validating if the recommendation is a Custom Recommendation
 			$Resources = $ImpactedResources | Where-Object {($_.recommendationId -eq $Recom.aprlGuid) -and ($_.checkName -eq $Recom.checkName) }
