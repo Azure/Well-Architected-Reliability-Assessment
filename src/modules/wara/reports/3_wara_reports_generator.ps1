@@ -1278,7 +1278,7 @@ Test-ReviewedRecommendations -ExcelFile $CoreFile
 Write-Debug (' ---------------------------------- STARTING REPORT GENERATOR SCRIPT --------------------------------------- ')
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting Report Generator Script..')
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Script Version: ' + $Version)
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Excel File: ' + $ExcelFile)
+Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Excel File: ' + $ExpertAnalysisFile)
 $ImportExcel = Get-Module -Name ImportExcel -ListAvailable -ErrorAction silentlycontinue
 foreach ($IExcel in $ImportExcel) {
     $IExcelPath = $IExcel.Path
@@ -1364,7 +1364,7 @@ try
     {
         $ExcelApplication = New-Object -ComObject Excel.Application
         Start-Sleep -Milliseconds 500
-        $ExcelWorkbooks = $ExcelApplication.Workbooks.Open($ExcelFile)
+        $ExcelWorkbooks = $ExcelApplication.Workbooks.Open($NewAssessmentFindingsFile)
     }
 catch
     {
