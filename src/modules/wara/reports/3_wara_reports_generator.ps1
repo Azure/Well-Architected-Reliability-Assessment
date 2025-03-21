@@ -1377,7 +1377,7 @@ Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -Worklo
 Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
 Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
 
-while ([string]::IsNullOrEmpty($Ex)) {
+while ([string]::IsNullOrEmpty($ExcelWorkbooks)) {
     Start-Sleep 1
 }
 
