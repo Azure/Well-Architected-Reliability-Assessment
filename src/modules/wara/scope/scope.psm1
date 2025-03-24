@@ -292,7 +292,7 @@ function Get-WAFFilteredResourceList {
         [string[]] $ResourceFilters = @(),
 
         [Parameter(Mandatory = $true)]
-        [array] $UnfilteredResources,
+        [array] $UnfilteredResources = @(),
 
         [Parameter(Mandatory = $false)]
         [string] $KeyColumn = 'Id'
@@ -313,6 +313,11 @@ function Get-WAFFilteredResourceList {
 
     #$FilteredResources += $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources | Sort-Object | Get-Unique -CaseInsensitive -AsString
     $FilteredResources += $SubscriptionFilteredResources + $ResourceGroupFilteredResources + $ResourceFilteredResources
+
+    if($FilteredResources.Count -eq 0){
+        Write-Debug 'No resources found matching the provided filters.'
+        return ,$FilteredResources
+    }
 
     $FilteredResources = [System.Linq.Enumerable]::Distinct([object[]]$FilteredResources).toArray()
     return ,$FilteredResources
