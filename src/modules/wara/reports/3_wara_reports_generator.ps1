@@ -362,7 +362,7 @@ $TableStyle = 'Light19'
       ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 12 }).TextFrame.TextRange.Text = ' '
     }
 
-    
+
     while (($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 12 }).TextFrame.TextRange.Paragraphs().count -gt 5) {
       ($SlideHealthAndRisk.Shapes | Where-Object { $_.Id -eq 12 }).TextFrame.TextRange.Paragraphs(6).Delete()
     }
@@ -421,7 +421,8 @@ $TableStyle = 'Light19'
     Start-Sleep 1
 
     $Shape = $ChartSlide.Shapes | Where-Object { $_.Name -eq 'ChartP0' }
-
+    $yAxis = $Shape.Chart.Axes(1)  # 2 corresponds to xlValue for the Y-axis
+    $yAxis.TickLabelSpacing = 1
     $Shape.IncrementLeft(240)
     Start-Sleep -Milliseconds 500
 
