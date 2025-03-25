@@ -34,7 +34,7 @@ https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 
 Param(
   [switch] $Help,
-  #[switch] $csvExport,
+  [switch] $csvExport,
   [switch] $includeLow,
   [string] $CustomerName,
   [string] $WorkloadName,
@@ -1405,7 +1405,7 @@ $Application.Quit()
 if ($csvExport.IsPresent) {
     $WorkloadRecommendationTemplate = Build-SummaryActionPlan -ImpactedResources $ExcelImpactedResources -includeLow $includeLow
 
-    $CSVFile = ($PSScriptRoot + '\Impacted Resources and Recommendations Template ' + (get-date -Format "yyyy-MM-dd-HH-mm") + '.csv')
+    $CSVFile = ('.\Impacted Resources and Recommendations Template ' + (get-date -Format "yyyy-MM-dd-HH-mm") + '.csv')
 
     $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
 }
