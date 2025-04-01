@@ -317,7 +317,10 @@ function Start-WARACollector {
     Write-Debug 'Creating HashTable of all resources for faster lookup'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating All Resources HashTable' -PercentComplete 29 -Id 1
     $AllResourcesHash = @{}
-    $AllResources.ForEach({ $AllResourcesHash[$_.id] = $_ })
+    Foreach ($resource in $AllResources) {
+        $AllResourcesHash[$resource.id] = $resource
+    }
+    #$AllResources.ForEach({ $AllResourcesHash[$_.id] = $_ })
     Write-Debug "All Resources Hash: $($AllResourcesHash.count)"
 
     #Filter all resources by subscription, resourcegroup, and resource scope
@@ -510,6 +513,30 @@ function Start-WARACollector {
     Write-Progress -Activity 'WARA Collector' -Status 'Getting Azure Service Health' -PercentComplete 90 -Id 1
     $serviceHealthObjects = Get-WAFServiceHealth -SubscriptionIds $Scope_ImplicitSubscriptionIds.replace('/subscriptions/', '')
 
+    #True-Up the Resource Types with the impactedResourceObj
+    $trueUpResourceTypes = @()
+    $TrueUpResourceTypes = foreach ($resource in $impactedResourceObj) {
+
+        if ($resource.type -ne $AllResourcesHash[$resource.id].type) {
+            Write-Debug "True-Up Resource: $($resource.name) - Resource Type from $($resource.type) to $($AllResourcesHash[$resource.id].type) - Recommendation Type: $($resource.recommendationid)"
+
+            #Return the true up to the $trueUpResourceTypes array
+            "$($resource.recommendationId)->$($resource.type)->$($AllResourcesHash[$resource.id].type)"
+
+            #Update the impactedResourceObj object with the new type
+            #Commenting this out so that we do not overwrite the type in the impactedResourceObj object.
+            #Leaving the logging in to identify any recommendations that have issues.
+            #$resource.type = $AllResourcesHash[$resource.id].type
+        }
+
+    }
+
+    # Remove duplicates from the $trueUpResourceTypes array
+    $TrueUpResourceTypes = [System.Linq.Enumerable]::Distinct([object[]]$TrueUpResourceTypes).toArray()
+
+    #Output the true up resource types
+    $trueUpResourceTypes.foreach({ Write-Host $_ -ForegroundColor Green})
+
     $stopWatch.Stop()
     Write-Debug "Elapsed Time: $($stopWatch.Elapsed.toString('hh\:mm\:ss'))"
 
@@ -551,6 +578,7 @@ function Start-WARACollector {
         supportTickets    = $supportTicketObjects
         serviceHealth     = $serviceHealthObjects
         resourceInventory = $ResourceInventory
+        trueUpResourceTypes = $TrueUpResourceTypes
     }
 
     Write-Debug 'Output JSON'
@@ -1112,7 +1140,7 @@ class specializedResourceFactory {
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
-            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually'  }
+            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             #default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }
         return $return

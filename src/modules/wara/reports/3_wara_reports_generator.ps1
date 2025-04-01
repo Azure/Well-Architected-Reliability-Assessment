@@ -241,11 +241,11 @@ $TableStyle = 'Light19'
 
     if ($includeLow.IsPresent)
       {
-        $Recommendations = $ImpactedResources | Where-Object {$_.impact -in ('High','Medium','Low')}
+        $Recommendations = $ImpactedResources | Where-Object {$_.impact -in ('High','Medium','Low') -and $_.ValidationCategory -ne 'Retirements'}
       }
     else
       {
-        $Recommendations = $ImpactedResources | Where-Object {$_.impact -in ('High','Medium')}
+        $Recommendations = $ImpactedResources | Where-Object {$_.impact -in ('High','Medium') -and $_.ValidationCategory -ne 'Retirements'}
       }
 
     $RecomCount = ($ImpactedResources.recommendationId | Select-Object -Unique).count
@@ -253,16 +253,24 @@ $TableStyle = 'Light19'
 
     $CXSummaryArray = Foreach ($Recommendation in $Recommendations)
       {
+
+        try{
         $tmp = [PSCustomObject]@{
           'Recommendation Guid'       = $Recommendation.Guid
           'Recommendation Title'      = $Recommendation.'Recommendation Title'
+          'Description'               = $Recommendation.'Long Description'
           'Priority'                  = $Recommendation.Impact
-          'Description'               = $Description.'Long Description'
+          'Customer-facing annotation' = ""
+          'Internal-facing notes'     = $Recommendation.notes
+          'Potential Benefit'         = $Recommendation.'Potential Benefit'
+          'Resource Type'             = $Recommendation.'Resource Type'
           'Resource ID'               = $Recommendation.id
         }
         $tmp
+    } catch {
+      Write-Debug $recommendation
       }
-
+    }
     return $CXSummaryArray
 
   }

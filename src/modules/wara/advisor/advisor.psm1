@@ -304,7 +304,7 @@ Function Get-WAFAdvisorMetadata {
     }
 
     # Define the URI for the Advisor metadata
-    $AdvisorMetadataURI = $ResourceUrl+"providers/Microsoft.Advisor/metadata?api-version=2023-01-01"
+    $AdvisorMetadataURI = $ResourceUrl+"providers/Microsoft.Advisor/metadata?api-version=2023-01-01" #&%24expand=ibiza will return the full metadata. Use this soon to pull in the long description.
 
     # Invoke the REST API to get the metadata
     $r = Invoke-RestMethod -Uri $AdvisorMetadataURI -Headers $authHeaders -Method Get
