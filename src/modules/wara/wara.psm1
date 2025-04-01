@@ -532,10 +532,10 @@ function Start-WARACollector {
     }
 
     # Remove duplicates from the $trueUpResourceTypes array
-    $TrueUpResourceTypes = [System.Linq.Enumerable]::Distinct([object[]]$TrueUpResourceTypes).toArray()
+    if ($trueUpResourceTypes.count -gt 1) { $TrueUpResourceTypes = [System.Linq.Enumerable]::Distinct([object[]]$TrueUpResourceTypes).toArray() }
 
     #Output the true up resource types
-    $trueUpResourceTypes.foreach({ Write-Host $_ -ForegroundColor Green})
+    $trueUpResourceTypes.foreach({ Write-Host $_ -ForegroundColor Green })
 
     $stopWatch.Stop()
     Write-Debug "Elapsed Time: $($stopWatch.Elapsed.toString('hh\:mm\:ss'))"
@@ -569,15 +569,15 @@ function Start-WARACollector {
     Write-Debug 'Creating output JSON'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating Output JSON' -PercentComplete 93 -Id 1
     $outputJson = [PSCustomObject]@{
-        scriptDetails     = $scriptDetails
-        impactedResources = $impactedResourceObj
-        resourceType      = $resourceTypeObj
-        advisory          = $advisorResourceObj
-        outages           = $outageResourceObj
-        retirements       = $retirementResourceObj
-        supportTickets    = $supportTicketObjects
-        serviceHealth     = $serviceHealthObjects
-        resourceInventory = $ResourceInventory
+        scriptDetails       = $scriptDetails
+        impactedResources   = $impactedResourceObj
+        resourceType        = $resourceTypeObj
+        advisory            = $advisorResourceObj
+        outages             = $outageResourceObj
+        retirements         = $retirementResourceObj
+        supportTickets      = $supportTicketObjects
+        serviceHealth       = $serviceHealthObjects
+        resourceInventory   = $ResourceInventory
         trueUpResourceTypes = $TrueUpResourceTypes
     }
 
