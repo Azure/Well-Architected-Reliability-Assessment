@@ -34,7 +34,7 @@ https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 
 Param(
   [switch] $Help,
-  [switch] $csvExport,
+  #[switch] $csvExport,
   [switch] $includeLow,
   [string] $CustomerName,
   [string] $WorkloadName,
@@ -248,7 +248,7 @@ $TableStyle = 'Light19'
         $Recommendations = $ImpactedResources | Where-Object {$_.impact -in ('High','Medium') -and $_.ValidationCategory -ne 'Retirements'}
       }
 
-    $RecomCount = ($ImpactedResources.recommendationId | Select-Object -Unique).count
+    $RecomCount = ($ImpactedResources).count
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Creating CSV file for: '+ $RecomCount +' recommendations')
 
     $CXSummaryArray = Foreach ($Recommendation in $Recommendations)
@@ -1410,13 +1410,13 @@ $Presentation.SaveAs($PPTFinalFile)
 $Presentation.Close()
 $Application.Quit()
 
-if ($csvExport.IsPresent) {
+#if ($csvExport.IsPresent) {
     $WorkloadRecommendationTemplate = Build-SummaryActionPlan -ImpactedResources $ExcelImpactedResources -includeLow $includeLow
 
-    $CSVFile = ('.\Impacted Resources and Recommendations Template ' + (get-date -Format "yyyy-MM-dd-HH-mm") + '.csv')
+    $CSVFile = ("$PWD\Impacted Resources and Recommendations Template " + (get-date -Format "yyyy-MM-dd-HH-mm") + '.csv')
 
     $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
-}
+#}
 
 if (Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' })
     {
@@ -1446,9 +1446,9 @@ Write-Host $PPTFinalFile -ForegroundColor Cyan
 Write-Host 'Assessment Findings File Saved as: ' -NoNewline
 Write-Host $NewAssessmentFindingsFile -ForegroundColor Cyan
 
-if ($csvExport.IsPresent) {
+#if ($csvExport.IsPresent) {
     Write-Host 'CSV File Saved as: ' -NoNewline
     Write-Host $CSVFile -ForegroundColor Cyan
-}
+#}
 
 Write-Host "---------------------------------------------------------------------"

@@ -33,7 +33,7 @@ function Start-WARAReport {
     [CmdletBinding()]
     param (
         [switch] $Help,
-        [switch] $csvExport,
+        #[switch] $csvExport,
         [switch] $includeLow,
         [string] $CustomerName,
         [string] $WorkloadName,
