@@ -317,7 +317,10 @@ function Start-WARACollector {
     Write-Debug 'Creating HashTable of all resources for faster lookup'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating All Resources HashTable' -PercentComplete 29 -Id 1
     $AllResourcesHash = @{}
-    $AllResources.ForEach({ $AllResourcesHash[$_.id] = $_ })
+    Foreach ($resource in $AllResources) {
+        $AllResourcesHash[$resource.id] = $resource
+    }
+    #$AllResources.ForEach({ $AllResourcesHash[$_.id] = $_ })
     Write-Debug "All Resources Hash: $($AllResourcesHash.count)"
 
     #Filter all resources by subscription, resourcegroup, and resource scope
@@ -542,15 +545,15 @@ function Start-WARACollector {
     Write-Debug 'Creating output JSON'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating Output JSON' -PercentComplete 93 -Id 1
     $outputJson = [PSCustomObject]@{
-        scriptDetails     = $scriptDetails
-        impactedResources = $impactedResourceObj
-        resourceType      = $resourceTypeObj
-        advisory          = $advisorResourceObj
-        outages           = $outageResourceObj
-        retirements       = $retirementResourceObj
-        supportTickets    = $supportTicketObjects
-        serviceHealth     = $serviceHealthObjects
-        resourceInventory = $ResourceInventory
+        scriptDetails       = $scriptDetails
+        impactedResources   = $impactedResourceObj
+        resourceType        = $resourceTypeObj
+        advisory            = $advisorResourceObj
+        outages             = $outageResourceObj
+        retirements         = $retirementResourceObj
+        supportTickets      = $supportTicketObjects
+        serviceHealth       = $serviceHealthObjects
+        resourceInventory   = $ResourceInventory
     }
 
     Write-Debug 'Output JSON'
@@ -1112,7 +1115,7 @@ class specializedResourceFactory {
             "*cannot-be-validated-with-arg*" { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             "*Azure Resource Graph*" { 'IMPORTANT - Query under development - Validate Resources manually' }
             "No Recommendations" { 'IMPORTANT - Resource Type is not available in either APRL or Advisor - Validate Resources manually if applicable, if not delete this line' }
-            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually'  }
+            default { 'IMPORTANT - Recommendation cannot be validated with ARGs - Validate Resources manually' }
             #default { "IMPORTANT - Query does not exist - Validate Resources Manually" }
         }
         return $return
