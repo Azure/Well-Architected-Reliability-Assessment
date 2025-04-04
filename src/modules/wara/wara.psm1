@@ -142,7 +142,7 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
         [ValidatePattern('^https:\/\/.+$')]
-        [string] $RecommendationResourceTypesUri = 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv'
+        [string] $RecommendationResourceTypesUri = 'https://azure.github.io/WARA-Build/objects/WARAinScopeResTypes.csv'
     )
 
     # Check for module updates and throw an error if the module is out of date.
