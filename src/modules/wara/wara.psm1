@@ -968,9 +968,15 @@ class validationResourceFactory {
     [object[]] createValidationResourceObjects() {
         $return = @()
 
+        $RecommendationResourceTypesWithoutAutomation = ($this.recommendationObject | group recommendationResourceType | where {$_.group.automationavailable -notcontains $false}).Name
+
         $return = foreach ($v in $this.validationResources.GetEnumerator()) {
 
             $impactedResource = $v.value
+
+            if($impactedResource.type -in $RecommendationResourceTypesWithoutAutomation){
+                continue
+            }
 
             $recommendationByType = $this.recommendationObject.where({ $_.automationAvailable -eq $false -and $impactedResource.type -eq $_.recommendationResourceType -and $_.recommendationMetadataState -eq "Active" -and [string]::IsNullOrEmpty($_.recommendationTypeId) })
 
