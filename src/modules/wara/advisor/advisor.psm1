@@ -81,7 +81,7 @@ function Get-WAFAdvisorRecommendation {
         "advisorresources
 | where type == 'microsoft.advisor/recommendations'
 | where tostring(properties.category) in ('$categoriesString') or properties.recommendationTypeId in ('$additionalRecommendationIdsString')
-| where properties.tracked !~ 'true'
+| where properties.tracked !~ 'true' and properties.extendedProperties.recommendationControl != 'ServiceUpgradeAndRetirement'
 | extend resId = tolower(tostring(properties.resourceMetadata.resourceId))
 | join kind=leftouter (resources | project ['resId']=tolower(id), subscriptionId, resourceGroup, location, type) on resId
 | extend id = iff(properties.impactedField =~ 'microsoft.subscriptions/subscriptions', strcat('/subscriptions/', subscriptionId), resId1)
