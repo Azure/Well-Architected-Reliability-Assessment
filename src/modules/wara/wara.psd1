@@ -11,7 +11,7 @@
     RootModule        = 'wara.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '1.0.4'
+    ModuleVersion     = '1.0.5'
 
     # Supported PSEditions
     CompatiblePSEditions = 'Core'
@@ -139,7 +139,7 @@
             # ReleaseNotes = ''
 
             # Prerelease string of this module
-            # Prerelease = ''
+            Prerelease = 'alpha1'
 
             # Flag to indicate whether the module requires explicit user acceptance for install/update/save
             # RequireLicenseAcceptance = $false
