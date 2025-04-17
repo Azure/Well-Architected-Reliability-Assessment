@@ -43,7 +43,9 @@ flowchart TD
     CollectorOutput --> Analyzer[Start-WARAAnalyzer]
     Analyzer -->|Processes data & outputs Excel| AnalyzerOutput[(Excel Action Plan)]
     AnalyzerOutput --> Reporter[Start-WARAReport]
-    Reporter -->|Creates final reports| FinalOutput[PowerPoint & Excel Reports]
+    Reporter -->|Creates PowerPoint report| PowerPointReport(PowerPoint report)
+    Reporter -->|Creates Excel report| ExcelReport(Excel report)
+    Reporter -->|Creates CSV file| BulkUploadCsv(CSV for bulk upload)
     end
 ```
 
