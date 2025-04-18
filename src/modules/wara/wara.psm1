@@ -125,8 +125,12 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
-        [ValidateSet('AzureCloud', 'AzureUSGovernment', 'AzureGermanCloud', 'AzureChinaCloud')]
         [string] $AzureEnvironment = 'AzureCloud',
+
+        [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
+        [Parameter(ParameterSetName = 'ConfigFileSet')]
+        [string] $CustomEnvironmnent,
 
         [Parameter(ParameterSetName = 'ConfigFileSet', Mandatory = $true)]
         [ValidateScript({ Test-Path $_ -PathType Leaf })]
@@ -294,6 +298,11 @@ function Start-WARACollector {
     Write-Progress -Activity 'WARA Collector' -Status 'Creating TypesNotInAPRLOrAdvisor Object' -PercentComplete 17 -Id 1
     $TypesNotInAPRLOrAdvisor = ($RecommendationResourceTypes | Where-Object { $_.InAprlAndOrAdvisor -eq "No" }).ResourceType
     Write-Debug "Count of TypesNotInAPRLOrAdvisor: $($TypesNotInAPRLOrAdvisor.count)"
+
+    # Replace value of AzureEnvironment when CustomEnvironment parameter is used
+    If ($CustomEnvironmnent) {
+        $AzureEnvironment = $CustomEnvironment
+    }
 
     #Connect to Azure
     Write-Debug 'Connecting to Azure if not connected.'
