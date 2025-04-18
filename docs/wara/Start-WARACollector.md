@@ -11,15 +11,16 @@ Starts the WARA Collector process.
 ```powershell
 Start-WARACollector -TenantID <guid> [-SAP] [-AVD] [-AVS] [-HPC] [-AI_GPT_RAG] [-PassThru]
 [-SubscriptionIds <string[]>] [-ResourceGroups <string[]>] [-Tags <string[]>] [-AzureEnvironment <string>]
-[-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>] [<CommonParameters>]
+[-CustomEnvironment <string>] [-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>]
+[<CommonParameters>]
 ```
 
 ### ConfigFile
 
 ```powershell
 Start-WARACollector -ConfigFile <string> [-SAP] [-AVD] [-AVS] [-HPC] [-AI_GPT_RAG] [-PassThru]
-[-AzureEnvironment <string>] [-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>]
-[<CommonParameters>]
+[-AzureEnvironment <string>] [-CustomEnvironment <string>] [-RecommendationDataUri <string>]
+[-RecommendationResourceTypesUri <string>] [<CommonParameters>]
 ```
 
 ### Specialized
@@ -27,7 +28,8 @@ Start-WARACollector -ConfigFile <string> [-SAP] [-AVD] [-AVS] [-HPC] [-AI_GPT_RA
 ```powershell
 Start-WARACollector [-SAP] [-AVD] [-AVS] [-HPC] [-AI_GPT_RAG] [-PassThru] [-SubscriptionIds <string[]>]
 [-ResourceGroups <string[]>] [-TenantID <guid>] [-Tags <string[]>] [-AzureEnvironment <string>]
-[-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>] [<CommonParameters>]
+[-CustomEnvironment <string>] [-RecommendationDataUri <string>] [-RecommendationResourceTypesUri <string>]
+[<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -202,9 +204,9 @@ Accept wildcard characters: False
 ```
 
 ### -AzureEnvironment
-Specifies the Azure environment to use.
+Specifies to use the AzureCloud environment type.
+Use CustomEnvironment parameter if signing in to non-AzureCloud environments
 Default is 'AzureCloud'.
-Valid values are 'AzureCloud', 'AzureUSGovernment', 'AzureGermanCloud', and 'AzureChinaCloud'.
 
 ```yaml
 Type: String
@@ -214,6 +216,20 @@ Aliases:
 Required: False
 Position: Named
 Default value: AzureCloud
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+### -CustomEnvironment
+Specifies if another cloud other than AzureCloud is being used.
+
+```yaml
+Type: String
+Parameter Sets: Default
+Aliases:
+
+Required: False
+Position: Named
+Default Value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
