@@ -764,103 +764,110 @@ $TableStyle = 'Light19'
     $CurrentSlide = 29
     $Slide = 1
 
-    if (![string]::IsNullOrEmpty($SupportTickets)) {
-    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Support Tickets found..')
-    foreach ($Tickets in $SupportTickets) {
-        $TicketName = ($Tickets.'Ticket ID' + ' - ' + $Tickets.Title)
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Adding Ticket: ' + $TicketName)
-        $TicketStatus = $Tickets.'Status'
-        $TicketDate = $Tickets.'Creation Date'
+    # Prevents the script from creating the SupportTickets slide if there are no support tickets
+    if(!($SupportTickets.count -eq 1 -and [string]::IsNullOrEmpty($SupportTickets.'Ticket ID')))
+    {
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Support Tickets found..')
+        foreach ($Tickets in $SupportTickets) {
+            $TicketName = ($Tickets.'Ticket ID' + ' - ' + $Tickets.Title)
+            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Adding Ticket: ' + $TicketName)
+            $TicketStatus = $Tickets.'Status'
+            $TicketDate = $Tickets.'Creation Date'
 
-    if ($Slide -eq 1) {
-        if ($Loop -eq 1) {
-            $SlideSupportRequests = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 29 }
-            $TargetShape = ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 4 })
-            $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
+        if ($Slide -eq 1) {
+            if ($Loop -eq 1) {
+                $SlideSupportRequests = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 29 }
+                $TargetShape = ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 4 })
+                $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
 
-            ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $TicketName
-            ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
-            ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = "Creation Date: $TicketDate"
+                ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $TicketName
+                ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
+                ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = "Creation Date: $TicketDate"
 
-            $Loop ++
-        }
-        else {
-
-            $newtextbox = ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).Duplicate()
-
-            if ($Loop -eq 2) {
-                $newtextbox.name = 'Shape2'
-                $newtextbox.top = [int]$newtextbox.top + 100
-                $newtextbox.left = [int]$newtextbox.left - 10
-            }
-            elseif ($Loop -eq 3) {
-                $newtextbox.name = 'Shape3'
-                $newtextbox.top = [int]$newtextbox.top + 220
-                $newtextbox.left = [int]$newtextbox.left - 10
-            }
-
-            $newtextbox.TextFrame.TextRange.Paragraphs(1).Text = $TicketName
-            $newtextbox.TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
-            $newtextbox.TextFrame.TextRange.Paragraphs(3).Text = "Creation Date: $TicketDate"
-
-            if ($Loop -eq 3) {
-                $Loop = 1
-                $Slide ++
+                $Loop ++
             }
             else {
+
+                $newtextbox = ($SlideSupportRequests.Shapes | Where-Object { $_.Id -eq 7 }).Duplicate()
+
+                if ($Loop -eq 2) {
+                    $newtextbox.name = 'Shape2'
+                    $newtextbox.top = [int]$newtextbox.top + 100
+                    $newtextbox.left = [int]$newtextbox.left - 10
+                }
+                elseif ($Loop -eq 3) {
+                    $newtextbox.name = 'Shape3'
+                    $newtextbox.top = [int]$newtextbox.top + 220
+                    $newtextbox.left = [int]$newtextbox.left - 10
+                }
+
+                $newtextbox.TextFrame.TextRange.Paragraphs(1).Text = $TicketName
+                $newtextbox.TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
+                $newtextbox.TextFrame.TextRange.Paragraphs(3).Text = "Creation Date: $TicketDate"
+
+                if ($Loop -eq 3) {
+                    $Loop = 1
+                    $Slide ++
+                }
+                else {
+                    $Loop ++
+                }
+                Start-Sleep -Milliseconds 500
+            }
+            }
+            else {
+            if ($Loop -eq 1) {
+                Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Adding new Slide..')
+
+                $Presentation.slides[$CurrentSlide].Duplicate() | Out-Null
+
+                $CurrentSlide ++
+
+                $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $CurrentSlide }
+
+                ($NextSlide.Shapes | Where-Object { $_.name -eq 'Shape2' }).Delete()
+                ($NextSlide.Shapes | Where-Object { $_.name -eq 'Shape3' }).Delete()
+
+                ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $TicketName
+                ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
+                ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = "Creation Date: $TicketDate"
+
                 $Loop ++
+            }
+            else {
+                $newtextbox = ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).Duplicate()
+
+                if ($Loop -eq 2) {
+                    $newtextbox.name = 'Shape2'
+                    $newtextbox.top = [int]$newtextbox.top + 100
+                    $newtextbox.left = [int]$newtextbox.left - 10
+                }
+                elseif ($Loop -eq 3) {
+                    $newtextbox.name = 'Shape3'
+                    $newtextbox.top = [int]$newtextbox.top + 220
+                    $newtextbox.left = [int]$newtextbox.left - 10
+                }
+
+                $newtextbox.TextFrame.TextRange.Paragraphs(1).Text = $TicketName
+                $newtextbox.TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
+                $newtextbox.TextFrame.TextRange.Paragraphs(3).Text = "Creation Date: $TicketDate"
+
+                if ($Loop -eq 3) {
+                    $Loop = 1
+                    $Slide ++
+                }
+                else {
+                    $Loop ++
+                }
+            }
             }
             Start-Sleep -Milliseconds 500
         }
-        }
-        else {
-        if ($Loop -eq 1) {
-            Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - Adding new Slide..')
-
-            $Presentation.slides[$CurrentSlide].Duplicate() | Out-Null
-
-            $CurrentSlide ++
-
-            $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $CurrentSlide }
-
-            ($NextSlide.Shapes | Where-Object { $_.name -eq 'Shape2' }).Delete()
-            ($NextSlide.Shapes | Where-Object { $_.name -eq 'Shape3' }).Delete()
-
-            ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $TicketName
-            ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
-            ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = "Creation Date: $TicketDate"
-
-            $Loop ++
-        }
-        else {
-            $newtextbox = ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).Duplicate()
-
-            if ($Loop -eq 2) {
-                $newtextbox.name = 'Shape2'
-                $newtextbox.top = [int]$newtextbox.top + 100
-                $newtextbox.left = [int]$newtextbox.left - 10
-            }
-            elseif ($Loop -eq 3) {
-                $newtextbox.name = 'Shape3'
-                $newtextbox.top = [int]$newtextbox.top + 220
-                $newtextbox.left = [int]$newtextbox.left - 10
-            }
-
-            $newtextbox.TextFrame.TextRange.Paragraphs(1).Text = $TicketName
-            $newtextbox.TextFrame.TextRange.Paragraphs(2).Text = "Status: $TicketStatus"
-            $newtextbox.TextFrame.TextRange.Paragraphs(3).Text = "Creation Date: $TicketDate"
-
-            if ($Loop -eq 3) {
-                $Loop = 1
-                $Slide ++
-            }
-            else {
-                $Loop ++
-            }
-        }
-        }
-        Start-Sleep -Milliseconds 500
     }
+    else
+    {
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 29 - No Support Tickets found..')
+        ($Presentation.Slides | Where-Object { $_.SlideIndex -eq 29 }).Delete()
     }
   }
 
@@ -1393,7 +1400,9 @@ while ([string]::IsNullOrEmpty($ExcelWorkbooks)) {
 Build-PPTSlide17 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ExcelWorkbooks $ExcelWorkbooks
 
 Build-PPTSlide30 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Retirements $ExcelRetirements
+
 Build-PPTSlide29 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -SupportTickets $ExcelSupportTickets
+
 Build-PPTSlide28 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -PlatformIssues $ExcelPlatformIssues
 
 Build-PPTSlide25 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
