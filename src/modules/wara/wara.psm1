@@ -300,7 +300,7 @@ function Start-WARACollector {
     Write-Debug "Count of TypesNotInAPRLOrAdvisor: $($TypesNotInAPRLOrAdvisor.count)"
 
     # Replace value of AzureEnvironment when CustomEnvironment parameter is used
-    If ($CustomEnvironmnent) {
+    If ($CustomEnvironment) {
         $AzureEnvironment = $CustomEnvironment
     }
 
