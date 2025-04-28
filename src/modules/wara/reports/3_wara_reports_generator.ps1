@@ -69,8 +69,7 @@ if (!$PPTTemplateFile) {
     $PPTTemplateFile = ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
   }
   else {
-    Write-Host "This script requires specific Microsoft PowerPoint template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
-    Write-Host "https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main/tools" -ForegroundColor Yellow
+    Write-Error "PowerPoint template file is missing. Please provide the path to the PowerPoint template file."
     Exit
   }
 }
@@ -81,8 +80,7 @@ if (!$AssessmentFindingsFile) {
     $AssessmentFindingsFile = ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
   }
   else {
-    Write-Host "This script requires specific Microsoft Excel template, which are available in the Azure Proactive Resiliency Library. You can download the templates from this GitHub repository:"
-    Write-Host "https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main/tools" -ForegroundColor Yellow
+    Write-Error "Assessment Findings file is missing. Please provide the path to the Assessment Findings file."
     Exit
   }
 }

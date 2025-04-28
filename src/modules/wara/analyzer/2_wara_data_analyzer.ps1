@@ -36,7 +36,7 @@ Param(
 )
 
 # WARA In Scope Resource Types CSV File
-$RecommendationResourceTypesUri = 'https://raw.githubusercontent.com/Azure/Azure-Proactive-Resiliency-Library-v2/refs/heads/main/tools/WARAinScopeResTypes.csv'
+$RecommendationResourceTypesUri = 'https://azure.github.io/WARA-Build/objects/WARAinScopeResTypes.csv'
 
 # Check if the Expert-Analysis file exists
 $ExpertAnalysisPath = $PSScriptRoot + '\Expert-Analysis-v1.xlsx'
