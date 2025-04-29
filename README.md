@@ -23,6 +23,7 @@ This repository holds scripts and automation built for the Well-Architected Reli
   - [Start-WARAAnalyzer](#start-waraanalyzer)
   - [Start-WARAReport](#start-warareport)
 - [Project Structure](#project-structure)
+- [Contribution Guide](docs/wara/contribution-guide.md)
 - [Modules](#modules)
 
 ## Getting Started
