@@ -221,7 +221,7 @@ The `Start-WARAReport` cmdlet is used to generate the WARA reports.
 
 You can review all of the parameters of Start-WARAReport [here](docs/wara/Start-WARAReport.md).
 > [!WARNING]
-> Make sure to close all instances of Microsoft Excel and PowerPoint prior to running `Start-WARAReport`
+> Make sure to close all instances of **Microsoft Excel** and **Microsoft PowerPoint** prior to running `Start-WARAReport`
 #### Examples
 
 ##### Create the Excel and PowerPoint reports from the Action Plan Excel output
