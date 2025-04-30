@@ -220,7 +220,8 @@ The `Start-WARAReport` cmdlet is used to generate the WARA reports.
 > Whatever directory you run the `Start-WARAReport` cmdlet in, the Excel and PowerPoint files will be created in that directory. For example: if you run the `Start-WARAReport` cmdlet in the `C:\Temp` directory, the Excel and PowerPoint files will be created in the `C:\Temp` directory.
 
 You can review all of the parameters of Start-WARAReport [here](docs/wara/Start-WARAReport.md).
-
+> [!WARNING]
+> Make sure to close all instances of **Microsoft Excel** and **Microsoft PowerPoint** prior to running `Start-WARAReport`
 #### Examples
 
 ##### Create the Excel and PowerPoint reports from the Action Plan Excel output
