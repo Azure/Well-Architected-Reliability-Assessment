@@ -110,12 +110,10 @@ BeforeAll {
             [Parameter(Mandatory = $true)]
             [string] $Path
         )
-
-        $recommendations = @()
         $sourceContents = Get-Content -Path $Path -Raw | ConvertFrom-Json
 
-        $sourceContents | ForEach-Object {
-            $recommendations += [RunbookRecommendation]@{
+        [array]$recommendations = $sourceContents | ForEach-Object {
+            [RunbookRecommendation]@{
                 CheckSetName   = $_.CheckSetName
                 CheckName      = $_.CheckName
                 Recommendation = ConvertTo-Recommendation -SourceRecommendation $_.Recommendation

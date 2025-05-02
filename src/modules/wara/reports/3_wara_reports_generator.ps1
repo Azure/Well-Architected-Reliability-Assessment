@@ -944,7 +944,7 @@ $TableStyle = 'Light19'
 
     $ImpactedResourcesFormatted = @()
 
-    ForEach ($Resource in $ImpactedResources) {
+    $ImpactedResourcesFormatted = ForEach ($Resource in $ImpactedResources) {
       $obj = @{
         'Impacted?' = 'Yes';
         'Resource Type' = $Resource.'Resource Type';
@@ -974,7 +974,8 @@ $TableStyle = 'Light19'
         'Notes' = $Resource.Notes;
         'checkName' = $Resource.checkName
       }
-      $ImpactedResourcesFormatted += $obj
+
+      $obj
     }
 
     # Returns the array with all the recommendations already formatted to be exported to Excel
@@ -1041,43 +1042,45 @@ $TableStyle = 'Light19'
 
     $CustomRecommendations = $ImpactedResources.where({[String]::IsNullOrEmpty($_.Guid)})
 
-    ForEach ($Resource in $GroupedResources) {
+    $RecommendationsFormatted = $(
+      ForEach ($Resource in $GroupedResources) {
 
-      $Recommendation = $ImpactedResources | Where-Object { $_.Guid -eq $Resource.Name } | Select-Object -First 1
+        $Recommendation = $ImpactedResources | Where-Object { $_.Guid -eq $Resource.Name } | Select-Object -First 1
 
-      $obj = @{
-        'Impact' = $Recommendation.Impact;
-        'Description' = $Recommendation.'Recommendation Title';
-        'Potential Benefit' = $Recommendation.'Potential Benefit';
-        'Impacted Resources' = $Resource.Count;
-        'Resource Type' = $Recommendation.'Resource Type';
-        'Recommendation Control' = $Recommendation.'Recommendation Control';
-        'Long Description' = $Recommendation.'Long Description';
-        'Category' = $Recommendation.Category;
-        'Learn More Link' = $Recommendation.'Learn More Link';
-        'Guid' = $Recommendation.Guid;
-        'Notes' = $Recommendation.Notes;
-      }
-      $RecommendationsFormatted += $obj
-    }
-
-    $CustomRecommendations.Foreach(
-        {
-            $obj = @{
-                'Impact' = $_.Impact;
-                'Description' = $_.'Recommendation Title'
-                'Potential Benefit' = $_.'Potential Benefit';
-                'Impacted Resources' = 1;
-                'Resource Type' = $_.'Resource Type';
-                'Recommendation Control' = $_.'Recommendation Control';
-                'Long Description' = $_.'Long Description';
-                'Category' = $_.Category;
-                'Learn More Link' = $_.'Learn More Link';
-                'Guid' = $_.Guid;
-                'Notes' = $_.Notes;
-            }
-            $RecommendationsFormatted += $obj
+        $obj = @{
+          'Impact' = $Recommendation.Impact;
+          'Description' = $Recommendation.'Recommendation Title';
+          'Potential Benefit' = $Recommendation.'Potential Benefit';
+          'Impacted Resources' = $Resource.Count;
+          'Resource Type' = $Recommendation.'Resource Type';
+          'Recommendation Control' = $Recommendation.'Recommendation Control';
+          'Long Description' = $Recommendation.'Long Description';
+          'Category' = $Recommendation.Category;
+          'Learn More Link' = $Recommendation.'Learn More Link';
+          'Guid' = $Recommendation.Guid;
+          'Notes' = $Recommendation.Notes;
         }
+        $obj
+      }
+
+      $CustomRecommendations.Foreach(
+          {
+              $obj = @{
+                  'Impact' = $_.Impact;
+                  'Description' = $_.'Recommendation Title'
+                  'Potential Benefit' = $_.'Potential Benefit';
+                  'Impacted Resources' = 1;
+                  'Resource Type' = $_.'Resource Type';
+                  'Recommendation Control' = $_.'Recommendation Control';
+                  'Long Description' = $_.'Long Description';
+                  'Category' = $_.Category;
+                  'Learn More Link' = $_.'Learn More Link';
+                  'Guid' = $_.Guid;
+                  'Notes' = $_.Notes;
+              }
+              $obj
+          }
+      )
     )
 
 

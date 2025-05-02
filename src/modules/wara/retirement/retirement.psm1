@@ -49,9 +49,7 @@ function Get-WAFResourceRetirement {
         [string[]] $SubscriptionIds
     )
 
-    $retirementObjects = @()
-
-    foreach ($subscriptionId in $SubscriptionIds) {
+    [PsCustomObject]$retirementObjects = foreach ($subscriptionId in $SubscriptionIds) {
         # NOTE:
         # ARG query with ServiceHealthResources returns last 3 months of events.
         # Azure portal shows last 1 months of events.
@@ -69,7 +67,7 @@ function Get-WAFResourceRetirement {
         $response = Invoke-AzureRestApi @cmdletParams
         $retirementEvents = ($response.Content | ConvertFrom-Json).value
 
-        $return = foreach ($retirementEvent in $retirementEvents) {
+        foreach ($retirementEvent in $retirementEvents) {
             $cmdletParams = @{
                 SubscriptionId  = $subscriptionId
                 TrackingId      = $retirementEvent.name
@@ -86,7 +84,6 @@ function Get-WAFResourceRetirement {
             }
             New-WAFResourceRetirementObject @cmdletParams
         }
-        $retirementObjects += $return
     }
     return $retirementObjects
 }

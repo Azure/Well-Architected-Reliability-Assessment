@@ -43,11 +43,11 @@ function Invoke-WAFQuery {
         [Parameter(Mandatory = $false)]
         [string] $Query = 'resources | project name, type, location, resourceGroup, subscriptionId, id'
     )
-
+    [array]$allResources = $(
     $result = $SubscriptionIds ? (Search-AzGraph -Query $Query -First 1000 -Subscription $SubscriptionIds) : (Search-AzGraph -Query $Query -First 1000 -UseTenantScope) # -first 1000 returns the first 1000 results and subsequently reduces the amount of queries required to get data.
 
     # Collection to store all resources
-    $allResources = @($result)
+    $result
 
     # Loop to paginate through the results using the skip token
     $result = while ($result.SkipToken) {
@@ -57,7 +57,9 @@ function Invoke-WAFQuery {
         Write-Output $result
     }
 
-    $allResources += $result
+    $result
+
+    )
 
     # Output all resources
     return , $allResources
@@ -304,7 +306,6 @@ function Import-WAFConfigFileData {
     $filecontent = (Get-content $filepath).trim().tolower()
 
     # Create an array to store the line number of each section
-    $linetable = @()
     $objarray = [ordered]@{}
 
     $filecontent = $filecontent | Where-Object { $_ -ne '' -and $_ -notlike '*#*' }
@@ -325,21 +326,21 @@ function Import-WAFConfigFileData {
     $filecontent = $filecontent | Where-Object { $_ -ne '' -and $_ -notlike '*#*' }
 
     # Iterate through the file content and store the line number of each section
-    foreach ($line in $filecontent) {
+    [array]$linetable = foreach ($line in $filecontent) {
         if (-not [string]::IsNullOrWhiteSpace($line) -and -not $line.startswith('#')) {
             #Get the Index of the current line
             $index = $filecontent.IndexOf($line)
             # If the line is a section, store the line number
             if ($line -match '^\[([^\]]+)\]$') {
                 # Store the section name and line number. Remove the brackets from the section name
-                $linetable += $filecontent.indexof($line)
+                $filecontent.indexof($line)
             }
         }
     }
 
     # Iterate through the line numbers and extract the section content
     $count = 0
-    foreach ($entry in $linetable) {
+    [PsCustomObject]$objarray = foreach ($entry in $linetable) {
 
         # Get the section name
         $name = $filecontent[$entry]
@@ -360,8 +361,8 @@ function Import-WAFConfigFileData {
         # Extract the section content
         $configsection = $filecontent[$start..$stop]
 
-        # Add the section content to the object array
-        $objarray += @{$name = $configsection }
+        # Output the section content to the object array
+        @{$name = $configsection }
 
         # Increment the count
         $count++
@@ -723,13 +724,12 @@ function Repair-WAFSubscriptionId {
         [string[]] $SubscriptionIds
     )
 
-    $fixedSubscriptionIds = @()
-    foreach ($subscriptionId in $SubscriptionIds) {
+    [array]$fixedSubscriptionIds = foreach ($subscriptionId in $SubscriptionIds) {
         if ($subscriptionId -notmatch '\/subscriptions\/') {
-            $fixedSubscriptionIds += "/subscriptions/$subscriptionId"
+            "/subscriptions/$subscriptionId"
         }
         else {
-            $fixedSubscriptionIds += $subscriptionId
+            $subscriptionId
         }
     }
     return $fixedSubscriptionIds
