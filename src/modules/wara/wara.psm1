@@ -133,7 +133,6 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
-        [ValidateSet('AzureCloud', 'AzureUSGovernment', 'AzureGermanCloud', 'AzureChinaCloud')]
         [string] $AzureEnvironment = 'AzureCloud',
 
         [Parameter(ParameterSetName = 'ConfigFileSet', Mandatory = $true)]
