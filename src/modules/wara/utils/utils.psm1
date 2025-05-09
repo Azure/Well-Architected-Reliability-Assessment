@@ -400,7 +400,6 @@ function Connect-WAFAzure {
         [GUID] $TenantID,
 
         [Parameter(Mandatory = $false)]
-        [ValidateSet('AzureCloud', 'AzureChinaCloud', 'AzureGermanCloud', 'AzureUSGovernment')]
         [string] $AzureEnvironment = 'AzureCloud'
     )
 
