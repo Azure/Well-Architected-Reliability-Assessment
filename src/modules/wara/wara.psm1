@@ -20,6 +20,9 @@
 .PARAMETER AI_GPT_RAG
     Switch to enable Artificial Intelligence (GPT-RAG) workload processing.
 
+.PARAMETER ORACLE
+    Switch to enable Oracle workload processing.
+
 .PARAMETER PassThru
     Switch to enable the PassThru parameter. PassThru returns the output object.
 
@@ -60,7 +63,7 @@
     Start-WARACollector -ConfigFile "C:\path\to\config.txt"
 
 .EXAMPLE
-    Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001" -Tags "Env||Environment!~Dev||QA" -AVD -SAP -HPC
+    Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001" -Tags "Env||Environment!~Dev||QA" -AVD -SAP -HPC -ORACLE
 
 .EXAMPLE
     Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
