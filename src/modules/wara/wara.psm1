@@ -268,19 +268,6 @@ function Start-WARACollector {
     $RecommendationObject = Invoke-RestMethod $RecommendationDataUri
     Write-Debug "Count of APRL Recommendation Object: $($RecommendationObject.count)"
 
-    #Import Recommendation Object from Custom Runbook File
-    <#
-    if ($RunbookFile) {
-        Write-Debug 'Importing Recommendation Object from Custom Runbook File'
-        $Runbook = Read-Runbook -RunbookPath $RunbookFile
-        $RecommendationObject = $Runbook.Checks
-        Write-Debug "Count of Custom Runbook Recommendation Object: $($RecommendationObject.count)"
-    }
-
-    #Add Recommendation Object from Custom Runbook File to APRL Recommendation Object
-    $RecommendationObject += $CustomRecommendationObject
-    #>
-
     #Create Recommendation Object HashTable for faster lookup
     Write-Debug 'Creating Recommendation Object HashTable for faster lookup'
     Write-Progress -Activity 'WARA Collector' -Status 'Creating Recommendation Object HashTable' -PercentComplete 8 -Id 1
@@ -353,7 +340,6 @@ function Start-WARACollector {
     Write-Progress -Activity 'WARA Collector' -Status 'Filtering All Resources by WARA InScope Resource Types' -PercentComplete 35 -Id 1
     $Scope_AllResources = Get-WAFResourcesByList -ObjectList $Scope_AllResources -FilterList $RecommendationResourceTypes.ResourceType -KeyColumn 'type'
     Write-Debug "Count of filtered by type Resources: $($Scope_AllResources.count)"
-
 
 
     #Get all APRL recommendations from the Implicit Subscription ID scope
