@@ -535,6 +535,7 @@ function Start-WARACollector {
         AVS                            = [bool]$AVS
         HPC                            = [bool]$HPC
         AI_GPT_RAG                     = [bool]$AI_GPT_RAG
+        ORACLE                         = [bool]$ORACLE
         TenantId                       = $Scope_TenantId
         SubscriptionIds                = $Scope_SubscriptionIds
         ResourceGroups                 = $Scope_ResourceGroups
