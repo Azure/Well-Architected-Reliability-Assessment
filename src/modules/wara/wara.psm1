@@ -20,6 +20,9 @@
 .PARAMETER AI_GPT_RAG
     Switch to enable Artificial Intelligence (GPT-RAG) workload processing.
 
+.PARAMETER ORACLE
+    Switch to enable Oracle workload processing.
+
 .PARAMETER PassThru
     Switch to enable the PassThru parameter. PassThru returns the output object.
 
@@ -60,7 +63,7 @@
     Start-WARACollector -ConfigFile "C:\path\to\config.txt"
 
 .EXAMPLE
-    Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001" -Tags "Env||Environment!~Dev||QA" -AVD -SAP -HPC
+    Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001" -Tags "Env||Environment!~Dev||QA" -AVD -SAP -HPC -ORACLE
 
 .EXAMPLE
     Start-WARACollector -ConfigFile "C:\path\to\config.txt" -SAP -AVD
@@ -96,6 +99,11 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
         [switch] $AI_GPT_RAG,
+
+        [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
+        [Parameter(ParameterSetName = 'ConfigFileSet')]
+        [switch] $ORACLE,
 
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'Specialized')]
@@ -245,6 +253,10 @@ function Start-WARACollector {
         Write-Debug 'AI_GPT_RAG switch is enabled'
         $SpecializedWorkloads += 'AI-GPT-RAG'
     }
+    if ($ORACLE) {
+        Write-Debug 'ORACLE switch is enabled'
+        $SpecializedWorkloads += 'ORACLE'
+    }
 
     if ($SpecializedWorkloads) {
         Write-Debug "Specialized Workloads: $SpecializedWorkloads"
@@ -255,19 +267,6 @@ function Start-WARACollector {
     Write-Debug 'Importing APRL Recommendation Object from GitHub'
     $RecommendationObject = Invoke-RestMethod $RecommendationDataUri
     Write-Debug "Count of APRL Recommendation Object: $($RecommendationObject.count)"
-
-    #Import Recommendation Object from Custom Runbook File
-    <#
-    if ($RunbookFile) {
-        Write-Debug 'Importing Recommendation Object from Custom Runbook File'
-        $Runbook = Read-Runbook -RunbookPath $RunbookFile
-        $RecommendationObject = $Runbook.Checks
-        Write-Debug "Count of Custom Runbook Recommendation Object: $($RecommendationObject.count)"
-    }
-
-    #Add Recommendation Object from Custom Runbook File to APRL Recommendation Object
-    $RecommendationObject += $CustomRecommendationObject
-    #>
 
     #Create Recommendation Object HashTable for faster lookup
     Write-Debug 'Creating Recommendation Object HashTable for faster lookup'
@@ -341,7 +340,6 @@ function Start-WARACollector {
     Write-Progress -Activity 'WARA Collector' -Status 'Filtering All Resources by WARA InScope Resource Types' -PercentComplete 35 -Id 1
     $Scope_AllResources = Get-WAFResourcesByList -ObjectList $Scope_AllResources -FilterList $RecommendationResourceTypes.ResourceType -KeyColumn 'type'
     Write-Debug "Count of filtered by type Resources: $($Scope_AllResources.count)"
-
 
 
     #Get all APRL recommendations from the Implicit Subscription ID scope
@@ -526,6 +524,7 @@ function Start-WARACollector {
         AVS                            = [bool]$AVS
         HPC                            = [bool]$HPC
         AI_GPT_RAG                     = [bool]$AI_GPT_RAG
+        ORACLE                         = [bool]$ORACLE
         TenantId                       = $Scope_TenantId
         SubscriptionIds                = $Scope_SubscriptionIds
         ResourceGroups                 = $Scope_ResourceGroups
