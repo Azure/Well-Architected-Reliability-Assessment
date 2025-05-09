@@ -100,6 +100,11 @@ function Start-WARACollector {
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'Specialized')]
         [Parameter(ParameterSetName = 'ConfigFileSet')]
+        [switch] $ORACLE,
+
+        [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Specialized')]
+        [Parameter(ParameterSetName = 'ConfigFileSet')]
         [switch] $PassThru,
 
         [Parameter(ParameterSetName = 'Default')]
@@ -244,6 +249,10 @@ function Start-WARACollector {
     if ($AI_GPT_RAG) {
         Write-Debug 'AI_GPT_RAG switch is enabled'
         $SpecializedWorkloads += 'AI-GPT-RAG'
+    }
+    if ($ORACLE) {
+        Write-Debug 'ORACLE switch is enabled'
+        $SpecializedWorkloads += 'ORACLE'
     }
 
     if ($SpecializedWorkloads) {
