@@ -698,57 +698,60 @@ $TableStyle = 'Light19'
     if (![string]::IsNullOrEmpty($PlatformIssues)) {
       Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Outages found..')
       foreach ($Outage in $PlatformIssues) {
-        if ($Loop -eq 1) {
-          $OutageName = ($Outage.'Tracking ID' + ' - ' + $Outage.title)
-          Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Adding Outage: ' + $OutageName)
+        if (![string]::IsNullOrEmpty($Outage.title))
+            {
+                if ($Loop -eq 1) {
+                    $OutageName = ($Outage.'Tracking ID' + ' - ' + $Outage.title)
+                    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Adding Outage: ' + $OutageName)
 
-          $OutageService = $Outage.'Impacted Service'
+                    $OutageService = $Outage.'Impacted Service'
 
-          $SlidePlatformIssues = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 28 }
+                    $SlidePlatformIssues = $Presentation.Slides | Where-Object { $_.SlideIndex -eq 28 }
 
-          $TargetShape = ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 4 })
-          $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
+                    $TargetShape = ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 4 })
+                    $TargetShape.TextFrame.TextRange.Text = $AUTOMESSAGE
 
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $OutageName
+                    ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $OutageName
 
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = $Outage.'What happened'
+                    ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = $Outage.'What happened'
 
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Text = $OutageService
+                    ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Text = $OutageService
 
-          ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(7).Text = $Outage.'How can customers make incidents like this less impactful'
+                    ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(7).Text = $Outage.'How can customers make incidents like this less impactful'
 
-          while (($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
-            ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(8).Delete()
-          }
-        }
-        else {
-          Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Creating new Slide..')
-          ############### NEXT 9 SLIDES
+                    while (($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
+                      ($SlidePlatformIssues.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(8).Delete()
+                    }
+                  }
+                  else {
+                    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Creating new Slide..')
+                    ############### NEXT 9 SLIDES
 
-          $OutageName = ($Outage.'Tracking ID' + ' - ' + $Outage.title)
-          Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Adding Outage: ' + $OutageName)
+                    $OutageName = ($Outage.'Tracking ID' + ' - ' + $Outage.title)
+                    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Editing Slide 28 - Adding Outage: ' + $OutageName)
 
-          $OutageService = $Outage.'Impacted Service'
+                    $OutageService = $Outage.'Impacted Service'
 
-          $Presentation.slides[$CurrentSlide].Duplicate() | Out-Null
+                    $Presentation.slides[$CurrentSlide].Duplicate() | Out-Null
 
-          $CurrentSlide ++
+                    $CurrentSlide ++
 
-          $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $CurrentSlide }
+                    $NextSlide = $Presentation.Slides | Where-Object { $_.SlideIndex -eq $CurrentSlide }
 
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $OutageName
+                    ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(1).Text = $OutageName
 
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = $Outage.'What happened'
+                    ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(3).Text = $Outage.'What happened'
 
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Text = $OutageService
+                    ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(5).Text = $OutageService
 
-          ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(7).Text = $Outage.'How can customers make incidents like this less impactful'
+                    ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(7).Text = $Outage.'How can customers make incidents like this less impactful'
 
-          while (($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
-            ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(8).Delete()
-          }
-        }
-        $Loop ++
+                    while (($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs().count -gt 7) {
+                      ($NextSlide.Shapes | Where-Object { $_.Id -eq 7 }).TextFrame.TextRange.Paragraphs(8).Delete()
+                    }
+                  }
+                  $Loop ++
+            }
       }
     }
   }
