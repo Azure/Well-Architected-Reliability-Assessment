@@ -170,6 +170,14 @@ Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -Subscripti
 ```PowerShell
 Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -SubscriptionIds "/subscriptions/00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001"
 ```
+> [!NOTE]
+> All resource groups are included in the output since the assessment scans the entire subscription, independent of resource group boundaries. 
+
+#### Run the collector against a specific resource group from subscription.  
+
+```PowerShell
+Start-WARACollector -TenantID "00000000-0000-0000-0000-000000000000" -ResourceGroups "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RG-001"
+```
 
 #### Run the collector against a specific subscription and resource group and filtering by tag key/values
 
