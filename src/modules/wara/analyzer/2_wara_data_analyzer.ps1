@@ -395,6 +395,10 @@ function Initialize-WARAImpactedResources
 		Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from AI-GPT-RAG')
 		$ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'AI-GPT-RAG'}
 	}
+    if ($ScriptDetails.ORACLE -eq 'True') {
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Getting Recommendations from ORACLE')
+        $ResourceRecommendations += $RecommendationObject | Where-Object {$_.tags -like 'ORACLE'}
+    }
 
 	Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Overall Recommendations found: ' + [string]$ResourceRecommendations.Count)
 
