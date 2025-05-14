@@ -63,16 +63,23 @@ if ($clipboardHistory.EnableClipboardHistory -eq 1) {
 # TODO: Remove if not needed
 <# $CurrentPath = Get-Location
 $CurrentPath = $CurrentPath.Path #>
-if (!$PPTTemplateFile) {
-  write-host ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
-  if ((Test-Path -Path ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx") -PathType Leaf) -eq $true) {
-    $PPTTemplateFile = ("$PSScriptRoot/Mandatory - Executive Summary presentation - Template.pptx")
-  }
-  else {
-    Write-Error "PowerPoint template file is missing. Please provide the path to the PowerPoint template file."
-    Exit
-  }
+if ($PSBoundParameters.ContainsKey('PPTTemplateFile')) {
+    # Resolve-Path throw exception if the path does not exist.
+    $pptTemplateFilePath = (Resolve-Path -LiteralPath $PPTTemplateFile).Path
+    if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
+        # The specified path is not a file, it may be a folder.
+        Write-Error -Message ('The specified PowerPoint template file "{0}" is not a file. Please provide the path to the PowerPoint template file.' -f $pptTemplateFilePath)
+        Exit  # TODO: This can be deleted after adding exception handling.
+    }
 }
+else {
+    $pptTemplateFilePath = Join-Path -Path $PSScriptRoot -ChildPath 'Mandatory - Executive Summary presentation - Template.pptx'
+    if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
+        Write-Error -Message ('The default PowerPoint template file "{0}" does not exist. Please contact the WARA team via GitHub or Microsoft Teams.' -f $pptTemplateFilePath)  # TODO
+        Exit  # TODO: This can be deleted after adding exception handling.
+    }
+}
+Write-Host ('PowerPoint Template File: {0}' -f $pptTemplateFilePath)
 
 if (!$AssessmentFindingsFile) {
   write-host ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
@@ -135,7 +142,7 @@ $TableStyle = 'Light19'
 
   function New-PPTFile {
     Param(
-      [string]$PPTTemplateFile
+      [string]$PPTTemplateFile  # NEED FIX: PPTTemplateFile parameter does not use in the function
       )
 
     $workingFolderPath = Get-Location
@@ -1328,7 +1335,7 @@ $ExcelRetirements = Get-ExcelRetirement -ExcelFile $CoreFile
 Write-Progress -Id 1 -activity "Processing Office Apps" -Status "45% Complete." -PercentComplete 45
 
 
-$PPTFinalFile = New-PPTFile -PPTTemplateFile $PPTTemplateFile
+$PPTFinalFile = New-PPTFile -PPTTemplateFile $pptTemplateFilePath  # NEED FIX: PPTTemplateFile parameter does not use in the function
 Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
 Write-Host " and " -NoNewline
 Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
@@ -1364,7 +1371,7 @@ Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint.
 try
     {
         $Application = New-Object -ComObject PowerPoint.Application
-        $Presentation = $Application.Presentations.Open($PPTTemplateFile, $null, $null, $null)
+        $Presentation = $Application.Presentations.Open($pptTemplateFilePath, $null, $null, $null)
     }
 catch
     {
