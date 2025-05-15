@@ -1295,7 +1295,7 @@ try {
         Write-Error -Message 'Clipboard History is enabled. Please disable Clipboard History before running this script.'
     }
     else {
-        Write-Debug "Clipboard History is disabled."
+        Write-Debug 'Clipboard History is disabled.'
     }
 
     if ($PSBoundParameters.ContainsKey('PPTTemplateFile')) {
