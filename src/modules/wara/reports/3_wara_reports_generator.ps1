@@ -1230,22 +1230,21 @@ function New-ExceptionMessage {
         [System.Management.Automation.ErrorRecord] $ErrorRecord
     )
 
+    $ex = $ErrorRecord.Exception
     $horizontalLineLength = 40
 
-    $ex = $_.Exception
     $builder = New-Object -TypeName 'System.Text.StringBuilder'
     [void] $builder.AppendLine('')
-    [void] $builder.AppendLine('*' * $horizontalLineLength)
     [void] $builder.AppendLine($ex.Message)
-
     [void] $builder.AppendLine('')
-    [void] $builder.AppendLine('-------- Details --------')
+
+    [void] $builder.AppendLine('*' * $horizontalLineLength)
     [void] $builder.AppendLine('Exception                : ' + $ex.GetType().FullName)
-    [void] $builder.AppendLine('FullyQualifiedErrorId    : ' + $_.FullyQualifiedErrorId)
-    [void] $builder.AppendLine('ErrorDetailsMessage      : ' + $_.ErrorDetails.Message)
-    [void] $builder.AppendLine('CategoryInfo             : ' + $_.CategoryInfo.ToString())
+    [void] $builder.AppendLine('FullyQualifiedErrorId    : ' + $ErrorRecord.FullyQualifiedErrorId)
+    [void] $builder.AppendLine('ErrorDetailsMessage      : ' + $ErrorRecord.ErrorDetails.Message)
+    [void] $builder.AppendLine('CategoryInfo             : ' + $ErrorRecord.CategoryInfo.ToString())
     [void] $builder.AppendLine('StackTrace in PowerShell :')
-    [void] $builder.AppendLine($_.ScriptStackTrace)
+    [void] $builder.AppendLine($ErrorRecord.ScriptStackTrace)
 
     [void] $builder.AppendLine('')
     [void] $builder.AppendLine('-------- Exception --------')
