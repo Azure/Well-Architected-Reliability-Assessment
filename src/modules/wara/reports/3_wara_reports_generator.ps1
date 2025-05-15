@@ -1287,8 +1287,7 @@ try {
 
     # Checking the operating system running this script.
     if (-not $IsWindows) {
-        Write-Host 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
-        Exit
+        Write-Error -Message 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
     }
 
     # Check if Clipboard History is enabled
