@@ -1305,14 +1305,12 @@ try {
         if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
             # The specified path is not a file, it may be a folder.
             Write-Error -Message ('The specified PowerPoint template file "{0}" is not a file. Please provide the path to the PowerPoint template file.' -f $pptTemplateFilePath)
-            Exit  # TODO: This can be deleted after adding exception handling.
         }
     }
     else {
         $pptTemplateFilePath = Join-Path -Path $PSScriptRoot -ChildPath 'Mandatory - Executive Summary presentation - Template.pptx'
         if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
-            Write-Error -Message ('The default PowerPoint template file "{0}" does not exist. Please contact the WARA team via GitHub or Microsoft Teams.' -f $pptTemplateFilePath)  # TODO
-            Exit  # TODO: This can be deleted after adding exception handling.
+            Write-Error -Message ('The default PowerPoint template file "{0}" does not exist. Please contact the WARA team via GitHub or Microsoft Teams.' -f $pptTemplateFilePath)
         }
     }
     Write-Host ('PowerPoint Template File: {0}' -f $pptTemplateFilePath)
