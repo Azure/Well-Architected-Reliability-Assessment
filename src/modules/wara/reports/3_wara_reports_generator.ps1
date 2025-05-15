@@ -1299,9 +1299,6 @@ try {
         Write-Debug "Clipboard History is disabled."
     }
 
-    # TODO: Remove if not needed
-    <# $CurrentPath = Get-Location
-    $CurrentPath = $CurrentPath.Path #>
     if ($PSBoundParameters.ContainsKey('PPTTemplateFile')) {
         # Resolve-Path throw exception if the path does not exist.
         $pptTemplateFilePath = (Resolve-Path -LiteralPath $PPTTemplateFile).Path
