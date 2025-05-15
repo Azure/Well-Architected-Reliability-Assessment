@@ -1345,8 +1345,9 @@ try {
         $outputCustomerName = $CustomerName
     }
 
-    if (!$WorkloadName) {
-        $WorkloadName = '[Workload Name]'
+    $outputWorkloadName = '[Workload Name]'
+    if ($PSBoundParameters.ContainsKey('WorkloadName')) {
+        $outputWorkloadName = $WorkloadName
     }
 
     $TableStyle = 'Light19'
@@ -1452,8 +1453,8 @@ try {
     }
 
 
-    Remove-PPTSlide1 -Presentation $Presentation -CustomerName $outputCustomerName -WorkloadName $WorkloadName
-    Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
+    Remove-PPTSlide1 -Presentation $Presentation -CustomerName $outputCustomerName -WorkloadName $outputWorkloadName
+    Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $outputWorkloadName -ResourcesType $ResourcesTypes
     Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
 
     while ([string]::IsNullOrEmpty($ExcelWorkbooks)) {
