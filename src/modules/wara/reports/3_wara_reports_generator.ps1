@@ -45,6 +45,8 @@ Param(
   [string] $PPTTemplateFile
 )
 
+$ErrorActionPreference = 'Stop'
+
   ######################## REGULAR Functions ##########################
 
   function Test-ReviewedRecommendations {
