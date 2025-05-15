@@ -1298,6 +1298,7 @@ try {
         Write-Debug 'Clipboard History is disabled.'
     }
 
+    # Check the PPTTemplateFile parameter.
     if ($PSBoundParameters.ContainsKey('PPTTemplateFile')) {
         # Resolve-Path throw exception if the path does not exist.
         $pptTemplateFilePath = (Resolve-Path -LiteralPath $PPTTemplateFile).Path
