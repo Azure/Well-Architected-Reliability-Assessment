@@ -81,7 +81,8 @@ $ErrorActionPreference = 'Stop'
 
   function New-PPTFile {
     Param(
-      [string]$PPTTemplateFile  # NEED FIX: PPTTemplateFile parameter does not use in the function
+      [string] $PPTTemplateFile,  # NEED FIX: PPTTemplateFile parameter does not use in the function
+      [string] $CustomerName
       )
 
     $workingFolderPath = Get-Location
@@ -1339,8 +1340,9 @@ try {
         Write-Error -Message ('The specified Expert Analysis file "{0}" is not a file. Please provide the path to the Expert Analysis file.' -f $expertAnalysisFilePath)
     }
 
-    if (!$CustomerName) {
-        $CustomerName = '[Customer Name]'
+    $outputCustomerName = '[Customer Name]'
+    if ($PSBoundParameters.ContainsKey('CustomerName')) {
+        $outputCustomerName = $CustomerName
     }
 
     if (!$WorkloadName) {
@@ -1395,7 +1397,7 @@ try {
     Write-Progress -Id 1 -activity "Processing Office Apps" -Status "45% Complete." -PercentComplete 45
 
 
-    $PPTFinalFile = New-PPTFile -PPTTemplateFile $pptTemplateFilePath  # NEED FIX: PPTTemplateFile parameter does not use in the function
+    $PPTFinalFile = New-PPTFile -PPTTemplateFile $pptTemplateFilePath -CustomerName $outputCustomerName  # NEED FIX: PPTTemplateFile parameter does not use in the function
     Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
     Write-Host " and " -NoNewline
     Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
@@ -1450,7 +1452,7 @@ try {
     }
 
 
-    Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -WorkloadName $WorkloadName
+    Remove-PPTSlide1 -Presentation $Presentation -CustomerName $outputCustomerName -WorkloadName $WorkloadName
     Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
     Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
 
