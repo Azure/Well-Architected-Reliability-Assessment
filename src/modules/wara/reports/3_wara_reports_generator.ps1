@@ -1276,6 +1276,7 @@ function New-ExceptionMessage {
 
 ######################## Main Script Part ##########################
 
+try {
 # Start the stopwatch to time the script
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
@@ -1524,3 +1525,9 @@ Write-Host $NewAssessmentFindingsFile -ForegroundColor Cyan
 #}
 
 Write-Host "---------------------------------------------------------------------"
+
+}
+catch {
+    $exceptionMessage = New-ExceptionMessage -ErrorRecord $_
+    $exceptionMessage | Write-Host -ForegroundColor Yellow
+}
