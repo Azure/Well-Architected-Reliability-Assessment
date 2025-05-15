@@ -38,7 +38,7 @@ Param(
   [switch] $includeLow,
   [string] $CustomerName,
   [string] $WorkloadName,
-  [Parameter(mandatory = $true)]
+  [Parameter(Mandatory = $true)]
   [Alias('ExcelFile')]
   [string] $ExpertAnalysisFile,
   [string] $AssessmentFindingsFile,
@@ -1332,11 +1332,12 @@ try {
     }
     Write-Host ('Assessment Findings Template File: {0}' -f $assessmentFindingsTemplateFilePath)
 
-    if (!$ExpertAnalysisFile) {
-        Write-Host "The Expert-Analysis Excel file is missing. Please provide the path to the Expert-Analysis Excel file." -ForegroundColor Yellow
-        Exit
+    # Check the ExpertAnalysisFile parameter.
+    $expertAnalysisFilePath = (Resolve-Path -LiteralPath $ExpertAnalysisFile).Path
+    if (-not (Test-Path -PathType Leaf -LiteralPath $expertAnalysisFilePath)) {
+        # The specified path is not a file, it may be a folder.
+        Write-Error -Message ('The specified Expert Analysis file "{0}" is not a file. Please provide the path to the Expert Analysis file.' -f $expertAnalysisFilePath)
     }
-
 
     if (!$CustomerName) {
         $CustomerName = '[Customer Name]'
@@ -1350,7 +1351,7 @@ try {
 
     #Call the functions
 
-    $CoreFile = get-item -Path $ExpertAnalysisFile
+    $CoreFile = get-item -Path $expertAnalysisFilePath
     $CoreFile = $CoreFile.FullName
 
     Test-ReviewedRecommendations -ExcelFile $CoreFile
@@ -1358,7 +1359,7 @@ try {
     Write-Debug (' ---------------------------------- STARTING REPORT GENERATOR SCRIPT --------------------------------------- ')
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting Report Generator Script..')
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Script Version: ' + $Version)
-    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Excel File: ' + $ExpertAnalysisFile)
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Excel File: ' + $expertAnalysisFilePath)
     $ImportExcel = Get-Module -Name ImportExcel -ListAvailable -ErrorAction silentlycontinue
     foreach ($IExcel in $ImportExcel) {
         $IExcelPath = $IExcel.Path
