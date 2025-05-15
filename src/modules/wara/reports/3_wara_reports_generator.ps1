@@ -1292,10 +1292,9 @@ try {
     }
 
     # Check if Clipboard History is enabled
-    $clipboardHistory = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Clipboard" -Name "EnableClipboardHistory" -ErrorAction SilentlyContinue
-
+    $clipboardHistory = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Clipboard' -Name 'EnableClipboardHistory' -ErrorAction SilentlyContinue
     if ($clipboardHistory.EnableClipboardHistory -eq 1) {
-        Throw "Clipboard History is enabled. Please disable Clipboard History before running this script."
+        Write-Error -Message 'Clipboard History is enabled. Please disable Clipboard History before running this script.'
     }
     else {
         Write-Debug "Clipboard History is disabled."
