@@ -1302,6 +1302,8 @@ try {
     # TODO: Remove if not needed
     <# $CurrentPath = Get-Location
     $CurrentPath = $CurrentPath.Path #>
+
+    # Check the PPTTemplateFile parameter.
     if ($PSBoundParameters.ContainsKey('PPTTemplateFile')) {
         # Resolve-Path throw exception if the path does not exist.
         $pptTemplateFilePath = (Resolve-Path -LiteralPath $PPTTemplateFile).Path
@@ -1318,15 +1320,22 @@ try {
     }
     Write-Host ('PowerPoint Template File: {0}' -f $pptTemplateFilePath)
 
-    if (!$AssessmentFindingsFile) {
-        write-host ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
-        if ((Test-Path -Path ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx") -PathType Leaf) -eq $true) {
-            $AssessmentFindingsFile = ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
-        }
-        else {
-            Write-Error 'Assessment Findings file is missing. Please provide the path to the Assessment Findings file.'
+    # Check the AssessmentFindingsFile parameter.
+    if ($PSBoundParameters.ContainsKey('AssessmentFindingsFile')) {
+        # Resolve-Path throw exception if the path does not exist.
+        $assessmentFindingsTemplateFilePath = (Resolve-Path -LiteralPath $AssessmentFindingsFile).Path
+        if (-not (Test-Path -PathType Leaf -LiteralPath $assessmentFindingsTemplateFilePath)) {
+            # The specified path is not a file, it may be a folder.
+            Write-Error -Message ('The specified Assessment Findings template file "{0}" is not a file. Please provide the path to the Assessment Findings template file.' -f $assessmentFindingsTemplateFilePath)
         }
     }
+    else {
+        $assessmentFindingsTemplateFilePath = Join-Path -Path $PSScriptRoot -ChildPath 'Assessment-Findings-Report-v1.xlsx'
+        if (-not (Test-Path -PathType Leaf -LiteralPath $assessmentFindingsTemplateFilePath)) {
+            Write-Error -Message ('The default Assessment Findings template file "{0}" does not exist. Please contact the WARA team via GitHub or Microsoft Teams.' -f $assessmentFindingsTemplateFilePath)
+        }
+    }
+    Write-Host ('Assessment Findings Template File: {0}' -f $assessmentFindingsTemplateFilePath)
 
     if (!$ExpertAnalysisFile) {
         Write-Error 'The Expert-Analysis Excel file is missing. Please provide the path to the Expert-Analysis Excel file.'
@@ -1393,7 +1402,7 @@ try {
     Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
     Write-Host " "
     Write-Host "Editing " -NoNewline
-    $NewAssessmentFindingsFile = New-AssessmentFindingsFile -AssessmentFindingsFile $AssessmentFindingsFile
+    $NewAssessmentFindingsFile = New-AssessmentFindingsFile -AssessmentFindingsFile $assessmentFindingsTemplateFilePath
 
 
     $AUTOMESSAGE = 'AUTOMATICALLY MODIFIED (Please Review)'
