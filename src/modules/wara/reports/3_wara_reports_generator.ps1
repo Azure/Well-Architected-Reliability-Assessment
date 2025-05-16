@@ -1287,17 +1287,16 @@ try {
 
     # Checking the operating system running this script.
     if (-not $IsWindows) {
-        Write-Host 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
-        Exit
+        Write-Error -Message 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
     }
 
     # Check if Clipboard History is enabled
-    $clipboardHistory = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Clipboard" -Name "EnableClipboardHistory" -ErrorAction SilentlyContinue
+    $clipboardHistory = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Clipboard' -Name 'EnableClipboardHistory' -ErrorAction SilentlyContinue
 
     if ($clipboardHistory.EnableClipboardHistory -eq 1) {
-        Throw "Clipboard History is enabled. Please disable Clipboard History before running this script."
+        Write-Error -Message 'Clipboard History is enabled. Please disable Clipboard History before running this script.'
     } else {
-        Write-Debug "Clipboard History is disabled."
+        Write-Debug 'Clipboard History is disabled.'
     }
 
     # TODO: Remove if not needed
@@ -1309,14 +1308,12 @@ try {
         if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
             # The specified path is not a file, it may be a folder.
             Write-Error -Message ('The specified PowerPoint template file "{0}" is not a file. Please provide the path to the PowerPoint template file.' -f $pptTemplateFilePath)
-            Exit  # TODO: This can be deleted after adding exception handling.
         }
     }
     else {
         $pptTemplateFilePath = Join-Path -Path $PSScriptRoot -ChildPath 'Mandatory - Executive Summary presentation - Template.pptx'
         if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
-            Write-Error -Message ('The default PowerPoint template file "{0}" does not exist. Please contact the WARA team via GitHub or Microsoft Teams.' -f $pptTemplateFilePath)  # TODO
-            Exit  # TODO: This can be deleted after adding exception handling.
+            Write-Error -Message ('The default PowerPoint template file "{0}" does not exist. Please contact the WARA team via GitHub or Microsoft Teams.' -f $pptTemplateFilePath)
         }
     }
     Write-Host ('PowerPoint Template File: {0}' -f $pptTemplateFilePath)
@@ -1327,14 +1324,12 @@ try {
             $AssessmentFindingsFile = ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
         }
         else {
-            Write-Error "Assessment Findings file is missing. Please provide the path to the Assessment Findings file."
-            Exit
+            Write-Error 'Assessment Findings file is missing. Please provide the path to the Assessment Findings file.'
         }
     }
 
     if (!$ExpertAnalysisFile) {
-        Write-Host "The Expert-Analysis Excel file is missing. Please provide the path to the Expert-Analysis Excel file." -ForegroundColor Yellow
-        Exit
+        Write-Error 'The Expert-Analysis Excel file is missing. Please provide the path to the Expert-Analysis Excel file.'
     }
 
 
