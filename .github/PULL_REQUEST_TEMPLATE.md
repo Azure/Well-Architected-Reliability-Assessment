@@ -20,10 +20,10 @@
 
 <!-- Use the checkboxes [x] on the options that are relevant. -->
 
-- [ ] Read the [Contribution Guide](https://azure.github.io/Azure-Proactive-Resiliency-Library-v2/contributing) and ensured this PR is compliant with the guide
-- [ ] Checked for duplicate [Pull Requests](https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/pulls)
-- [ ] Associated it with relevant [GitHub Issues](https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/issues) or ADO Work Items (Internal Only)
-- [ ] Ensured my code/branch is up-to-date with the latest changes in the `main` [branch](https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2/tree/main)
+- [ ] Read the [Contribution Guide](https://github.com/Azure/Well-Architected-Reliability-Assessment/blob/main/docs/wara/contribution-guide.md) and ensured this PR is compliant with the guide
+- [ ] Checked for duplicate [Pull Requests](https://github.com/Azure/Well-Architected-Reliability-Assessment/pulls)
+- [ ] Associated it with relevant [GitHub Issues](https://github.com/Azure/Well-Architected-Reliability-Assessment/issues) or ADO Work Items (Internal Only)
+- [ ] Ensured my code/branch is up-to-date with the latest changes in the `main` [branch](https://github.com/Azure/Well-Architected-Reliability-Assessment/tree/main)
 - [ ] Ensured PR tests are passing
 - [ ] Performed testing and provided evidence (e.g. screenshot of output) for any changes associated to ARG queries
 - [ ] Updated relevant and associated documentation (e.g. Contribution Guide, Docs etc.)
