@@ -36,8 +36,8 @@ Param(
   [switch] $Help,
   #[switch] $csvExport,
   [switch] $includeLow,
-  [string] $CustomerName,
-  [string] $WorkloadName,
+  [string] $CustomerName = '[Customer Name]',
+  [string] $WorkloadName = '[Workload Name]',
   [Parameter(Mandatory = $true)]
   [Alias('ExcelFile')]
   [string] $ExpertAnalysisFile,
@@ -1340,16 +1340,6 @@ try {
         Write-Error -Message ('The specified Expert Analysis file "{0}" is not a file. Please provide the path to the Expert Analysis file.' -f $expertAnalysisFilePath)
     }
 
-    $outputCustomerName = '[Customer Name]'
-    if ($PSBoundParameters.ContainsKey('CustomerName')) {
-        $outputCustomerName = $CustomerName
-    }
-
-    $outputWorkloadName = '[Workload Name]'
-    if ($PSBoundParameters.ContainsKey('WorkloadName')) {
-        $outputWorkloadName = $WorkloadName
-    }
-
     $TableStyle = 'Light19'
 
     #Call the functions
@@ -1398,7 +1388,7 @@ try {
     Write-Progress -Id 1 -activity "Processing Office Apps" -Status "45% Complete." -PercentComplete 45
 
 
-    $PPTFinalFile = New-PPTFile -PPTTemplateFile $pptTemplateFilePath -CustomerName $outputCustomerName  # NEED FIX: PPTTemplateFile parameter does not use in the function
+    $PPTFinalFile = New-PPTFile -PPTTemplateFile $pptTemplateFilePath -CustomerName $CustomerName  # NEED FIX: PPTTemplateFile parameter does not use in the function
     Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
     Write-Host " and " -NoNewline
     Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
@@ -1441,8 +1431,8 @@ try {
         Start-Sleep -Milliseconds 500
         $ExcelWorkbooks = $ExcelApplication.Workbooks.Open($NewAssessmentFindingsFile)
 
-        Remove-PPTSlide1 -Presentation $Presentation -CustomerName $outputCustomerName -WorkloadName $outputWorkloadName
-        Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $outputWorkloadName -ResourcesType $ResourcesTypes
+        Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -WorkloadName $WorkloadName
+        Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
         Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
 
         while ([string]::IsNullOrEmpty($ExcelWorkbooks)) {
