@@ -36,9 +36,9 @@ Param(
   [switch] $Help,
   #[switch] $csvExport,
   [switch] $includeLow,
-  [string] $CustomerName,
-  [string] $WorkloadName,
-  [Parameter(mandatory = $true)]
+  [string] $CustomerName = '[Customer Name]',
+  [string] $WorkloadName = '[Workload Name]',
+  [Parameter(Mandatory = $true)]
   [Alias('ExcelFile')]
   [string] $ExpertAnalysisFile,
   [string] $AssessmentFindingsFile,
@@ -81,7 +81,8 @@ $ErrorActionPreference = 'Stop'
 
   function New-PPTFile {
     Param(
-      [string]$PPTTemplateFile  # NEED FIX: PPTTemplateFile parameter does not use in the function
+      [string] $PPTTemplateFile,  # NEED FIX: PPTTemplateFile parameter does not use in the function
+      [string] $CustomerName
       )
 
     $workingFolderPath = Get-Location
@@ -1279,7 +1280,6 @@ try {
     # Start the stopwatch to time the script
     $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-    #Call the functions
     $Version = "2.1.5"
     Write-Host "Version: " -NoNewline
     Write-Host $Version -ForegroundColor DarkBlue -NoNewline
@@ -1344,15 +1344,6 @@ try {
         Write-Error -Message ('The specified Expert Analysis file "{0}" is not a file. Please provide the path to the Expert Analysis file.' -f $expertAnalysisFilePath)
     }
 
-
-    if (!$CustomerName) {
-        $CustomerName = '[Customer Name]'
-    }
-
-    if (!$WorkloadName) {
-        $WorkloadName = '[Workload Name]'
-    }
-
     $TableStyle = 'Light19'
 
     $CoreFile = get-item -Path $expertAnalysisFilePath
@@ -1399,7 +1390,7 @@ try {
     Write-Progress -Id 1 -activity "Processing Office Apps" -Status "45% Complete." -PercentComplete 45
 
 
-    $PPTFinalFile = New-PPTFile -PPTTemplateFile $pptTemplateFilePath  # NEED FIX: PPTTemplateFile parameter does not use in the function
+    $PPTFinalFile = New-PPTFile -PPTTemplateFile $pptTemplateFilePath -CustomerName $CustomerName  # NEED FIX: PPTTemplateFile parameter does not use in the function
     Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
     Write-Host " and " -NoNewline
     Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
