@@ -45,6 +45,8 @@ Param(
   [string] $PPTTemplateFile
 )
 
+$ErrorActionPreference = 'Stop'
+
 # Checking the operating system running this script.
 if (-not $IsWindows) {
   Write-Host 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
