@@ -26,13 +26,19 @@ Path to the Expert-Analysis file to be customized by script.
 https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 #>
 
-Param(
-[ValidatePattern('^https:\/\/.+$')]
-[string] $RecommendationDataUri = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
-[string] $CustomRecommendationObject,
-[Parameter(mandatory = $true)]
-[string] $JSONFile,
-[string] $ExpertAnalysisFile
+param (
+    [Parameter(Mandatory = $false)]
+    [ValidatePattern('^https:\/\/.+$')]
+    [string] $RecommendationDataUri = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
+
+    [Parameter(Mandatory = $false)]
+    [string] $CustomRecommendationObject,
+
+    [Parameter(Mandatory = $true)]
+    [string] $JSONFile,
+
+    [Parameter(Mandatory = $false)]
+    [string] $ExpertAnalysisFile = (Join-Path -Path $PSScriptRoot -ChildPath 'Expert-Analysis-v1.xlsx')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -86,31 +92,11 @@ trap {
 # WARA In Scope Resource Types CSV File
 $RecommendationResourceTypesUri = 'https://azure.github.io/WARA-Build/objects/WARAinScopeResTypes.csv'
 
-# Check if the Expert-Analysis file exists
-$ExpertAnalysisPath = $PSScriptRoot + '\Expert-Analysis-v1.xlsx'
-
-if (!$ExpertAnalysisFile)
-	{
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + (' - Testing: ' + './Expert-Analysis-v1.xlsx'))
-		if ((Test-Path -Path ($ExpertAnalysisPath) -PathType Leaf) -eq $true) {
-			$ExpertAnalysisFile = $ExpertAnalysisPath
-		}
-	}
-else
-{
-	Throw "Error locating the Expert-Analysis file. Please provide a valid path to the Expert-Analysis file or reinstall the WARA Module."
-	Exit
+# Verify the ExpertAnalysisFile parameter
+$expertAnalysisFilePath = (Resolve-Path -LiteralPath $ExpertAnalysisFile).Path
+if (-not (Test-Path -PathType Leaf -LiteralPath $expertAnalysisFilePath)) {
+    throw 'The specified Expert Analysis file "{0}" is not a file. Please provide the path to the Expert Analysis file.' -f $expertAnalysisFilePath
 }
-
-if ((Test-Path -Path $ExpertAnalysisFile -PathType Leaf) -eq $true) {
-	$ExpertAnalysisFile = (Resolve-Path -Path $ExpertAnalysisFile).Path
-}
-else
-{
-	Throw "The Expert-Analysis file does not exist. Please provide a valid path to the Expert-Analysis file."
-	Exit
-}
-
 
 # Check if the JSON file exists
 $jsonFilePath = (Resolve-Path -LiteralPath $JSONFile).Path
@@ -1213,7 +1199,7 @@ Write-Host 'Analysing Excel File Template'
 
 #$NewExpertAnalysisFile = Save-WARAExcelFile -ExpertAnalysisFile $ExpertAnalysisFile
 
-$ExpertAnalysisTemplate = Open-ExcelPackage -Path $ExpertAnalysisFile
+$ExpertAnalysisTemplate = Open-ExcelPackage -Path $expertAnalysisFilePath
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAImpactedResources')
 # Creating the Array with the Impacted Resources to be added to the Excel file
