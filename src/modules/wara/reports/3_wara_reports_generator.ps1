@@ -49,9 +49,11 @@ Param(
   [Alias('ExcelFile')]
   [string] $ExpertAnalysisFile,
 
-  [string] $AssessmentFindingsFile,
+  [Parameter(Mandatory = $false)]
+  [string] $AssessmentFindingsFile = (Join-Path -Path $PSScriptRoot -ChildPath 'Assessment-Findings-Report-v1.xlsx'),
 
-  [string] $PPTTemplateFile
+  [Parameter(Mandatory = $false)]
+  [string] $PPTTemplateFile = (Join-Path -Path $PSScriptRoot -ChildPath 'Mandatory - Executive Summary presentation - Template.pptx')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -117,34 +119,16 @@ if ($clipboardHistory.EnableClipboardHistory -eq 1) {
 }
 
 # Verify the PPTTemplateFile parameter
-if ($PSBoundParameters.ContainsKey('PPTTemplateFile')) {
-    # Resolve-Path throw exception if the path does not exist.
-    $pptTemplateFilePath = (Resolve-Path -LiteralPath $PPTTemplateFile).Path
-    if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
-        throw 'The specified PowerPoint template file "{0}" is not a file. Please provide the path to the PowerPoint template file.' -f $pptTemplateFilePath
-    }
-}
-else {
-    $pptTemplateFilePath = Join-Path -Path $PSScriptRoot -ChildPath 'Mandatory - Executive Summary presentation - Template.pptx'
-    if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
-        throw 'The default PowerPoint template file "{0}" does not exist. Please contact the WARA team via https://aka.ms/waratools/issue or Microsoft Teams.' -f $pptTemplateFilePath
-    }
+$pptTemplateFilePath = (Resolve-Path -LiteralPath $PPTTemplateFile).Path
+if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
+    throw 'The specified PowerPoint template file "{0}" is not a file. Please provide the path to the PowerPoint template file.' -f $pptTemplateFilePath
 }
 Write-Host ('PowerPoint Template File: {0}' -f $pptTemplateFilePath)
 
 # Verify the AssessmentFindingsFile parameter
-if ($PSBoundParameters.ContainsKey('AssessmentFindingsFile')) {
-    # Resolve-Path throw exception if the path does not exist.
-    $assessmentFindingsFilePath = (Resolve-Path -LiteralPath $AssessmentFindingsFile).Path
-    if (-not (Test-Path -PathType Leaf -LiteralPath $assessmentFindingsFilePath)) {
-        throw 'The specified Assessment Findings file "{0}" is not a file. Please provide the path to the Assessment Findings file.' -f $assessmentFindingsFilePath
-    }
-}
-else {
-    $assessmentFindingsFilePath = Join-Path -Path $PSScriptRoot -ChildPath 'Assessment-Findings-Report-v1.xlsx'
-    if (-not (Test-Path -PathType Leaf -LiteralPath $assessmentFindingsFilePath)) {
-        throw 'The default Assessment Findings file "{0}" does not exist. Please contact the WARA team via https://aka.ms/waratools/issue or Microsoft Teams.' -f $assessmentFindingsFilePath
-    }
+$assessmentFindingsFilePath = (Resolve-Path -LiteralPath $AssessmentFindingsFile).Path
+if (-not (Test-Path -PathType Leaf -LiteralPath $assessmentFindingsFilePath)) {
+    throw 'The specified Assessment Findings file "{0}" is not a file. Please provide the path to the Assessment Findings file.' -f $assessmentFindingsFilePath
 }
 Write-Host ('Assessment Findings File: {0}' -f $assessmentFindingsFilePath)
 
