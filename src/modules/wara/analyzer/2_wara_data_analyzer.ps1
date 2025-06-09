@@ -35,6 +35,7 @@ Param(
 [string] $ExpertAnalysisFile
 )
 
+$ErrorActionPreference = 'Stop'
 # WARA In Scope Resource Types CSV File
 $RecommendationResourceTypesUri = 'https://azure.github.io/WARA-Build/objects/WARAinScopeResTypes.csv'
 
