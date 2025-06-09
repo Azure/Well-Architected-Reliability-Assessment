@@ -34,77 +34,103 @@ https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 
 Param(
   [switch] $Help,
+
   #[switch] $csvExport,
+
   [switch] $includeLow,
-  [string] $CustomerName,
-  [string] $WorkloadName,
-  [Parameter(mandatory = $true)]
+
+  [Parameter(Mandatory = $false)]
+  [string] $CustomerName = '[Customer Name]',
+
+  [Parameter(Mandatory = $false)]
+  [string] $WorkloadName = '[Workload Name]',
+
+  [Parameter(Mandatory = $true)]
   [Alias('ExcelFile')]
   [string] $ExpertAnalysisFile,
-  [string] $AssessmentFindingsFile,
-  [string] $PPTTemplateFile
+
+  [Parameter(Mandatory = $false)]
+  [string] $AssessmentFindingsFile = (Join-Path -Path $PSScriptRoot -ChildPath 'Assessment-Findings-Report-v1.xlsx'),
+
+  [Parameter(Mandatory = $false)]
+  [string] $PPTTemplateFile = (Join-Path -Path $PSScriptRoot -ChildPath 'Mandatory - Executive Summary presentation - Template.pptx')
 )
+
+$ErrorActionPreference = 'Stop'
+
+trap {
+    $ex = $_.Exception
+    $horizontalLineLength = 40
+
+    $builder = New-Object -TypeName 'System.Text.StringBuilder'
+    [void] $builder.AppendLine('')
+    [void] $builder.AppendLine($ex.Message)
+    [void] $builder.AppendLine('')
+
+    [void] $builder.AppendLine('*' * $horizontalLineLength)
+    [void] $builder.AppendLine('Exception                : ' + $ex.GetType().FullName)
+    [void] $builder.AppendLine('FullyQualifiedErrorId    : ' + $_.FullyQualifiedErrorId)
+    [void] $builder.AppendLine('ErrorDetailsMessage      : ' + $_.ErrorDetails.Message)
+    [void] $builder.AppendLine('CategoryInfo             : ' + $_.CategoryInfo.ToString())
+    [void] $builder.AppendLine('StackTrace in PowerShell :')
+    [void] $builder.AppendLine($_.ScriptStackTrace)
+
+    [void] $builder.AppendLine('')
+    [void] $builder.AppendLine('---- Exception Details ----')
+    [void] $builder.AppendLine('Exception  : ' + $ex.GetType().FullName)
+    [void] $builder.AppendLine('Message    : ' + $ex.Message)
+    [void] $builder.AppendLine('Source     : ' + $ex.Source)
+    [void] $builder.AppendLine('HResult    : ' + $ex.HResult)
+    [void] $builder.AppendLine('StackTrace :')
+    [void] $builder.AppendLine($ex.StackTrace)
+
+    $depth = 1
+    while ($ex.InnerException) {
+        $ex = $ex.InnerException
+        [void] $builder.AppendLine('')
+        [void] $builder.AppendLine('---- Inner Exception Details {0} ----' -f $depth)
+        [void] $builder.AppendLine('Exception  : ' + $ex.GetType().FullName)
+        [void] $builder.AppendLine('Message    : ' + $ex.Message)
+        [void] $builder.AppendLine('Source     : ' + $ex.Source)
+        [void] $builder.AppendLine('HResult    : ' + $ex.HResult)
+        [void] $builder.AppendLine('StackTrace :')
+        [void] $builder.AppendLine($ex.StackTrace)
+        $depth++
+    }
+
+    [void] $builder.AppendLine('*' * $horizontalLineLength)
+    $builder.ToString() | Write-Host -ForegroundColor Yellow
+
+    break
+}
 
 # Checking the operating system running this script.
 if (-not $IsWindows) {
-  Write-Host 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
-  Exit
-  }
+    throw 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
+}
 
-  # Check if Clipboard History is enabled
-$clipboardHistory = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Clipboard" -Name "EnableClipboardHistory" -ErrorAction SilentlyContinue
+# Check if Clipboard History is enabled
+$clipboardHistory = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Clipboard' -Name 'EnableClipboardHistory' -ErrorAction SilentlyContinue
 
 if ($clipboardHistory.EnableClipboardHistory -eq 1) {
-    Throw "Clipboard History is enabled. Please disable Clipboard History before running this script."
+    throw 'Clipboard History is enabled. Please disable Clipboard History before running this script. See more details at https://aka.ms/waratools/faq'
 } else {
-    Write-Debug "Clipboard History is disabled."
+    Write-Debug 'Clipboard History is disabled.'
 }
 
-# TODO: Remove if not needed
-<# $CurrentPath = Get-Location
-$CurrentPath = $CurrentPath.Path #>
-if ($PSBoundParameters.ContainsKey('PPTTemplateFile')) {
-    # Resolve-Path throw exception if the path does not exist.
-    $pptTemplateFilePath = (Resolve-Path -LiteralPath $PPTTemplateFile).Path
-    if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
-        # The specified path is not a file, it may be a folder.
-        Write-Error -Message ('The specified PowerPoint template file "{0}" is not a file. Please provide the path to the PowerPoint template file.' -f $pptTemplateFilePath)
-        Exit  # TODO: This can be deleted after adding exception handling.
-    }
-}
-else {
-    $pptTemplateFilePath = Join-Path -Path $PSScriptRoot -ChildPath 'Mandatory - Executive Summary presentation - Template.pptx'
-    if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
-        Write-Error -Message ('The default PowerPoint template file "{0}" does not exist. Please contact the WARA team via GitHub or Microsoft Teams.' -f $pptTemplateFilePath)  # TODO
-        Exit  # TODO: This can be deleted after adding exception handling.
-    }
+# Verify the PPTTemplateFile parameter
+$pptTemplateFilePath = (Resolve-Path -LiteralPath $PPTTemplateFile).Path
+if (-not (Test-Path -PathType Leaf -LiteralPath $pptTemplateFilePath)) {
+    throw 'The specified PowerPoint template file "{0}" is not a file. Please provide the path to the PowerPoint template file.' -f $pptTemplateFilePath
 }
 Write-Host ('PowerPoint Template File: {0}' -f $pptTemplateFilePath)
 
-if (!$AssessmentFindingsFile) {
-  write-host ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
-  if ((Test-Path -Path ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx") -PathType Leaf) -eq $true) {
-    $AssessmentFindingsFile = ("$PSScriptRoot/Assessment-Findings-Report-v1.xlsx")
-  }
-  else {
-    Write-Error "Assessment Findings file is missing. Please provide the path to the Assessment Findings file."
-    Exit
-  }
+# Verify the AssessmentFindingsFile parameter
+$assessmentFindingsFilePath = (Resolve-Path -LiteralPath $AssessmentFindingsFile).Path
+if (-not (Test-Path -PathType Leaf -LiteralPath $assessmentFindingsFilePath)) {
+    throw 'The specified Assessment Findings file "{0}" is not a file. Please provide the path to the Assessment Findings file.' -f $assessmentFindingsFilePath
 }
-
-if (!$ExpertAnalysisFile) {
-  Write-Host "The Expert-Analysis Excel file is missing. Please provide the path to the Expert-Analysis Excel file." -ForegroundColor Yellow
-  Exit
-}
-
-
-if (!$CustomerName) {
-  $CustomerName = '[Customer Name]'
-}
-
-if (!$WorkloadName) {
-  $WorkloadName = '[Workload Name]'
-}
+Write-Host ('Assessment Findings File: {0}' -f $assessmentFindingsFilePath)
 
 $TableStyle = 'Light19'
 
@@ -1344,7 +1370,7 @@ Write-Host " and " -NoNewline
 Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
 Write-Host " "
 Write-Host "Editing " -NoNewline
-$NewAssessmentFindingsFile = New-AssessmentFindingsFile -AssessmentFindingsFile $AssessmentFindingsFile
+$NewAssessmentFindingsFile = New-AssessmentFindingsFile -AssessmentFindingsFile $assessmentFindingsFilePath
 
 
 $AUTOMESSAGE = 'AUTOMATICALLY MODIFIED (Please Review)'
@@ -1369,83 +1395,86 @@ $ExcelFileLive = Build-ExcelPivotTable -NewAssessmentFindingsFile $NewAssessment
 
 Build-ExcelPivotChart -Excel $ExcelFileLive
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
-# Openning PPT
-try
+try {
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting PowerPoint..')
+    # Openning PPT
+    try
     {
         $Application = New-Object -ComObject PowerPoint.Application
         $Presentation = $Application.Presentations.Open($pptTemplateFilePath, $null, $null, $null)
     }
-catch
+    catch
     {
         Write-Host ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + "- Error: " + $_.Exception.Message)
         Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process -Force
     }
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting Excel..')
-# Openning Excel
-try
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Starting Excel..')
+    # Openning Excel
+    try
     {
         $ExcelApplication = New-Object -ComObject Excel.Application
         Start-Sleep -Milliseconds 500
         $ExcelWorkbooks = $ExcelApplication.Workbooks.Open($NewAssessmentFindingsFile)
     }
-catch
+    catch
     {
         Write-Host ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + "- Error: " + $_.Exception.Message)
         Get-Process -Name "excel" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process -Force
     }
 
 
-Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -WorkloadName $WorkloadName
-Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
-Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+    Remove-PPTSlide1 -Presentation $Presentation -CustomerName $CustomerName -WorkloadName $WorkloadName
+    Build-PPTSlide12 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -WorkloadName $WorkloadName -ResourcesType $ResourcesTypes
+    Build-PPTSlide16 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
 
-while ([string]::IsNullOrEmpty($ExcelWorkbooks)) {
-    Start-Sleep 1
-}
+    while ([string]::IsNullOrEmpty($ExcelWorkbooks)) {
+        Start-Sleep 1
+    }
 
-Build-PPTSlide17 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ExcelWorkbooks $ExcelWorkbooks
+    Build-PPTSlide17 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ExcelWorkbooks $ExcelWorkbooks
 
-Build-PPTSlide30 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Retirements $ExcelRetirements
+    Build-PPTSlide30 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -Retirements $ExcelRetirements
 
-Build-PPTSlide29 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -SupportTickets $ExcelSupportTickets
+    Build-PPTSlide29 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -SupportTickets $ExcelSupportTickets
 
-Build-PPTSlide28 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -PlatformIssues $ExcelPlatformIssues
+    Build-PPTSlide28 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -PlatformIssues $ExcelPlatformIssues
 
-Build-PPTSlide25 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
-Build-PPTSlide24 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
-Build-PPTSlide23 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+    Build-PPTSlide25 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+    Build-PPTSlide24 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
+    Build-PPTSlide23 -Presentation $Presentation -AUTOMESSAGE $AUTOMESSAGE -ImpactedResources $ExcelImpactedResources
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing Excel..')
-$ExcelWorkbooks.Save()
-$ExcelWorkbooks.Close()
-$ExcelApplication.Quit()
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing Excel..')
+    $ExcelWorkbooks.Save()
+    $ExcelWorkbooks.Close()
+    $ExcelApplication.Quit()
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing PowerPoint..')
-$Presentation.SaveAs($PPTFinalFile)
-$Presentation.Close()
-$Application.Quit()
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Closing PowerPoint..')
+    $Presentation.SaveAs($PPTFinalFile)
+    $Presentation.Close()
+    $Application.Quit()
 
-#if ($csvExport.IsPresent) {
+    #if ($csvExport.IsPresent) {
     $WorkloadRecommendationTemplate = Build-SummaryActionPlan -ImpactedResources $ExcelImpactedResources -includeLow $includeLow
 
     $CSVFile = ("$PWD\Impacted Resources and Recommendations Template " + (get-date -Format "yyyy-MM-dd-HH-mm") + '.csv')
 
     $WorkloadRecommendationTemplate | Export-Csv -Path $CSVFile
-#}
-
-if (Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' })
+    #}
+}
+finally {
+    if (Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' })
     {
         Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
         Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process -Force
     }
 
-if (Get-Process -Name "excel" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } )
+    if (Get-Process -Name "excel" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } )
     {
         Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill Excel process.')
         Get-Process -Name "excel" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process -Force
     }
+}
 
 Write-Progress -Id 1 -activity "Processing Office Apps" -Status "90% Complete." -PercentComplete 90
 
