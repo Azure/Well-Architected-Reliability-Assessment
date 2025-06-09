@@ -26,52 +26,82 @@ Path to the Expert-Analysis file to be customized by script.
 https://github.com/Azure/Azure-Proactive-Resiliency-Library-v2
 #>
 
-Param(
-[ValidatePattern('^https:\/\/.+$')]
-[string] $RecommendationDataUri = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
-[string] $CustomRecommendationObject,
-[Parameter(mandatory = $true)]
-[string] $JSONFile,
-[string] $ExpertAnalysisFile
+param (
+    [Parameter(Mandatory = $false)]
+    [ValidatePattern('^https:\/\/.+$')]
+    [string] $RecommendationDataUri = 'https://azure.github.io/WARA-Build/objects/recommendations.json',
+
+    [Parameter(Mandatory = $false)]
+    [string] $CustomRecommendationObject,
+
+    [Parameter(Mandatory = $true)]
+    [string] $JSONFile,
+
+    [Parameter(Mandatory = $false)]
+    [string] $ExpertAnalysisFile = (Join-Path -Path $PSScriptRoot -ChildPath 'Expert-Analysis-v1.xlsx')
 )
+
+$ErrorActionPreference = 'Stop'
+
+trap {
+    $ex = $_.Exception
+    $horizontalLineLength = 40
+
+    $builder = New-Object -TypeName 'System.Text.StringBuilder'
+    [void] $builder.AppendLine('')
+    [void] $builder.AppendLine($ex.Message)
+    [void] $builder.AppendLine('')
+
+    [void] $builder.AppendLine('*' * $horizontalLineLength)
+    [void] $builder.AppendLine('Exception                : ' + $ex.GetType().FullName)
+    [void] $builder.AppendLine('FullyQualifiedErrorId    : ' + $_.FullyQualifiedErrorId)
+    [void] $builder.AppendLine('ErrorDetailsMessage      : ' + $_.ErrorDetails.Message)
+    [void] $builder.AppendLine('CategoryInfo             : ' + $_.CategoryInfo.ToString())
+    [void] $builder.AppendLine('StackTrace in PowerShell :')
+    [void] $builder.AppendLine($_.ScriptStackTrace)
+
+    [void] $builder.AppendLine('')
+    [void] $builder.AppendLine('---- Exception Details ----')
+    [void] $builder.AppendLine('Exception  : ' + $ex.GetType().FullName)
+    [void] $builder.AppendLine('Message    : ' + $ex.Message)
+    [void] $builder.AppendLine('Source     : ' + $ex.Source)
+    [void] $builder.AppendLine('HResult    : ' + $ex.HResult)
+    [void] $builder.AppendLine('StackTrace :')
+    [void] $builder.AppendLine($ex.StackTrace)
+
+    $depth = 1
+    while ($ex.InnerException) {
+        $ex = $ex.InnerException
+        [void] $builder.AppendLine('')
+        [void] $builder.AppendLine('---- Inner Exception Details {0} ----' -f $depth)
+        [void] $builder.AppendLine('Exception  : ' + $ex.GetType().FullName)
+        [void] $builder.AppendLine('Message    : ' + $ex.Message)
+        [void] $builder.AppendLine('Source     : ' + $ex.Source)
+        [void] $builder.AppendLine('HResult    : ' + $ex.HResult)
+        [void] $builder.AppendLine('StackTrace :')
+        [void] $builder.AppendLine($ex.StackTrace)
+        $depth++
+    }
+
+    [void] $builder.AppendLine('*' * $horizontalLineLength)
+    $builder.ToString() | Write-Host -ForegroundColor Yellow
+
+    break
+}
 
 # WARA In Scope Resource Types CSV File
 $RecommendationResourceTypesUri = 'https://azure.github.io/WARA-Build/objects/WARAinScopeResTypes.csv'
 
-# Check if the Expert-Analysis file exists
-$ExpertAnalysisPath = $PSScriptRoot + '\Expert-Analysis-v1.xlsx'
-
-if (!$ExpertAnalysisFile)
-	{
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + (' - Testing: ' + './Expert-Analysis-v1.xlsx'))
-		if ((Test-Path -Path ($ExpertAnalysisPath) -PathType Leaf) -eq $true) {
-			$ExpertAnalysisFile = $ExpertAnalysisPath
-		}
-	}
-else
-{
-	Throw "Error locating the Expert-Analysis file. Please provide a valid path to the Expert-Analysis file or reinstall the WARA Module."
-	Exit
+# Verify the ExpertAnalysisFile parameter
+$expertAnalysisFilePath = (Resolve-Path -LiteralPath $ExpertAnalysisFile).Path
+if (-not (Test-Path -PathType Leaf -LiteralPath $expertAnalysisFilePath)) {
+    throw 'The specified Expert Analysis file "{0}" is not a file. Please provide the path to the Expert Analysis file.' -f $expertAnalysisFilePath
 }
-
-if ((Test-Path -Path $ExpertAnalysisFile -PathType Leaf) -eq $true) {
-	$ExpertAnalysisFile = (Resolve-Path -Path $ExpertAnalysisFile).Path
-}
-else
-{
-	Throw "The Expert-Analysis file does not exist. Please provide a valid path to the Expert-Analysis file."
-	Exit
-}
-
 
 # Check if the JSON file exists
-if ((Test-Path -Path $JSONFile -PathType Leaf) -eq $true) {
-	$JSONFile = (Resolve-Path -Path $JSONFile).Path
-}
-else
-{
-	Throw "JSON file not found. Please provide a valid path to the JSON file."
-	Exit
+$jsonFilePath = (Resolve-Path -LiteralPath $JSONFile).Path
+if (-not (Test-Path -PathType Leaf -LiteralPath $jsonFilePath)) {
+    throw 'The specified JSON file "{0}" is not a file. Please provide the path to the JSON file.' -f $jsonFilePath
 }
 
 $TableStyle = 'Light19'
@@ -1158,7 +1188,7 @@ Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: R
 Test-Requirement
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Read-JSONFile')
-$JSONContent = Read-JSONFile -JSONFile $JSONFile
+$JSONContent = Read-JSONFile -JSONFile $jsonFilePath
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Importing Supported Types')
 # Importing the CSV files to get the supported types and the friendly names for the resource types in the Retirements
@@ -1169,7 +1199,7 @@ Write-Host 'Analysing Excel File Template'
 
 #$NewExpertAnalysisFile = Save-WARAExcelFile -ExpertAnalysisFile $ExpertAnalysisFile
 
-$ExpertAnalysisTemplate = Open-ExcelPackage -Path $ExpertAnalysisFile
+$ExpertAnalysisTemplate = Open-ExcelPackage -Path $expertAnalysisFilePath
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAImpactedResources')
 # Creating the Array with the Impacted Resources to be added to the Excel file

@@ -58,6 +58,52 @@ Param(
 
 $ErrorActionPreference = 'Stop'
 
+trap {
+    $ex = $_.Exception
+    $horizontalLineLength = 40
+
+    $builder = New-Object -TypeName 'System.Text.StringBuilder'
+    [void] $builder.AppendLine('')
+    [void] $builder.AppendLine($ex.Message)
+    [void] $builder.AppendLine('')
+
+    [void] $builder.AppendLine('*' * $horizontalLineLength)
+    [void] $builder.AppendLine('Exception                : ' + $ex.GetType().FullName)
+    [void] $builder.AppendLine('FullyQualifiedErrorId    : ' + $_.FullyQualifiedErrorId)
+    [void] $builder.AppendLine('ErrorDetailsMessage      : ' + $_.ErrorDetails.Message)
+    [void] $builder.AppendLine('CategoryInfo             : ' + $_.CategoryInfo.ToString())
+    [void] $builder.AppendLine('StackTrace in PowerShell :')
+    [void] $builder.AppendLine($_.ScriptStackTrace)
+
+    [void] $builder.AppendLine('')
+    [void] $builder.AppendLine('---- Exception Details ----')
+    [void] $builder.AppendLine('Exception  : ' + $ex.GetType().FullName)
+    [void] $builder.AppendLine('Message    : ' + $ex.Message)
+    [void] $builder.AppendLine('Source     : ' + $ex.Source)
+    [void] $builder.AppendLine('HResult    : ' + $ex.HResult)
+    [void] $builder.AppendLine('StackTrace :')
+    [void] $builder.AppendLine($ex.StackTrace)
+
+    $depth = 1
+    while ($ex.InnerException) {
+        $ex = $ex.InnerException
+        [void] $builder.AppendLine('')
+        [void] $builder.AppendLine('---- Inner Exception Details {0} ----' -f $depth)
+        [void] $builder.AppendLine('Exception  : ' + $ex.GetType().FullName)
+        [void] $builder.AppendLine('Message    : ' + $ex.Message)
+        [void] $builder.AppendLine('Source     : ' + $ex.Source)
+        [void] $builder.AppendLine('HResult    : ' + $ex.HResult)
+        [void] $builder.AppendLine('StackTrace :')
+        [void] $builder.AppendLine($ex.StackTrace)
+        $depth++
+    }
+
+    [void] $builder.AppendLine('*' * $horizontalLineLength)
+    $builder.ToString() | Write-Host -ForegroundColor Yellow
+
+    break
+}
+
 # Checking the operating system running this script.
 if (-not $IsWindows) {
     throw 'This script only supports Windows operating systems currently. Please try to run with Windows operating systems.'
