@@ -113,13 +113,9 @@ else
 
 
 # Check if the JSON file exists
-if ((Test-Path -Path $JSONFile -PathType Leaf) -eq $true) {
-	$JSONFile = (Resolve-Path -Path $JSONFile).Path
-}
-else
-{
-	Throw "JSON file not found. Please provide a valid path to the JSON file."
-	Exit
+$jsonFilePath = (Resolve-Path -LiteralPath $JSONFile).Path
+if (-not (Test-Path -PathType Leaf -LiteralPath $jsonFilePath)) {
+    throw 'The specified JSON file "{0}" is not a file. Please provide the path to the JSON file.' -f $jsonFilePath
 }
 
 $TableStyle = 'Light19'
@@ -1206,7 +1202,7 @@ Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: R
 Test-Requirement
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Read-JSONFile')
-$JSONContent = Read-JSONFile -JSONFile $JSONFile
+$JSONContent = Read-JSONFile -JSONFile $jsonFilePath
 
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Importing Supported Types')
 # Importing the CSV files to get the supported types and the friendly names for the resource types in the Retirements
