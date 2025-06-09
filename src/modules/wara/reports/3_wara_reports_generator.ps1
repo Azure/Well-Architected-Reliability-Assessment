@@ -1509,8 +1509,8 @@ Write-Host 'Assessment Findings File Saved as: ' -NoNewline
 Write-Host $NewAssessmentFindingsFile -ForegroundColor Cyan
 
 #if ($csvExport.IsPresent) {
-Write-Host 'CSV File Saved as: ' -NoNewline
-Write-Host $CSVFile -ForegroundColor Cyan
+    Write-Host 'CSV File Saved as: ' -NoNewline
+    Write-Host $CSVFile -ForegroundColor Cyan
 #}
 
 Write-Host "---------------------------------------------------------------------"
