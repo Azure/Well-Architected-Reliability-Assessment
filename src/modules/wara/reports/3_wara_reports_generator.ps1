@@ -1427,14 +1427,12 @@ try {
     #}
 }
 finally {
-    if (Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' }) {
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill PowerPoint process.')
-        Get-Process -Name "POWERPNT" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process -Force
-    }
-
-    if (Get-Process -Name "excel" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } ) {
-        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Trying to kill Excel process.')
-        Get-Process -Name "excel" -ErrorAction Ignore | Where-Object { $_.CommandLine -like '*/automation*' } | Stop-Process -Force
+    # Stop the PowerPoint and Excel automation processes if they are still running.
+    Get-Process -Name 'EXCEL','POWERPNT' -ErrorAction Ignore |
+    Where-Object { $_.CommandLine -like '*/automation*' } |
+    ForEach-Object {
+        Write-Debug ((Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + (' - Trying to kill process {0} (PID:{1}).' -f $_.Name, $_.Id))
+        $_ | Stop-Process -Force
     }
 }
 
