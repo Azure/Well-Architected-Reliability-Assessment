@@ -167,7 +167,7 @@ function New-AssessmentFindingsFile {
 
 function New-PPTFile {
     Param(
-        [string]$PPTTemplateFile  # NEED FIX: PPTTemplateFile parameter does not use in the function
+        [string] $CustomerName
     )
 
     $workingFolderPath = Get-Location
@@ -1333,7 +1333,7 @@ $ExcelRetirements = Get-ExcelRetirement -ExcelFile $CoreFile
 Write-Progress -Id 1 -activity "Processing Office Apps" -Status "45% Complete." -PercentComplete 45
 
 
-$PPTFinalFile = New-PPTFile -PPTTemplateFile $pptTemplateFilePath  # NEED FIX: PPTTemplateFile parameter does not use in the function
+$PPTFinalFile = New-PPTFile -CustomerName $CustomerName
 Write-Host "PowerPoint" -ForegroundColor DarkRed -NoNewline
 Write-Host " and " -NoNewline
 Write-Host "Excel" -ForegroundColor DarkGreen -NoNewline
