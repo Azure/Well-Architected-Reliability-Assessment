@@ -700,7 +700,7 @@ function Export-WARAImpactedResources {
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Impacted Resources to Excel')
 
     Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "A13:A1048576" -ValidationType List -ValueSet @('Pending', 'Reviewed') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (Pending or Reviewed)' -NoBlank $true
-    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "O13:O1048576" -ValidationType List -ValueSet @('High', 'Medium', 'Low') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (High, Medium, or Low)' -NoBlank $true
+    Add-ExcelDataValidationRule -Worksheet $excelPackage.$ImpactedResourcesSheetRef -Range "D13:D1048576" -ValidationType List -ValueSet @('High', 'Medium', 'Low') -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (High, Medium, or Low)' -NoBlank $true
     Add-ExcelDataValidationRule -Worksheet $ExcelPackage.$ImpactedResourcesSheetRef -Range "I13:I1048576" -ValidationType TextLength -Operator greaterThan -Value 1 -ShowErrorMessage -ErrorStyle stop -ErrorTitle 'Invalid Entry' -ErrorBody 'Please enter a valid value (more than 1 character)' -NoBlank $true
 
     $null = $ImpactedResourcesFormatted | ForEach-Object { [PSCustomObject]$_ } | Select-Object $ImpactedResourcesSheet |
