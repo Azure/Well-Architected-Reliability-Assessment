@@ -668,34 +668,34 @@ function Export-WARAImpactedResources {
     $Style += New-ExcelStyle -VerticalAlignment Center -Range A:Z
 
     $ImpactedResourcesSheet = New-Object System.Collections.Generic.List[System.Object]
-    $ImpactedResourcesSheet.Add('REQUIRED ACTIONS / REVIEW STATUS')
-    $ImpactedResourcesSheet.Add('ValidationCategory')
-    $ImpactedResourcesSheet.Add('Resource Type')
-    $ImpactedResourcesSheet.Add('Impact')
-    $ImpactedResourcesSheet.Add('Recommendation Title')
-    $ImpactedResourcesSheet.Add('subscriptionId')
-    $ImpactedResourcesSheet.Add('resourceGroup')
-    $ImpactedResourcesSheet.Add('location')
-    $ImpactedResourcesSheet.Add('name')
-    $ImpactedResourcesSheet.Add('id')
-    $ImpactedResourcesSheet.Add('custom1')
-    $ImpactedResourcesSheet.Add('custom2')
-    $ImpactedResourcesSheet.Add('custom3')
-    $ImpactedResourcesSheet.Add('custom4')
-    $ImpactedResourcesSheet.Add('custom5')
-    $ImpactedResourcesSheet.Add('Recommendation Control')
-    $ImpactedResourcesSheet.Add('Potential Benefit')
-    $ImpactedResourcesSheet.Add('Learn More Link')
-    $ImpactedResourcesSheet.Add('Long Description')
-    $ImpactedResourcesSheet.Add('Guid')
-    $ImpactedResourcesSheet.Add('Category')
-    $ImpactedResourcesSheet.Add('Source')
-    $ImpactedResourcesSheet.Add('WAF Pillar')
-    $ImpactedResourcesSheet.Add('Platform Issue TrackingId')
-    $ImpactedResourcesSheet.Add('Retirement TrackingId')
-    $ImpactedResourcesSheet.Add('Support Request Number')
-    $ImpactedResourcesSheet.Add('Notes')
-    $ImpactedResourcesSheet.Add('checkName')
+    $ImpactedResourcesSheet.Add('REQUIRED ACTIONS / REVIEW STATUS') #Column A
+    $ImpactedResourcesSheet.Add('ValidationCategory') #Column B
+    $ImpactedResourcesSheet.Add('Resource Type') #Column C
+    $ImpactedResourcesSheet.Add('Impact') #Column D
+    $ImpactedResourcesSheet.Add('Recommendation Title') #Column E
+    $ImpactedResourcesSheet.Add('subscriptionId') #Column F
+    $ImpactedResourcesSheet.Add('resourceGroup') #Column G
+    $ImpactedResourcesSheet.Add('location') #Column H
+    $ImpactedResourcesSheet.Add('name') #Column I
+    $ImpactedResourcesSheet.Add('id') #Column J
+    $ImpactedResourcesSheet.Add('custom1') #Column K
+    $ImpactedResourcesSheet.Add('custom2') #Column L
+    $ImpactedResourcesSheet.Add('custom3') #Column M
+    $ImpactedResourcesSheet.Add('custom4') #Column N
+    $ImpactedResourcesSheet.Add('custom5') #Column O
+    $ImpactedResourcesSheet.Add('Recommendation Control') #Column P
+    $ImpactedResourcesSheet.Add('Potential Benefit') #Column Q
+    $ImpactedResourcesSheet.Add('Learn More Link') #Column R
+    $ImpactedResourcesSheet.Add('Long Description') #Column S
+    $ImpactedResourcesSheet.Add('Guid') #Column T
+    $ImpactedResourcesSheet.Add('Category') #Column U
+    $ImpactedResourcesSheet.Add('Source') #Column V
+    $ImpactedResourcesSheet.Add('WAF Pillar') #Column W
+    $ImpactedResourcesSheet.Add('Platform Issue TrackingId') #Column X
+    $ImpactedResourcesSheet.Add('Retirement TrackingId') #Column Y
+    $ImpactedResourcesSheet.Add('Support Request Number') #Column Z
+    $ImpactedResourcesSheet.Add('Notes') #Column AA
+    $ImpactedResourcesSheet.Add('checkName') #Column AB
 
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Exporting Impacted Resources to Excel')
 
