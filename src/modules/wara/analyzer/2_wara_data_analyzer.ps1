@@ -729,7 +729,7 @@ function Initialize-WARAAnalysisPlanning {
 
     $ReviewedFormula = @"
 =IF(OR(AND(TableTypes8[[#This Row],[Category]]="Support Requests", COUNTIFS($SupportRequestsSheetRef!A:A, "<>Reviewed")=0),AND(TableTypes8[[#This Row],[Category]]="Platform Issues", COUNTIFS($PlatformIssuesSheetRef!A:A,
-"<>Reviewed")=0),AND(TableTypes8[[#This Row],[Category]]="Impacted Resources", COUNTIFS($ImpactedResourcesSheetRef!A:A, "<>Reviewed", $ImpactedResourcesSheetRef!C:C, TableTypes8[[#This Row],[Resource Type]], $ImpactedResourcesSheetRef!O:O,
+"<>Reviewed")=0),AND(TableTypes8[[#This Row],[Category]]="Impacted Resources", COUNTIFS($ImpactedResourcesSheetRef!A:A, "<>Reviewed", $ImpactedResourcesSheetRef!C:C, TableTypes8[[#This Row],[Resource Type]], $ImpactedResourcesSheetRef!D:D,
 "<>Low")=0)), "Reviewed", "Pending")
 "@
 
