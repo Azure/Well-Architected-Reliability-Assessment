@@ -221,12 +221,25 @@ function Read-JSONFile {
     $JSONResources = Get-Item -Path $JSONFile
     $JSONResources = $JSONResources.FullName
     $JSONContent = Get-Content -Path $JSONResources | ConvertFrom-Json
+    if ($JSONContent.ReviewId)
+        {
+            $scriptDetails = [PSCustomObject]@{
+                Source  = 'CxO'
+            }
+            $JSONContent2 = @{
+                'ImpactedResources' = $JSONContent
+                'ScriptDetails'   = $scriptDetails
+            } 
+        }
+    else {
+        $JSONContent2 = $JSONContent
+    }
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - JSON File Created with version: ' + $JSONContent.ScriptDetails.Version)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Raw ImpactedResources found: ' + $JSONContent.ImpactedResources.Count)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Raw PlatformIssues found: ' + $JSONContent.Outages.Count)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Raw SupportTickets found: ' + $JSONContent.SupportTickets.Count)
     Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Raw Workload Inventory found: ' + $JSONContent.InScopeResources.Count)
-    return $JSONContent
+    return $JSONContent2
 }
 
 function Save-WARAExcelFile {
@@ -653,6 +666,63 @@ function Initialize-WARAImpactedResources {
     return $ImpactedResourcesFormatted
 }
 
+function Initialize-WARAImpactedResourcesCxO {
+
+    param (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        $ImpactedResources
+    )
+
+    $ImpactedResourcesFormatted = foreach ($ImpactedResource in $ImpactedResources)
+        {
+            if ($ImpactedResource.ImpactedResourceIds)
+                {
+                    foreach ($Resource in $ImpactedResource.ImpactedResourceIds)
+                        {
+                            $ResourceSplitted = $Resource -split '/'
+                            $SubscriptionId = $ResourceSplitted[2]
+                            $ResourceType = if(![string]::IsNullOrEmpty($ResourceSplitted[6])){($ResourceSplitted[6]+ '/' + $ResourceSplitted[7])}else{$null}
+                            $ResourceGroup = if(![string]::IsNullOrEmpty($ResourceSplitted[4])){$ResourceSplitted[4]}else{$null}
+                            $ResourceName = if(![string]::IsNullOrEmpty($ResourceSplitted[8])){$ResourceSplitted[8]}else{$null}
+                            [PSCustomObject]@{
+                                'REQUIRED ACTIONS / REVIEW STATUS' = 'Reviewed'
+                                'ValidationCategory'               = 'Resource'
+                                'Resource Type'                    = $ResourceType
+                                'subscriptionId'                   = $SubscriptionId
+                                'resourceGroup'                    = $ResourceGroup
+                                'location'                         = $null
+                                'name'                             = $ResourceName
+                                'id'                               = $Resource
+                                'custom1'                          = $null
+                                'custom2'                          = $null
+                                'custom3'                          = $null
+                                'custom4'                          = $null
+                                'custom5'                          = $null
+                                'Recommendation Title'             = $ImpactedResource.Description
+                                'Impact'                           = $ImpactedResource.RecommendationImpact
+                                'Recommendation Control'           = $ImpactedResource.RecommendationControl
+                                'Potential Benefit'                = $null
+                                'Learn More Link'                  = $ImpactedResource.LearnMoreLinkUrl
+                                'Long Description'                 = $ImpactedResource.LongDescription
+                                'Guid'                             = $ImpactedResource.ReviewId
+                                'Category'                         = $null
+                                'Source'                           = 'APRL'
+                                'WAF Pillar'                       = $null
+                                'Platform Issue TrackingId'        = $null
+                                'Retirement TrackingId'            = $null
+                                'Support Request Number'           = $null
+                                'Notes'                            = $null
+                                'checkName'                        = $null
+                            }
+                        }
+                }
+        }
+
+    # Returns the array with all the recommendations already formatted to be exported to Excel
+    return $ImpactedResourcesFormatted
+}
+
 function Export-WARAImpactedResources {
     param ($ImpactedResourcesFormatted, $ExcelPackage)
 
@@ -738,6 +808,61 @@ function Initialize-WARAAnalysisPlanning {
         $RootType = ""
         $RootType = $RootTypes | Where-Object { $_.ResourceType -eq $ResourceType.Name }
         $APRLOrAdv = if ($RootType.WARAinScope -eq 'yes' -and $RootType.InAprlAndOrAdvisor -eq 'yes') { 'Yes' } else { 'No' }
+
+        $ResTypeObj = [AnalysisPlanningObj]::new()
+        $ResTypeObj.Category = 'Impacted Resources'
+        $ResTypeObj.ResourceType = $ResourceType.Name
+        $ResTypeObj.NumberOfResources = $InventoryFormula
+        $ResTypeObj.ImpactedResources = $ImpactedResourcesFormula
+        $ResTypeObj.HasRecommendationsInAPRLAdvisor = $APRLOrAdv
+        $ResTypeObj.AssessmentStatus = $ReviewedFormula
+
+        $tmp += $ResTypeObj
+    }
+
+    $SupObj = [AnalysisPlanningObj]::new()
+    $SupObj.Category = 'Support Requests'
+    $tmp += $SupObj
+
+    $PlatObj = [AnalysisPlanningObj]::new()
+    $PlatObj.Category = 'Platform Issues'
+    $tmp += $PlatObj
+
+    $AnalysisPlanningFormatted = foreach ($line in $tmp) {
+        [PSCustomObject]@{
+            'Category'                                  = $line.Category
+            'Resource Type'                             = $line.ResourceType
+            'Number of Resources'                       = $line.NumberOfResources
+            'Impacted Resources'                        = $line.ImpactedResources
+            'Has Recommendations_x000a_in APRL/Advisor' = $line.HasRecommendationsInAPRLAdvisor
+            'Assessment Status'                         = $line.AssessmentStatus
+        }
+    }
+
+    return $AnalysisPlanningFormatted
+}
+
+function Initialize-WARAAnalysisPlanningCxO {
+    param (
+        $InScopeResources
+    )
+
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Grouping InScope Resources by Resource Type')
+    $ResourceTypes = $InScopeResources | Group-Object -Property 'Resource Type'
+
+    $ImpactedResourcesFormula = @"
+=IF(COUNTIF($ImpactedResourcesSheetRef!C:C, TableTypes8[[#This Row],[Resource Type]])=0, 0, COUNTA(_xlfn.UNIQUE(_xlfn._xlws.FILTER($ImpactedResourcesSheetRef!H:H, ($ImpactedResourcesSheetRef!C:C=TableTypes8[[#This Row],[Resource Type]]) * ($ImpactedResourcesSheetRef!H:H<>"Get ResourceID from Azure Portal")))))
+"@
+
+    $ReviewedFormula = @"
+=IF(OR(AND(TableTypes8[[#This Row],[Category]]="Support Requests", COUNTIFS($SupportRequestsSheetRef!A:A, "<>Reviewed")=0),AND(TableTypes8[[#This Row],[Category]]="Platform Issues", COUNTIFS($PlatformIssuesSheetRef!A:A,
+"<>Reviewed")=0),AND(TableTypes8[[#This Row],[Category]]="Impacted Resources", COUNTIFS($ImpactedResourcesSheetRef!A:A, "<>Reviewed", $ImpactedResourcesSheetRef!C:C, TableTypes8[[#This Row],[Resource Type]], $ImpactedResourcesSheetRef!O:O,
+"<>Low")=0)), "Reviewed", "Pending")
+"@
+
+    $tmp = @()
+    foreach ($ResourceType in $ResourceTypes) {
+        $APRLOrAdv = 'yes'
 
         $ResTypeObj = [AnalysisPlanningObj]::new()
         $ResTypeObj.Category = 'Impacted Resources'
@@ -1126,96 +1251,153 @@ Test-Requirement
 Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Read-JSONFile')
 $JSONContent = Read-JSONFile -JSONFile $jsonFilePath
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Importing Supported Types')
-# Importing the CSV files to get the supported types and the friendly names for the resource types in the Retirements
-$RootTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv
-$RootTypes = $RootTypes | Where-Object { $_.InAprlAndOrAdvisor -eq 'yes' }
+if($JsonContent.ScriptDetails.Source -eq 'CxO') {
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - CxO Source detected')
+    
+    Write-Host 'Analysing Excel File Template'
 
-Write-Host 'Analysing Excel File Template'
+    $ExpertAnalysisTemplate = Open-ExcelPackage -Path $expertAnalysisFilePath
 
-#$NewExpertAnalysisFile = Save-WARAExcelFile -ExpertAnalysisFile $ExpertAnalysisFile
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAImpactedResources')
+    # Creating the Array with the Impacted Resources to be added to the Excel file
+    $ImpactedResources = Initialize-WARAImpactedResourcesCxO -ImpactedResources $JSONContent.ImpactedResources
 
-$ExpertAnalysisTemplate = Open-ExcelPackage -Path $expertAnalysisFilePath
+    Write-Host $ImpactedResourcesSheetRef -NoNewline -ForegroundColor Green
+    Write-Host ': ' -NoNewline
+    $ImpactResCount = $ImpactedResources | Measure-Object
+    Write-Host ([string]$ImpactResCount.count) -NoNewline -ForegroundColor Cyan
+    Write-Host ' (Lines to be added to the new Excel file)'
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAImpactedResources')
-# Creating the Array with the Impacted Resources to be added to the Excel file
-$ImpactedResources = Initialize-WARAImpactedResources -ImpactedResources $JSONContent.ImpactedResources -Advisory $JSONContent.Advisory -Retirements $JSONContent.Retirements -ScriptDetails $JSONContent.ScriptDetails -RecommendationDataUri $RecommendationDataUri
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WARAImpactedResources')
+    # Adding the Impacted Resources to the Excel file
+    Export-WARAImpactedResources -ImpactedResourcesFormatted $ImpactedResources -ExcelPackage $ExpertAnalysisTemplate
 
-Write-Host $ImpactedResourcesSheetRef -NoNewline -ForegroundColor Green
-Write-Host ': ' -NoNewline
-$ImpactResCount = $ImpactedResources | Measure-Object
-Write-Host ([string]$ImpactResCount.count) -NoNewline -ForegroundColor Cyan
-Write-Host ' (Lines to be added to the new Excel file)'
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAAnalysisPlanning')
+    # Creating the Array with the Analysis Planning to be added to the Excel file
+    $AnalysisPlanning = Initialize-WARAAnalysisPlanningCxO -InScopeResources $ImpactedResources
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WARAImpactedResources')
-# Adding the Impacted Resources to the Excel file
-Export-WARAImpactedResources -ImpactedResourcesFormatted $ImpactedResources -ExcelPackage $ExpertAnalysisTemplate
+    Write-Host $AnalysisPlanningSheetRef -NoNewline -ForegroundColor Green
+    Write-Host ': ' -NoNewline
+    $AnalysisPlanningCount = $AnalysisPlanning | Measure-Object
+    Write-Host ([string]$AnalysisPlanningCount.count) -NoNewline -ForegroundColor Cyan
+    Write-Host ' (Lines to be added to the new Excel file)'
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAPlatformIssues')
-# Creating the Array with the Platform Issues to be added to the Excel file
-$PlatformIssues = Initialize-WARAPlatformIssues -PlatformIssues $JSONContent.Outages
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraAnalysisPlanning')
+    # Adding the Analysis Planning to the Excel file
+    Export-WARAAnalysisPlanning -AnalysisPlanningFormatted $AnalysisPlanning -ExcelPackage $ExpertAnalysisTemplate
 
-Write-Host $PlatformIssuesSheetRef -NoNewline -ForegroundColor Green
-Write-Host ': ' -NoNewline
-$PlatissuesCount = $PlatformIssues | Measure-Object
-Write-Host ([string]$PlatissuesCount.Count) -NoNewline -ForegroundColor Cyan
-Write-Host ' (Lines to be added to the new Excel file)'
+    # Setting the Excel file with the extra configurations like the conditional formatting
+    Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Set-ExpertAnalysisFile')
+    #Set-ExpertAnalysisFile -ExcelPackage $ExpertAnalysisTemplate
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraPlatformIssues')
-# Adding the Platform Issues to the Excel file
-Export-WARAPlatformIssues -PlatformIssuesFormatted $PlatformIssues -excelPackage $ExpertAnalysisTemplate
+    $NewExpertAnalysisFile = Save-WARAExcelFile -ExcelPackage $ExpertAnalysisTemplate
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARASupportTicket')
-# Creating the Array with the Support Tickets to be added to the Excel file
-$SupportTickets = Initialize-WARASupportTicket -SupportTickets $JSONContent.SupportTickets
+    #Remove-Worksheet -FullName $NewExpertAnalysisFile -WorksheetName $WorkloadInventorySheetRef,$PlatformIssuesSheetRef,$SupportRequestsSheetRef
 
-Write-Host $SupportRequestsSheetRef -NoNewline -ForegroundColor Green
-Write-Host ': ' -NoNewline
-$SuppTicketsCount = $SupportTickets | Measure-Object
-Write-Host ([string]$SuppTicketsCount.count) -NoNewline -ForegroundColor Cyan
-Write-Host ' (Lines to be added to the new Excel file)'
+    $ExcelOpenedFile = Open-ExcelPackage -Path $NewExpertAnalysisFile
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraSupportTicket')
-# Adding the Support Tickets to the Excel file
-Export-WARASupportTicket -SupportTicketsFormatted $SupportTickets -ExcelPackage $ExpertAnalysisTemplate
+    $ExcelOpenedFile.Workbook.Worksheets[3].Hidden = [OfficeOpenXml.eWorkSheetHidden]::Hidden
+    $ExcelOpenedFile.Workbook.Worksheets[6].Hidden = [OfficeOpenXml.eWorkSheetHidden]::Hidden
+    $ExcelOpenedFile.Workbook.Worksheets[7].Hidden = [OfficeOpenXml.eWorkSheetHidden]::Hidden
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAAnalysisPlanning')
-# Creating the Array with the Analysis Planning to be added to the Excel file
-$AnalysisPlanning = Initialize-WARAAnalysisPlanning -InScopeResources $JSONContent.impactedResources
+    Close-ExcelPackage -ExcelPackage $ExcelOpenedFile
 
-Write-Host $AnalysisPlanningSheetRef -NoNewline -ForegroundColor Green
-Write-Host ': ' -NoNewline
-$AnalysisPlanningCount = $AnalysisPlanning | Measure-Object
-Write-Host ([string]$AnalysisPlanningCount.count) -NoNewline -ForegroundColor Cyan
-Write-Host ' (Lines to be added to the new Excel file)'
+}
+else
+    {
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Importing Supported Types')
+        # Importing the CSV files to get the supported types and the friendly names for the resource types in the Retirements
+        $RootTypes = Invoke-RestMethod $RecommendationResourceTypesUri | ConvertFrom-Csv
+        $RootTypes = $RootTypes | Where-Object { $_.InAprlAndOrAdvisor -eq 'yes' }
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraAnalysisPlanning')
-# Adding the Analysis Planning to the Excel file
-Export-WARAAnalysisPlanning -AnalysisPlanningFormatted $AnalysisPlanning -ExcelPackage $ExpertAnalysisTemplate
+        Write-Host 'Analysing Excel File Template'
 
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAWorkloadInventory')
-# Creating the Array with the Workload Inventory to be added to the Excel file
-$WorkloadInventory = Initialize-WARAWorkloadInventory -InScopeResources $JSONContent.resourceInventory -TenantID $JSONContent.ScriptDetails.TenantId
+        #$NewExpertAnalysisFile = Save-WARAExcelFile -ExpertAnalysisFile $ExpertAnalysisFile
 
-Write-Host $WorkloadInventorySheetRef -NoNewline -ForegroundColor Green
-Write-Host ': ' -NoNewline
-$WorkloadInvCount = $WorkloadInventory | Measure-Object
-Write-Host ([string]$WorkloadInvCount.count) -NoNewline -ForegroundColor Cyan
-Write-Host ' (Lines to be added to the new Excel file)'
+        $ExpertAnalysisTemplate = Open-ExcelPackage -Path $expertAnalysisFilePath
 
-# Adding the Workload Inventory to the Excel file
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraWorkloadInventory')
-Export-WARAWorkloadInventory -WorkloadInventoryFormatted $WorkloadInventory -excelPackage $ExpertAnalysisTemplate
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAImpactedResources')
+        # Creating the Array with the Impacted Resources to be added to the Excel file
+        $ImpactedResources = Initialize-WARAImpactedResources -ImpactedResources $JSONContent.ImpactedResources -Advisory $JSONContent.Advisory -Retirements $JSONContent.Retirements -ScriptDetails $JSONContent.ScriptDetails -RecommendationDataUri $RecommendationDataUri
 
-Write-Host 'Overall Excel File' -NoNewline -ForegroundColor Green
-Write-Host ': ' -NoNewline
-Write-Host 'Extra Excel Customization' -ForegroundColor Cyan
+        Write-Host $ImpactedResourcesSheetRef -NoNewline -ForegroundColor Green
+        Write-Host ': ' -NoNewline
+        $ImpactResCount = $ImpactedResources | Measure-Object
+        Write-Host ([string]$ImpactResCount.count) -NoNewline -ForegroundColor Cyan
+        Write-Host ' (Lines to be added to the new Excel file)'
 
-# Setting the Excel file with the extra configurations like the conditional formatting
-Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Set-ExpertAnalysisFile')
-#Set-ExpertAnalysisFile -ExcelPackage $ExpertAnalysisTemplate
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WARAImpactedResources')
+        # Adding the Impacted Resources to the Excel file
+        Export-WARAImpactedResources -ImpactedResourcesFormatted $ImpactedResources -ExcelPackage $ExpertAnalysisTemplate
 
-$NewExpertAnalysisFile = Save-WARAExcelFile -ExcelPackage $ExpertAnalysisTemplate
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAPlatformIssues')
+        # Creating the Array with the Platform Issues to be added to the Excel file
+        $PlatformIssues = Initialize-WARAPlatformIssues -PlatformIssues $JSONContent.Outages
+
+        Write-Host $PlatformIssuesSheetRef -NoNewline -ForegroundColor Green
+        Write-Host ': ' -NoNewline
+        $PlatissuesCount = $PlatformIssues | Measure-Object
+        Write-Host ([string]$PlatissuesCount.Count) -NoNewline -ForegroundColor Cyan
+        Write-Host ' (Lines to be added to the new Excel file)'
+
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraPlatformIssues')
+        # Adding the Platform Issues to the Excel file
+        Export-WARAPlatformIssues -PlatformIssuesFormatted $PlatformIssues -excelPackage $ExpertAnalysisTemplate
+
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARASupportTicket')
+        # Creating the Array with the Support Tickets to be added to the Excel file
+        $SupportTickets = Initialize-WARASupportTicket -SupportTickets $JSONContent.SupportTickets
+
+        Write-Host $SupportRequestsSheetRef -NoNewline -ForegroundColor Green
+        Write-Host ': ' -NoNewline
+        $SuppTicketsCount = $SupportTickets | Measure-Object
+        Write-Host ([string]$SuppTicketsCount.count) -NoNewline -ForegroundColor Cyan
+        Write-Host ' (Lines to be added to the new Excel file)'
+
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraSupportTicket')
+        # Adding the Support Tickets to the Excel file
+        Export-WARASupportTicket -SupportTicketsFormatted $SupportTickets -ExcelPackage $ExpertAnalysisTemplate
+
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAAnalysisPlanning')
+        # Creating the Array with the Analysis Planning to be added to the Excel file
+        $AnalysisPlanning = Initialize-WARAAnalysisPlanning -InScopeResources $JSONContent.impactedResources
+
+        Write-Host $AnalysisPlanningSheetRef -NoNewline -ForegroundColor Green
+        Write-Host ': ' -NoNewline
+        $AnalysisPlanningCount = $AnalysisPlanning | Measure-Object
+        Write-Host ([string]$AnalysisPlanningCount.count) -NoNewline -ForegroundColor Cyan
+        Write-Host ' (Lines to be added to the new Excel file)'
+
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraAnalysisPlanning')
+        # Adding the Analysis Planning to the Excel file
+        Export-WARAAnalysisPlanning -AnalysisPlanningFormatted $AnalysisPlanning -ExcelPackage $ExpertAnalysisTemplate
+
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Initialize-WARAWorkloadInventory')
+        # Creating the Array with the Workload Inventory to be added to the Excel file
+        $WorkloadInventory = Initialize-WARAWorkloadInventory -InScopeResources $JSONContent.resourceInventory -TenantID $JSONContent.ScriptDetails.TenantId
+
+        Write-Host $WorkloadInventorySheetRef -NoNewline -ForegroundColor Green
+        Write-Host ': ' -NoNewline
+        $WorkloadInvCount = $WorkloadInventory | Measure-Object
+        Write-Host ([string]$WorkloadInvCount.count) -NoNewline -ForegroundColor Cyan
+        Write-Host ' (Lines to be added to the new Excel file)'
+
+        # Adding the Workload Inventory to the Excel file
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Export-WaraWorkloadInventory')
+        Export-WARAWorkloadInventory -WorkloadInventoryFormatted $WorkloadInventory -excelPackage $ExpertAnalysisTemplate
+
+        Write-Host 'Overall Excel File' -NoNewline -ForegroundColor Green
+        Write-Host ': ' -NoNewline
+        Write-Host 'Extra Excel Customization' -ForegroundColor Cyan
+
+        # Setting the Excel file with the extra configurations like the conditional formatting
+        Write-Debug ((get-date -Format 'yyyy-MM-dd HH:mm:ss') + ' - Invoking Function: Set-ExpertAnalysisFile')
+        #Set-ExpertAnalysisFile -ExcelPackage $ExpertAnalysisTemplate
+
+        $NewExpertAnalysisFile = Save-WARAExcelFile -ExcelPackage $ExpertAnalysisTemplate
+    }
+
+
 
 $Runtime.Stop()
 $TotalTime = $Runtime.Elapsed.toString('hh\:mm\:ss')
